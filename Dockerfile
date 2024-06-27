@@ -13,6 +13,7 @@ RUN apt install -y postgresql
 RUN apt install -y redis
 RUN apt install -y sudo
 RUN apt install -y git
+RUN apt install -y vim
 
 RUN pip3 install fastapi==0.111.0
 RUN pip3 install uvicorn==0.30.1

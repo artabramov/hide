@@ -1,0 +1,13 @@
+{
+    "window.zoomLevel": 1,
+    "editor.rulers": [80],
+    "editor.minimap.scale": 2,
+    "python.languageServer": "Pylance",
+    "python.testing.pytestEnabled": false,
+    "python.testing.unittestEnabled": true,
+    "python.testing.unittestArgs": [
+        "-v",
+        "-s", "./tests",
+        "-p", "*_tests.py"
+    ]
+}
