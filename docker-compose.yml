@@ -1,0 +1,82 @@
+version: "3.2"
+services:
+
+  kibana:
+    image: docker.elastic.co/kibana/kibana:7.6.2
+    container_name: kibana
+    depends_on:
+      - elasticsearch
+    restart: unless-stopped
+    ports:
+      - 5601:5601
+    links:
+      - elasticsearch
+    deploy:
+      resources:
+        limits:
+          memory: 1G
+
+  elasticsearch:
+    image: docker.elastic.co/elasticsearch/elasticsearch:7.6.2
+    container_name: elasticsearch
+    depends_on:
+      - filebeat
+    restart: unless-stopped
+    environment:
+      - discovery.type=single-node
+    ports:
+      - 9200:9200
+    volumes:
+      - elasticsearch_data:/usr/share/elasticsearch/data
+    deploy:
+      resources:
+        limits:
+          memory: 1G
+
+  filebeat:
+    image: docker.elastic.co/beats/filebeat:7.6.2
+    container_name: filebeat
+    depends_on:
+      - hide-server
+    restart: unless-stopped
+    user: root
+    volumes:
+      - ./filebeat.yml:/usr/share/filebeat/filebeat.yml:ro
+      - postgres_log:/var/log/postgresql:ro
+      - redis_log:/var/log/redis:ro
+      - app_log:/var/log/app:ro
+    command: ["filebeat", "-e", "-strict.perms=false"]
+    deploy:
+      resources:
+        limits:
+          memory: 1G
+
+  hide-server:
+    image: hide-server
+    container_name: hide-server
+    restart: always
+    environment:
+      UVICORN_HOST: ${UVICORN_HOST}
+      UVICORN_PORT: ${UVICORN_PORT}
+      UVICORN_WORKERS: ${UVICORN_WORKERS}
+    volumes:
+      - postgres_data:/var/lib/postgresql/14/main
+      - postgres_log:/var/log/postgresql
+      - redis_log:/var/log/redis
+      - app_log:/var/log/app
+      - app_data:/hide/data
+      - app_sync:/hide/sync
+    ports:
+      - "80:80"
+      - "8080:8080"
+      - "5432:5432"
+      - "6379:6379"
+
+volumes:
+  elasticsearch_data:
+  postgres_data:
+  postgres_log:
+  redis_log:
+  app_log:
+  app_data:
+  app_sync:
