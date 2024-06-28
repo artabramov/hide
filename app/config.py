@@ -17,7 +17,7 @@ class Config:
     POSTGRES_HOST: str
     POSTGRES_PORT: int
     POSTGRES_DATABASE: str
-    POSTGRES_USER: str
+    POSTGRES_USERNAME: str
     POSTGRES_PASSWORD: str
     POSTGRES_POOL_SIZE: int
     POSTGRES_POOL_OVERFLOW: int
@@ -26,6 +26,13 @@ class Config:
     REDIS_PORT: int
     REDIS_DECODE_RESPONSES: bool
     REDIS_EXPIRE: int
+
+    APP_TITLE: str
+    APP_VERSION: str
+    APP_PREFIX: str
+    APP_HASH_SALT: str
+    APP_FERNET_KEY: str
+    APP_JTI_LENGTH: int
 
 
 @lru_cache(maxsize=None)
