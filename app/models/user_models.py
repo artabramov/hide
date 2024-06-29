@@ -7,6 +7,7 @@ from sqlalchemy.ext.hybrid import hybrid_property
 from app.mixins.jti_mixin import JTIMixin
 from app.mixins.mfa_mixin import MFAMixin
 from app.mixins.fernet_mixin import FernetMixin
+from app.helpers.hash_helper import HashHelper
 from sqlalchemy.orm import relationship
 from app.config import get_config
 
@@ -46,14 +47,14 @@ class User(Base, MFAMixin, JTIMixin, FernetMixin):
 
     # user_favorite = relationship("Favorite", back_populates="favorite_user", lazy="noload")
 
-    def __init__(self, user_role: UserRole, user_login: str, password_hash: str,
+    def __init__(self, user_role: UserRole, user_login: str, user_password: str,
                  first_name: str, last_name: str, is_active: bool = False,
                  user_summary: str = ""):
         self.suspended_date = 0
         self.user_role = user_role
         self.is_active = is_active
         self.user_login = user_login
-        self.password_hash = password_hash
+        self.password_hash = HashHelper.hash(user_password)
         self.password_attempts = 0
         self.password_accepted = False
         self.first_name = first_name

@@ -1,20 +1,20 @@
 __pycache__/
 *.pyc
 
-files/userpics/*
-!files/userpics/.gitkeep
+data/userpics/*
+!data/userpics/.gitkeep
 
-files/documents/*
-!files/documents/.gitkeep
+data/documents/*
+!data/documents/.gitkeep
 
-files/thumbnails/*
-!files/thumbnails/.gitkeep
+data/thumbnails/*
+!data/thumbnails/.gitkeep
 
-dumps/collections/*
-!dumps/collections/.gitkeep
+sync/collections/*
+!sync/collections/.gitkeep
 
-dumps/documents/*
-!dumps/documents/.gitkeep
+sync/documents/*
+!sync/documents/.gitkeep
 
-dumps/users/*
-!dumps/users/.gitkeep
+sync/users/*
+!sync/users/.gitkeep

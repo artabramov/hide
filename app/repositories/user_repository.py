@@ -5,6 +5,7 @@
 # from app.managers.cache_manager import CacheManager
 # from app.managers.file_manager import FileManager
 from app.models.user_models import User
+from sqlalchemy.ext.serializer import dumps, loads
 # from app.helpers.jwt_helper import JWTHelper
 # from app.helpers.mfa_helper import MFAHelper
 # from app.helpers.hash_helper import HashHelper
@@ -24,11 +25,14 @@ class UserRepository(BasicRepository):
 
     async def insert(self, user: User) -> int:
         # user = await self.execute_hook(Hook.BEFORE_USER_REGISTER, user)
-        await self.entity_manager.insert(user)
-        await self.dump_manager.write(user)
+        await self.entity_manager.insert(user, commit=True)
         # await self.cache_manager.set(user)
         # await self.file_manager.json_save(user)
         # user = await self.execute_hook(Hook.AFTER_USER_REGISTER, user)
+
+        await self.dump(user)
+        # await self.file_manager.file_write(dump_path, dump_data)
+
         return user
 
     # async def login(self, user_login: str, user_pass: str):

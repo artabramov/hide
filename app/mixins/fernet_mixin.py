@@ -8,7 +8,7 @@ cipher_suite = Fernet(config.APP_FERNET_KEY)
 class FernetMixin:
 
     @staticmethod
-    def create_key() -> bytes:
+    def generate_ferntet_key() -> bytes:
         """Generate fernet key."""
         return Fernet.generate_key()
 

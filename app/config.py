@@ -33,6 +33,8 @@ class Config:
     APP_HASH_SALT: str
     APP_FERNET_KEY: str
     APP_JTI_LENGTH: int
+    APP_SYNC_BASE_PATH: str
+    APP_SYNC_FILE_EXT: str
 
 
 @lru_cache(maxsize=None)
