@@ -37,6 +37,16 @@ class Config:
     SYNC_BASE_PATH: str
     SYNC_FILE_EXT: str
 
+    MFA_REF_APP: str
+    MFA_BASE_URL: str
+    MFA_MIMETYPE: str
+    MFA_VERSION: int
+    MFA_BOX_SIZE: int
+    MFA_BORDER: int
+    MFA_FIT: bool
+    MFA_COLOR: str
+    MFA_BACKGROUND: str
+
     APP_TITLE: str
     APP_VERSION: str
     APP_PREFIX: str

@@ -125,20 +125,17 @@ class UserRepository(BasicRepository):
     #                                       "type": "value_invalid", "msg": E.USER_TOTP_INVALID})
 
 
-    # async def select(self, user_id: int):
-    #     """Select user."""
-    #     cache_manager = CacheManager(self.cache)
-    #     user = await cache_manager.get(User, user_id)
+    async def select(self, user_id: int) -> User:
+        """Select user."""
+        user = await self.cache_manager.get(User, user_id)
 
-    #     if not user:
-    #         entity_manager = EntityManager(self.session)
-    #         user = await entity_manager.select(User, user_id)
+        if not user:
+            user = await self.entity_manager.select(User, user_id)
 
-    #     if not user:
-    #         raise HTTPException(status_code=404)
+        if user:
+            await self.cache_manager.set(user)
 
-    #     await cache_manager.set(user)
-    #     return user
+        return user
 
     # async def update(self, user: User, first_name: str, last_name: str, user_summary: str = None):
     #     """Update user."""

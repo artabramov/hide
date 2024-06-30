@@ -71,6 +71,11 @@ class User(Basic, MFAMixin, JTIMixin, FernetMixin):
         self.mfa_secret_encrypted = self.encrypt(value)
 
     @property
+    def mfa_url(self):
+        return "http://localhost:8080/api/v1/user/%s/mfa/%s" % (
+            self.id, self.mfa_secret)
+
+    @property
     def jti(self) -> str:
         return self.decrypt(self.jti_encrypted)
 

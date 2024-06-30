@@ -22,6 +22,8 @@ RUN pip3 install asyncpg==0.29.0
 RUN pip3 install aiofiles==24.1.0
 RUN pip3 install redis==5.0.7
 RUN pip3 install pyotp==2.9.0
+RUN pip3 install qrcode==7.4.2
+RUN pip3 install asynctest==0.13.0
 RUN pip3 freeze > /hide/requirements.txt
 
 ADD . /hide

@@ -25,5 +25,11 @@ class UserRegisterRequest(BaseModel):
 
 
 class UserRegisterResponse(BaseModel):
-    id: int
+    user_id: int
     mfa_secret: str = Field(..., min_length=32, max_length=32)
+    mfa_url: str
+
+
+class MFARequest(BaseModel):
+    user_id: int
+    mfa_secret: str = Field(..., min_length=32, max_length=32, pattern=r"^[A-Za-z0-9]+$")
