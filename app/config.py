@@ -37,8 +37,7 @@ class Config:
     SYNC_BASE_PATH: str
     SYNC_FILE_EXT: str
 
-    MFA_REF_APP: str
-    MFA_BASE_URL: str
+    MFA_APP_NAME: str
     MFA_MIMETYPE: str
     MFA_VERSION: int
     MFA_BOX_SIZE: int
@@ -72,7 +71,7 @@ def get_config() -> Config:
 
         elif value_type == bool:
             value = value.lower() == "true"
-        
+
         config_dict[key] = value
 
     return Config(**config_dict)

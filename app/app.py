@@ -4,6 +4,7 @@ from fastapi.responses import JSONResponse
 from app.config import get_config
 from app.context import get_context
 from app.log import get_log
+from app.routers import static_routers
 from app.routers import user_routers
 from app.postgres import Base, sessionmanager
 from app.errors import E, Msg
@@ -19,12 +20,12 @@ log = get_log()
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     async with sessionmanager.async_engine.begin() as conn:
-        from app.models.user_models import User
         await conn.run_sync(Base.metadata.create_all)
     yield
 
 
 app = FastAPI(lifespan=lifespan, title=cfg.APP_TITLE, version=cfg.APP_VERSION)
+app.include_router(static_routers.router)
 app.include_router(user_routers.router, prefix=cfg.APP_PREFIX)
 
 

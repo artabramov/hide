@@ -9,5 +9,8 @@
         "-v",
         "-s", "./tests",
         "-p", "*_tests.py"
+    ],
+    "flake8.args": [
+        "--max-line-length=80",
     ]
 }
