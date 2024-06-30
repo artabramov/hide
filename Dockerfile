@@ -12,6 +12,7 @@ RUN apt install -y python3-pip
 RUN apt install -y postgresql
 RUN apt install -y redis
 RUN apt install -y sudo
+RUN apt install -y wget
 RUN apt install -y git
 RUN apt install -y vim
 
@@ -32,6 +33,24 @@ ADD . /hide
 WORKDIR /hide
 RUN mkdir /var/log/app
 RUN chmod -R 777 /var/log/app
+
+# node exporter
+RUN wget https://github.com/prometheus/node_exporter/releases/download/v1.5.0/node_exporter-1.5.0.linux-amd64.tar.gz
+RUN tar -xf node_exporter-1.5.0.linux-amd64.tar.gz
+RUN mv node_exporter-1.5.0.linux-amd64/node_exporter /usr/local/bin
+RUN rm -r node_exporter-1.5.0.linux-amd64*
+
+# postgres exporter
+RUN wget https://github.com/wrouesnel/postgres_exporter/releases/download/v0.5.1/postgres_exporter_v0.5.1_linux-amd64.tar.gz
+RUN tar -xzvf postgres_exporter_v0.5.1_linux-amd64.tar.gz
+RUN mv postgres_exporter_v0.5.1_linux-amd64/postgres_exporter /usr/local/bin
+RUN rm -r postgres_exporter_v0.5.1_linux-amd64.tar.gz
+
+# redis exporter
+RUN wget https://github.com/oliver006/redis_exporter/releases/download/v1.18.0/redis_exporter-v1.18.0.linux-amd64.tar.gz
+RUN tar xvfz redis_exporter-v1.18.0.linux-amd64.tar.gz
+RUN mv redis_exporter-v1.18.0.linux-amd64/redis_exporter /usr/local/bin
+RUN rm -r redis_exporter-v1.18.0.linux-amd64.tar.gz
 
 EXPOSE 80
 ENTRYPOINT ["/hide/entrypoint.sh"]
