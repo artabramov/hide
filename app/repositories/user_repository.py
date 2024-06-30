@@ -26,12 +26,10 @@ class UserRepository(BasicRepository):
     async def insert(self, user: User) -> int:
         # user = await self.execute_hook(Hook.BEFORE_USER_REGISTER, user)
         await self.entity_manager.insert(user, commit=True)
-        # await self.cache_manager.set(user)
-        # await self.file_manager.json_save(user)
+        await self.cache_manager.set(user)
+        await self.file_manager.write(user.dump_path, dumps(user))
         # user = await self.execute_hook(Hook.AFTER_USER_REGISTER, user)
-
-        await self.dump(user)
-        # await self.file_manager.file_write(dump_path, dump_data)
+        
 
         return user
 

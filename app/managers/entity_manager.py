@@ -4,7 +4,7 @@ from sqlalchemy.sql import func, exists
 from sqlalchemy import select
 from decimal import Decimal
 from time import time
-# from app.decorators.timed_deco import timed
+from app.decorators.timed_deco import timed
 
 _ORDER_BY, _ORDER = "order_by", "order"
 _ID = "id"
@@ -32,7 +32,7 @@ class EntityManager:
     def __init__(self, session):
         self.session = session
 
-    # @timed
+    @timed
     async def insert(self, obj: object, flush: bool=True, commit: bool=False):
         self.session.add(obj)
 
@@ -42,19 +42,19 @@ class EntityManager:
         if commit:
             await self.commit()
 
-    # @timed
+    @timed
     async def select(self, cls: object, obj_id: int) -> object:
         """Select SQLAlchemy object from Postgres database."""
         async_result = await self.session.execute(select(cls).where(cls.id == obj_id).limit(1))
         return async_result.unique().scalars().one_or_none()
 
-    # @timed
+    @timed
     async def select_by(self, cls: object, **kwargs) -> object:
         """Select SQLAlchemy object from Postgres database."""
         async_result = await self.session.execute(select(cls).where(*self._where(cls, **kwargs)).limit(1))
         return async_result.unique().scalars().one_or_none()
 
-    # @timed
+    @timed
     async def update(self, obj: object, flush: bool=True, commit: bool = False) -> None:
         """Update SQLAlchemy object in Postgres database."""
         await self.session.merge(obj)
@@ -65,7 +65,7 @@ class EntityManager:
         if commit:
             await self.commit()
 
-    # @timed
+    @timed
     async def delete(self, obj: object, commit: bool = False):
         """Delete SQLAlchemy object from Postgres database."""
         await self.session.delete(obj)
@@ -73,7 +73,7 @@ class EntityManager:
         if commit:
             await self.commit()
 
-    # @timed
+    @timed
     async def select_all(self, cls: object, **kwargs) -> list:
         """Select a bunch of SQLAlchemy objects from Postgres database."""
         async_result = await self.session.execute(
@@ -84,21 +84,21 @@ class EntityManager:
             .limit(self._limit(**kwargs)))
         return async_result.unique().scalars().all()
 
-    # @timed
+    @timed
     async def count_all(self, cls: object, **kwargs) -> int:
         """Count SQLAlchemy objects in Postgres database."""
         async_result = await self.session.execute(
             select(func.count(getattr(cls, _ID))).where(*self._where(cls, **kwargs)))
         return async_result.unique().scalars().one_or_none() or 0
 
-    # @timed
+    @timed
     async def sum_all(self, cls: object, column: str, **kwargs):
         """Sum SQLAlchemy object column in Postgres database."""
         async_result = await self.session.execute(
             select(func.sum(getattr(cls, column))).where(*self._where(cls, **kwargs)))
         return async_result.unique().scalars().one_or_none() or 0
 
-    # @timed
+    @timed
     async def delete_all(self, cls: object, commit: bool=False, **kwargs):
         kwargs = kwargs | {_ORDER_BY: _ID, _ORDER: _ASC, _OFFSET: 0, _LIMIT: 100}
         while objs := await self.select_all(cls, **kwargs):
@@ -106,12 +106,12 @@ class EntityManager:
             for obj in objs:
                 await self.delete(obj, commit=commit)
 
-    # @timed
+    @timed
     async def lock_all(self, cls: object) -> None:
         """Lock Postgres table."""
         self.session.execute("LOCK TABLE %s IN ACCESS EXCLUSIVE MODE;" % cls.__tablename__)
 
-    # @timed
+    @timed
     async def exists(self, cls: object, **kwargs) -> bool:
         """Check if object exists in Postgres database."""
         async_result = await self.session.execute(select(cls).where(*self._where(cls, **kwargs)).limit(1))

@@ -13,7 +13,7 @@ from app.config import get_config
 cfg = get_config()
 
 
-class UserRegister(BaseModel):
+class UserRegisterRequest(BaseModel):
     user_login: str = Field(..., min_length=2, max_length=40, pattern=r"^[a-z0-9]+$")
     user_password: SecretStr = Field(..., min_length=6)
     first_name: str = Field(..., min_length=2, max_length=40)
@@ -22,3 +22,8 @@ class UserRegister(BaseModel):
     @field_validator("user_login", mode="before")
     def _user_login(cls, user_login: str):
         return user_login.strip().lower()
+
+
+class UserRegisterResponse(BaseModel):
+    id: int
+    mfa_secret: str = Field(..., min_length=32, max_length=32)

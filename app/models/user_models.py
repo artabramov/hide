@@ -10,6 +10,7 @@ from app.mixins.fernet_mixin import FernetMixin
 from app.helpers.hash_helper import HashHelper
 from sqlalchemy.orm import relationship
 from app.config import get_config
+from app.models.basic_model import Basic
 
 cfg = get_config()
 
@@ -21,13 +22,10 @@ class UserRole(enum.Enum):
     ADMIN = "admin"
 
 
-class User(Base, MFAMixin, JTIMixin, FernetMixin):
+class User(Basic, MFAMixin, JTIMixin, FernetMixin):
     __tablename__ = "users"
 
-    id = Column(BigInteger, primary_key=True, index=True)
-    date_created = Column(Integer, nullable=False, index=True, default=lambda: int(time()))
-    date_updated = Column(Integer, nullable=False, index=True, default=0, onupdate=lambda: int(time()))
-    date_suspended = Column(Integer, nullable=False, default=0)
+    suspended_date = Column(Integer, nullable=False, default=0)
     user_role = Column(Enum(UserRole), nullable=False, index=True, default=UserRole.READER)
     is_active = Column(Boolean)
     user_login = Column(String(40), nullable=False, index=True, unique=True)

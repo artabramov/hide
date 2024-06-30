@@ -24,8 +24,18 @@ class Config:
 
     REDIS_HOST: str
     REDIS_PORT: int
-    REDIS_DECODE_RESPONSES: bool
+    REDIS_DECODE: bool
     REDIS_EXPIRE: int
+
+    LOG_LEVEL: str
+    LOG_NAME: str
+    LOG_FORMAT: str
+    LOG_FILENAME: str
+    LOG_FILESIZE: int
+    LOG_FILES_LIMIT: int
+
+    SYNC_BASE_PATH: str
+    SYNC_FILE_EXT: str
 
     APP_TITLE: str
     APP_VERSION: str
@@ -33,8 +43,6 @@ class Config:
     APP_HASH_SALT: str
     APP_FERNET_KEY: str
     APP_JTI_LENGTH: int
-    APP_SYNC_BASE_PATH: str
-    APP_SYNC_FILE_EXT: str
 
 
 @lru_cache(maxsize=None)
