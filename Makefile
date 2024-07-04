@@ -13,8 +13,3 @@ checkup:
 	docker exec hide-server /bin/sh -c "cd /hide && python3 -W ignore -m coverage run -m unittest discover -s ./tests -p '*_tests.py'"
 	docker exec hide-server /bin/sh -c "cd /hide && python3 -m coverage report --omit '/usr/lib/*,tests/*'"
 	docker exec hide-server /bin/sh -c "flake8 --count --max-line-length=80 /hide"
-
-metrics:
-	docker exec -d hide-server /usr/local/bin/node_exporter
-	docker exec -d hide-server /usr/local/bin/postgres_exporter
-	docker exec -d hide-server /usr/local/bin/redis_exporter
