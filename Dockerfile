@@ -44,13 +44,13 @@ RUN rm -r node_exporter-1.5.0.linux-amd64*
 RUN wget https://github.com/wrouesnel/postgres_exporter/releases/download/v0.5.1/postgres_exporter_v0.5.1_linux-amd64.tar.gz
 RUN tar -xzvf postgres_exporter_v0.5.1_linux-amd64.tar.gz
 RUN mv postgres_exporter_v0.5.1_linux-amd64/postgres_exporter /usr/local/bin
-RUN rm -r postgres_exporter_v0.5.1_linux-amd64.tar.gz
+RUN rm -r postgres_exporter_v0.5.1_linux-amd64*
 
 # redis exporter
 RUN wget https://github.com/oliver006/redis_exporter/releases/download/v1.18.0/redis_exporter-v1.18.0.linux-amd64.tar.gz
 RUN tar xvfz redis_exporter-v1.18.0.linux-amd64.tar.gz
 RUN mv redis_exporter-v1.18.0.linux-amd64/redis_exporter /usr/local/bin
-RUN rm -r redis_exporter-v1.18.0.linux-amd64.tar.gz
+RUN rm -r redis_exporter-v1.18.0.linux-amd64*
 
 EXPOSE 80
 ENTRYPOINT ["/hide/entrypoint.sh"]
