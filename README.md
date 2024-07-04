@@ -14,3 +14,5 @@ grafana dashboards
 11074 (Node Exporter)  
 12485 (PostgreSQL exporter)  
 11835 (Redis Exporter)  
+
+export DATA_SOURCE_NAME="postgresql://hide:he7w2rLY4Y8pFk2u@127.0.0.1:5432/hide?sslmode=disable" 
