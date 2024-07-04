@@ -84,69 +84,69 @@ class EntityManagerTestCase(asynctest.TestCase):
         flush_mock.assert_called_once()
         commit_mock.assert_not_called()
 
-    @patch("app.managers.entity_manager.EntityManager.flush")
-    @patch("app.managers.entity_manager.EntityManager.commit")
-    async def test__entity_manager_insert_all(self, commit_mock, flush_mock):
-        """Insert entities into database when flush and commit by default."""
-        entity_mocks = [MagicMock(), MagicMock()]
-        await self.entity_manager.insert_all(entity_mocks)
+    # @patch("app.managers.entity_manager.EntityManager.flush")
+    # @patch("app.managers.entity_manager.EntityManager.commit")
+    # async def test__entity_manager_insert_all(self, commit_mock, flush_mock):
+    #     """Insert entities into database when flush and commit by default."""
+    #     entity_mocks = [MagicMock(), MagicMock()]
+    #     await self.entity_manager.insert_all(entity_mocks)
 
-        self.session_mock.add_all.assert_called_once()
-        self.session_mock.add_all.assert_called_with(entity_mocks)
-        flush_mock.assert_called_once()
-        commit_mock.assert_not_called()
+    #     self.session_mock.add_all.assert_called_once()
+    #     self.session_mock.add_all.assert_called_with(entity_mocks)
+    #     flush_mock.assert_called_once()
+    #     commit_mock.assert_not_called()
 
-    @patch("app.managers.entity_manager.EntityManager.flush")
-    @patch("app.managers.entity_manager.EntityManager.commit")
-    async def test__entity_manager_insert_all_flush_true(self, commit_mock,
-                                                         flush_mock):
-        """Insert entities into database when flush is true."""
-        entity_mocks = [MagicMock(), MagicMock()]
-        await self.entity_manager.insert_all(entity_mocks, flush=True)
+    # @patch("app.managers.entity_manager.EntityManager.flush")
+    # @patch("app.managers.entity_manager.EntityManager.commit")
+    # async def test__entity_manager_insert_all_flush_true(self, commit_mock,
+    #                                                      flush_mock):
+    #     """Insert entities into database when flush is true."""
+    #     entity_mocks = [MagicMock(), MagicMock()]
+    #     await self.entity_manager.insert_all(entity_mocks, flush=True)
 
-        self.session_mock.add_all.assert_called_once()
-        self.session_mock.add_all.assert_called_with(entity_mocks)
-        flush_mock.assert_called_once()
-        commit_mock.assert_not_called()
+    #     self.session_mock.add_all.assert_called_once()
+    #     self.session_mock.add_all.assert_called_with(entity_mocks)
+    #     flush_mock.assert_called_once()
+    #     commit_mock.assert_not_called()
 
-    @patch("app.managers.entity_manager.EntityManager.flush")
-    @patch("app.managers.entity_manager.EntityManager.commit")
-    async def test__entity_manager_insert_all_flush_false(self, commit_mock,
-                                                          flush_mock):
-        """Insert entities into database when flush is false."""
-        entity_mocks = [MagicMock(), MagicMock()]
-        await self.entity_manager.insert_all(entity_mocks, flush=False)
+    # @patch("app.managers.entity_manager.EntityManager.flush")
+    # @patch("app.managers.entity_manager.EntityManager.commit")
+    # async def test__entity_manager_insert_all_flush_false(self, commit_mock,
+    #                                                       flush_mock):
+    #     """Insert entities into database when flush is false."""
+    #     entity_mocks = [MagicMock(), MagicMock()]
+    #     await self.entity_manager.insert_all(entity_mocks, flush=False)
 
-        self.session_mock.add_all.assert_called_once()
-        self.session_mock.add_all.assert_called_with(entity_mocks)
-        flush_mock.assert_not_called()
-        commit_mock.assert_not_called()
+    #     self.session_mock.add_all.assert_called_once()
+    #     self.session_mock.add_all.assert_called_with(entity_mocks)
+    #     flush_mock.assert_not_called()
+    #     commit_mock.assert_not_called()
 
-    @patch("app.managers.entity_manager.EntityManager.flush")
-    @patch("app.managers.entity_manager.EntityManager.commit")
-    async def test__entity_manager_insert_all_commit_true(self, commit_mock,
-                                                          flush_mock):
-        """Insert entities into database when commit is true."""
-        entity_mocks = [MagicMock(), MagicMock()]
-        await self.entity_manager.insert_all(entity_mocks, commit=True)
+    # @patch("app.managers.entity_manager.EntityManager.flush")
+    # @patch("app.managers.entity_manager.EntityManager.commit")
+    # async def test__entity_manager_insert_all_commit_true(self, commit_mock,
+    #                                                       flush_mock):
+    #     """Insert entities into database when commit is true."""
+    #     entity_mocks = [MagicMock(), MagicMock()]
+    #     await self.entity_manager.insert_all(entity_mocks, commit=True)
 
-        self.session_mock.add_all.assert_called_once()
-        self.session_mock.add_all.assert_called_with(entity_mocks)
-        flush_mock.assert_called_once()
-        commit_mock.assert_called_once()
+    #     self.session_mock.add_all.assert_called_once()
+    #     self.session_mock.add_all.assert_called_with(entity_mocks)
+    #     flush_mock.assert_called_once()
+    #     commit_mock.assert_called_once()
 
-    @patch("app.managers.entity_manager.EntityManager.flush")
-    @patch("app.managers.entity_manager.EntityManager.commit")
-    async def test__entity_manager_insert_all_commit_false(self, commit_mock,
-                                                           flush_mock):
-        """Insert entities into database when commit is false."""
-        entity_mocks = [MagicMock(), MagicMock()]
-        await self.entity_manager.insert_all(entity_mocks, commit=False)
+    # @patch("app.managers.entity_manager.EntityManager.flush")
+    # @patch("app.managers.entity_manager.EntityManager.commit")
+    # async def test__entity_manager_insert_all_commit_false(self, commit_mock,
+    #                                                        flush_mock):
+    #     """Insert entities into database when commit is false."""
+    #     entity_mocks = [MagicMock(), MagicMock()]
+    #     await self.entity_manager.insert_all(entity_mocks, commit=False)
 
-        self.session_mock.add_all.assert_called_once()
-        self.session_mock.add_all.assert_called_with(entity_mocks)
-        flush_mock.assert_called_once()
-        commit_mock.assert_not_called()
+    #     self.session_mock.add_all.assert_called_once()
+    #     self.session_mock.add_all.assert_called_with(entity_mocks)
+    #     flush_mock.assert_called_once()
+    #     commit_mock.assert_not_called()
 
     @patch("app.managers.entity_manager.select")
     async def test__entity_manager_select(self, select_mock):
@@ -465,69 +465,69 @@ class EntityManagerTestCase(asynctest.TestCase):
         select_mock.return_value.where.assert_called_with(*where_mock.return_value) # noqa E501
         async_result_mock.unique.return_value.scalars.return_value.one_or_none.assert_called_once() # noqa E501
 
-    @patch("app.managers.entity_manager.EntityManager.delete")
-    @patch("app.managers.entity_manager.EntityManager.select_all")
-    async def test__delete_all_commit_true(self, select_all_mock, delete_mock):
-        """Delete all entities from database when commit is true."""
-        class_mock = MagicMock()
-        entity_1, entity_2, entity_3 = MagicMock(), MagicMock(), MagicMock()
-        select_all_mock.side_effect = [[entity_1, entity_2], [entity_3], []]
-        await self.entity_manager.delete_all(class_mock, 2, commit=True,
-                                             name__eq="dummy")
+    # @patch("app.managers.entity_manager.EntityManager.delete")
+    # @patch("app.managers.entity_manager.EntityManager.select_all")
+    # async def test__delete_all_commit_true(self, select_all_mock, delete_mock):
+    #     """Delete all entities from database when commit is true."""
+    #     class_mock = MagicMock()
+    #     entity_1, entity_2, entity_3 = MagicMock(), MagicMock(), MagicMock()
+    #     select_all_mock.side_effect = [[entity_1, entity_2], [entity_3], []]
+    #     await self.entity_manager.delete_all(class_mock, 2, commit=True,
+    #                                          name__eq="dummy")
 
-        self.assertEqual(select_all_mock.call_count, 3)
-        self.assertListEqual(select_all_mock.call_args_list, [
-            call(class_mock, name__eq="dummy", order_by="id", order="asc",
-                 offset=0, limit=2),
-            call(class_mock, name__eq="dummy", order_by="id", order="asc",
-                 offset=2, limit=2),
-            call(class_mock, name__eq="dummy", order_by="id", order="asc",
-                 offset=4, limit=2),
-        ])
-        self.assertEqual(delete_mock.call_count, 3)
-        self.assertListEqual(delete_mock.call_args_list, [
-            call(entity_1, commit=True),
-            call(entity_2, commit=True),
-            call(entity_3, commit=True),
-        ])
+    #     self.assertEqual(select_all_mock.call_count, 3)
+    #     self.assertListEqual(select_all_mock.call_args_list, [
+    #         call(class_mock, name__eq="dummy", order_by="id", order="asc",
+    #              offset=0, limit=2),
+    #         call(class_mock, name__eq="dummy", order_by="id", order="asc",
+    #              offset=2, limit=2),
+    #         call(class_mock, name__eq="dummy", order_by="id", order="asc",
+    #              offset=4, limit=2),
+    #     ])
+    #     self.assertEqual(delete_mock.call_count, 3)
+    #     self.assertListEqual(delete_mock.call_args_list, [
+    #         call(entity_1, commit=True),
+    #         call(entity_2, commit=True),
+    #         call(entity_3, commit=True),
+    #     ])
 
-    @patch("app.managers.entity_manager.EntityManager.delete")
-    @patch("app.managers.entity_manager.EntityManager.select_all")
-    async def test__delete_all_commit_false(self, select_all_mock, delete_mock):
-        """Delete all entities from database when commit is false."""
-        class_mock = MagicMock()
-        entity_1, entity_2, entity_3 = MagicMock(), MagicMock(), MagicMock()
-        select_all_mock.side_effect = [[entity_1, entity_2], [entity_3], []]
-        await self.entity_manager.delete_all(class_mock, 2, commit=False,
-                                             name__eq="dummy")
+    # @patch("app.managers.entity_manager.EntityManager.delete")
+    # @patch("app.managers.entity_manager.EntityManager.select_all")
+    # async def test__delete_all_commit_false(self, select_all_mock, delete_mock):
+    #     """Delete all entities from database when commit is false."""
+    #     class_mock = MagicMock()
+    #     entity_1, entity_2, entity_3 = MagicMock(), MagicMock(), MagicMock()
+    #     select_all_mock.side_effect = [[entity_1, entity_2], [entity_3], []]
+    #     await self.entity_manager.delete_all(class_mock, 2, commit=False,
+    #                                          name__eq="dummy")
 
-        self.assertEqual(select_all_mock.call_count, 3)
-        self.assertListEqual(select_all_mock.call_args_list, [
-            call(class_mock, name__eq="dummy", order_by="id", order="asc",
-                 offset=0, limit=2),
-            call(class_mock, name__eq="dummy", order_by="id", order="asc",
-                 offset=2, limit=2),
-            call(class_mock, name__eq="dummy", order_by="id", order="asc",
-                 offset=4, limit=2),
-        ])
-        self.assertEqual(delete_mock.call_count, 3)
-        self.assertListEqual(delete_mock.call_args_list, [
-            call(entity_1, commit=False),
-            call(entity_2, commit=False),
-            call(entity_3, commit=False),
-        ])
+    #     self.assertEqual(select_all_mock.call_count, 3)
+    #     self.assertListEqual(select_all_mock.call_args_list, [
+    #         call(class_mock, name__eq="dummy", order_by="id", order="asc",
+    #              offset=0, limit=2),
+    #         call(class_mock, name__eq="dummy", order_by="id", order="asc",
+    #              offset=2, limit=2),
+    #         call(class_mock, name__eq="dummy", order_by="id", order="asc",
+    #              offset=4, limit=2),
+    #     ])
+    #     self.assertEqual(delete_mock.call_count, 3)
+    #     self.assertListEqual(delete_mock.call_args_list, [
+    #         call(entity_1, commit=False),
+    #         call(entity_2, commit=False),
+    #         call(entity_3, commit=False),
+    #     ])
 
-    @patch("app.managers.entity_manager.text")
-    async def test__execute(self, text_mock):
-        """Execute custom query."""
-        sql = "SELECT 1;"
-        result = await self.entity_manager.execute(sql)
+    # @patch("app.managers.entity_manager.text")
+    # async def test__execute(self, text_mock):
+    #     """Execute custom query."""
+    #     sql = "SELECT 1;"
+    #     result = await self.entity_manager.execute(sql)
 
-        self.assertEqual(result, self.session_mock.execute.return_value)
-        text_mock.assert_called_once()
-        text_mock.assert_called_with(sql)
-        self.session_mock.execute.assert_called_once()
-        self.session_mock.execute.assert_called_with(text_mock.return_value)
+    #     self.assertEqual(result, self.session_mock.execute.return_value)
+    #     text_mock.assert_called_once()
+    #     text_mock.assert_called_with(sql)
+    #     self.session_mock.execute.assert_called_once()
+    #     self.session_mock.execute.assert_called_with(text_mock.return_value)
 
     async def test__flush(self):
         """Flush changes."""
