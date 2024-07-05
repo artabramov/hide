@@ -72,7 +72,7 @@ class User(Basic, MFAMixin, JTIMixin, FernetMixin):
 
     @property
     def mfa_url(self):
-        return "http://localhost:8080/user/%s/mfa/%s" % (
+        return "http://localhost/user/%s/mfa/%s" % (
             self.id, self.mfa_secret)
 
     @property
