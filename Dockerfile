@@ -27,6 +27,7 @@ RUN pip3 install qrcode==7.4.2
 RUN pip3 install asynctest==0.13.0
 RUN pip3 install coverage==7.5.4
 RUN pip3 install flake8==7.1.0
+RUN pip3 install safety
 RUN pip3 freeze > /hide/requirements.txt
 
 ADD . /hide
