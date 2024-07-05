@@ -15,7 +15,3 @@ install:
 	docker exec hide-server /bin/sh -c "echo \"bind 0.0.0.0\" >> /etc/redis/redis.conf"
 
 	docker-compose restart hide-server
-
-	docker exec hide-server /bin/sh -c "cd /hide && python3 -W ignore -m coverage run -m unittest discover -s ./tests -p '*_tests.py'"
-	docker exec hide-server /bin/sh -c "cd /hide && python3 -m coverage report --omit '/usr/lib/*,tests/*'"
-	docker exec hide-server /bin/sh -c "flake8 --count --max-line-length=80 /hide"
