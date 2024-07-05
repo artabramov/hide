@@ -72,14 +72,6 @@ services:
     volumes:
       - grafana_data:/var/lib/grafana
 
-  jenkins:
-    image: jenkins/jenkins:lts
-    ports:
-      - "8080:8080"
-      - "50000:50000"
-    volumes:
-      - jenkins_home:/var/jenkins_home
-
   hide-server:
     image: hide-server
     container_name: hide-server
@@ -109,7 +101,6 @@ volumes:
   elasticsearch_data:
   prometheus_data:
   grafana_data:
-  jenkins_home:
   postgres_data:
   postgres_log:
   redis_log:
