@@ -7,6 +7,9 @@ install:
 
 	docker exec hide-server sudo -u postgres psql -c "CREATE USER $(POSTGRES_USERNAME) WITH PASSWORD '$(POSTGRES_PASSWORD)';"
 	docker exec hide-server sudo -u postgres psql -c "CREATE DATABASE $(POSTGRES_DATABASE);"
+	
+	docker exec hide-server /bin/sh -c "echo \"listen_addresses = '*'\" >> /etc/postgresql/14/main/postgresql.conf"
+	docker exec hide-server /bin/sh -c "echo \"host all all 0.0.0.0/0 md5\" >> /etc/postgresql/14/main/pg_hba.conf"
 	docker compose restart hide-server
 
 	docker exec hide-server /bin/sh -c "cd /hide && python3 -W ignore -m coverage run -m unittest discover -s ./tests -p '*_tests.py'"
