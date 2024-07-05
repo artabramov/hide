@@ -53,7 +53,7 @@ pydantic_core==2.20.1
 pyflakes==3.2.0
 Pygments==2.18.0
 PyGObject==3.42.1
-PyJWT==2.3.0
+PyJWT==2.8.0
 pyotp==2.9.0
 pyparsing==2.4.7
 pypng==0.20220715.0

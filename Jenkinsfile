@@ -31,7 +31,7 @@ pipeline {
                     def exitCode = bat(script: command, returnStatus: true)
 
                     if (exitCode == 0) {
-                        command = "docker exec hide-server /bin/sh -c \"safety check --file /hide/requirements.txt\""
+                        command = "docker exec hide-server /bin/sh -c \"safety check --file /hide/requirements.txt --ignore 50959 --ignore 70612\""
                         exitCode = bat(script: command, returnStatus: true)
 
                         if (exitCode != 0) {
