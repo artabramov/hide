@@ -9,7 +9,8 @@ install:
 	docker exec hide-server sudo -u postgres psql -c "CREATE DATABASE $(POSTGRES_DATABASE);"
 
 	docker exec hide-server /bin/sh -c "echo \"listen_addresses = '*'\" >> /etc/postgresql/14/main/postgresql.conf"
-	docker exec hide-server /bin/sh -c "echo \"host all all 0.0.0.0/0 md5\" >> /etc/postgresql/14/main/pg_hba.conf"
+	sudo sed -i "/^# IPv4 local connections:/a \host hide hide 0.0.0.0/0 md5" /etc/postgresql/14/main/pg_hba.conf
+	sudo sed -i "/^# IPv4 local connections:/a \host hide metrics 127.0.0.1/32 trust" /etc/postgresql/14/main/pg_hba.conf
 
 	docker exec hide-server /bin/sh -c "echo \"bind 0.0.0.0\" >> /etc/redis/redis.conf"
 
