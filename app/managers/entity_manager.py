@@ -1,17 +1,17 @@
 
-from sqlalchemy import asc, desc, text
-from sqlalchemy.sql import func, exists
+from sqlalchemy import asc, desc  # , text
+from sqlalchemy.sql import func
 from sqlalchemy import select
-from decimal import Decimal
-from time import time
+# from decimal import Decimal
+# from time import time
 from app.decorators.timed_deco import timed
 
 _ORDER_BY, _ORDER = "order_by", "order"
 _ID = "id"
 _ASC, _DESC = "asc", "desc"
 _OFFSET, _LIMIT = "offset", "limit"
-_SQLALCHEMY_RESERVED = [_ORDER_BY, _ORDER, _OFFSET, _LIMIT ]
-_SQLALCHEMY_OPERATORS = {
+_RESERVED = [_ORDER_BY, _ORDER, _OFFSET, _LIMIT]
+_OPERATORS = {
     "in": "in_",
     "eq": "__eq__",
     "not": "__ne__",
@@ -33,7 +33,8 @@ class EntityManager:
         self.session = session
 
     @timed
-    async def insert(self, obj: object, flush: bool=True, commit: bool=False):
+    async def insert(self, obj: object, flush: bool = True,
+                     commit: bool = False):
         self.session.add(obj)
 
         if flush:
@@ -45,17 +46,20 @@ class EntityManager:
     @timed
     async def select(self, cls: object, obj_id: int) -> object:
         """Select SQLAlchemy object from Postgres database."""
-        async_result = await self.session.execute(select(cls).where(cls.id == obj_id).limit(1))
+        async_result = await self.session.execute(
+            select(cls).where(cls.id == obj_id).limit(1))
         return async_result.unique().scalars().one_or_none()
 
     @timed
     async def select_by(self, cls: object, **kwargs) -> object:
         """Select SQLAlchemy object from Postgres database."""
-        async_result = await self.session.execute(select(cls).where(*self._where(cls, **kwargs)).limit(1))
+        async_result = await self.session.execute(
+            select(cls).where(*self._where(cls, **kwargs)).limit(1))
         return async_result.unique().scalars().one_or_none()
 
     @timed
-    async def update(self, obj: object, flush: bool=True, commit: bool = False) -> None:
+    async def update(self, obj: object, flush: bool = True,
+                     commit: bool = False):
         """Update SQLAlchemy object in Postgres database."""
         await self.session.merge(obj)
 
@@ -77,10 +81,10 @@ class EntityManager:
     async def select_all(self, cls: object, **kwargs) -> list:
         """Select a bunch of SQLAlchemy objects from Postgres database."""
         async_result = await self.session.execute(
-            select(cls) \
-            .where(*self._where(cls, **kwargs)) \
-            .order_by(self._order_by(cls, **kwargs)) \
-            .offset(self._offset(**kwargs)) \
+            select(cls)
+            .where(*self._where(cls, **kwargs))
+            .order_by(self._order_by(cls, **kwargs))
+            .offset(self._offset(**kwargs))
             .limit(self._limit(**kwargs)))
         return async_result.unique().scalars().all()
 
@@ -88,19 +92,22 @@ class EntityManager:
     async def count_all(self, cls: object, **kwargs) -> int:
         """Count SQLAlchemy objects in Postgres database."""
         async_result = await self.session.execute(
-            select(func.count(getattr(cls, _ID))).where(*self._where(cls, **kwargs)))
+            select(func.count(getattr(cls, _ID))).where(
+                *self._where(cls, **kwargs)))
         return async_result.unique().scalars().one_or_none() or 0
 
     @timed
     async def sum_all(self, cls: object, column: str, **kwargs):
         """Sum SQLAlchemy object column in Postgres database."""
         async_result = await self.session.execute(
-            select(func.sum(getattr(cls, column))).where(*self._where(cls, **kwargs)))
+            select(func.sum(getattr(cls, column))).where(
+                *self._where(cls, **kwargs)))
         return async_result.unique().scalars().one_or_none() or 0
 
     @timed
-    async def delete_all(self, cls: object, commit: bool=False, **kwargs):
-        kwargs = kwargs | {_ORDER_BY: _ID, _ORDER: _ASC, _OFFSET: 0, _LIMIT: 100}
+    async def delete_all(self, cls: object, commit: bool = False, **kwargs):
+        kwargs = kwargs | {_ORDER_BY: _ID, _ORDER: _ASC, _OFFSET: 0,
+                           _LIMIT: 100}
         while objs := await self.select_all(cls, **kwargs):
             kwargs[_OFFSET] += kwargs[_LIMIT]
             for obj in objs:
@@ -109,17 +116,20 @@ class EntityManager:
     @timed
     async def lock_all(self, cls: object) -> None:
         """Lock Postgres table."""
-        self.session.execute("LOCK TABLE %s IN ACCESS EXCLUSIVE MODE;" % cls.__tablename__)
+        self.session.execute(
+            "LOCK TABLE %s IN ACCESS EXCLUSIVE MODE;" % cls.__tablename__)
 
     @timed
     async def exists(self, cls: object, **kwargs) -> bool:
         """Check if object exists in Postgres database."""
-        async_result = await self.session.execute(select(cls).where(*self._where(cls, **kwargs)).limit(1))
+        async_result = await self.session.execute(
+            select(cls).where(*self._where(cls, **kwargs)).limit(1))
         return async_result.unique().scalars().one_or_none() is not None
 
     # async def subquery(self, cls, foreign_key, **kwargs):
     #     """Make a subquery expression for another class by a foreign key."""
-    #     return self.session.query(getattr(cls, foreign_key)).filter(*self._where(cls, **kwargs))
+    #     return self.session.query(getattr(cls, foreign_key)).filter(
+    # *self._where(cls, **kwargs))
 
     # async def exec(self, sql: str, commit: bool = False) -> object:
     #     """Execute a raw query."""
@@ -145,7 +155,7 @@ class EntityManager:
     def _where(self, cls, **kwargs):
         """Make WHERE statement."""
         where = []
-        for key in {x: kwargs[x] for x in kwargs if x not in _SQLALCHEMY_RESERVED}:
+        for key in {x: kwargs[x] for x in kwargs if x not in _RESERVED}:
             column_name, operator = key.split("__")
 
             if hasattr(cls, column_name):
@@ -160,17 +170,17 @@ class EntityManager:
                     else:
                         value = value
 
-                operation = getattr(column, _SQLALCHEMY_OPERATORS[operator])(value)
+                operation = getattr(column, _OPERATORS[operator])(value)
                 where.append(operation)
         return where
 
     def _order_by(self, cls, **kwargs):
         """Make ORDER BY statement."""
         order_by = getattr(cls, kwargs.get(_ORDER_BY))
-        
+
         if kwargs.get(_ORDER) == _ASC:
             return asc(order_by)
-        
+
         elif kwargs.get(_ORDER) == _DESC:
             return desc(order_by)
 

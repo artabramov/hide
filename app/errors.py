@@ -24,7 +24,7 @@ class E(HTTPException):
 
     def __init__(self, loc: str, error_input: str, msg: Msg,
                  status_code: int = status.HTTP_422_UNPROCESSABLE_ENTITY):
-        
+
         detail = [{"loc": [loc], "input": error_input,
                    "type": msg.name.lower(), "msg": msg.value}]
         super().__init__(status_code=status_code, detail=detail)

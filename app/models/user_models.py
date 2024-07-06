@@ -1,14 +1,11 @@
 import enum
-from time import time
-from sqlalchemy import Boolean, Column, Integer, BigInteger, SmallInteger, String, Enum
-from app.postgres import Base
+from sqlalchemy import Boolean, Column, Integer, SmallInteger, String, Enum
 from sqlalchemy.ext.hybrid import hybrid_property
-# from app.mixins.fernet_mixin import FernetMixin
 from app.mixins.jti_mixin import JTIMixin
 from app.mixins.mfa_mixin import MFAMixin
 from app.mixins.fernet_mixin import FernetMixin
 from app.helpers.hash_helper import HashHelper
-from sqlalchemy.orm import relationship
+# from sqlalchemy.orm import relationship
 from app.config import get_config
 from app.models.basic_model import Basic
 
@@ -26,7 +23,8 @@ class User(Basic, MFAMixin, JTIMixin, FernetMixin):
     __tablename__ = "users"
 
     suspended_date = Column(Integer, nullable=False, default=0)
-    user_role = Column(Enum(UserRole), nullable=False, index=True, default=UserRole.READER)
+    user_role = Column(Enum(UserRole), nullable=False, index=True,
+                       default=UserRole.READER)
     is_active = Column(Boolean)
     user_login = Column(String(40), nullable=False, index=True, unique=True)
     password_hash = Column(String(128), nullable=False, index=True)
@@ -39,11 +37,14 @@ class User(Basic, MFAMixin, JTIMixin, FernetMixin):
     jti_encrypted = Column(String(512), nullable=False, unique=True)
     user_summary = Column(String(512), index=False, nullable=True)
 
-    # user_album = relationship("Album", back_populates="album_user", lazy="noload")
-    # mediafile = relationship("Mediafile", back_populates="mediafile_user", lazy="noload")
-    # user_comment = relationship("Comment", back_populates="comment_user", lazy="noload")
-
-    # user_favorite = relationship("Favorite", back_populates="favorite_user", lazy="noload")
+    # user_album = relationship("Album", back_populates="album_user",
+    # lazy="noload")
+    # mediafile = relationship("Mediafile", back_populates="mediafile_user",
+    # lazy="noload")
+    # user_comment = relationship("Comment", back_populates="comment_user",
+    # lazy="noload")
+    # user_favorite = relationship("Favorite", back_populates="favorite_user",
+    # lazy="noload")
 
     def __init__(self, user_role: UserRole, user_login: str, user_password: str,
                  first_name: str, last_name: str, is_active: bool = False,
@@ -72,8 +73,7 @@ class User(Basic, MFAMixin, JTIMixin, FernetMixin):
 
     @property
     def mfa_url(self):
-        return "http://localhost/user/%s/mfa/%s" % (
-            self.id, self.mfa_secret)
+        return "http://localhost/user/%s/mfa/%s" % (self.id, self.mfa_secret)
 
     @property
     def jti(self) -> str:

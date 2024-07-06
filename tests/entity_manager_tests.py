@@ -2,7 +2,7 @@
 
 import unittest
 import asynctest
-from unittest.mock import MagicMock, AsyncMock, patch, call
+from unittest.mock import MagicMock, AsyncMock, patch  # , call
 
 
 class EntityManagerTestCase(asynctest.TestCase):
@@ -438,7 +438,8 @@ class EntityManagerTestCase(asynctest.TestCase):
         select_mock.assert_called_once()
         select_mock.assert_called_with(func_mock.sum.return_value)
         select_mock.return_value.where.assert_called_once()
-        select_mock.return_value.where.assert_called_with(*where_mock.return_value) # noqa E501
+        select_mock.return_value.where.assert_called_with(
+            *where_mock.return_value)
         async_result_mock.unique.return_value.scalars.return_value.one_or_none.assert_called_once() # noqa E501
 
     @patch("app.managers.entity_manager.EntityManager._where")
@@ -467,7 +468,8 @@ class EntityManagerTestCase(asynctest.TestCase):
 
     # @patch("app.managers.entity_manager.EntityManager.delete")
     # @patch("app.managers.entity_manager.EntityManager.select_all")
-    # async def test__delete_all_commit_true(self, select_all_mock, delete_mock):
+    # async def test__delete_all_commit_true(self, select_all_mock,
+    #                                          delete_mock):
     #     """Delete all entities from database when commit is true."""
     #     class_mock = MagicMock()
     #     entity_1, entity_2, entity_3 = MagicMock(), MagicMock(), MagicMock()
@@ -493,7 +495,8 @@ class EntityManagerTestCase(asynctest.TestCase):
 
     # @patch("app.managers.entity_manager.EntityManager.delete")
     # @patch("app.managers.entity_manager.EntityManager.select_all")
-    # async def test__delete_all_commit_false(self, select_all_mock, delete_mock):
+    # async def test__delete_all_commit_false(self, select_all_mock,
+    #                                           delete_mock):
     #     """Delete all entities from database when commit is false."""
     #     class_mock = MagicMock()
     #     entity_1, entity_2, entity_3 = MagicMock(), MagicMock(), MagicMock()

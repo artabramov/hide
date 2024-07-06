@@ -1,13 +1,10 @@
-from fastapi import APIRouter, Depends, Response
-from fastapi import HTTPException, status
+from fastapi import APIRouter, Depends
 from app.postgres import get_session
 from app.redis import get_cache
 from app.models.user_models import User, UserRole
-from app.schemas.user_schemas import UserRegisterRequest, UserRegisterResponse, MFARequest
+from app.schemas.user_schemas import UserRegisterRequest, UserRegisterResponse
 from app.repositories.user_repository import UserRepository
 from app.errors import E, Msg
-import qrcode
-from io import BytesIO
 from app.config import get_config
 
 router = APIRouter()
@@ -15,7 +12,7 @@ cfg = get_config()
 
 
 @router.post("/user", response_model=UserRegisterResponse, tags=["users"])
-async def user_register(session = Depends(get_session), cache = Depends(get_cache),
+async def user_register(session=Depends(get_session), cache=Depends(get_cache),
                         schema=Depends(UserRegisterRequest)):
 
     user_repository = UserRepository(session, cache)

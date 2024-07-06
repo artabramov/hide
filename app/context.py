@@ -1,5 +1,4 @@
 from contextvars import ContextVar
-from functools import lru_cache
 from typing import Any
 
 local_context_vars: ContextVar[dict] = ContextVar("local_context_vars",
