@@ -4,7 +4,7 @@ export
 install:
 	rm -rf ./hide-smokes
 	mkdir ./hide-smokes
-	git clone git@github.com:artabramov/hide-smokes.git ./hide-smokes
+	git clone https://github.com/artabramov/hide-smokes.git ./hide-smokes
 	docker rmi hide-smokes
 	docker build --no-cache -t hide-smokes ./hide-smokes
 	rm -rf ./hide-smokes
