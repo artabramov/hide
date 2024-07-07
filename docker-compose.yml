@@ -71,12 +71,6 @@ services:
     volumes:
       - grafana_data:/var/lib/grafana
 
-  hide-smokes:
-    image: hide-smokes
-    container_name: hide-smokes
-    depends_on:
-      - hide
-
   hide:
     image: hide
     container_name: hide
