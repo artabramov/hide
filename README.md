@@ -1,4 +1,4 @@
-# hide-server
+# hide
 
 ## Recommended Grafana dashboards  
 11074 (Node Exporter)  
