@@ -63,7 +63,7 @@ pipeline {
         stage('smokes') {
             steps {
                 script {
-                    def command = "docker exec hide-smokes /bin/sh -c \"cd /smokes && behave /smokes/app/features/*.feature --no-capture --format progress\""
+                    def command = "docker exec hide-smokes /bin/sh -c \"behave /smokes/app/features/*.feature --no-capture --format progress\""
                     def exitCode = bat(script: command, returnStatus: true)
 
                     if (exitCode != 0) {
