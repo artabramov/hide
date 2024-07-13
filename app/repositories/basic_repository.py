@@ -4,14 +4,7 @@ from app.managers.entity_manager import EntityManager
 from app.managers.cache_manager import CacheManager
 from app.managers.file_manager import FileManager
 from app.context import get_context
-import enum
-
-
-class Hook(enum.Enum):
-    BEFORE_USER_REGISTER = "before_user_register"
-    AFTER_USER_REGISTER = "after_user_register"
-    BEFORE_ALBUM_INSERT = "before_album_insert"
-    AFTER_ALBUM_INSERT = "after_album_insert"
+from app.hooks import H
 
 
 class BasicRepository:
@@ -21,7 +14,7 @@ class BasicRepository:
         self.cache_manager = CacheManager(cache)
         self.file_manager = FileManager
 
-    async def execute_hook(self, hook: Hook, entity):
+    async def execute_hook(self, hook: H, entity):
         ctx = get_context()
         if hook.value in ctx.hooks:
             hook_functions = ctx.hooks[hook.value]

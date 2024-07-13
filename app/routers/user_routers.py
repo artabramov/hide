@@ -10,7 +10,7 @@ from app.repositories.user_repository import UserRepository
 from app.errors import E, Msg
 from app.config import get_config
 from time import time
-from app.repositories.basic_repository import Hook
+from app.hooks import H
 
 router = APIRouter()
 cfg = get_config()
@@ -30,8 +30,9 @@ async def user_register(session=Depends(get_session), cache=Depends(get_cache),
     user = User(UserRole.READER, schema.user_login, user_password,
                 first_name=schema.first_name, last_name=schema.last_name)
 
-    user = await user_repository.execute_hook(Hook.BEFORE_USER_REGISTER, user)
+    user = await user_repository.execute_hook(H.BEFORE_USER_REGISTER, user)
     user = await user_repository.insert(user)
+    user = await user_repository.execute_hook(H.AFTER_USER_REGISTER, user)
 
     return {
         "user_id": user.id,
