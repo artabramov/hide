@@ -1,5 +1,5 @@
 
-from sqlalchemy import asc, desc  # , text
+from sqlalchemy import asc, desc, text
 from sqlalchemy.sql import func
 from sqlalchemy import select
 # from decimal import Decimal
@@ -22,9 +22,7 @@ _OPERATORS = {
     "like": "like",
     "ilike": "ilike",
 }
-
-SELECT_ALL_BUNCH_LIMIT = 200
-_DELETE_ALL_LIMIT = 100
+_DELETE_ALL_LIMIT = 500
 
 
 class EntityManager:
@@ -123,17 +121,8 @@ class EntityManager:
     @timed
     async def lock_all(self, cls: object) -> None:
         """Lock Postgres table."""
-        await self.session.execute(
-            "LOCK TABLE %s IN ACCESS EXCLUSIVE MODE;" % cls.__tablename__)
-
-    # async def execute(self, sql: str, commit: bool = False) -> object:
-    #     """Execute a raw query."""
-    #     res = self.db.engine.execute(text(sql))
-
-    #     if commit:
-    #         await self.commit()
-
-    #     return res
+        await self.session.execute(text(
+            "LOCK TABLE %s IN ACCESS EXCLUSIVE MODE;" % cls.__tablename__))
 
     # async def subquery(self, cls, foreign_key, **kwargs):
     #     """Make a subquery expression for another class by a foreign key."""

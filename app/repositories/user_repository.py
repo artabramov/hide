@@ -23,7 +23,7 @@ class UserRepository(BasicRepository):
     async def exists(self, **kwargs) -> bool:
         return await self.entity_manager.exists(User, **kwargs)
 
-    async def insert(self, user: User) -> int:
+    async def insert(self, user: User) -> User:
         # user = await self.execute_hook(Hook.BEFORE_USER_REGISTER, user)
         await self.entity_manager.insert(user, commit=True)
         await self.cache_manager.set(user)

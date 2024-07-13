@@ -20,6 +20,13 @@ class EntityManagerTestCase(asynctest.TestCase):
         del self.session_mock
         del self.entity_manager
 
+    async def test__init(self):
+        from app.managers.entity_manager import EntityManager
+
+        session_mock = AsyncMock()
+        entity_manager = EntityManager(session_mock)
+        self.assertEqual(entity_manager.session, session_mock)
+
     @patch("app.managers.entity_manager.EntityManager._where")
     @patch("app.managers.entity_manager.select")
     async def test__exists_true(self, select_mock, where_mock):
@@ -492,25 +499,18 @@ class EntityManagerTestCase(asynctest.TestCase):
         select_mock.return_value.where.assert_called_with(*where_mock.return_value) # noqa E501
         async_result_mock.unique.return_value.scalars.return_value.one_or_none.assert_called_once() # noqa E501
 
-    async def test_lock_all(self):
+    @patch("app.managers.entity_manager.text")
+    async def test_lock_all(self, text_mock):
         class_mock = MagicMock(__tablename__="dummies")
+        text_mock.return_value = "LOCK TABLE dummies IN ACCESS EXCLUSIVE MODE;"
+
         await self.entity_manager.lock_all(class_mock)
 
         self.session_mock.execute.assert_called_once()
-        self.session_mock.execute.assert_called_with(
+        self.session_mock.execute.assert_called_with(text_mock.return_value)
+        text_mock.assert_called_once()
+        text_mock.assert_called_with(
             "LOCK TABLE dummies IN ACCESS EXCLUSIVE MODE;")
-
-    # @patch("app.managers.entity_manager.text")
-    # async def test__execute(self, text_mock):
-    #     """Execute custom query."""
-    #     sql = "SELECT 1;"
-    #     result = await self.entity_manager.execute(sql)
-
-    #     self.assertEqual(result, self.session_mock.execute.return_value)
-    #     text_mock.assert_called_once()
-    #     text_mock.assert_called_with(sql)
-    #     self.session_mock.execute.assert_called_once()
-    #     self.session_mock.execute.assert_called_with(text_mock.return_value)
 
     async def test__flush(self):
         """Flush changes."""
