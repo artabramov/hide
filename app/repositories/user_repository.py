@@ -13,7 +13,7 @@ from sqlalchemy.ext.serializer import dumps  # , loads
 # from PIL import Image, ImageOps
 # from app.errors import E
 from app.config import get_config
-from app.repositories.basic_repository import BasicRepository, Hook
+from app.repositories.basic_repository import BasicRepository
 
 cfg = get_config()
 
@@ -24,11 +24,9 @@ class UserRepository(BasicRepository):
         return await self.entity_manager.exists(User, **kwargs)
 
     async def insert(self, user: User) -> User:
-        user = await self.execute_hook(Hook.BEFORE_USER_REGISTER, user)
         await self.entity_manager.insert(user, commit=True)
         await self.cache_manager.set(user)
         await self.file_manager.write(user.dump_path, dumps(user))
-        # user = await self.execute_hook(Hook.AFTER_USER_REGISTER, user)
         return user
 
     async def select(self, user_id: int = None, **kwargs) -> User | None:
