@@ -24,13 +24,20 @@ _OPERATORS = {
 }
 
 SELECT_ALL_BUNCH_LIMIT = 200
-DELETE_ALL_BUNCH_SIZE = 2
+_DELETE_ALL_LIMIT = 100
 
 
 class EntityManager:
 
     def __init__(self, session):
         self.session = session
+
+    @timed
+    async def exists(self, cls: object, **kwargs) -> bool:
+        """Check if object exists in Postgres database."""
+        async_result = await self.session.execute(
+            select(cls).where(*self._where(cls, **kwargs)).limit(1))
+        return async_result.unique().scalars().one_or_none() is not None
 
     @timed
     async def insert(self, obj: object, flush: bool = True,
@@ -58,6 +65,17 @@ class EntityManager:
         return async_result.unique().scalars().one_or_none()
 
     @timed
+    async def select_all(self, cls: object, **kwargs) -> list:
+        """Select a bunch of SQLAlchemy objects from Postgres database."""
+        async_result = await self.session.execute(
+            select(cls)
+            .where(*self._where(cls, **kwargs))
+            .order_by(self._order_by(cls, **kwargs))
+            .offset(self._offset(**kwargs))
+            .limit(self._limit(**kwargs)))
+        return async_result.unique().scalars().all()
+
+    @timed
     async def update(self, obj: object, flush: bool = True,
                      commit: bool = False):
         """Update SQLAlchemy object in Postgres database."""
@@ -78,15 +96,13 @@ class EntityManager:
             await self.commit()
 
     @timed
-    async def select_all(self, cls: object, **kwargs) -> list:
-        """Select a bunch of SQLAlchemy objects from Postgres database."""
-        async_result = await self.session.execute(
-            select(cls)
-            .where(*self._where(cls, **kwargs))
-            .order_by(self._order_by(cls, **kwargs))
-            .offset(self._offset(**kwargs))
-            .limit(self._limit(**kwargs)))
-        return async_result.unique().scalars().all()
+    async def delete_all(self, cls: object, commit: bool = False, **kwargs):
+        kwargs = kwargs | {_ORDER_BY: _ID, _ORDER: _ASC, _OFFSET: 0,
+                           _LIMIT: _DELETE_ALL_LIMIT}
+        while objs := await self.select_all(cls, **kwargs):
+            kwargs[_OFFSET] += kwargs[_LIMIT]
+            for obj in objs:
+                await self.delete(obj, commit=commit)
 
     @timed
     async def count_all(self, cls: object, **kwargs) -> int:
@@ -105,33 +121,12 @@ class EntityManager:
         return async_result.unique().scalars().one_or_none() or 0
 
     @timed
-    async def delete_all(self, cls: object, commit: bool = False, **kwargs):
-        kwargs = kwargs | {_ORDER_BY: _ID, _ORDER: _ASC, _OFFSET: 0,
-                           _LIMIT: 100}
-        while objs := await self.select_all(cls, **kwargs):
-            kwargs[_OFFSET] += kwargs[_LIMIT]
-            for obj in objs:
-                await self.delete(obj, commit=commit)
-
-    @timed
     async def lock_all(self, cls: object) -> None:
         """Lock Postgres table."""
-        self.session.execute(
+        await self.session.execute(
             "LOCK TABLE %s IN ACCESS EXCLUSIVE MODE;" % cls.__tablename__)
 
-    @timed
-    async def exists(self, cls: object, **kwargs) -> bool:
-        """Check if object exists in Postgres database."""
-        async_result = await self.session.execute(
-            select(cls).where(*self._where(cls, **kwargs)).limit(1))
-        return async_result.unique().scalars().one_or_none() is not None
-
-    # async def subquery(self, cls, foreign_key, **kwargs):
-    #     """Make a subquery expression for another class by a foreign key."""
-    #     return self.session.query(getattr(cls, foreign_key)).filter(
-    # *self._where(cls, **kwargs))
-
-    # async def exec(self, sql: str, commit: bool = False) -> object:
+    # async def execute(self, sql: str, commit: bool = False) -> object:
     #     """Execute a raw query."""
     #     res = self.db.engine.execute(text(sql))
 
@@ -139,6 +134,11 @@ class EntityManager:
     #         await self.commit()
 
     #     return res
+
+    # async def subquery(self, cls, foreign_key, **kwargs):
+    #     """Make a subquery expression for another class by a foreign key."""
+    #     return self.session.query(getattr(cls, foreign_key)).filter(
+    # *self._where(cls, **kwargs))
 
     async def flush(self):
         """Flush session."""
