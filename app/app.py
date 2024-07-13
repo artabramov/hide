@@ -11,6 +11,10 @@ from contextlib import asynccontextmanager
 from pydantic import ValidationError
 from time import time
 from uuid import uuid4
+import os
+import fnmatch
+import importlib.util
+import inspect
 
 cfg = get_config()
 log = get_log()
@@ -18,6 +22,37 @@ log = get_log()
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
+    # create hooks
+    ctx = get_context()
+    ctx.hooks = {}
+
+    files = [file for file in os.listdir(cfg.HOOKS_PATH)
+             if fnmatch.fnmatch(file, cfg.HOOKS_MASK)]
+
+    for file in files:
+        name = file.split(".")[0]
+        path = os.path.join(cfg.HOOKS_PATH, file)
+
+        try:
+            spec = importlib.util.spec_from_file_location(name, path)
+            module = importlib.util.module_from_spec(spec)
+            spec.loader.exec_module(module)
+
+        except Exception as e:
+            log.debug("Hook error; file=%s; e=%s;" % (file, str(e)))
+            raise e
+
+        func_names = [attr for attr in dir(module)
+                      if inspect.isfunction(getattr(module, attr))]
+
+        for func_name in func_names:
+            func = getattr(module, func_name)
+            if func_name not in ctx.hooks:
+                ctx.hooks[func_name] = [func]
+            else:
+                ctx.hooks[func_name].append(func)
+
+    # create tables
     async with sessionmanager.async_engine.begin() as conn:
         await conn.run_sync(Base.metadata.create_all)
     yield

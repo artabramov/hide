@@ -11,10 +11,11 @@ cfg = get_config()
 class Basic(Base):
     __abstract__ = True
     id = mapped_column(BigInteger, primary_key=True, sort_order=-3)
-    created_date = mapped_column(Integer, index=True,
-                                 default=lambda: int(time()), sort_order=-2)
-    updated_date = mapped_column(Integer, index=True, default=0,
-                                 onupdate=lambda: int(time()), sort_order=-1)
+    created_date = mapped_column(
+        Integer, index=True, default=lambda: int(time()), sort_order=-2)
+    updated_date = mapped_column(
+        Integer, index=True, default=0, onupdate=lambda: int(time()),
+        sort_order=-1)
 
     @property
     def dump_path(self):

@@ -35,3 +35,14 @@ class MFARequest(BaseModel):
     user_id: int
     mfa_secret: str = Field(..., min_length=32, max_length=32,
                             pattern=r"^[A-Za-z0-9]+$")
+
+
+class UserLoginRequest(BaseModel):
+    """Pydantic schema for user login."""
+    user_login: str
+    user_password: SecretStr
+
+
+class UserLoginResponse(BaseModel):
+    """Pydantic schema for user login."""
+    password_accepted: bool

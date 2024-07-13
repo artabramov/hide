@@ -53,6 +53,13 @@ class Config:
     APP_FERNET_KEY: str
     APP_JTI_LENGTH: int
 
+    HOOKS_PATH: str
+    HOOKS_MASK: str
+
+    USER_LOGIN_ATTEMPTS: int
+    USER_MFA_ATTEMPTS: int
+    USER_SUSPENDED_TIME: int
+
 
 @lru_cache(maxsize=None)
 def get_config() -> Config:

@@ -49,14 +49,14 @@ class EntityManager:
             await self.commit()
 
     @timed
-    async def select(self, cls: object, obj_id: int) -> object:
+    async def select(self, cls: object, obj_id: int) -> object | None:
         """Select SQLAlchemy object from Postgres database."""
         async_result = await self.session.execute(
             select(cls).where(cls.id == obj_id).limit(1))
         return async_result.unique().scalars().one_or_none()
 
     @timed
-    async def select_by(self, cls: object, **kwargs) -> object:
+    async def select_by(self, cls: object, **kwargs) -> object | None:
         """Select SQLAlchemy object from Postgres database."""
         async_result = await self.session.execute(
             select(cls).where(*self._where(cls, **kwargs)).limit(1))
