@@ -14,7 +14,7 @@ class BasicRepository:
         self.cache_manager = CacheManager(cache)
         self.file_manager = FileManager
 
-    async def execute_hook(self, hook: H, entity):
+    async def execute_hook(self, hook: H, entity=None):
         ctx = get_context()
         if hook.value in ctx.hooks:
             hook_functions = ctx.hooks[hook.value]
