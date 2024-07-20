@@ -34,9 +34,6 @@ class Config:
     LOG_FILESIZE: int
     LOG_FILES_LIMIT: int
 
-    SYNC_BASE_PATH: str
-    SYNC_FILE_EXT: str
-
     MFA_APP_NAME: str
     MFA_MIMETYPE: str
     MFA_VERSION: int

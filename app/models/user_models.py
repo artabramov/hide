@@ -1,5 +1,6 @@
 import enum
-from sqlalchemy import Boolean, Column, Integer, SmallInteger, String, Enum
+from sqlalchemy import (Boolean, Column, BigInteger, Integer, SmallInteger,
+                        String, Enum)
 from sqlalchemy.ext.hybrid import hybrid_property
 from app.mixins.jti_mixin import JTIMixin
 from app.mixins.mfa_mixin import MFAMixin
@@ -7,7 +8,8 @@ from app.mixins.fernet_mixin import FernetMixin
 from app.helpers.hash_helper import HashHelper
 # from sqlalchemy.orm import relationship
 from app.config import get_config
-from app.models.basic_model import Basic
+from app.postgres import Base
+from time import time
 
 cfg = get_config()
 
@@ -19,9 +21,12 @@ class UserRole(enum.Enum):
     ADMIN = "admin"
 
 
-class User(Basic, MFAMixin, JTIMixin, FernetMixin):
+class User(Base, MFAMixin, JTIMixin, FernetMixin):
     __tablename__ = "users"
-
+    id = Column(BigInteger, primary_key=True)
+    created_date = Column(Integer, index=True, default=lambda: int(time()))
+    updated_date = Column(Integer, index=True, default=0,
+                          onupdate=lambda: int(time()))
     suspended_date = Column(Integer, nullable=False, default=0)
     user_role = Column(Enum(UserRole), nullable=False, index=True,
                        default=UserRole.READER)

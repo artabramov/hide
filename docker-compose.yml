@@ -86,7 +86,6 @@ services:
       - redis_log:/var/log/redis
       - app_log:/var/log/app
       - app_data:/hide/data
-      - app_sync:/hide/sync
     ports:
       - "80:80"
       - "5000:5000"
@@ -105,4 +104,3 @@ volumes:
   redis_log:
   app_log:
   app_data:
-  app_sync:
