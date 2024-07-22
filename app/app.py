@@ -1,4 +1,4 @@
-from fastapi import FastAPI, Request, status
+from fastapi import FastAPI, Request, status, Depends, BackgroundTasks
 from fastapi.encoders import jsonable_encoder
 from fastapi.responses import JSONResponse
 from app.config import get_config
@@ -15,13 +15,41 @@ import os
 import fnmatch
 import importlib.util
 import inspect
+import asyncio
+from app.hooks import H, Hook
+from app.postgres import get_session
+from app.redis import get_cache
+from app.managers.entity_manager import EntityManager
+from app.managers.cache_manager import CacheManager
 
 cfg = get_config()
 log = get_log()
 
 
+async def on_start(session=Depends(get_session), cache=Depends(get_cache)):
+    entity_manager = EntityManager(session)
+    cache_manager = CacheManager(cache)
+
+    hook = Hook(entity_manager, cache_manager)
+    await hook.execute(H.ON_START)
+
+
+async def on_tick(background_tasks: BackgroundTasks):
+    log = get_log()
+    log.debug("tick")
+    # entity_manager = EntityManager(session)
+    # cache_manager = CacheManager(cache)
+
+    # hook = Hook(entity_manager, cache_manager)
+    # while True:
+    #     await hook.execute(H.ON_TICK)
+    #     await asyncio.sleep(60)
+
+
 @asynccontextmanager
 async def lifespan(app: FastAPI):
+    log.debug("app started")
+
     # create hooks
     ctx = get_context()
     ctx.hooks = {}
@@ -55,7 +83,19 @@ async def lifespan(app: FastAPI):
     # create tables
     async with sessionmanager.async_engine.begin() as conn:
         await conn.run_sync(Base.metadata.create_all)
-    yield
+
+    # on start hook
+    await on_start()
+
+    # ticks
+    background_tasks = BackgroundTasks()
+    background_tasks.add_task(on_tick)
+
+    try:
+        yield
+    finally:
+        # Clean up resources if needed
+        pass
 
 
 app = FastAPI(lifespan=lifespan, title=cfg.APP_TITLE, version=cfg.APP_VERSION)
