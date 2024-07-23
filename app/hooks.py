@@ -7,8 +7,7 @@ ctx = get_context()
 
 
 class H(enum.Enum):
-    ON_START = "on_start"
-    ON_TICK = "on_tick"
+    ON_STARTUP = "on_startup"
     BEFORE_USER_REGISTER = "before_user_register"
     AFTER_USER_REGISTER = "after_user_register"
 

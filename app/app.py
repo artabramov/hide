@@ -1,4 +1,4 @@
-from fastapi import FastAPI, Request, status, Depends, BackgroundTasks
+from fastapi import FastAPI, Request, status, Depends
 from fastapi.encoders import jsonable_encoder
 from fastapi.responses import JSONResponse
 from app.config import get_config
@@ -15,7 +15,6 @@ import os
 import fnmatch
 import importlib.util
 import inspect
-import asyncio
 from app.hooks import H, Hook
 from app.postgres import get_session
 from app.redis import get_cache
@@ -23,37 +22,21 @@ from app.managers.entity_manager import EntityManager
 from app.managers.cache_manager import CacheManager
 
 cfg = get_config()
+ctx = get_context()
 log = get_log()
 
 
-async def on_start(session=Depends(get_session), cache=Depends(get_cache)):
+async def on_startup(session=Depends(get_session), cache=Depends(get_cache)):
     entity_manager = EntityManager(session)
     cache_manager = CacheManager(cache)
 
     hook = Hook(entity_manager, cache_manager)
-    await hook.execute(H.ON_START)
-
-
-async def on_tick(background_tasks: BackgroundTasks):
-    log = get_log()
-    log.debug("tick")
-    # entity_manager = EntityManager(session)
-    # cache_manager = CacheManager(cache)
-
-    # hook = Hook(entity_manager, cache_manager)
-    # while True:
-    #     await hook.execute(H.ON_TICK)
-    #     await asyncio.sleep(60)
+    await hook.execute(H.ON_STARTUP)
 
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    log.debug("app started")
-
-    # create hooks
-    ctx = get_context()
     ctx.hooks = {}
-
     files = [file for file in os.listdir(cfg.HOOKS_PATH)
              if fnmatch.fnmatch(file, cfg.HOOKS_MASK)]
 
@@ -80,22 +63,11 @@ async def lifespan(app: FastAPI):
             else:
                 ctx.hooks[func_name].append(func)
 
-    # create tables
     async with sessionmanager.async_engine.begin() as conn:
         await conn.run_sync(Base.metadata.create_all)
 
-    # on start hook
-    await on_start()
-
-    # ticks
-    background_tasks = BackgroundTasks()
-    background_tasks.add_task(on_tick)
-
-    try:
-        yield
-    finally:
-        # Clean up resources if needed
-        pass
+    await on_startup()
+    yield
 
 
 app = FastAPI(lifespan=lifespan, title=cfg.APP_TITLE, version=cfg.APP_VERSION)
@@ -106,7 +78,7 @@ app.include_router(user_routers.router, prefix=cfg.APP_PREFIX)
 
 @app.middleware("http")
 async def middleware_handler(request: Request, call_next):
-    ctx = get_context()
+    # ctx = get_context()
     ctx.request_start_time = time()
     ctx.trace_request_uuid = str(uuid4())
 
@@ -127,7 +99,7 @@ async def middleware_handler(request: Request, call_next):
 
 @app.exception_handler(Exception)
 async def exception_handler(request: Request, e: Exception):
-    ctx = get_context()
+    # ctx = get_context()
     elapsed_time = time() - ctx.request_start_time
 
     if isinstance(e, ValidationError):
