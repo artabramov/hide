@@ -23,6 +23,7 @@ class UserRole(enum.Enum):
 
 class User(Base, MFAMixin, JTIMixin, FernetMixin):
     __tablename__ = "users"
+
     id = Column(BigInteger, primary_key=True)
     created_date = Column(Integer, index=True, default=lambda: int(time()))
     updated_date = Column(Integer, index=True, default=0,
