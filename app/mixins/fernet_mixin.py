@@ -2,7 +2,7 @@ from cryptography.fernet import Fernet
 from app.config import get_config
 
 config = get_config()
-cipher_suite = Fernet(config.APP_FERNET_KEY)
+cipher_suite = Fernet(config.FERNET_KEY)
 
 
 class FernetMixin:

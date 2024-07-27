@@ -46,9 +46,14 @@ class Config:
     APP_TITLE: str
     APP_VERSION: str
     APP_PREFIX: str
-    APP_HASH_SALT: str
-    APP_FERNET_KEY: str
-    APP_JTI_LENGTH: int
+
+    HASH_SALT: str
+    FERNET_KEY: str
+
+    JWT_SECRET: str
+    JWT_EXPIRES: int
+    JWT_ALGORITHM: str
+    JTI_LENGTH: int
 
     HOOKS_PATH: str
     HOOKS_MASK: str

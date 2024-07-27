@@ -46,3 +46,16 @@ class UserLoginRequest(BaseModel):
 class UserLoginResponse(BaseModel):
     """Pydantic schema for user login."""
     password_accepted: bool
+
+
+class UserTokenRequest(BaseModel):
+    """Pydantic schema for token selection request."""
+
+    user_login: str
+    user_totp: str = Field(..., min_length=6, max_length=6)
+
+
+class UserTokenResponse(BaseModel):
+    """Pydantic schema for token selection request."""
+
+    user_token: str

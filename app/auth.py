@@ -1,0 +1,89 @@
+
+from app.models.user_models import UserRole
+from sqlalchemy.ext.asyncio import AsyncSession
+from redis import Redis
+from app.postgres import get_session
+from app.redis import get_cache
+from fastapi import Depends
+from app.repositories.user_repository import UserRepository
+from fastapi.security import HTTPBearer
+from app.helpers.jwt_helper import JWTHelper
+from jwt.exceptions import ExpiredSignatureError, PyJWTError
+from app.errors import E, Msg
+
+jwt = HTTPBearer()
+
+
+def auth(user_role: UserRole):
+    if user_role == UserRole.READER:
+        return _can_read
+
+    elif user_role == UserRole.WRITER:
+        return _can_write
+
+    elif user_role == UserRole.EDITOR:
+        return _can_edit
+
+    elif user_role == UserRole.ADMIN:
+        return _can_admin
+
+
+async def _can_read(session: AsyncSession = Depends(get_session),
+                    cache: Redis = Depends(get_cache), header=Depends(jwt)):
+    user_token = header.credentials
+    user = await _auth(user_token, session, cache)
+    if not user.can_read:
+        raise E("user_token", user_token, Msg.USER_TOKEN_DENIED)
+    return user
+
+
+async def _can_write(session: AsyncSession = Depends(get_session),
+                     cache: Redis = Depends(get_cache), header=Depends(jwt)):
+    user_token = header.credentials
+    user = await _auth(user_token, session, cache)
+    if not user.can_write:
+        raise E("user_token", user_token, Msg.USER_TOKEN_DENIED)
+    return user
+
+
+async def _can_edit(session: AsyncSession = Depends(get_session),
+                    cache: Redis = Depends(get_cache), header=Depends(jwt)):
+    user_token = header.credentials
+    user = await _auth(user_token, session, cache)
+    if not user.can_edit:
+        raise E("user_token", user_token, Msg.USER_TOKEN_DENIED)
+    return user
+
+
+async def _can_admin(session: AsyncSession = Depends(get_session),
+                     cache: Redis = Depends(get_cache), header=Depends(jwt)):
+    user_token = header.credentials
+    user = await _auth(user_token, session, cache)
+    if not user.can_admin:
+        raise E("user_token", user_token, Msg.USER_TOKEN_DENIED)
+    return user
+
+
+async def _auth(user_token: str, session: AsyncSession, cache: Redis):
+    if not user_token:
+        raise E("user_token", user_token, Msg.USER_TOKEN_EMPTY)
+
+    try:
+        token_payload = JWTHelper.decode_token(user_token)
+
+    except ExpiredSignatureError:
+        raise E("user_token", user_token, Msg.USER_TOKEN_EXPIRED)
+
+    except PyJWTError:
+        raise E("user_token", user_token, Msg.USER_TOKEN_INVALID)
+
+    user_repository = UserRepository(session, cache)
+    user = await user_repository.select(user_id=token_payload["user_id"])
+
+    if not user:
+        raise E("user_token", user_token, Msg.USER_TOKEN_ORPHANED)
+
+    elif token_payload["jti"] != user.jti:
+        raise E("user_token", user_token, Msg.USER_TOKEN_DECLINED)
+
+    return user

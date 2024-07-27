@@ -7,14 +7,16 @@ class Msg(enum.Enum):
     BAD_REQUEST = "Bad request."
 
     USER_TOKEN_EMPTY = "User token is missing or empty."
-    USER_TOKEN_INVALID = "User token has invalid format."
     USER_TOKEN_EXPIRED = "User token has already expired."
+    USER_TOKEN_INVALID = "User token has invalid format."
     USER_TOKEN_ORPHANED = "User token contains invalid user data."
+    USER_TOKEN_DECLINED = "User token contains invalid identifier."
     USER_TOKEN_DENIED = "User token does not have sufficient role."
 
     USER_LOGIN_EXISTS = "User login already exists."
     USER_LOGIN_INACTIVE = "User is inactive."
     USER_LOGIN_SUSPENDED = "User is temporarily suspended."
+    USER_LOGIN_DENIED = "User login denied because password is not accepted."
     USER_PASSWORD_INVALID = "User password is invalid."
     USER_PASSWORD_UNACCEPTED = "User password is not accepted."
     USER_TOTP_INVALID = "User one-time password is invalid."

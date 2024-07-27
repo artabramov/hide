@@ -19,7 +19,7 @@ async def user_mfa(session=Depends(get_session), cache=Depends(get_cache),
                    schema=Depends(MFARequest)):
 
     user_repository = UserRepository(session, cache)
-    user = await user_repository.select(schema.user_id)
+    user = await user_repository.select(user_id=schema.user_id)
     if not user or user.mfa_secret != schema.mfa_secret:
         raise HTTPException(status_code=404)
 

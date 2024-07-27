@@ -2,7 +2,6 @@ import enum
 from sqlalchemy import (Boolean, Column, BigInteger, Integer, SmallInteger,
                         String, Enum)
 from sqlalchemy.ext.hybrid import hybrid_property
-from app.mixins.jti_mixin import JTIMixin
 from app.mixins.mfa_mixin import MFAMixin
 from app.mixins.fernet_mixin import FernetMixin
 from app.helpers.hash_helper import HashHelper
@@ -21,7 +20,7 @@ class UserRole(enum.Enum):
     ADMIN = "admin"
 
 
-class User(Base, MFAMixin, JTIMixin, FernetMixin):
+class User(Base, MFAMixin, FernetMixin):
     __tablename__ = "users"
 
     id = Column(BigInteger, primary_key=True)
@@ -53,8 +52,8 @@ class User(Base, MFAMixin, JTIMixin, FernetMixin):
     # lazy="noload")
 
     def __init__(self, user_role: UserRole, user_login: str, user_password: str,
-                 first_name: str, last_name: str, is_active: bool = False,
-                 user_summary: str = ""):
+                 first_name: str, last_name: str, jti: str,
+                 is_active: bool = False, user_summary: str = ""):
         self.suspended_date = 0
         self.user_role = user_role
         self.is_active = is_active
@@ -66,7 +65,7 @@ class User(Base, MFAMixin, JTIMixin, FernetMixin):
         self.last_name = last_name
         self.mfa_secret = self.create_mfa_secret()
         self.mfa_attempts = 0
-        self.jti = self.create_jti()
+        self.jti = jti
         self.user_summary = user_summary
 
     @property
