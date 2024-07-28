@@ -10,7 +10,7 @@ class Msg(enum.Enum):
     USER_TOKEN_EXPIRED = "User token has already expired."
     USER_TOKEN_INVALID = "User token has invalid format."
     USER_TOKEN_ORPHANED = "User token contains invalid user data."
-    USER_TOKEN_DECLINED = "User token contains invalid identifier."
+    USER_TOKEN_DECLINED = "User token contains invalid token identifier."
     USER_TOKEN_DENIED = "User token does not have sufficient role."
 
     USER_LOGIN_EXISTS = "User login already exists."

@@ -113,9 +113,9 @@ class User(Base, MFAMixin, FernetMixin):
     def to_dict(self) -> dict:
         return {
             "id": self.id,
-            "date_created": self.date_created,
-            "date_updated": self.date_updated,
-            "user_role": self.user_role.name,
+            "created_date": self.created_date,
+            "updated_date": self.updated_date,
+            "user_role": self.user_role.value,
             "is_active": self.is_active,
             "user_login": self.user_login,
             "first_name": self.first_name,

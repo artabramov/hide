@@ -6,7 +6,9 @@ from app.helpers.hash_helper import HashHelper
 from app.helpers.jwt_helper import JWTHelper
 from app.schemas.user_schemas import (
     UserRegisterRequest, UserRegisterResponse, UserLoginRequest,
-    UserLoginResponse, UserTokenRequest, UserTokenResponse)
+    UserLoginResponse, TokenSelectRequest, TokenSelectResponse,
+    TokenDeleteRequest, TokenDeleteResponse,
+    UserSelectRequest, UserSelectResponse)
 from app.repositories.user_repository import UserRepository
 from app.errors import E, Msg
 from app.config import get_config
@@ -16,33 +18,6 @@ from app.auth import auth
 
 router = APIRouter()
 cfg = get_config()
-
-
-@router.post("/user", response_model=UserRegisterResponse, tags=["users"])
-async def user_register(session=Depends(get_session), cache=Depends(get_cache),
-                        schema=Depends(UserRegisterRequest)):
-
-    user_repository = UserRepository(session, cache)
-    user_exists = await user_repository.exists(user_login__eq=schema.user_login)
-
-    if user_exists:
-        raise E("user_login", schema.user_login, Msg.USER_LOGIN_EXISTS)
-
-    user_password = schema.user_password.get_secret_value()
-    user_jti = JWTHelper.create_jti()
-    user = User(UserRole.READER, schema.user_login, user_password,
-                schema.first_name, schema.last_name, user_jti)
-
-    hook = Hook(user_repository.entity_manager, user_repository.cache_manager)
-    user = await hook.execute(H.BEFORE_USER_REGISTER, entity=user)
-    user = await user_repository.insert(user)
-    user = await hook.execute(H.AFTER_USER_REGISTER, entity=user)
-
-    return {
-        "user_id": user.id,
-        "mfa_secret": user.mfa_secret,
-        "mfa_url": user.mfa_url,
-    }
 
 
 @router.get("/user/login", response_model=UserLoginResponse, tags=["auth"])
@@ -79,7 +54,7 @@ async def user_login(session=Depends(get_session), cache=Depends(get_cache),
             user.password_attempts += 1
 
         await user_repository.update(user)
-        raise E("user_password", user_password, Msg.USER_PASSWORD_INVALID)        
+        raise E("user_password", user_password, Msg.USER_PASSWORD_INVALID)
 
     else:
         user.password_accepted = True
@@ -89,9 +64,9 @@ async def user_login(session=Depends(get_session), cache=Depends(get_cache),
         return {"password_accepted": True}
 
 
-@router.get("/auth/token", response_model=UserTokenResponse, tags=["auth"])
+@router.get("/auth/token", response_model=TokenSelectResponse, tags=["auth"])
 async def token_select(session=Depends(get_session), cache=Depends(get_cache),
-                       schema=Depends(UserTokenRequest)):
+                       schema=Depends(TokenSelectRequest)):
     """Second step of authentication: sign in by user login and totp."""
     user_repository = UserRepository(session, cache)
     user = await user_repository.select(user_login__eq=schema.user_login)
@@ -133,11 +108,55 @@ async def token_select(session=Depends(get_session), cache=Depends(get_cache),
         raise E("user_totp", schema.user_totp, Msg.USER_TOTP_INVALID)
 
 
-@router.delete("/auth/token", tags=["auth"])
+@router.delete("/auth/token", response_model=TokenDeleteResponse, tags=["auth"])
 async def token_delete(session=Depends(get_session), cache=Depends(get_cache),
-                       current_user: User = Depends(auth(UserRole.READER))):
+                       current_user: User = Depends(auth(UserRole.READER)),
+                       schema=Depends(TokenDeleteRequest)):
     """Logout: generate new jti."""
     user_repository = UserRepository(session, cache)
     current_user.jti = JWTHelper.create_jti()
     await user_repository.update(current_user)
     return {}
+
+
+@router.post("/user", response_model=UserRegisterResponse, tags=["users"])
+async def user_register(session=Depends(get_session), cache=Depends(get_cache),
+                        schema=Depends(UserRegisterRequest)):
+
+    user_repository = UserRepository(session, cache)
+    user_exists = await user_repository.exists(user_login__eq=schema.user_login)
+
+    if user_exists:
+        raise E("user_login", schema.user_login, Msg.USER_LOGIN_EXISTS)
+
+    user_password = schema.user_password.get_secret_value()
+    user_jti = JWTHelper.create_jti()
+    user = User(UserRole.READER, schema.user_login, user_password,
+                schema.first_name, schema.last_name, user_jti)
+
+    hook = Hook(user_repository.entity_manager, user_repository.cache_manager)
+    user = await hook.execute(H.BEFORE_USER_REGISTER, entity=user)
+    user = await user_repository.insert(user)
+    user = await hook.execute(H.AFTER_USER_REGISTER, entity=user)
+
+    return {
+        "user_id": user.id,
+        "mfa_secret": user.mfa_secret,
+        "mfa_url": user.mfa_url,
+    }
+
+
+@router.get("/user/{user_id}", response_model=UserSelectResponse, tags=["users"])  # noqa E501
+async def user_select(session=Depends(get_session), cache=Depends(get_cache),
+                      current_user: User = Depends(auth(UserRole.READER)),
+                      schema=Depends(UserSelectRequest)):
+    """Select user."""
+    user_repository = UserRepository(session, cache)
+    user = await user_repository.select(schema.user_id)
+
+    if not user:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND)
+
+    return {
+        "user": user.to_dict(),
+    }

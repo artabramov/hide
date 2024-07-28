@@ -24,7 +24,7 @@ class JWTHelper:
         current_time = int(time.time())
         payload = {
             "user_id": user.id,
-            "user_role": user.user_role.name,
+            "user_role": user.user_role.value,
             "user_login": user.user_login,
             "jti": user.jti,
             "iat": current_time,
