@@ -47,3 +47,9 @@ class UserRepository(BasicRepository):
     async def update(self, user: User):
         await self.entity_manager.update(user, commit=True)
         await self.cache_manager.set(user)
+
+    async def delete(self, user: User):
+        pass
+
+    async def select_all(self, user: User):
+        pass
