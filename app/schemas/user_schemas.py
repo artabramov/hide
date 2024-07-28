@@ -1,8 +1,4 @@
 from pydantic import BaseModel
-
-
-"""Pydantic schemas for user model."""
-
 from pydantic import SecretStr
 # from fastapi import Query
 # from typing import Optional, Literal
@@ -14,8 +10,7 @@ cfg = get_config()
 
 
 class UserRegisterRequest(BaseModel):
-    user_login: str = Field(..., min_length=2, max_length=40,
-                            pattern=r"^[a-z0-9]+$")
+    user_login: str = Field(..., pattern=r"^[a-z0-9]{2,40}$")
     user_password: SecretStr = Field(..., min_length=6)
     first_name: str = Field(..., min_length=2, max_length=40)
     last_name: str = Field(..., min_length=2, max_length=40)
