@@ -16,8 +16,14 @@ class UserRegisterRequest(BaseModel):
     last_name: str = Field(..., min_length=2, max_length=40)
 
     @field_validator("user_login", mode="before")
-    def _user_login(cls, user_login: str):
+    def validate_user_login(cls, user_login: str) -> str:
         return user_login.strip().lower()
+
+    @field_validator("user_password", mode="before")
+    def validate_user_password(cls, user_password: SecretStr) -> SecretStr:
+        if not user_password.get_secret_value().strip():
+            raise ValueError
+        return user_password
 
 
 class UserRegisterResponse(BaseModel):
