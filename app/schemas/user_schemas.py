@@ -21,9 +21,21 @@ class UserRegisterRequest(BaseModel):
 
     @field_validator("user_password", mode="before")
     def validate_user_password(cls, user_password: SecretStr) -> SecretStr:
-        if not user_password.get_secret_value().strip():
+        if len(user_password.get_secret_value().strip()) < 6:
             raise ValueError
         return user_password
+
+    @field_validator("first_name", mode="before")
+    def validate_first_name(cls, first_name: str) -> str:
+        if len(first_name.strip()) < 2:
+            raise ValueError
+        return first_name
+
+    @field_validator("last_name", mode="before")
+    def validate_last_name(cls, last_name: str) -> str:
+        if len(last_name.strip()) < 2:
+            raise ValueError
+        return last_name
 
 
 class UserRegisterResponse(BaseModel):
