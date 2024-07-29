@@ -5,7 +5,7 @@ from sqlalchemy.ext.hybrid import hybrid_property
 from app.mixins.mfa_mixin import MFAMixin
 from app.mixins.fernet_mixin import FernetMixin
 from app.helpers.hash_helper import HashHelper
-# from sqlalchemy.orm import relationship
+from sqlalchemy.orm import relationship
 from app.config import get_config
 from app.postgres import Base
 from time import time
@@ -42,14 +42,8 @@ class User(Base, MFAMixin, FernetMixin):
     jti_encrypted = Column(String(512), nullable=False, unique=True)
     user_summary = Column(String(512), index=False, nullable=True)
 
-    # user_album = relationship("Album", back_populates="album_user",
-    # lazy="noload")
-    # mediafile = relationship("Mediafile", back_populates="mediafile_user",
-    # lazy="noload")
-    # user_comment = relationship("Comment", back_populates="comment_user",
-    # lazy="noload")
-    # user_favorite = relationship("Favorite", back_populates="favorite_user",
-    # lazy="noload")
+    user_folders = relationship("Folder", back_populates="folder_user",
+                                lazy="noload")
 
     def __init__(self, user_role: UserRole, user_login: str, user_password: str,
                  first_name: str, last_name: str, jti: str,
