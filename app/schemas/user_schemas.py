@@ -3,7 +3,7 @@ from pydantic import SecretStr
 # from fastapi import Query
 # from typing import Optional, Literal
 # from app.models.user_models import UserRole
-from pydantic import field_validator, Field
+from pydantic import Field, field_validator
 from app.config import get_config
 
 cfg = get_config()

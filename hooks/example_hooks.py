@@ -1,4 +1,5 @@
 from app.models.user_models import User
+from app.models.album_models import Album
 from app.postgres import Base, sessionmanager
 from sqlalchemy import Column, BigInteger, Integer, ForeignKey, Enum
 from sqlalchemy.dialects.postgresql import JSON
@@ -15,6 +16,7 @@ class EntityAction(enum.Enum):
 
 class EntityTablename(enum.Enum):
     USERS = User.__tablename__
+    ALBUMS = Album.__tablename__
 
 
 class Revision(Base):
@@ -48,4 +50,12 @@ async def after_user_register(entity_manager, cache_manager, entity: User):
     entity.user_summary = "after user register"
     await entity_manager.update(entity, commit=True)
     await cache_manager.set(entity)
+    return entity
+
+
+async def before_album_insert(entity_manager, cache_manager, entity: Album):
+    return entity
+
+
+async def after_album_insert(entity_manager, cache_manager, entity: Album):
     return entity

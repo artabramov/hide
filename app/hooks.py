@@ -10,6 +10,8 @@ class H(enum.Enum):
     ON_STARTUP = "on_startup"
     BEFORE_USER_REGISTER = "before_user_register"
     AFTER_USER_REGISTER = "after_user_register"
+    BEFORE_ALBUM_INSERT = "before_album_insert"
+    AFTER_ALBUM_INSERT = "after_album_insert"
 
 
 class Hook:

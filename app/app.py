@@ -4,7 +4,7 @@ from fastapi.responses import JSONResponse
 from app.config import get_config
 from app.context import get_context
 from app.log import get_log
-from app.routers import (static_routers, user_routers, folder_routers,
+from app.routers import (static_routers, user_routers, album_routers,
                          system_routers)
 from app.postgres import Base, sessionmanager
 from app.errors import Msg
@@ -75,7 +75,7 @@ app = FastAPI(lifespan=lifespan, title=cfg.APP_TITLE, version=cfg.APP_VERSION)
 app.include_router(static_routers.router)
 app.include_router(system_routers.router, prefix=cfg.APP_PREFIX)
 app.include_router(user_routers.router, prefix=cfg.APP_PREFIX)
-app.include_router(folder_routers.router, prefix=cfg.APP_PREFIX)
+app.include_router(album_routers.router, prefix=cfg.APP_PREFIX)
 
 
 @app.middleware("http")

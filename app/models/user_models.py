@@ -42,8 +42,8 @@ class User(Base, MFAMixin, FernetMixin):
     jti_encrypted = Column(String(512), nullable=False, unique=True)
     user_summary = Column(String(512), index=False, nullable=True)
 
-    user_folders = relationship("Folder", back_populates="folder_user",
-                                lazy="noload")
+    user_albums = relationship("Album", back_populates="album_user",
+                               lazy="noload")
 
     def __init__(self, user_role: UserRole, user_login: str, user_password: str,
                  first_name: str, last_name: str, jti: str,
