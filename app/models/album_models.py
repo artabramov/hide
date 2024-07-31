@@ -35,6 +35,7 @@ class Album(Base):
         self.posts_size = 0
 
     def to_dict(self):
+        # self.album_user
         return {
             "id": self.id,
             "created_date": self.created_date,

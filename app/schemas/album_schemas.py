@@ -32,3 +32,30 @@ class AlbumInsertRequest(BaseModel):
 
 class AlbumInsertResponse(BaseModel):
     album_id: int
+
+
+class AlbumSelectRequest(BaseModel):
+    album_id: int
+
+
+class AlbumSelectResponse(BaseModel):
+    id: int
+    created_date: int
+    updated_date: int
+    user_id: int
+    is_locked: bool
+    album_name: str
+    album_summary: Optional[str]
+    posts_count: int
+    posts_size: int
+
+
+class AlbumUpdateRequest(BaseModel):
+    album_id: int
+    is_locked: bool
+    album_name: str = Field(..., min_length=2, max_length=128)
+    album_summary: Optional[str] = Field(max_length=255, default=None)
+
+
+class AlbumUpdateResponse(BaseModel):
+    album_id: int

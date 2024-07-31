@@ -133,11 +133,10 @@ async def user_register(session=Depends(get_session), cache=Depends(get_cache),
     user_jti = JWTHelper.create_jti()
     user = User(UserRole.READER, schema.user_login, user_password,
                 schema.first_name, schema.last_name, user_jti)
+    await user_repository.insert(user)
 
-    hook = Hook(user_repository.entity_manager, user_repository.cache_manager)
-    user = await hook.execute(H.BEFORE_USER_REGISTER, entity=user)
-    user = await user_repository.insert(user)
-    user = await hook.execute(H.AFTER_USER_REGISTER, entity=user)
+    hook = Hook(session, cache)
+    user = await hook.execute(H.AFTER_USER_REGISTER, user)
 
     return {
         "user_id": user.id,
@@ -152,7 +151,7 @@ async def user_select(session=Depends(get_session), cache=Depends(get_cache),
                       schema=Depends(UserSelectRequest)):
     """Select user."""
     user_repository = UserRepository(session, cache)
-    user = await user_repository.select(schema.user_id)
+    user = await user_repository.select(user_id=schema.user_id)
 
     if not user:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND)

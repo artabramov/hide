@@ -32,18 +32,13 @@ class Revision(Base):
     entity_data = Column(JSON)
 
 
-async def on_startup(entity_manager, cache_manager, entity=None):
+async def after_startup(entity_manager, cache_manager, _=None):
     a = 1
 
     async with sessionmanager.async_engine.begin() as conn:
         await conn.run_sync(Base.metadata.create_all)
 
     return a
-
-
-async def before_user_register(entity_manager, cache_manager, entity: User):
-    entity.user_summary = "before user register"
-    return entity
 
 
 async def after_user_register(entity_manager, cache_manager, entity: User):
@@ -53,9 +48,15 @@ async def after_user_register(entity_manager, cache_manager, entity: User):
     return entity
 
 
-async def before_album_insert(entity_manager, cache_manager, entity: Album):
-    return entity
+async def after_album_insert(entity_manager, cache_manager, album: Album):
+    album.album_summary = str(album.album_summary) + " hooked"
+    return album
 
 
-async def after_album_insert(entity_manager, cache_manager, entity: Album):
-    return entity
+async def after_album_select(entity_manager, cache_manager, album: Album):
+    album.album_summary = str(album.album_summary) + " hooked"
+    return album
+
+
+async def after_album_update(entity_manager, cache_manager, album: Album):
+    return album

@@ -19,20 +19,15 @@ import inspect
 from app.hooks import H, Hook
 from app.postgres import get_session
 from app.redis import get_cache
-from app.managers.entity_manager import EntityManager
-from app.managers.cache_manager import CacheManager
 
 cfg = get_config()
 ctx = get_context()
 log = get_log()
 
 
-async def on_startup(session=Depends(get_session), cache=Depends(get_cache)):
-    entity_manager = EntityManager(session)
-    cache_manager = CacheManager(cache)
-
-    hook = Hook(entity_manager, cache_manager)
-    await hook.execute(H.ON_STARTUP)
+async def after_startup(session=Depends(get_session), cache=Depends(get_cache)):
+    hook = Hook(session, cache)
+    await hook.execute(H.AFTER_STARTUP)
 
 
 @asynccontextmanager
@@ -67,7 +62,7 @@ async def lifespan(app: FastAPI):
     async with sessionmanager.async_engine.begin() as conn:
         await conn.run_sync(Base.metadata.create_all)
 
-    await on_startup()
+    await after_startup()
     yield
 
 
