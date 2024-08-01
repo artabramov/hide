@@ -39,7 +39,7 @@ class EntityManager:
 
     @timed
     async def insert(self, obj: object, flush: bool = True,
-                     commit: bool = False):
+                     commit: bool = True):
         self.session.add(obj)
 
         if flush:
@@ -111,10 +111,10 @@ class EntityManager:
         return async_result.unique().scalars().one_or_none() or 0
 
     @timed
-    async def sum_all(self, cls: object, column: str, **kwargs):
+    async def sum_all(self, cls: object, column_name: str, **kwargs):
         """Sum SQLAlchemy object column in Postgres database."""
         async_result = await self.session.execute(
-            select(func.sum(getattr(cls, column))).where(
+            select(func.sum(getattr(cls, column_name))).where(
                 *self._where(cls, **kwargs)))
         return async_result.unique().scalars().one_or_none() or 0
 
@@ -149,8 +149,8 @@ class EntityManager:
 
             if hasattr(cls, column_name):
                 column = getattr(cls, column_name)
-
                 value = kwargs[key]
+
                 if isinstance(value, str):
                     if operator == "in":
                         value = [x.strip() for x in value.split(",")]
@@ -159,8 +159,8 @@ class EntityManager:
                     else:
                         value = value
 
-                operation = getattr(column, _OPERATORS[operator])(value)
-                where.append(operation)
+                    operation = getattr(column, _OPERATORS[operator])(value)
+                    where.append(operation)
         return where
 
     def _order_by(self, cls, **kwargs):

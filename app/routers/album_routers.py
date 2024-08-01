@@ -5,7 +5,9 @@ from app.models.user_models import User, UserRole
 from app.models.album_models import Album
 from app.schemas.album_schemas import (AlbumInsertRequest, AlbumInsertResponse,
                                        AlbumSelectRequest, AlbumSelectResponse,
-                                       AlbumUpdateRequest, AlbumUpdateResponse)
+                                       AlbumUpdateRequest, AlbumUpdateResponse,
+                                       AlbumDeleteRequest, AlbumDeleteResponse,
+                                       AlbumsListRequest, AlbumsListResponse)
 from app.repositories.album_repository import AlbumRepository
 from app.errors import E, Msg
 from app.config import get_config
@@ -57,14 +59,18 @@ async def album_select(session=Depends(get_session), cache=Depends(get_cache),
 
 
 @router.put("/album/{album_id}", response_model=AlbumUpdateResponse, tags=["albums"])  # noqa E501
-async def update_album(session=Depends(get_session), cache=Depends(get_cache),
+async def album_update(session=Depends(get_session), cache=Depends(get_cache),
                        current_user: User = Depends(auth(UserRole.EDITOR)),
                        schema=Depends(AlbumUpdateRequest)):
     album_repository = AlbumRepository(session, cache)
-    album = await album_repository.select(album_id=schema.album_id)
 
+    album = await album_repository.select(album_id=schema.album_id)
     if not album:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND)
+
+    album_exists = await album_repository.exists(album_name__eq=schema.album_name)  # noqa E501
+    if album_exists:
+        raise E("album_name", schema.album_name, Msg.ALBUM_NAME_EXISTS)
 
     album.is_locked = schema.is_locked
     album.album_name = schema.album_name
@@ -75,3 +81,38 @@ async def update_album(session=Depends(get_session), cache=Depends(get_cache),
     await hook.execute(H.AFTER_ALBUM_UPDATE, album)
 
     return {"album_id": album.id}
+
+
+@router.delete("/album/{album_id}", response_model=AlbumDeleteResponse, tags=["albums"])  # noqa E501
+async def album_delete(session=Depends(get_session), cache=Depends(get_cache),
+                       current_user: User = Depends(auth(UserRole.ADMIN)),
+                       schema=Depends(AlbumDeleteRequest)):
+    album_repository = AlbumRepository(session, cache)
+
+    album = await album_repository.select(album_id=schema.album_id)
+    if not album:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND)
+
+    # TODO: delete posts with commit=False
+    if album.posts_count > 0:
+        ...
+
+    await album_repository.delete(album, commit=False)
+    await album_repository.commit()
+
+    return {"album_id": album.id}
+
+
+@router.get("/albums", response_model=AlbumsListResponse, tags=["albums"])
+async def albums_list(session=Depends(get_session), cache=Depends(get_cache),
+                      current_user: User = Depends(auth(UserRole.READER)),
+                      schema=Depends(AlbumsListRequest)):
+    album_repository = AlbumRepository(session, cache)
+
+    albums = await album_repository.select_all(**schema.__dict__)
+    albums_count = await album_repository.count_all(**schema.__dict__)
+
+    return {
+        "albums": [album.to_dict() for album in albums],
+        "albums_count": albums_count,
+    }

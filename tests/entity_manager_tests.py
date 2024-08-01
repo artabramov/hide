@@ -90,7 +90,7 @@ class EntityManagerTestCase(asynctest.TestCase):
         self.session_mock.add.assert_called_once()
         self.session_mock.add.assert_called_with(entity_mock)
         flush_mock.assert_called_once()
-        commit_mock.assert_not_called()
+        commit_mock.assert_called_once()
 
     @patch("app.managers.entity_manager.EntityManager.flush")
     @patch("app.managers.entity_manager.EntityManager.commit")
@@ -103,7 +103,7 @@ class EntityManagerTestCase(asynctest.TestCase):
         self.session_mock.add.assert_called_once()
         self.session_mock.add.assert_called_with(entity_mock)
         flush_mock.assert_called_once()
-        commit_mock.assert_not_called()
+        commit_mock.assert_called_once()
 
     @patch("app.managers.entity_manager.EntityManager.flush")
     @patch("app.managers.entity_manager.EntityManager.commit")
@@ -116,7 +116,7 @@ class EntityManagerTestCase(asynctest.TestCase):
         self.session_mock.add.assert_called_once()
         self.session_mock.add.assert_called_with(entity_mock)
         flush_mock.assert_not_called()
-        commit_mock.assert_not_called()
+        commit_mock.assert_called_once()
 
     @patch("app.managers.entity_manager.EntityManager.flush")
     @patch("app.managers.entity_manager.EntityManager.commit")

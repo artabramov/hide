@@ -43,7 +43,7 @@ async def after_startup(entity_manager, cache_manager, _=None):
 
 async def after_user_register(entity_manager, cache_manager, entity: User):
     entity.user_summary = "after user register"
-    await entity_manager.update(entity, commit=True)
+    await entity_manager.update(entity)
     await cache_manager.set(entity)
     return entity
 

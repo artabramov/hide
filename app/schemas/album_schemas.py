@@ -1,5 +1,5 @@
 from pydantic import BaseModel
-from typing import Optional
+from typing import Optional, Literal, List
 from pydantic import Field, field_validator
 from app.config import get_config
 
@@ -59,3 +59,25 @@ class AlbumUpdateRequest(BaseModel):
 
 class AlbumUpdateResponse(BaseModel):
     album_id: int
+
+
+class AlbumDeleteRequest(BaseModel):
+    album_id: int
+
+
+class AlbumDeleteResponse(BaseModel):
+    album_id: int
+
+
+class AlbumsListRequest(BaseModel):
+    album_name__ilike: Optional[str] = None
+    offset: int = Field(ge=0)
+    limit: int = Field(ge=1, le=200)
+    order_by: Literal["id", "created_date", "updated_date", "user_id",
+                      "album_name", "posts_count", "posts_size"]
+    order: Literal["asc", "desc"]
+
+
+class AlbumsListResponse(BaseModel):
+    albums: List[AlbumSelectResponse]
+    albums_count: int

@@ -34,3 +34,13 @@ class BasicRepository(ABC):
     @abstractmethod
     async def select_all(self):
         ...
+
+    @abstractmethod
+    async def count_all(self):
+        ...
+
+    async def commit(self):
+        await self.entity_manager.commit()
+
+    async def rollback(self):
+        await self.entity_manager.rollback()
