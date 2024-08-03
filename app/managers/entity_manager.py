@@ -2,8 +2,6 @@
 from sqlalchemy import asc, desc, text
 from sqlalchemy.sql import func
 from sqlalchemy import select
-# from decimal import Decimal
-# from time import time
 from app.decorators.timed_deco import timed
 
 _ORDER_BY, _ORDER = "order_by", "order"
