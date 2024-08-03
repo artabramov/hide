@@ -7,15 +7,9 @@ cfg = get_config()
 
 class AlbumRepository(BasicRepository):
 
-    async def insert(self, user_id: int, is_locked: bool, album_name: str,
-                     album_summary: str = None, commit: bool = True) -> Album:
-
-        album = Album(user_id, is_locked, album_name,
-                      album_summary=album_summary)
-
+    async def insert(self, album: Album, commit: bool = True):
         await self.entity_manager.insert(album, commit=commit)
         await self.cache_manager.set(album)
-        return album
 
     async def select(self, album_id: int = None, **kwargs) -> Album | None:
         album = None
@@ -34,13 +28,7 @@ class AlbumRepository(BasicRepository):
 
         return album
 
-    async def update(self, album: Album, is_locked: bool, album_name: str,
-                     album_summary: str = None, commit: bool = True):
-
-        album.is_locked = is_locked
-        album.album_name = album_name
-        album.album_summary = album_summary
-
+    async def update(self, album: Album, commit: bool = True):
         await self.entity_manager.update(album, commit=commit)
         await self.cache_manager.set(album)
 

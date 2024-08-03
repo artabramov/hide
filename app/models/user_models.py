@@ -9,6 +9,7 @@ from sqlalchemy.orm import relationship
 from app.config import get_config
 from app.postgres import Base
 from time import time
+from app.helpers.jwt_helper import JWTHelper
 
 cfg = get_config()
 
@@ -46,8 +47,8 @@ class User(Base, MFAMixin, FernetMixin):
                                lazy="noload")
 
     def __init__(self, user_role: UserRole, user_login: str, user_password: str,
-                 first_name: str, last_name: str, jti: str,
-                 is_active: bool = False, user_summary: str = ""):
+                 first_name: str, last_name: str, is_active: bool = False,
+                 user_summary: str = ""):
         self.suspended_date = 0
         self.user_role = user_role
         self.is_active = is_active
@@ -59,7 +60,7 @@ class User(Base, MFAMixin, FernetMixin):
         self.last_name = last_name
         self.mfa_secret = self.create_mfa_secret()
         self.mfa_attempts = 0
-        self.jti = jti
+        self.jti = JWTHelper.create_jti()
         self.user_summary = user_summary
 
     @property

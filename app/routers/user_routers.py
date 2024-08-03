@@ -130,9 +130,9 @@ async def user_register(session=Depends(get_session), cache=Depends(get_cache),
         raise E("user_login", schema.user_login, Msg.USER_LOGIN_EXISTS)
 
     user_password = schema.user_password.get_secret_value()
-    user_jti = JWTHelper.create_jti()
-    user = User(UserRole.READER, schema.user_login, user_password,
-                schema.first_name, schema.last_name, user_jti)
+    user = User(
+        UserRole.READER, schema.user_login, user_password, schema.first_name,
+        schema.last_name, user_summary=schema.user_summary)
     await user_repository.insert(user)
 
     hook = Hook(session, cache)

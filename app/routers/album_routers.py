@@ -31,9 +31,9 @@ async def album_insert(session=Depends(get_session), cache=Depends(get_cache),
     if album_exists:
         raise E("album_name", schema.album_name, Msg.ALBUM_NAME_EXISTS)
 
-    album = await album_repository.insert(
-        current_user.id, schema.is_locked, schema.album_name,
-        album_summary=schema.album_summary)
+    album = Album(current_user.id, schema.is_locked, schema.album_name,
+                  album_summary=schema.album_summary)
+    await album_repository.insert(album)
 
     hook = Hook(session, cache)
     await hook.execute(H.AFTER_ALBUM_INSERT, album)
@@ -73,8 +73,10 @@ async def album_update(session=Depends(get_session), cache=Depends(get_cache),
     if album_exists:
         raise E("album_name", schema.album_name, Msg.ALBUM_NAME_EXISTS)
 
-    await album_repository.update(album, schema.is_locked, schema.album_name,
-                                  album_summary=schema.album_summary)
+    album.is_locked = schema.is_locked
+    album.album_name = schema.album_name
+    album.album_summary = schema.album_summary
+    await album_repository.update(album)
 
     hook = Hook(session, cache)
     await hook.execute(H.AFTER_ALBUM_UPDATE, album)

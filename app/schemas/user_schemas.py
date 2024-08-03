@@ -1,7 +1,7 @@
 from pydantic import BaseModel
 from pydantic import SecretStr
 # from fastapi import Query
-# from typing import Optional, Literal
+from typing import Optional
 # from app.models.user_models import UserRole
 from pydantic import Field, field_validator
 from app.config import get_config
@@ -14,6 +14,7 @@ class UserRegisterRequest(BaseModel):
     user_password: SecretStr = Field(..., min_length=6)
     first_name: str = Field(..., min_length=2, max_length=40)
     last_name: str = Field(..., min_length=2, max_length=40)
+    user_summary: Optional[str] = Field(max_length=255, default=None)
 
     @field_validator("user_login", mode="before")
     def validate_user_login(cls, user_login: str) -> str:
