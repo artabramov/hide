@@ -1,5 +1,5 @@
 
-from app.models.user_models import UserRole
+from app.models.user_models import User, UserRole
 from sqlalchemy.ext.asyncio import AsyncSession
 from redis import Redis
 from app.postgres import get_session
@@ -77,7 +77,7 @@ async def _auth(user_token: str, session: AsyncSession, cache: Redis):
     except PyJWTError:
         raise E("user_token", user_token, Msg.USER_TOKEN_INVALID)
 
-    user_repository = UserRepository(session, cache)
+    user_repository = UserRepository(session, cache, User)
     user = await user_repository.select(user_id=token_payload["user_id"])
 
     if not user:

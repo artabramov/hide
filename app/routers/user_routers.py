@@ -24,7 +24,7 @@ cfg = get_config()
 async def user_login(session=Depends(get_session), cache=Depends(get_cache),
                      schema=Depends(UserLoginRequest)):
 
-    user_repository = UserRepository(session, cache)
+    user_repository = UserRepository(session, cache, User)
     user = await user_repository.select(user_login__eq=schema.user_login)
 
     if not user:
@@ -68,7 +68,7 @@ async def user_login(session=Depends(get_session), cache=Depends(get_cache),
 async def token_select(session=Depends(get_session), cache=Depends(get_cache),
                        schema=Depends(TokenSelectRequest)):
     """Second step of authentication: sign in by user login and totp."""
-    user_repository = UserRepository(session, cache)
+    user_repository = UserRepository(session, cache, User)
     user = await user_repository.select(user_login__eq=schema.user_login)
 
     if not user:
@@ -113,7 +113,7 @@ async def token_delete(session=Depends(get_session), cache=Depends(get_cache),
                        current_user: User = Depends(auth(UserRole.READER)),
                        schema=Depends(TokenDeleteRequest)):
     """Logout: generate new jti."""
-    user_repository = UserRepository(session, cache)
+    user_repository = UserRepository(session, cache, User)
     current_user.jti = JWTHelper.create_jti()
     await user_repository.update(current_user)
     return {}
@@ -123,7 +123,7 @@ async def token_delete(session=Depends(get_session), cache=Depends(get_cache),
 async def user_register(session=Depends(get_session), cache=Depends(get_cache),
                         schema=Depends(UserRegisterRequest)):
 
-    user_repository = UserRepository(session, cache)
+    user_repository = UserRepository(session, cache, User)
     user_exists = await user_repository.exists(user_login__eq=schema.user_login)
 
     if user_exists:
@@ -150,7 +150,7 @@ async def user_select(session=Depends(get_session), cache=Depends(get_cache),
                       current_user: User = Depends(auth(UserRole.READER)),
                       schema=Depends(UserSelectRequest)):
     """Select user."""
-    user_repository = UserRepository(session, cache)
+    user_repository = UserRepository(session, cache, User)
     user = await user_repository.select(user_id=schema.user_id)
 
     if not user:

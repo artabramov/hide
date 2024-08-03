@@ -3,15 +3,14 @@ from app.postgres import get_session
 from app.redis import get_cache
 from app.models.user_models import User, UserRole
 from app.models.album_models import Album
-from app.schemas.album_schemas import (AlbumInsertRequest, AlbumInsertResponse,
-                                       AlbumSelectRequest, AlbumSelectResponse,
-                                       AlbumUpdateRequest, AlbumUpdateResponse,
-                                       AlbumDeleteRequest, AlbumDeleteResponse,
-                                       AlbumsListRequest, AlbumsListResponse)
+from app.schemas.album_schemas import (
+    AlbumInsertRequest, AlbumInsertResponse,  AlbumSelectRequest,
+    AlbumSelectResponse, AlbumUpdateRequest, AlbumUpdateResponse,
+    AlbumDeleteRequest, AlbumDeleteResponse, AlbumsListRequest,
+    AlbumsListResponse)
 from app.repositories.album_repository import AlbumRepository
 from app.errors import E, Msg
 from app.config import get_config
-# from time import time
 from app.hooks import H, Hook
 from app.auth import auth
 
@@ -24,16 +23,17 @@ async def album_insert(session=Depends(get_session), cache=Depends(get_cache),
                        current_user: User = Depends(auth(UserRole.WRITER)),
                        schema=Depends(AlbumInsertRequest)):
 
-    album_repository = AlbumRepository(session, cache)
+    album_repository = AlbumRepository(session, cache, Album)
+
     album_exists = await album_repository.exists(
         album_name__eq=schema.album_name)
 
     if album_exists:
         raise E("album_name", schema.album_name, Msg.ALBUM_NAME_EXISTS)
 
-    album = Album(current_user.id, schema.is_locked, schema.album_name,
-                  album_summary=schema.album_summary)
-    await album_repository.insert(album)
+    album = await album_repository.insert(
+        current_user.id, schema.is_locked, schema.album_name,
+        album_summary=schema.album_summary)
 
     hook = Hook(session, cache)
     await hook.execute(H.AFTER_ALBUM_INSERT, album)
@@ -45,8 +45,8 @@ async def album_insert(session=Depends(get_session), cache=Depends(get_cache),
 async def album_select(session=Depends(get_session), cache=Depends(get_cache),
                        current_user: User = Depends(auth(UserRole.READER)),
                        schema=Depends(AlbumSelectRequest)):
-    """Select album."""
-    album_repository = AlbumRepository(session, cache)
+
+    album_repository = AlbumRepository(session, cache, Album)
     album = await album_repository.select(album_id=schema.album_id)
 
     if not album:
@@ -62,20 +62,19 @@ async def album_select(session=Depends(get_session), cache=Depends(get_cache),
 async def album_update(session=Depends(get_session), cache=Depends(get_cache),
                        current_user: User = Depends(auth(UserRole.EDITOR)),
                        schema=Depends(AlbumUpdateRequest)):
-    album_repository = AlbumRepository(session, cache)
+    album_repository = AlbumRepository(session, cache, Album)
 
     album = await album_repository.select(album_id=schema.album_id)
     if not album:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND)
 
-    album_exists = await album_repository.exists(album_name__eq=schema.album_name)  # noqa E501
+    album_exists = await album_repository.exists(
+        album_name__eq=schema.album_name, id__ne=album.id)
     if album_exists:
         raise E("album_name", schema.album_name, Msg.ALBUM_NAME_EXISTS)
 
-    album.is_locked = schema.is_locked
-    album.album_name = schema.album_name
-    album.album_summary = schema.album_summary
-    await album_repository.update(album)
+    await album_repository.update(album, schema.is_locked, schema.album_name,
+                                  album_summary=schema.album_summary)
 
     hook = Hook(session, cache)
     await hook.execute(H.AFTER_ALBUM_UPDATE, album)
@@ -87,7 +86,7 @@ async def album_update(session=Depends(get_session), cache=Depends(get_cache),
 async def album_delete(session=Depends(get_session), cache=Depends(get_cache),
                        current_user: User = Depends(auth(UserRole.ADMIN)),
                        schema=Depends(AlbumDeleteRequest)):
-    album_repository = AlbumRepository(session, cache)
+    album_repository = AlbumRepository(session, cache, Album)
 
     album = await album_repository.select(album_id=schema.album_id)
     if not album:
@@ -107,7 +106,7 @@ async def album_delete(session=Depends(get_session), cache=Depends(get_cache),
 async def albums_list(session=Depends(get_session), cache=Depends(get_cache),
                       current_user: User = Depends(auth(UserRole.READER)),
                       schema=Depends(AlbumsListRequest)):
-    album_repository = AlbumRepository(session, cache)
+    album_repository = AlbumRepository(session, cache, Album)
 
     albums = await album_repository.select_all(**schema.__dict__)
     albums_count = await album_repository.count_all(**schema.__dict__)

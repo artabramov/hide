@@ -7,6 +7,7 @@ from app.repositories.user_repository import UserRepository
 import qrcode
 from io import BytesIO
 from app.config import get_config
+from app.models.user_models import User
 
 router = APIRouter()
 cfg = get_config()
@@ -18,7 +19,7 @@ MFA_MASK = "otpauth://totp/%s?secret=%s&issuer=%s"
 async def user_mfa(session=Depends(get_session), cache=Depends(get_cache),
                    schema=Depends(MFARequest)):
 
-    user_repository = UserRepository(session, cache)
+    user_repository = UserRepository(session, cache, User)
     user = await user_repository.select(user_id=schema.user_id)
     if not user or user.mfa_secret != schema.mfa_secret:
         raise HTTPException(status_code=404)

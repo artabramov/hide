@@ -529,23 +529,23 @@ class EntityManagerTestCase(asynctest.TestCase):
 
     async def test__where(self):
         """Build where statement."""
-        (in_mock, eq_mock, not_mock, gte_mock, lte_mock, gt_mock, lt_mock,
+        (in_mock, eq_mock, ne_mock, ge_mock, le_mock, gt_mock, lt_mock,
          like_mock, ilike_mock) = (
             MagicMock(), MagicMock(), MagicMock(), MagicMock(), MagicMock(),
             MagicMock(), MagicMock(), MagicMock(), MagicMock())
         column_mock = MagicMock(
-            in_=in_mock, __eq__=eq_mock, __ne__=not_mock, __ge__=gte_mock,
-            __le__=lte_mock, __gt__=gt_mock, __lt__=lt_mock, like=like_mock,
+            in_=in_mock, __eq__=eq_mock, __ne__=ne_mock, __ge__=ge_mock,
+            __le__=le_mock, __gt__=gt_mock, __lt__=lt_mock, like=like_mock,
             ilike=ilike_mock)
         class_mock = MagicMock(column=column_mock)
         kwargs = {
-            "column__in": [1, 2],
-            "column__eq": 3,
-            "column__not": 4,
-            "column__gte": 5,
-            "column__lte": 6,
-            "column__gt": 7,
-            "column__lt": 8,
+            "column__in": "1, 2",
+            "column__eq": "3",
+            "column__ne": "4",
+            "column__ge": "5",
+            "column__le": "6",
+            "column__gt": "7",
+            "column__lt": "8",
             "column__like": "dummy",
             "column__ilike": "dummy",
         }
@@ -554,24 +554,24 @@ class EntityManagerTestCase(asynctest.TestCase):
         self.assertListEqual(result, [
             in_mock.return_value,
             eq_mock.return_value,
-            not_mock.return_value,
-            gte_mock.return_value,
-            lte_mock.return_value,
+            ne_mock.return_value,
+            ge_mock.return_value,
+            le_mock.return_value,
             gt_mock.return_value,
             lt_mock.return_value,
             like_mock.return_value,
             ilike_mock.return_value,
         ])
         in_mock.assert_called_once()
-        in_mock.assert_called_with(kwargs["column__in"])
+        in_mock.assert_called_with([x.strip() for x in kwargs["column__in"].split(",")])  # noqa E501
         eq_mock.assert_called_once()
         eq_mock.assert_called_with(kwargs["column__eq"])
-        not_mock.assert_called_once()
-        not_mock.assert_called_with(kwargs["column__not"])
-        gte_mock.assert_called_once()
-        gte_mock.assert_called_with(kwargs["column__gte"])
-        lte_mock.assert_called_once()
-        lte_mock.assert_called_with(kwargs["column__lte"])
+        ne_mock.assert_called_once()
+        ne_mock.assert_called_with(kwargs["column__ne"])
+        ge_mock.assert_called_once()
+        ge_mock.assert_called_with(kwargs["column__ge"])
+        le_mock.assert_called_once()
+        le_mock.assert_called_with(kwargs["column__le"])
         gt_mock.assert_called_once()
         gt_mock.assert_called_with(kwargs["column__gt"])
         lt_mock.assert_called_once()

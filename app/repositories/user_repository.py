@@ -12,15 +12,11 @@ from app.models.user_models import User
 # from app.errors import E
 from app.config import get_config
 from app.repositories.basic_repository import BasicRepository
-from typing import List
 
 cfg = get_config()
 
 
 class UserRepository(BasicRepository):
-
-    async def exists(self, **kwargs) -> bool:
-        return await self.entity_manager.exists(User, **kwargs)
 
     async def insert(self, user: User, commit: bool = True) -> User:
         await self.entity_manager.insert(user)
@@ -50,12 +46,3 @@ class UserRepository(BasicRepository):
 
     async def delete(self, user: User, commit: bool = True):
         raise NotImplementedError
-
-    async def select_all(self, **kwargs) -> List[User]:
-        ...
-
-    async def count_all(self, **kwargs) -> int:
-        ...
-
-    async def sum_all(self, column_name: str, **kwargs) -> int:
-        ...

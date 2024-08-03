@@ -14,9 +14,9 @@ _RESERVED = [_ORDER_BY, _ORDER, _OFFSET, _LIMIT]
 _OPERATORS = {
     "in": "in_",
     "eq": "__eq__",
-    "not": "__ne__",
-    "gte": "__ge__",
-    "lte": "__le__",
+    "ne": "__ne__",
+    "ge": "__ge__",
+    "le": "__le__",
     "gt": "__gt__",
     "lt": "__lt__",
     "like": "like",
@@ -148,17 +148,19 @@ class EntityManager:
             column_name, operator = key.split("__")
 
             if hasattr(cls, column_name):
-                column = getattr(cls, column_name)
                 value = kwargs[key]
 
-                if isinstance(value, str):
+                if value:
                     if operator == "in":
                         value = [x.strip() for x in value.split(",")]
+
                     elif operator in ["like", "ilike"]:
                         value = "%" + value + "%"
+
                     else:
                         value = value
 
+                    column = getattr(cls, column_name)
                     operation = getattr(column, _OPERATORS[operator])(value)
                     where.append(operation)
         return where
