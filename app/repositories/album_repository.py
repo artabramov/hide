@@ -9,7 +9,8 @@ class AlbumRepository(BasicRepository):
 
     async def insert(self, album: Album, commit: bool = True):
         await self.entity_manager.insert(album, commit=commit)
-        await self.cache_manager.set(album)
+        if commit:
+            await self.cache_manager.set(album)
 
     async def select(self, album_id: int = None, **kwargs) -> Album | None:
         album = None
@@ -30,7 +31,10 @@ class AlbumRepository(BasicRepository):
 
     async def update(self, album: Album, commit: bool = True):
         await self.entity_manager.update(album, commit=commit)
-        await self.cache_manager.set(album)
+        if commit:
+            await self.cache_manager.set(album)
+        else:
+            await self.cache_manager.delete(album)
 
     async def delete(self, album: Album, commit: bool = True):
         await self.entity_manager.delete(album, commit=commit)

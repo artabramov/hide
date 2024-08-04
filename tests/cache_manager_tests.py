@@ -92,5 +92,5 @@ class CacheManagerTestCase(asynctest.TestCase):
                              [call(key_1), call(key_2), call(key_3)])
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     unittest.main()
