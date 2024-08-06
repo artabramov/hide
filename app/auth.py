@@ -2,8 +2,8 @@
 from app.models.user_models import User, UserRole
 from sqlalchemy.ext.asyncio import AsyncSession
 from redis import Redis
-from app.postgres import get_session
-from app.redis import get_cache
+from app.database import get_session
+from app.cache import get_cache
 from fastapi import Depends
 from app.repositories.user_repository import UserRepository
 from fastapi.security import HTTPBearer

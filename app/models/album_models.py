@@ -2,7 +2,7 @@ from sqlalchemy import (Boolean, Column, BigInteger, Integer, ForeignKey,
                         String)
 from sqlalchemy.orm import relationship
 from app.config import get_config
-from app.postgres import Base
+from app.database import Base
 from time import time
 
 cfg = get_config()
@@ -10,6 +10,7 @@ cfg = get_config()
 
 class Album(Base):
     __tablename__ = "albums"
+    _cacheable = True
 
     id = Column(BigInteger, primary_key=True)
     created_date = Column(Integer, index=True, default=lambda: int(time()))

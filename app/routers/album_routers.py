@@ -1,6 +1,6 @@
 from fastapi import APIRouter, Depends, HTTPException, status
-from app.postgres import get_session
-from app.redis import get_cache
+from app.database import get_session
+from app.cache import get_cache
 from app.models.user_models import User, UserRole
 from app.models.album_models import Album
 from app.schemas.album_schemas import (
@@ -8,7 +8,7 @@ from app.schemas.album_schemas import (
     AlbumSelectResponse, AlbumUpdateRequest, AlbumUpdateResponse,
     AlbumDeleteRequest, AlbumDeleteResponse, AlbumsListRequest,
     AlbumsListResponse)
-from app.repositories.album_repository import AlbumRepository
+from app.repository import Repository
 from app.errors import E, Msg
 from app.config import get_config
 from app.hooks import H, Hook
@@ -23,7 +23,7 @@ async def album_insert(session=Depends(get_session), cache=Depends(get_cache),
                        current_user: User = Depends(auth(UserRole.WRITER)),
                        schema=Depends(AlbumInsertRequest)):
 
-    album_repository = AlbumRepository(session, cache, Album)
+    album_repository = Repository(session, cache, Album)
 
     album_exists = await album_repository.exists(
         album_name__eq=schema.album_name)
@@ -46,8 +46,8 @@ async def album_select(session=Depends(get_session), cache=Depends(get_cache),
                        current_user: User = Depends(auth(UserRole.READER)),
                        schema=Depends(AlbumSelectRequest)):
 
-    album_repository = AlbumRepository(session, cache, Album)
-    album = await album_repository.select(album_id=schema.album_id)
+    album_repository = Repository(session, cache, Album)
+    album = await album_repository.select(id=schema.album_id)
 
     if not album:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND)
@@ -62,9 +62,9 @@ async def album_select(session=Depends(get_session), cache=Depends(get_cache),
 async def album_update(session=Depends(get_session), cache=Depends(get_cache),
                        current_user: User = Depends(auth(UserRole.EDITOR)),
                        schema=Depends(AlbumUpdateRequest)):
-    album_repository = AlbumRepository(session, cache, Album)
+    album_repository = Repository(session, cache, Album)
 
-    album = await album_repository.select(album_id=schema.album_id)
+    album = await album_repository.select(id=schema.album_id)
     if not album:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND)
 
@@ -88,9 +88,9 @@ async def album_update(session=Depends(get_session), cache=Depends(get_cache),
 async def album_delete(session=Depends(get_session), cache=Depends(get_cache),
                        current_user: User = Depends(auth(UserRole.ADMIN)),
                        schema=Depends(AlbumDeleteRequest)):
-    album_repository = AlbumRepository(session, cache, Album)
+    album_repository = Repository(session, cache, Album)
 
-    album = await album_repository.select(album_id=schema.album_id)
+    album = await album_repository.select(id=schema.album_id)
     if not album:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND)
 
@@ -108,7 +108,7 @@ async def album_delete(session=Depends(get_session), cache=Depends(get_cache),
 async def albums_list(session=Depends(get_session), cache=Depends(get_cache),
                       current_user: User = Depends(auth(UserRole.READER)),
                       schema=Depends(AlbumsListRequest)):
-    album_repository = AlbumRepository(session, cache, Album)
+    album_repository = Repository(session, cache, Album)
 
     albums = await album_repository.select_all(**schema.__dict__)
     albums_count = await album_repository.count_all(**schema.__dict__)

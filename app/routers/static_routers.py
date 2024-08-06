@@ -1,7 +1,7 @@
 from fastapi import APIRouter, Depends, Response
 from fastapi import HTTPException
-from app.postgres import get_session
-from app.redis import get_cache
+from app.database import get_session
+from app.cache import get_cache
 from app.schemas.user_schemas import MFARequest
 from app.repositories.user_repository import UserRepository
 import qrcode

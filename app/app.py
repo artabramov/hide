@@ -6,7 +6,7 @@ from app.context import get_context
 from app.log import get_log
 from app.routers import (static_routers, user_routers, album_routers,
                          system_routers)
-from app.postgres import Base, sessionmanager
+from app.database import Base, sessionmanager, get_session
 from app.errors import Msg
 from contextlib import asynccontextmanager
 from pydantic import ValidationError
@@ -17,8 +17,7 @@ import fnmatch
 import importlib.util
 import inspect
 from app.hooks import H, Hook
-from app.postgres import get_session
-from app.redis import get_cache
+from app.cache import get_cache
 
 cfg = get_config()
 ctx = get_context()

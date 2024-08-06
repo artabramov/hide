@@ -1,6 +1,6 @@
 from fastapi import APIRouter, Depends, HTTPException, status
-from app.postgres import get_session
-from app.redis import get_cache
+from app.database import get_session
+from app.cache import get_cache
 from app.models.user_models import User, UserRole
 from app.helpers.hash_helper import HashHelper
 from app.helpers.jwt_helper import JWTHelper

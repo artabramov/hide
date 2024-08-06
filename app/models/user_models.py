@@ -7,7 +7,7 @@ from app.mixins.fernet_mixin import FernetMixin
 from app.helpers.hash_helper import HashHelper
 from sqlalchemy.orm import relationship
 from app.config import get_config
-from app.postgres import Base
+from app.database import Base
 from time import time
 from app.helpers.jwt_helper import JWTHelper
 
@@ -23,6 +23,7 @@ class UserRole(enum.Enum):
 
 class User(Base, MFAMixin, FernetMixin):
     __tablename__ = "users"
+    _cacheable = True
 
     id = Column(BigInteger, primary_key=True)
     created_date = Column(Integer, index=True, default=lambda: int(time()))

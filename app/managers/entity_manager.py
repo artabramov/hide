@@ -5,7 +5,7 @@ from sqlalchemy import select
 from app.decorators.timed_deco import timed
 
 _ORDER_BY, _ORDER = "order_by", "order"
-_ID = "id"
+ID = "id"
 _ASC, _DESC = "asc", "desc"
 _OFFSET, _LIMIT = "offset", "limit"
 _RESERVED = [_ORDER_BY, _ORDER, _OFFSET, _LIMIT]
@@ -93,7 +93,7 @@ class EntityManager:
 
     @timed
     async def delete_all(self, cls: object, commit: bool = False, **kwargs):
-        kwargs = kwargs | {_ORDER_BY: _ID, _ORDER: _ASC, _OFFSET: 0,
+        kwargs = kwargs | {_ORDER_BY: ID, _ORDER: _ASC, _OFFSET: 0,
                            _LIMIT: _DELETE_ALL_LIMIT}
         while objs := await self.select_all(cls, **kwargs):
             kwargs[_OFFSET] += kwargs[_LIMIT]
@@ -104,7 +104,7 @@ class EntityManager:
     async def count_all(self, cls: object, **kwargs) -> int:
         """Count SQLAlchemy objects in Postgres database."""
         async_result = await self.session.execute(
-            select(func.count(getattr(cls, _ID))).where(
+            select(func.count(getattr(cls, ID))).where(
                 *self._where(cls, **kwargs)))
         return async_result.unique().scalars().one_or_none() or 0
 

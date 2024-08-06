@@ -1,6 +1,6 @@
 from app.models.user_models import User
 from app.models.album_models import Album
-from app.postgres import Base, sessionmanager
+from app.database import Base, sessionmanager
 from sqlalchemy import Column, BigInteger, Integer, ForeignKey, Enum
 from sqlalchemy.dialects.postgresql import JSON
 from time import time
