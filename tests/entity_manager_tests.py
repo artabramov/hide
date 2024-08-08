@@ -1,7 +1,5 @@
-"""Entity manager tests."""
-
-import unittest
 import asynctest
+import unittest
 from unittest.mock import MagicMock, AsyncMock, patch, call
 
 
@@ -322,7 +320,7 @@ class EntityManagerTestCase(asynctest.TestCase):
     @patch("app.managers.entity_manager.EntityManager.select_all")
     async def test__delete_all(self, select_all_mock, delete_mock):
         """Delete all entities."""
-        from app.managers.entity_manager import _DELETE_ALL_LIMIT
+        from app.managers.entity_manager import DELETE_ALL_BATCH_SIZE
 
         class_mock = MagicMock()
         entity_1, entity_2, entity_3 = MagicMock(), MagicMock(), MagicMock()
@@ -332,11 +330,11 @@ class EntityManagerTestCase(asynctest.TestCase):
         self.assertEqual(select_all_mock.call_count, 3)
         self.assertListEqual(select_all_mock.call_args_list, [
             call(class_mock, name__eq="dummy", order_by="id", order="asc",
-                 offset=0, limit=_DELETE_ALL_LIMIT),
+                 offset=0, limit=DELETE_ALL_BATCH_SIZE),
             call(class_mock, name__eq="dummy", order_by="id", order="asc",
-                 offset=_DELETE_ALL_LIMIT, limit=_DELETE_ALL_LIMIT),
+                 offset=DELETE_ALL_BATCH_SIZE, limit=DELETE_ALL_BATCH_SIZE),
             call(class_mock, name__eq="dummy", order_by="id", order="asc",
-                 offset=_DELETE_ALL_LIMIT * 2, limit=_DELETE_ALL_LIMIT),
+                 offset=DELETE_ALL_BATCH_SIZE * 2, limit=DELETE_ALL_BATCH_SIZE),
         ])
 
         self.assertEqual(delete_mock.call_count, 3)
@@ -350,7 +348,7 @@ class EntityManagerTestCase(asynctest.TestCase):
     @patch("app.managers.entity_manager.EntityManager.select_all")
     async def test__delete_all_commit_true(self, select_all_mock, delete_mock):
         """Delete all entities when commit is True."""
-        from app.managers.entity_manager import _DELETE_ALL_LIMIT
+        from app.managers.entity_manager import DELETE_ALL_BATCH_SIZE
 
         class_mock = MagicMock()
         entity_1, entity_2, entity_3 = MagicMock(), MagicMock(), MagicMock()
@@ -361,11 +359,11 @@ class EntityManagerTestCase(asynctest.TestCase):
         self.assertEqual(select_all_mock.call_count, 3)
         self.assertListEqual(select_all_mock.call_args_list, [
             call(class_mock, name__eq="dummy", order_by="id", order="asc",
-                 offset=0, limit=_DELETE_ALL_LIMIT),
+                 offset=0, limit=DELETE_ALL_BATCH_SIZE),
             call(class_mock, name__eq="dummy", order_by="id", order="asc",
-                 offset=_DELETE_ALL_LIMIT, limit=_DELETE_ALL_LIMIT),
+                 offset=DELETE_ALL_BATCH_SIZE, limit=DELETE_ALL_BATCH_SIZE),
             call(class_mock, name__eq="dummy", order_by="id", order="asc",
-                 offset=_DELETE_ALL_LIMIT * 2, limit=_DELETE_ALL_LIMIT),
+                 offset=DELETE_ALL_BATCH_SIZE * 2, limit=DELETE_ALL_BATCH_SIZE),
         ])
 
         self.assertEqual(delete_mock.call_count, 3)
@@ -379,7 +377,7 @@ class EntityManagerTestCase(asynctest.TestCase):
     @patch("app.managers.entity_manager.EntityManager.select_all")
     async def test__delete_all_commit_false(self, select_all_mock, delete_mock):
         """Delete all entities when commit is False."""
-        from app.managers.entity_manager import _DELETE_ALL_LIMIT
+        from app.managers.entity_manager import DELETE_ALL_BATCH_SIZE
 
         class_mock = MagicMock()
         entity_1, entity_2, entity_3 = MagicMock(), MagicMock(), MagicMock()
@@ -390,11 +388,11 @@ class EntityManagerTestCase(asynctest.TestCase):
         self.assertEqual(select_all_mock.call_count, 3)
         self.assertListEqual(select_all_mock.call_args_list, [
             call(class_mock, name__eq="dummy", order_by="id", order="asc",
-                 offset=0, limit=_DELETE_ALL_LIMIT),
+                 offset=0, limit=DELETE_ALL_BATCH_SIZE),
             call(class_mock, name__eq="dummy", order_by="id", order="asc",
-                 offset=_DELETE_ALL_LIMIT, limit=_DELETE_ALL_LIMIT),
+                 offset=DELETE_ALL_BATCH_SIZE, limit=DELETE_ALL_BATCH_SIZE),
             call(class_mock, name__eq="dummy", order_by="id", order="asc",
-                 offset=_DELETE_ALL_LIMIT * 2, limit=_DELETE_ALL_LIMIT),
+                 offset=DELETE_ALL_BATCH_SIZE * 2, limit=DELETE_ALL_BATCH_SIZE),
         ])
 
         self.assertEqual(delete_mock.call_count, 3)

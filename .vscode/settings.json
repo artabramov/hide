@@ -1,6 +1,6 @@
 {
     "window.zoomLevel": 1,
-    "editor.rulers": [80],
+    "editor.rulers": [72, 99],
     "editor.minimap.scale": 2,
     "python.languageServer": "Pylance",
     "python.testing.pytestEnabled": false,
@@ -11,6 +11,6 @@
         "-p", "*_tests.py"
     ],
     "flake8.args": [
-        "--max-line-length=80",
+        "--max-line-length=99",
     ]
 }
