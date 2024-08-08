@@ -5,7 +5,7 @@ from redis import Redis
 from app.database import get_session
 from app.cache import get_cache
 from fastapi import Depends
-from app.repositories.user_repository import UserRepository
+from app.repository import Repository
 from fastapi.security import HTTPBearer
 from app.helpers.jwt_helper import JWTHelper
 from jwt.exceptions import ExpiredSignatureError, PyJWTError
@@ -77,8 +77,8 @@ async def _auth(user_token: str, session: AsyncSession, cache: Redis):
     except PyJWTError:
         raise E("user_token", user_token, Msg.USER_TOKEN_INVALID)
 
-    user_repository = UserRepository(session, cache, User)
-    user = await user_repository.select(user_id=token_payload["user_id"])
+    user_repository = Repository(session, cache, User)
+    user = await user_repository.select(id=token_payload["user_id"])
 
     if not user:
         raise E("user_token", user_token, Msg.USER_TOKEN_ORPHANED)

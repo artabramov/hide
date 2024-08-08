@@ -3,7 +3,7 @@ from fastapi import HTTPException
 from app.database import get_session
 from app.cache import get_cache
 from app.schemas.user_schemas import MFARequest
-from app.repositories.user_repository import UserRepository
+from app.repository import Repository
 import qrcode
 from io import BytesIO
 from app.config import get_config
@@ -19,8 +19,8 @@ MFA_MASK = "otpauth://totp/%s?secret=%s&issuer=%s"
 async def user_mfa(session=Depends(get_session), cache=Depends(get_cache),
                    schema=Depends(MFARequest)):
 
-    user_repository = UserRepository(session, cache, User)
-    user = await user_repository.select(user_id=schema.user_id)
+    user_repository = Repository(session, cache, User)
+    user = await user_repository.select(id=schema.user_id)
     if not user or user.mfa_secret != schema.mfa_secret:
         raise HTTPException(status_code=404)
 

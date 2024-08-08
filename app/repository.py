@@ -46,6 +46,17 @@ class Repository:
 
         return entity
 
+    async def select_all(self, **kwargs) -> List[DeclarativeBase]:
+        """Retrieves all entities matching the given criteria."""
+        entities = await self.entity_manager.select_all(
+            self.entity_class, **kwargs)
+
+        if self.entity_class._cacheable:
+            for entity in entities:
+                await self.cache_manager.set(entity)
+
+        return entities
+
     async def update(self, entity: DeclarativeBase, commit: bool = True):
         """Updates an entity and manages its cache status."""
         await self.entity_manager.update(entity, commit=commit)
@@ -62,17 +73,6 @@ class Repository:
 
         if self.entity_class._cacheable:
             await self.cache_manager.delete(entity)
-
-    async def select_all(self, **kwargs) -> List[DeclarativeBase]:
-        """Retrieves all entities matching the given criteria."""
-        entities = await self.entity_manager.select_all(
-            self.entity_class, **kwargs)
-
-        if self.entity_class._cacheable:
-            for entity in entities:
-                await self.cache_manager.set(entity)
-
-        return entities
 
     async def count_all(self, **kwargs) -> int:
         """Counts all entities matching the given criteria."""
