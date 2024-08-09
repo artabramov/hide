@@ -1,8 +1,8 @@
 
+from typing import Type, Optional, Union
 from sqlalchemy.ext.serializer import dumps, loads
 from sqlalchemy.orm import DeclarativeBase
 from redis import Redis
-from typing import Type, Optional, Union
 from app.decorators.timed_deco import timed
 from app.config import get_config
 from app.log import get_log
@@ -24,8 +24,12 @@ class CacheManager:
         """Initialize the CacheManager with a Redis cache instance."""
         self.cache = cache
 
-    def _get_key(self, entity: Type[DeclarativeBase], entity_id: Union[int, str]) -> str:
-        """Create a cache key based on the table name and the entity id (or asterisk)."""
+    def _get_key(self, entity: Type[DeclarativeBase],
+                 entity_id: Union[int, str]) -> str:
+        """
+        Create a cache key based on the table name and
+        the entity id (or asterisk).
+        """
         return "%s:%s" % (entity.__tablename__, entity_id)
 
     @timed
@@ -35,7 +39,8 @@ class CacheManager:
         await self.cache.set(key, dumps(entity), ex=cfg.REDIS_EXPIRE)
 
     @timed
-    async def get(self, cls: Type[DeclarativeBase], entity_id: int) -> Optional[DeclarativeBase]:
+    async def get(self, cls: Type[DeclarativeBase],
+                  entity_id: int) -> Optional[DeclarativeBase]:
         """Retrieve an entity from the cache."""
         key = self._get_key(cls, entity_id)
         entity_bytes = await self.cache.get(key)

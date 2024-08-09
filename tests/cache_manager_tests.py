@@ -42,8 +42,8 @@ class CacheManagerTestCase(asynctest.TestCase):
         dumps_mock.assert_called_once()
         dumps_mock.assert_called_with(entity_mock)
         self.cache_mock.set.assert_called_once()
-        self.cache_mock.set.assert_called_with("mocks:123", dumps_mock.return_value,
-                                               ex=cfg_mock.REDIS_EXPIRE)
+        self.cache_mock.set.assert_called_with(
+            "mocks:123", dumps_mock.return_value, ex=cfg_mock.REDIS_EXPIRE)
 
     @patch("app.managers.cache_manager.loads")
     async def test__cache_manager_get(self, loads_mock):

@@ -1,9 +1,8 @@
-
+from typing import Union, Type, List, Optional
 from sqlalchemy import select, text, asc, desc
 from sqlalchemy.orm import DeclarativeBase
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.sql import func
-from typing import Union, Type, List, Optional
 from app.decorators.timed_deco import timed
 
 ID = "id"
@@ -27,14 +26,14 @@ DELETE_ALL_BATCH_SIZE = 500
 
 class EntityManager:
     """
-    Manages database operations for SQLAlchemy entities with async support.
+    Manages database operations for SQLAlchemy entities.
 
-    Provides methods for CRUD operations, counting, and aggregation with
-    SQLAlchemy using an asynchronous session.
+    Provides methods for CRUD operations, counting, and aggregation
+    with SQLAlchemy using an asynchronous session.
     """
 
     def __init__(self, session: AsyncSession):
-        """Initialize the EntityManager with an AsyncSession instance."""
+        """Initialize the EntityManager with a session instance."""
         self.session = session
 
     @timed
@@ -45,7 +44,8 @@ class EntityManager:
         return async_result.unique().scalars().one_or_none() is not None
 
     @timed
-    async def insert(self, obj: DeclarativeBase, flush: bool = True, commit: bool = True):
+    async def insert(self, obj: DeclarativeBase, flush: bool = True,
+                     commit: bool = True):
         """Insert a new entity into the database."""
         self.session.add(obj)
 
@@ -56,21 +56,24 @@ class EntityManager:
             await self.commit()
 
     @timed
-    async def select(self, cls: Type[DeclarativeBase], obj_id: int) -> Union[DeclarativeBase, None]:  # noqa E501
+    async def select(self, cls: Type[DeclarativeBase],
+                     obj_id: int) -> Union[DeclarativeBase, None]:
         """Select an entity by its id."""
         async_result = await self.session.execute(
             select(cls).where(cls.id == obj_id).limit(1))
         return async_result.unique().scalars().one_or_none()
 
     @timed
-    async def select_by(self, cls: Type[DeclarativeBase], **kwargs) -> Union[DeclarativeBase, None]:  # noqa E501
+    async def select_by(self, cls: Type[DeclarativeBase],
+                        **kwargs) -> Union[DeclarativeBase, None]:
         """Select an entity by various filters."""
         async_result = await self.session.execute(
             select(cls).where(*self._where(cls, **kwargs)).limit(1))
         return async_result.unique().scalars().one_or_none()
 
     @timed
-    async def select_all(self, cls: Type[DeclarativeBase], **kwargs) -> List[DeclarativeBase]:
+    async def select_all(self, cls: Type[DeclarativeBase],
+                         **kwargs) -> List[DeclarativeBase]:
         """Select all entities matching the filters."""
         async_result = await self.session.execute(
             select(cls)
@@ -81,7 +84,8 @@ class EntityManager:
         return async_result.unique().scalars().all()
 
     @timed
-    async def update(self, obj: DeclarativeBase, flush: bool = True, commit: bool = False):
+    async def update(self, obj: DeclarativeBase, flush: bool = True,
+                     commit: bool = False):
         """Update an existing entity in the database."""
         await self.session.merge(obj)
 
@@ -100,9 +104,12 @@ class EntityManager:
             await self.commit()
 
     @timed
-    async def delete_all(self, cls: Type[DeclarativeBase], commit: bool = False, **kwargs):
+    async def delete_all(self, cls: Type[DeclarativeBase],
+                         commit: bool = False, **kwargs):
         """Delete all entities of a class with optional filters."""
-        kwargs = kwargs | {ORDER_BY: ID, ORDER: ASC, OFFSET: 0, LIMIT: DELETE_ALL_BATCH_SIZE}
+        kwargs = kwargs | {ORDER_BY: ID, ORDER: ASC, OFFSET: 0,
+                           LIMIT: DELETE_ALL_BATCH_SIZE}
+
         while objs := await self.select_all(cls, **kwargs):
             kwargs[OFFSET] += kwargs[LIMIT]
             for obj in objs:
@@ -112,21 +119,24 @@ class EntityManager:
     async def count_all(self, cls: Type[DeclarativeBase], **kwargs) -> int:
         """Count all entities matching the filters."""
         async_result = await self.session.execute(
-            select(func.count(getattr(cls, ID))).where(*self._where(cls, **kwargs)))
+            select(func.count(getattr(cls, ID))).where(
+                *self._where(cls, **kwargs)))
         return async_result.unique().scalars().one_or_none() or 0
 
     @timed
-    async def sum_all(self, cls: Type[DeclarativeBase], column_name: str, **kwargs) -> int:
-        """Sum values of a specific column for all entities matching the filters."""
+    async def sum_all(self, cls: Type[DeclarativeBase], column_name: str,
+                      **kwargs) -> int:
+        """Sum values of a column for entities matching the filters."""
         async_result = await self.session.execute(
-            select(func.sum(getattr(cls, column_name))).where(*self._where(cls, **kwargs)))
+            select(func.sum(getattr(cls, column_name))).where(
+                *self._where(cls, **kwargs)))
         return async_result.unique().scalars().one_or_none() or 0
 
     @timed
     async def lock_all(self, cls: Type[DeclarativeBase]):
         """Lock the table to prevent other transactions from modifying it."""
-        await self.session.execute(
-            text("LOCK TABLE %s IN ACCESS EXCLUSIVE MODE;" % cls.__tablename__))
+        await self.session.execute(text(
+            "LOCK TABLE %s IN ACCESS EXCLUSIVE MODE;" % cls.__tablename__))
 
     # async def subquery(self, cls, foreign_key, **kwargs):
     #     return self.session.query(getattr(cls, foreign_key)).filter(
@@ -145,7 +155,7 @@ class EntityManager:
         await self.session.rollback()
 
     def _where(self, cls: Type[DeclarativeBase], **kwargs) -> list:
-        """Construct a list of SQLAlchemy "where" clauses based on filters."""
+        """Construct a where clause from the kwargs."""
         where = []
         for key in {x: kwargs[x] for x in kwargs if x not in RESERVED_KEYS}:
             column_name, operator = key.split("__")
@@ -164,12 +174,14 @@ class EntityManager:
                         value = value
 
                     column = getattr(cls, column_name)
-                    operation = getattr(column, RESERVED_OPERATORS[operator])(value)
+                    operation = getattr(
+                        column, RESERVED_OPERATORS[operator])(value)
                     where.append(operation)
         return where
 
-    def _order_by(self, cls: Type[DeclarativeBase], **kwargs) -> Union[asc, desc, None]:
-        """Determine the order by clause based on the provided filters."""
+    def _order_by(self, cls: Type[DeclarativeBase],
+                  **kwargs) -> Union[asc, desc, None]:
+        """Construct an order by clause from the kwargs."""
         order_by = getattr(cls, kwargs.get(ORDER_BY))
 
         if kwargs.get(ORDER) == ASC:
@@ -179,9 +191,9 @@ class EntityManager:
             return desc(order_by)
 
     def _offset(self, **kwargs) -> Optional[int]:
-        """Get the offset value from the provided filters."""
+        """Get the offset value from the kwargs."""
         return kwargs.get(OFFSET)
 
     def _limit(self, **kwargs) -> Optional[int]:
-        """Get the limit value from the provided filters."""
+        """Get the limit value from the kwargs."""
         return kwargs.get(LIMIT)

@@ -4,21 +4,22 @@ from unittest.mock import MagicMock, AsyncMock, patch, call
 
 
 class EntityManagerTestCase(asynctest.TestCase):
-    """Entity manager test case."""
+    """Test case for EntityManager class."""
 
     async def setUp(self):
-        """Set up before each test."""
+        """Set up the test case environment."""
         from app.managers.entity_manager import EntityManager
 
         self.session_mock = AsyncMock()
         self.entity_manager = EntityManager(self.session_mock)
 
     async def tearDown(self):
-        """Tear down after each test."""
+        """Clean up the test case environment."""
         del self.session_mock
         del self.entity_manager
 
     async def test__init(self):
+        """Test EntityManager initialization."""
         from app.managers.entity_manager import EntityManager
 
         session_mock = AsyncMock()
@@ -28,7 +29,7 @@ class EntityManagerTestCase(asynctest.TestCase):
     @patch("app.managers.entity_manager.EntityManager._where")
     @patch("app.managers.entity_manager.select")
     async def test__exists_true(self, select_mock, where_mock):
-        """Check if entity exists in database."""
+        """Test exists method when entity exists."""
         entity_mock = MagicMock()
         class_mock = MagicMock()
         async_result_mock = MagicMock()
@@ -55,7 +56,7 @@ class EntityManagerTestCase(asynctest.TestCase):
     @patch("app.managers.entity_manager.EntityManager._where")
     @patch("app.managers.entity_manager.select")
     async def test__exists_false(self, select_mock, where_mock):
-        """Check if entity is not exist in database."""
+        """Test exists method when entity does not exist."""
         class_mock = MagicMock()
         async_result_mock = MagicMock()
         async_result_mock.unique.return_value.scalars.return_value.one_or_none.return_value = None # noqa E501
@@ -81,7 +82,7 @@ class EntityManagerTestCase(asynctest.TestCase):
     @patch("app.managers.entity_manager.EntityManager.flush")
     @patch("app.managers.entity_manager.EntityManager.commit")
     async def test__entity_manager_insert(self, commit_mock, flush_mock):
-        """Insert entity into database when flush and commit by default."""
+        """Test insert method without flush and commit."""
         entity_mock = MagicMock()
         await self.entity_manager.insert(entity_mock)
 
@@ -94,7 +95,7 @@ class EntityManagerTestCase(asynctest.TestCase):
     @patch("app.managers.entity_manager.EntityManager.commit")
     async def test__entity_manager_insert_flush_true(self, commit_mock,
                                                      flush_mock):
-        """Insert entity into database when flush is true."""
+        """Test insert method with flush set to True."""
         entity_mock = MagicMock()
         await self.entity_manager.insert(entity_mock, flush=True)
 
@@ -107,7 +108,7 @@ class EntityManagerTestCase(asynctest.TestCase):
     @patch("app.managers.entity_manager.EntityManager.commit")
     async def test__entity_manager_insert_flush_false(self, commit_mock,
                                                       flush_mock):
-        """Insert entity into database when flush is false."""
+        """Test insert method with flush set to False."""
         entity_mock = MagicMock()
         await self.entity_manager.insert(entity_mock, flush=False)
 
@@ -120,7 +121,7 @@ class EntityManagerTestCase(asynctest.TestCase):
     @patch("app.managers.entity_manager.EntityManager.commit")
     async def test__entity_manager_insert_commit_true(self, commit_mock,
                                                       flush_mock):
-        """Insert entity into database when commit is true."""
+        """Test insert method with commit set to True."""
         entity_mock = MagicMock()
         await self.entity_manager.insert(entity_mock, commit=True)
 
@@ -133,7 +134,7 @@ class EntityManagerTestCase(asynctest.TestCase):
     @patch("app.managers.entity_manager.EntityManager.commit")
     async def test__entity_manager_insert_commit_false(self, commit_mock,
                                                        flush_mock):
-        """Insert entity into database when commit is false."""
+        """Test insert method with commit set to False."""
         entity_mock = MagicMock()
         await self.entity_manager.insert(entity_mock, commit=False)
 
@@ -144,7 +145,7 @@ class EntityManagerTestCase(asynctest.TestCase):
 
     @patch("app.managers.entity_manager.select")
     async def test__entity_manager_select(self, select_mock):
-        """Select entity from database."""
+        """Test select method for fetching a single entity."""
         entity_mock = MagicMock(id=123)
         class_mock = MagicMock(id=123)
         async_result_mock = MagicMock()
@@ -164,14 +165,14 @@ class EntityManagerTestCase(asynctest.TestCase):
     @patch("app.managers.entity_manager.EntityManager._where")
     @patch("app.managers.entity_manager.select")
     async def test__entity_manager_select_by(self, select_mock, where_mock):
-        """Select entity from database by attribute."""
+        """Test select_by method for fetching a single entity by key."""
         entity_mock = MagicMock(key="dummy")
         class_mock = MagicMock()
         async_result_mock = MagicMock()
         async_result_mock.unique.return_value.scalars.return_value.one_or_none.return_value = entity_mock # noqa E501
         self.session_mock.execute.return_value = async_result_mock
-        result = await self.entity_manager.select_by(class_mock,
-                                                     key__eq="dummy")
+        result = await self.entity_manager.select_by(
+            class_mock, key__eq="dummy")
 
         self.assertEqual(result, entity_mock)
         select_mock.assert_called_once()
@@ -179,7 +180,8 @@ class EntityManagerTestCase(asynctest.TestCase):
         where_mock.assert_called_once()
         where_mock.assert_called_with(class_mock, key__eq="dummy")
         select_mock.return_value.where.assert_called_once()
-        select_mock.return_value.where.assert_called_with(*where_mock.return_value) # noqa E501
+        select_mock.return_value.where.assert_called_with(
+            *where_mock.return_value)
         select_mock.return_value.where.return_value.limit.assert_called_once()
         select_mock.return_value.where.return_value.limit.assert_called_with(1)
         async_result_mock.unique.return_value.scalars.return_value.one_or_none.assert_called_once() # noqa E501
@@ -191,7 +193,7 @@ class EntityManagerTestCase(asynctest.TestCase):
     @patch("app.managers.entity_manager.select")
     async def test__select_all(self, select_mock, where_mock, order_by_mock,
                                offset_mock, limit_mock):
-        """Select all entities from database."""
+        """Test select_all method for fetching multiple entities."""
         entity_mock = MagicMock()
         class_mock = MagicMock()
         async_result_mock = MagicMock()
@@ -213,7 +215,8 @@ class EntityManagerTestCase(asynctest.TestCase):
         limit_mock.assert_called_once()
         limit_mock.assert_called_with(**kwargs)
         select_mock.return_value.where.assert_called_once()
-        select_mock.return_value.where.assert_called_with(*where_mock.return_value) # noqa E501
+        select_mock.return_value.where.assert_called_with(
+            *where_mock.return_value)
         select_mock.return_value.where.return_value.order_by.assert_called_once() # noqa E501
         select_mock.return_value.where.return_value.order_by.assert_called_with(order_by_mock.return_value) # noqa E501
         select_mock.return_value.where.return_value.order_by.return_value.offset.assert_called_once() # noqa E501
@@ -225,7 +228,7 @@ class EntityManagerTestCase(asynctest.TestCase):
     @patch("app.managers.entity_manager.EntityManager.flush")
     @patch("app.managers.entity_manager.EntityManager.commit")
     async def test__entity_manager_update(self, commit_mock, flush_mock):
-        """Update entity in database when flush and commit by default."""
+        """Test update method without flush and commit."""
         entity_mock = MagicMock()
         await self.entity_manager.update(entity_mock)
 
@@ -238,7 +241,7 @@ class EntityManagerTestCase(asynctest.TestCase):
     @patch("app.managers.entity_manager.EntityManager.commit")
     async def test__entity_manager_update_flush_true(self, commit_mock,
                                                      flush_mock):
-        """Update entity in database when flush is true."""
+        """Test update method with flush set to True."""
         entity_mock = MagicMock()
         await self.entity_manager.update(entity_mock, flush=True)
 
@@ -251,7 +254,7 @@ class EntityManagerTestCase(asynctest.TestCase):
     @patch("app.managers.entity_manager.EntityManager.commit")
     async def test__entity_manager_update_flush_false(self, commit_mock,
                                                       flush_mock):
-        """Update entity in database when flush is false."""
+        """Test update method with flush set to False."""
         entity_mock = MagicMock()
         await self.entity_manager.update(entity_mock, flush=False)
 
@@ -264,7 +267,7 @@ class EntityManagerTestCase(asynctest.TestCase):
     @patch("app.managers.entity_manager.EntityManager.commit")
     async def test__entity_manager_update_commit_true(self, commit_mock,
                                                       flush_mock):
-        """Update entity in database when commit is true."""
+        """Test update method with commit set to True."""
         entity_mock = MagicMock()
         await self.entity_manager.update(entity_mock, commit=True)
 
@@ -277,7 +280,7 @@ class EntityManagerTestCase(asynctest.TestCase):
     @patch("app.managers.entity_manager.EntityManager.commit")
     async def test__entity_manager_update_commit_false(self, commit_mock,
                                                        flush_mock):
-        """Update entity in database when commit is false."""
+        """Test update method with commit set to False."""
         entity_mock = MagicMock()
         await self.entity_manager.update(entity_mock, commit=False)
 
@@ -288,7 +291,7 @@ class EntityManagerTestCase(asynctest.TestCase):
 
     @patch("app.managers.entity_manager.EntityManager.commit")
     async def test__entity_manager_delete(self, commit_mock):
-        """Delete entity from database when default commit."""
+        """Test delete method without commit."""
         entity_mock = MagicMock()
         await self.entity_manager.delete(entity_mock)
 
@@ -298,7 +301,7 @@ class EntityManagerTestCase(asynctest.TestCase):
 
     @patch("app.managers.entity_manager.EntityManager.commit")
     async def test__entity_manager_delete_commit_true(self, commit_mock):
-        """Delete entity from database when commit is true."""
+        """Test delete method with commit set to True."""
         entity_mock = MagicMock()
         await self.entity_manager.delete(entity_mock, commit=True)
 
@@ -308,7 +311,7 @@ class EntityManagerTestCase(asynctest.TestCase):
 
     @patch("app.managers.entity_manager.EntityManager.commit")
     async def test__entity_manager_delete_commit_false(self, commit_mock):
-        """Delete entity from database when commit is false."""
+        """Test delete method with commit set to False."""
         entity_mock = MagicMock()
         await self.entity_manager.delete(entity_mock, commit=False)
 
@@ -319,7 +322,7 @@ class EntityManagerTestCase(asynctest.TestCase):
     @patch("app.managers.entity_manager.EntityManager.delete")
     @patch("app.managers.entity_manager.EntityManager.select_all")
     async def test__delete_all(self, select_all_mock, delete_mock):
-        """Delete all entities."""
+        """Test delete_all method for deleting multiple entities."""
         from app.managers.entity_manager import DELETE_ALL_BATCH_SIZE
 
         class_mock = MagicMock()
@@ -334,8 +337,8 @@ class EntityManagerTestCase(asynctest.TestCase):
             call(class_mock, name__eq="dummy", order_by="id", order="asc",
                  offset=DELETE_ALL_BATCH_SIZE, limit=DELETE_ALL_BATCH_SIZE),
             call(class_mock, name__eq="dummy", order_by="id", order="asc",
-                 offset=DELETE_ALL_BATCH_SIZE * 2, limit=DELETE_ALL_BATCH_SIZE),
-        ])
+                 offset=DELETE_ALL_BATCH_SIZE * 2,
+                 limit=DELETE_ALL_BATCH_SIZE)])
 
         self.assertEqual(delete_mock.call_count, 3)
         self.assertListEqual(delete_mock.call_args_list, [
@@ -347,7 +350,7 @@ class EntityManagerTestCase(asynctest.TestCase):
     @patch("app.managers.entity_manager.EntityManager.delete")
     @patch("app.managers.entity_manager.EntityManager.select_all")
     async def test__delete_all_commit_true(self, select_all_mock, delete_mock):
-        """Delete all entities when commit is True."""
+        """Test delete_all method with commit set to True."""
         from app.managers.entity_manager import DELETE_ALL_BATCH_SIZE
 
         class_mock = MagicMock()
@@ -363,8 +366,8 @@ class EntityManagerTestCase(asynctest.TestCase):
             call(class_mock, name__eq="dummy", order_by="id", order="asc",
                  offset=DELETE_ALL_BATCH_SIZE, limit=DELETE_ALL_BATCH_SIZE),
             call(class_mock, name__eq="dummy", order_by="id", order="asc",
-                 offset=DELETE_ALL_BATCH_SIZE * 2, limit=DELETE_ALL_BATCH_SIZE),
-        ])
+                 offset=DELETE_ALL_BATCH_SIZE * 2,
+                 limit=DELETE_ALL_BATCH_SIZE)])
 
         self.assertEqual(delete_mock.call_count, 3)
         self.assertListEqual(delete_mock.call_args_list, [
@@ -375,8 +378,9 @@ class EntityManagerTestCase(asynctest.TestCase):
 
     @patch("app.managers.entity_manager.EntityManager.delete")
     @patch("app.managers.entity_manager.EntityManager.select_all")
-    async def test__delete_all_commit_false(self, select_all_mock, delete_mock):
-        """Delete all entities when commit is False."""
+    async def test__delete_all_commit_false(self, select_all_mock,
+                                            delete_mock):
+        """Test delete_all method with commit set to False."""
         from app.managers.entity_manager import DELETE_ALL_BATCH_SIZE
 
         class_mock = MagicMock()
@@ -392,8 +396,8 @@ class EntityManagerTestCase(asynctest.TestCase):
             call(class_mock, name__eq="dummy", order_by="id", order="asc",
                  offset=DELETE_ALL_BATCH_SIZE, limit=DELETE_ALL_BATCH_SIZE),
             call(class_mock, name__eq="dummy", order_by="id", order="asc",
-                 offset=DELETE_ALL_BATCH_SIZE * 2, limit=DELETE_ALL_BATCH_SIZE),
-        ])
+                 offset=DELETE_ALL_BATCH_SIZE * 2,
+                 limit=DELETE_ALL_BATCH_SIZE)])
 
         self.assertEqual(delete_mock.call_count, 3)
         self.assertListEqual(delete_mock.call_args_list, [
@@ -406,7 +410,7 @@ class EntityManagerTestCase(asynctest.TestCase):
     @patch("app.managers.entity_manager.func")
     @patch("app.managers.entity_manager.select")
     async def test__count_all(self, select_mock, func_mock, where_mock):
-        """Count entities in database."""
+        """Test count_all method for counting entities."""
         class_mock = MagicMock(id=1)
         async_result_mock = MagicMock()
         async_result_mock.unique.return_value.scalars.return_value.one_or_none.return_value = 123 # noqa E501
@@ -422,14 +426,15 @@ class EntityManagerTestCase(asynctest.TestCase):
         select_mock.assert_called_once()
         select_mock.assert_called_with(func_mock.count.return_value)
         select_mock.return_value.where.assert_called_once()
-        select_mock.return_value.where.assert_called_with(*where_mock.return_value) # noqa E501
+        select_mock.return_value.where.assert_called_with(
+            *where_mock.return_value)
         async_result_mock.unique.return_value.scalars.return_value.one_or_none.assert_called_once() # noqa E501
 
     @patch("app.managers.entity_manager.EntityManager._where")
     @patch("app.managers.entity_manager.func")
     @patch("app.managers.entity_manager.select")
     async def test__count_all_none(self, select_mock, func_mock, where_mock):
-        """Count entities in database when result is none."""
+        """Test count_all method when no entities are counted."""
         class_mock = MagicMock(id=1)
         async_result_mock = MagicMock()
         async_result_mock.unique.return_value.scalars.return_value.one_or_none.return_value = None # noqa E501
@@ -445,21 +450,22 @@ class EntityManagerTestCase(asynctest.TestCase):
         select_mock.assert_called_once()
         select_mock.assert_called_with(func_mock.count.return_value)
         select_mock.return_value.where.assert_called_once()
-        select_mock.return_value.where.assert_called_with(*where_mock.return_value) # noqa E501
+        select_mock.return_value.where.assert_called_with(
+            *where_mock.return_value)
         async_result_mock.unique.return_value.scalars.return_value.one_or_none.assert_called_once() # noqa E501
 
     @patch("app.managers.entity_manager.EntityManager._where")
     @patch("app.managers.entity_manager.func")
     @patch("app.managers.entity_manager.select")
     async def test__sum_all(self, select_mock, func_mock, where_mock):
-        """Summarize attribute of entity in database."""
+        """Test sum_all method for summing values of a column."""
         class_mock = MagicMock(name="dummy", number=1)
         async_result_mock = MagicMock()
         async_result_mock.unique.return_value.scalars.return_value.one_or_none.return_value = 123 # noqa E501
         self.session_mock.execute.return_value = async_result_mock
         kwargs = {"name__eq": "dummy"}
-        result = await self.entity_manager.sum_all(class_mock, "number",
-                                                   **kwargs)
+        result = await self.entity_manager.sum_all(
+            class_mock, "number", **kwargs)
 
         self.assertEqual(result, 123)
         func_mock.sum.assert_called_once()
@@ -477,7 +483,7 @@ class EntityManagerTestCase(asynctest.TestCase):
     @patch("app.managers.entity_manager.func")
     @patch("app.managers.entity_manager.select")
     async def test__sum_all_none(self, select_mock, func_mock, where_mock):
-        """Summarize attribute of entity in database when result is none."""
+        """Test sum_all method when no values are summed."""
         class_mock = MagicMock(name="dummy", number=1)
         async_result_mock = MagicMock()
         async_result_mock.unique.return_value.scalars.return_value.one_or_none.return_value = None # noqa E501
@@ -494,11 +500,13 @@ class EntityManagerTestCase(asynctest.TestCase):
         select_mock.assert_called_once()
         select_mock.assert_called_with(func_mock.sum.return_value)
         select_mock.return_value.where.assert_called_once()
-        select_mock.return_value.where.assert_called_with(*where_mock.return_value) # noqa E501
+        select_mock.return_value.where.assert_called_with(
+            *where_mock.return_value)
         async_result_mock.unique.return_value.scalars.return_value.one_or_none.assert_called_once() # noqa E501
 
     @patch("app.managers.entity_manager.text")
     async def test_lock_all(self, text_mock):
+        """Test lock_all method for locking tables."""
         class_mock = MagicMock(__tablename__="dummies")
         text_mock.return_value = "LOCK TABLE dummies IN ACCESS EXCLUSIVE MODE;"
 
@@ -511,22 +519,22 @@ class EntityManagerTestCase(asynctest.TestCase):
             "LOCK TABLE dummies IN ACCESS EXCLUSIVE MODE;")
 
     async def test__flush(self):
-        """Flush changes."""
+        """Test flush method."""
         await self.entity_manager.flush()
         self.session_mock.flush.assert_called_once()
 
     async def test__commit(self):
-        """Commit transaction."""
+        """Test commit method."""
         await self.entity_manager.commit()
         self.session_mock.commit.assert_called_once()
 
     async def test__rollback(self):
-        """Rollback transaction."""
+        """Test rollback method."""
         await self.entity_manager.rollback()
         self.session_mock.rollback.assert_called_once()
 
     async def test__where(self):
-        """Build where statement."""
+        """Test _where method for building filter conditions."""
         (in_mock, eq_mock, ne_mock, ge_mock, le_mock, gt_mock, lt_mock,
          like_mock, ilike_mock) = (
             MagicMock(), MagicMock(), MagicMock(), MagicMock(), MagicMock(),
@@ -561,7 +569,8 @@ class EntityManagerTestCase(asynctest.TestCase):
             ilike_mock.return_value,
         ])
         in_mock.assert_called_once()
-        in_mock.assert_called_with([x.strip() for x in kwargs["column__in"].split(",")])  # noqa E501
+        in_mock.assert_called_with([
+            x.strip() for x in kwargs["column__in"].split(",")])
         eq_mock.assert_called_once()
         eq_mock.assert_called_with(kwargs["column__eq"])
         ne_mock.assert_called_once()
@@ -581,7 +590,7 @@ class EntityManagerTestCase(asynctest.TestCase):
 
     @patch("app.managers.entity_manager.asc")
     async def test__order_by_asc(self, asc_mock):
-        """Build order by statement when order is asc."""
+        """Test _order_by method for ascending order."""
         column_mock = MagicMock()
         class_mock = MagicMock(column=column_mock)
         kwargs = {"order_by": "column", "order": "asc"}
@@ -593,7 +602,7 @@ class EntityManagerTestCase(asynctest.TestCase):
 
     @patch("app.managers.entity_manager.desc")
     async def test__order_by_desc(self, desc_mock):
-        """Build order by statement when order is desc."""
+        """Test _order_by method for descending order."""
         column_mock = MagicMock()
         class_mock = MagicMock(column=column_mock)
         kwargs = {"order_by": "column", "order": "desc"}
@@ -604,13 +613,13 @@ class EntityManagerTestCase(asynctest.TestCase):
         desc_mock.assert_called_with(column_mock)
 
     async def test__offset(self):
-        """Build offset statement."""
+        """Test _offset method for setting offset."""
         kwargs = {"offset": 123}
         result = self.entity_manager._offset(**kwargs)
         self.assertEqual(result, 123)
 
     async def test__limit(self):
-        """Build limit statement."""
+        """Test _limit method for setting limit."""
         kwargs = {"limit": 123}
         result = self.entity_manager._limit(**kwargs)
         self.assertEqual(result, 123)
