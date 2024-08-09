@@ -135,8 +135,8 @@ async def user_register(session=Depends(get_session), cache=Depends(get_cache),
         schema.last_name, user_summary=schema.user_summary)
     await user_repository.insert(user)
 
-    hook = Hook(session, cache)
-    user = await hook.execute(H.AFTER_USER_REGISTER, user)
+    hook = Hook(session, cache, current_user=user)
+    await hook.execute(H.AFTER_USER_REGISTER, user)
 
     return {
         "user_id": user.id,

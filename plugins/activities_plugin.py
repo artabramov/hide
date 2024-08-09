@@ -16,6 +16,8 @@ class ActivityAction(enum.Enum):
     UPDATE = "update"
     DELETE = "delete"
 
+    REGISTER = "register"
+
 
 class EntityTablename(enum.Enum):
     USERS = User.__tablename__
@@ -62,11 +64,12 @@ async def after_startup(
         await conn.run_sync(Base.metadata.create_all)
 
 
-async def after_user_register(entity_manager, cache_manager, entity: User):
-    entity.user_summary = "after user register"
-    await entity_manager.update(entity)
-    await cache_manager.set(entity)
-    return entity
+async def after_user_register(entity_manager: EntityManager,
+                              cache_manager: CacheManager, current_user: User,
+                              user: User) -> User:
+    activity = Activity(user, ActivityAction.REGISTER, current_user)
+    await entity_manager.insert(activity)
+    return user
 
 
 async def after_album_insert(entity_manager: EntityManager,
