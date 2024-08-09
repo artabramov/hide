@@ -1,16 +1,17 @@
+from typing import List, Type, Union
 from redis import Redis
 from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy.orm import DeclarativeBase
 from app.managers.entity_manager import EntityManager, ID
 from app.managers.cache_manager import CacheManager
-from sqlalchemy.orm import DeclarativeBase
-from typing import List
 
 
 class Repository:
     """Manages CRUD operations and caching for SQLAlchemy models."""
 
-    def __init__(self, session: AsyncSession, cache: Redis, entity_class):
-        """Initializes the repository."""
+    def __init__(self, session: AsyncSession, cache: Redis,
+                 entity_class: Type[DeclarativeBase]):
+        """Initializes a repository for specific SQLAlchemy model."""
         self.entity_manager = EntityManager(session)
         self.cache_manager = CacheManager(cache)
         self.entity_class = entity_class
@@ -26,7 +27,7 @@ class Repository:
         if self.entity_class._cacheable and commit:
             await self.cache_manager.set(entity)
 
-    async def select(self, **kwargs) -> DeclarativeBase | None:
+    async def select(self, **kwargs) -> Union[DeclarativeBase, None]:
         """Retrieves an entity by id or other criteria."""
         entity_id, entity = kwargs.get(ID), None
 
