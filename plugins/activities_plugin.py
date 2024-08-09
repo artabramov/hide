@@ -69,21 +69,33 @@ async def after_user_register(entity_manager, cache_manager, entity: User):
     return entity
 
 
-async def after_album_insert(
-        entity_manager: EntityManager,
-        cache_manager: CacheManager,
-        current_user: User,
-        album: Album
-) -> Album:
+async def after_album_insert(entity_manager: EntityManager,
+                             cache_manager: CacheManager, current_user: User,
+                             album: Album) -> Album:
     activity = Activity(album, ActivityAction.INSERT, current_user)
     await entity_manager.insert(activity)
     return album
 
 
-async def after_album_select(entity_manager, cache_manager, album: Album):
-    album.album_summary = str(album.album_summary) + " hooked"
+async def after_album_select(entity_manager: EntityManager,
+                             cache_manager: CacheManager, current_user: User,
+                             album: Album) -> Album:
+    activity = Activity(album, ActivityAction.SELECT, current_user)
+    await entity_manager.insert(activity)
     return album
 
 
-async def after_album_update(entity_manager, cache_manager, album: Album):
+async def after_album_update(entity_manager: EntityManager,
+                             cache_manager: CacheManager, current_user: User,
+                             album: Album) -> Album:
+    activity = Activity(album, ActivityAction.UPDATE, current_user)
+    await entity_manager.insert(activity)
+    return album
+
+
+async def after_album_delete(entity_manager: EntityManager,
+                             cache_manager: CacheManager, current_user: User,
+                             album: Album) -> Album:
+    activity = Activity(album, ActivityAction.DELETE, current_user)
+    await entity_manager.insert(activity)
     return album

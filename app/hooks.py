@@ -16,6 +16,7 @@ class H(enum.Enum):
     AFTER_ALBUM_INSERT = "after_album_insert"
     AFTER_ALBUM_SELECT = "after_album_select"
     AFTER_ALBUM_UPDATE = "after_album_update"
+    AFTER_ALBUM_DELETE = "after_album_delete"
 
 
 class Hook:

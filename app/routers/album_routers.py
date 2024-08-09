@@ -52,7 +52,7 @@ async def album_select(session=Depends(get_session), cache=Depends(get_cache),
     if not album:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND)
 
-    hook = Hook(session, cache)
+    hook = Hook(session, cache, current_user=current_user)
     await hook.execute(H.AFTER_ALBUM_SELECT, album)
 
     return album.to_dict()
@@ -78,7 +78,7 @@ async def album_update(session=Depends(get_session), cache=Depends(get_cache),
     album.album_summary = schema.album_summary
     await album_repository.update(album)
 
-    hook = Hook(session, cache)
+    hook = Hook(session, cache, current_user=current_user)
     await hook.execute(H.AFTER_ALBUM_UPDATE, album)
 
     return {"album_id": album.id}
@@ -100,6 +100,9 @@ async def album_delete(session=Depends(get_session), cache=Depends(get_cache),
 
     await album_repository.delete(album, commit=False)
     await album_repository.commit()
+
+    hook = Hook(session, cache, current_user=current_user)
+    await hook.execute(H.AFTER_ALBUM_DELETE, album)
 
     return {"album_id": album.id}
 
