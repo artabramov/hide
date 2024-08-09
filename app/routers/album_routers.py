@@ -35,7 +35,7 @@ async def album_insert(session=Depends(get_session), cache=Depends(get_cache),
                   album_summary=schema.album_summary)
     await album_repository.insert(album)
 
-    hook = Hook(session, cache)
+    hook = Hook(session, cache, current_user=current_user)
     await hook.execute(H.AFTER_ALBUM_INSERT, album)
 
     return {"album_id": album.id}

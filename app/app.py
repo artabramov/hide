@@ -24,7 +24,8 @@ ctx = get_context()
 log = get_log()
 
 
-async def after_startup(session=Depends(get_session), cache=Depends(get_cache)):
+async def after_startup(session=Depends(get_session),
+                        cache=Depends(get_cache)):
     hook = Hook(session, cache)
     await hook.execute(H.AFTER_STARTUP)
 
@@ -32,12 +33,12 @@ async def after_startup(session=Depends(get_session), cache=Depends(get_cache)):
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     ctx.hooks = {}
-    files = [file for file in os.listdir(cfg.HOOKS_PATH)
-             if fnmatch.fnmatch(file, cfg.HOOKS_MASK)]
+    files = [file for file in os.listdir(cfg.PLUGINS_PATH)
+             if fnmatch.fnmatch(file, cfg.PLUGINS_MASK)]
 
     for file in files:
         name = file.split(".")[0]
-        path = os.path.join(cfg.HOOKS_PATH, file)
+        path = os.path.join(cfg.PLUGINS_PATH, file)
 
         try:
             spec = importlib.util.spec_from_file_location(name, path)
