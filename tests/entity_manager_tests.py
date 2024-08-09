@@ -20,11 +20,7 @@ class EntityManagerTestCase(asynctest.TestCase):
 
     async def test__init(self):
         """Test EntityManager initialization."""
-        from app.managers.entity_manager import EntityManager
-
-        session_mock = AsyncMock()
-        entity_manager = EntityManager(session_mock)
-        self.assertEqual(entity_manager.session, session_mock)
+        self.assertEqual(self.entity_manager.session, self.session_mock)
 
     @patch("app.managers.entity_manager.EntityManager._where")
     @patch("app.managers.entity_manager.select")

@@ -18,6 +18,10 @@ class CacheManagerTestCase(asynctest.TestCase):
         del self.cache_mock
         del self.cache_manager
 
+    async def test__init(self):
+        """Test CacheManager initialization."""
+        self.assertEqual(self.cache_manager.cache, self.cache_mock)
+
     async def test__get_key_int(self):
         """Test _get_key method with integer id."""
         entity_mock = MagicMock(__tablename__="mocks")
