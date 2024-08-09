@@ -15,6 +15,25 @@ class RepositoryTestCase(asynctest.TestCase):
         """Clean up the test case environment."""
         pass
 
+    async def test__init(self):
+        """Test Repository initialization."""
+        from app.managers.entity_manager import EntityManager
+        from app.managers.cache_manager import CacheManager
+
+        session_mock = MagicMock()
+        cache_mock = MagicMock()
+        dummy_class_mock = MagicMock()
+
+        repository = Repository(session_mock, cache_mock, dummy_class_mock)
+
+        self.assertTrue(isinstance(repository.entity_manager, EntityManager))
+        self.assertEqual(repository.entity_manager.session, session_mock)
+
+        self.assertTrue(isinstance(repository.cache_manager, CacheManager))
+        self.assertEqual(repository.cache_manager.cache, cache_mock)
+
+        self.assertEqual(repository.entity_class, dummy_class_mock)
+
     async def test__repository_insert_cacheable_commit_true(self):
         """Test insert with cacheable entity and commit True."""
         dummy_class_mock = MagicMock(__tablename__="dummies", _cacheable=True)
