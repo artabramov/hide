@@ -105,11 +105,11 @@ async def exception_handler(request: Request, e: Exception):
 
     elif isinstance(e, (FileNotFoundError, FileExistsError)):
         status_code = status.HTTP_400_BAD_REQUEST,
-        error_details = {"detail": Msg.BAD_REQUEST.value}
+        error_details = {"detail": Msg.BAD_REQUEST}
 
     else:
         status_code = status.HTTP_500_INTERNAL_SERVER_ERROR
-        error_details = {"detail": Msg.SERVER_ERROR.value}
+        error_details = {"detail": Msg.SERVER_ERROR}
 
     log.error("Request failed; module=app; function=exception_handler; "
               "elapsed_time=%s; status_code=%s; e=%s;" % (

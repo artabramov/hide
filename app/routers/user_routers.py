@@ -20,7 +20,8 @@ router = APIRouter()
 cfg = get_config()
 
 
-@router.get("/user/login", response_model=UserLoginResponse, tags=["auth"])
+@router.get("/user/login", response_model=UserLoginResponse, tags=["auth"],
+            name="Login with user credentials")
 async def user_login(session=Depends(get_session), cache=Depends(get_cache),
                      schema=Depends(UserLoginRequest)):
 
@@ -42,7 +43,18 @@ async def user_login(session=Depends(get_session), cache=Depends(get_cache),
     user_password = schema.user_password.get_secret_value()
     password_hash = HashHelper.hash(user_password)
 
-    if user.password_hash != password_hash:
+    if user.password_hash == password_hash:
+        user.password_accepted = True
+        user.password_attempts = 0
+
+        await user_repository.update(user)
+
+        hook = Hook(session, cache, current_user=user)
+        await hook.execute(H.AFTER_USER_LOGIN, user)
+
+        return {"password_accepted": True}
+
+    else:
         user.password_accepted = False
 
         if user.password_attempts >= cfg.USER_LOGIN_ATTEMPTS - 1:
@@ -56,17 +68,12 @@ async def user_login(session=Depends(get_session), cache=Depends(get_cache),
         await user_repository.update(user)
         raise E("user_password", user_password, Msg.USER_PASSWORD_INVALID)
 
-    else:
-        user.password_accepted = True
-        user.password_attempts = 0
 
-        await user_repository.update(user)
-        return {"password_accepted": True}
-
-
-@router.get("/auth/token", response_model=TokenSelectResponse, tags=["auth"])
-async def token_select(session=Depends(get_session), cache=Depends(get_cache),
-                       schema=Depends(TokenSelectRequest)):
+@router.get("/auth/token", response_model=TokenSelectResponse, tags=["auth"],
+            name="Retrieve a token using a one-time password")
+async def token_retrieve(session=Depends(get_session),
+                         cache=Depends(get_cache),
+                         schema=Depends(TokenSelectRequest)):
     """Second step of authentication: sign in by user login and totp."""
     user_repository = Repository(session, cache, User)
     user = await user_repository.select(user_login__eq=schema.user_login)
@@ -93,8 +100,11 @@ async def token_select(session=Depends(get_session), cache=Depends(get_cache),
             user.user_role = UserRole.ADMIN
 
         await user_repository.update(user)
-
         user_token = JWTHelper.encode_token(user)
+
+        hook = Hook(session, cache, current_user=user)
+        await hook.execute(H.AFTER_TOKEN_RETRIEVE, user)
+
         return {"user_token": user_token}
 
     else:
@@ -108,14 +118,20 @@ async def token_select(session=Depends(get_session), cache=Depends(get_cache),
         raise E("user_totp", schema.user_totp, Msg.USER_TOTP_INVALID)
 
 
-@router.delete("/auth/token", response_model=TokenDeleteResponse, tags=["auth"])
-async def token_delete(session=Depends(get_session), cache=Depends(get_cache),
-                       current_user: User = Depends(auth(UserRole.READER)),
-                       schema=Depends(TokenDeleteRequest)):
+@router.delete("/auth/token", response_model=TokenDeleteResponse,
+               tags=["auth"], name="Invalidate the current user token")
+async def token_invalidate(session=Depends(get_session),
+                           cache=Depends(get_cache),
+                           current_user: User = Depends(auth(UserRole.READER)),
+                           schema=Depends(TokenDeleteRequest)):
     """Logout: generate new jti."""
     user_repository = Repository(session, cache, User)
     current_user.jti = JWTHelper.create_jti()
     await user_repository.update(current_user)
+
+    hook = Hook(session, cache, current_user=current_user)
+    await hook.execute(H.AFTER_TOKEN_INVALIDATE, current_user)
+
     return {}
 
 
@@ -124,7 +140,8 @@ async def user_register(session=Depends(get_session), cache=Depends(get_cache),
                         schema=Depends(UserRegisterRequest)):
 
     user_repository = Repository(session, cache, User)
-    user_exists = await user_repository.exists(user_login__eq=schema.user_login)
+    user_exists = await user_repository.exists(
+        user_login__eq=schema.user_login)
 
     if user_exists:
         raise E("user_login", schema.user_login, Msg.USER_LOGIN_EXISTS)

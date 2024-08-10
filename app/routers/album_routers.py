@@ -116,6 +116,9 @@ async def albums_list(session=Depends(get_session), cache=Depends(get_cache),
     albums = await album_repository.select_all(**schema.__dict__)
     albums_count = await album_repository.count_all(**schema.__dict__)
 
+    hook = Hook(session, cache, current_user=current_user)
+    await hook.execute(H.AFTER_ALBUMS_LIST, albums)
+
     return {
         "albums": [album.to_dict() for album in albums],
         "albums_count": albums_count,

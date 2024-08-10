@@ -8,6 +8,7 @@ from app.database import Base, sessionmanager
 from app.managers.entity_manager import EntityManager
 from app.managers.cache_manager import CacheManager
 from sqlalchemy.orm import DeclarativeBase
+from typing import List
 
 
 class ActivityAction(enum.Enum):
@@ -15,8 +16,13 @@ class ActivityAction(enum.Enum):
     SELECT = "select"
     UPDATE = "update"
     DELETE = "delete"
+    LIST = "list"
 
-    REGISTER = "register"
+    USER_REGISTER = "user_register"
+    USER_LOGIN = "user_login"
+
+    TOKEN_RETRIEVE = "token_retrieve"
+    TOKEN_INVALIDATE = "token_invalidate"
 
 
 class EntityTablename(enum.Enum):
@@ -67,7 +73,7 @@ async def after_startup(
 async def after_user_register(entity_manager: EntityManager,
                               cache_manager: CacheManager, current_user: User,
                               user: User) -> User:
-    activity = Activity(user, ActivityAction.REGISTER, current_user)
+    activity = Activity(user, ActivityAction.USER_REGISTER, current_user)
     await entity_manager.insert(activity)
     return user
 
@@ -102,3 +108,14 @@ async def after_album_delete(entity_manager: EntityManager,
     activity = Activity(album, ActivityAction.DELETE, current_user)
     await entity_manager.insert(activity)
     return album
+
+
+async def after_albums_list(entity_manager: EntityManager,
+                            cache_manager: CacheManager, current_user: User,
+                            albums: List[Album]) -> List[Album]:
+
+    for album in albums:
+        activity = Activity(album, ActivityAction.LIST, current_user)
+        await entity_manager.insert(activity)
+
+    return albums
