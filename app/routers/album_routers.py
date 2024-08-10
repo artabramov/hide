@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import APIRouter, Depends, Request, HTTPException, status
 from app.database import get_session
 from app.cache import get_cache
 from app.models.user_models import User, UserRole
@@ -35,14 +35,14 @@ async def album_insert(session=Depends(get_session), cache=Depends(get_cache),
                   album_summary=schema.album_summary)
     await album_repository.insert(album)
 
-    hook = Hook(session, cache, current_user=current_user)
-    await hook.execute(H.AFTER_ALBUM_INSERT, album)
+    # hook = Hook(session, cache, current_user=current_user)
+    # await hook.execute(H.AFTER_ALBUM_INSERT, album)
 
     return {"album_id": album.id}
 
 
 @router.get("/album/{album_id}", response_model=AlbumSelectResponse, tags=["albums"])  # noqa E501
-async def album_select(session=Depends(get_session), cache=Depends(get_cache),
+async def album_select(request: Request, session=Depends(get_session), cache=Depends(get_cache),
                        current_user: User = Depends(auth(UserRole.READER)),
                        schema=Depends(AlbumSelectRequest)):
 
@@ -52,14 +52,15 @@ async def album_select(session=Depends(get_session), cache=Depends(get_cache),
     if not album:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND)
 
-    hook = Hook(session, cache, current_user=current_user)
+    hook = Hook(session, cache, request, current_user=current_user)
     await hook.execute(H.AFTER_ALBUM_SELECT, album)
 
     return album.to_dict()
 
 
 @router.put("/album/{album_id}", response_model=AlbumUpdateResponse, tags=["albums"])  # noqa E501
-async def album_update(session=Depends(get_session), cache=Depends(get_cache),
+async def album_update(request: Request, session=Depends(get_session),
+                       cache=Depends(get_cache),
                        current_user: User = Depends(auth(UserRole.EDITOR)),
                        schema=Depends(AlbumUpdateRequest)):
     album_repository = Repository(session, cache, Album)
@@ -78,7 +79,7 @@ async def album_update(session=Depends(get_session), cache=Depends(get_cache),
     album.album_summary = schema.album_summary
     await album_repository.update(album)
 
-    hook = Hook(session, cache, current_user=current_user)
+    hook = Hook(session, cache, request, current_user=current_user)
     await hook.execute(H.AFTER_ALBUM_UPDATE, album)
 
     return {"album_id": album.id}
@@ -101,8 +102,8 @@ async def album_delete(session=Depends(get_session), cache=Depends(get_cache),
     await album_repository.delete(album, commit=False)
     await album_repository.commit()
 
-    hook = Hook(session, cache, current_user=current_user)
-    await hook.execute(H.AFTER_ALBUM_DELETE, album)
+    # hook = Hook(session, cache, current_user=current_user)
+    # await hook.execute(H.AFTER_ALBUM_DELETE, album)
 
     return {"album_id": album.id}
 
@@ -116,8 +117,8 @@ async def albums_list(session=Depends(get_session), cache=Depends(get_cache),
     albums = await album_repository.select_all(**schema.__dict__)
     albums_count = await album_repository.count_all(**schema.__dict__)
 
-    hook = Hook(session, cache, current_user=current_user)
-    await hook.execute(H.AFTER_ALBUMS_LIST, albums)
+    # hook = Hook(session, cache, current_user=current_user)
+    # await hook.execute(H.AFTER_ALBUMS_LIST, albums)
 
     return {
         "albums": [album.to_dict() for album in albums],

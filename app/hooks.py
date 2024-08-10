@@ -6,6 +6,8 @@ from redis import Redis
 from sqlalchemy.ext.asyncio import AsyncSession
 from app.models.user_models import User
 from typing import Any
+from fastapi import Request
+from sqlalchemy.orm import DeclarativeBase
 
 ctx = get_context()
 
@@ -28,15 +30,16 @@ class H(enum.Enum):
 class Hook:
 
     def __init__(self, session: AsyncSession, cache: Redis,
-                 current_user: User = None):
+                 request: Request = None, current_user: User = None):
         self.entity_manager = EntityManager(session)
         self.cache_manager = CacheManager(cache)
+        self.request = request
         self.current_user = current_user
 
-    async def execute(self, hook: H, data: Any = None) -> Any:
+    async def execute(self, hook: H, entity: DeclarativeBase = None) -> Any:
         if hook.value in ctx.hooks:
             hook_functions = ctx.hooks[hook.value]
             for func in hook_functions:
-                data = await func(self.entity_manager, self.cache_manager,
-                                  self.current_user, data)
-        return data
+                entity = await func(self.entity_manager, self.cache_manager,
+                                    self.request, self.current_user, entity)
+        return entity
