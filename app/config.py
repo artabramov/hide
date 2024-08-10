@@ -50,6 +50,8 @@ class Config:
     HASH_SALT: str
     FERNET_KEY: str
 
+    FILE_UPLOAD_CHUNK_SIZE: int
+
     JWT_SECRET: str
     JWT_EXPIRES: int
     JWT_ALGORITHM: str
@@ -61,6 +63,16 @@ class Config:
     USER_LOGIN_ATTEMPTS: int
     USER_MFA_ATTEMPTS: int
     USER_SUSPENDED_TIME: int
+
+    USERPIC_URL: str
+    USERPIC_PREFIX: str
+    USERPIC_PATH: str
+    USERPIC_MIMES: list
+    USERPIC_EXTENSION: str
+    USERPIC_MODE: str
+    USERPIC_WIDTH: int
+    USERPIC_HEIGHT: int
+    USERPIC_QUALITY: int
 
 
 @lru_cache(maxsize=None)

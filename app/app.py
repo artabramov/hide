@@ -18,6 +18,7 @@ import importlib.util
 import inspect
 from app.hooks import H, Hook
 from app.cache import get_cache
+from fastapi.staticfiles import StaticFiles
 
 cfg = get_config()
 ctx = get_context()
@@ -71,6 +72,9 @@ app.include_router(static_routers.router)
 app.include_router(system_routers.router, prefix=cfg.APP_PREFIX)
 app.include_router(user_routers.router, prefix=cfg.APP_PREFIX)
 app.include_router(album_routers.router, prefix=cfg.APP_PREFIX)
+app.mount(
+    cfg.USERPIC_PREFIX, StaticFiles(directory=cfg.USERPIC_PATH, html=False),
+    name=cfg.USERPIC_PATH)
 
 
 @app.middleware("http")

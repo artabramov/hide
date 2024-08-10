@@ -5,6 +5,8 @@ from typing import Optional
 # from app.models.user_models import UserRole
 from pydantic import Field, field_validator
 from app.config import get_config
+from fastapi import File, UploadFile
+
 
 cfg = get_config()
 
@@ -85,3 +87,13 @@ class UserSelectRequest(BaseModel):
 
 class UserSelectResponse(BaseModel):
     user: dict
+
+
+class UserpicUploadRequest(BaseModel):
+    file: UploadFile = File(...)
+
+    @field_validator("file", mode="before")
+    def validate_file(cls, file: str):
+        if file.content_type not in cfg.USERPIC_MIMES:
+            raise ValueError
+        return file

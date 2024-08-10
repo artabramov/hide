@@ -1,4 +1,3 @@
-# import os
 # import uuid
 # import shutil
 # import filetype
@@ -9,25 +8,28 @@ import aiofiles.os
 from app.decorators.timed_deco import timed
 # import io
 # from app.logger import get_log
-# from app.config import get_cfg
+from app.config import get_config
 
-# cfg = get_cfg()
+cfg = get_config()
 # log = get_log()
 
 
 class FileManager:
-    """File Manager."""
+
+    @staticmethod
+    async def upload(file: object, path: str):
+        async with aiofiles.open(path, "wb") as fn:
+            while content := await file.read(cfg.FILE_UPLOAD_CHUNK_SIZE):
+                await fn.write(content)
 
     @staticmethod
     @timed
     async def write(path: str, data: bytes):
-        """Write file."""
         async with aiofiles.open(path, mode="wb") as fn:
             await fn.write(data)
 
     @staticmethod
     @timed
     async def read(path: str) -> bytes:
-        """Read file."""
         async with aiofiles.open(path, mode="rb") as fn:
             return await fn.read()

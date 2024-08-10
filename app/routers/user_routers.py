@@ -7,14 +7,17 @@ from app.helpers.jwt_helper import JWTHelper
 from app.schemas.user_schemas import (
     UserRegisterRequest, UserRegisterResponse, UserLoginRequest,
     UserLoginResponse, TokenSelectRequest, TokenSelectResponse,
-    TokenDeleteRequest, TokenDeleteResponse,
-    UserSelectRequest, UserSelectResponse)
+    TokenDeleteRequest, TokenDeleteResponse, UserSelectRequest,
+    UserSelectResponse, UserpicUploadRequest)
 from app.errors import E, Msg
 from app.config import get_config
 from time import time
 from app.hooks import H, Hook
 from app.auth import auth
 from app.repository import Repository
+import uuid
+import os
+from app.managers.file_manager import FileManager
 
 router = APIRouter()
 cfg = get_config()
@@ -227,3 +230,18 @@ async def user_select(
     return {
         "user": user.to_dict(),
     }
+
+
+@router.post("/user/{user_id}/userpic", tags=["users"],
+             name="Upload userpic")
+async def userpic_upload(
+    request: Request,
+    session=Depends(get_session),
+    cache=Depends(get_cache),
+    current_user: User = Depends(auth(UserRole.READER)),
+    schema=Depends(UserpicUploadRequest)
+) -> dict:
+    userpic_filename = str(uuid.uuid4()) + cfg.USERPIC_EXTENSION
+    userpic_path = os.path.join(cfg.USERPIC_PATH, userpic_filename)
+    await FileManager.upload(schema.file, userpic_path)
+    return {}
