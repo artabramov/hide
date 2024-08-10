@@ -18,11 +18,21 @@ router = APIRouter()
 cfg = get_config()
 
 
-@router.post("/album", response_model=AlbumInsertResponse, tags=["albums"])
-async def album_insert(session=Depends(get_session), cache=Depends(get_cache),
-                       current_user: User = Depends(auth(UserRole.WRITER)),
-                       schema=Depends(AlbumInsertRequest)):
-
+@router.post("/album", response_model=AlbumInsertResponse,
+             tags=["albums"], name="Create an album")
+async def album_insert(
+    request: Request,
+    session=Depends(get_session),
+    cache=Depends(get_cache),
+    current_user: User = Depends(auth(UserRole.WRITER)),
+    schema=Depends(AlbumInsertRequest)
+) -> dict:
+    """
+    Create a new album if it does not already exist. Requires the user
+    to have the WRITER role or higher. Checks if an album with the same
+    name exists, raising an error if it does. Otherwise, creates the
+    album with the provided details and returns its ID.
+    """
     album_repository = Repository(session, cache, Album)
 
     album_exists = await album_repository.exists(
@@ -35,17 +45,26 @@ async def album_insert(session=Depends(get_session), cache=Depends(get_cache),
                   album_summary=schema.album_summary)
     await album_repository.insert(album)
 
-    # hook = Hook(session, cache, current_user=current_user)
-    # await hook.execute(H.AFTER_ALBUM_INSERT, album)
+    hook = Hook(session, cache, request, current_user=current_user)
+    await hook.execute(H.AFTER_ALBUM_INSERT, album)
 
     return {"album_id": album.id}
 
 
-@router.get("/album/{album_id}", response_model=AlbumSelectResponse, tags=["albums"])  # noqa E501
-async def album_select(request: Request, session=Depends(get_session), cache=Depends(get_cache),
-                       current_user: User = Depends(auth(UserRole.READER)),
-                       schema=Depends(AlbumSelectRequest)):
-
+@router.get("/album/{album_id}", response_model=AlbumSelectResponse,
+            tags=["albums"], name="Retrieve an album")
+async def album_select(
+    request: Request,
+    session=Depends(get_session),
+    cache=Depends(get_cache),
+    current_user: User = Depends(auth(UserRole.READER)),
+    schema=Depends(AlbumSelectRequest)
+) -> dict:
+    """
+    Retrieve an album by its ID. Returns the album details if found;
+    otherwise, raises a 404 error. Requires the user to have the READER
+    role or higher.
+    """
     album_repository = Repository(session, cache, Album)
     album = await album_repository.select(id=schema.album_id)
 
@@ -58,11 +77,21 @@ async def album_select(request: Request, session=Depends(get_session), cache=Dep
     return album.to_dict()
 
 
-@router.put("/album/{album_id}", response_model=AlbumUpdateResponse, tags=["albums"])  # noqa E501
-async def album_update(request: Request, session=Depends(get_session),
-                       cache=Depends(get_cache),
-                       current_user: User = Depends(auth(UserRole.EDITOR)),
-                       schema=Depends(AlbumUpdateRequest)):
+@router.put("/album/{album_id}", response_model=AlbumUpdateResponse,
+            tags=["albums"], name="Update an album")
+async def album_update(
+    request: Request,
+    session=Depends(get_session),
+    cache=Depends(get_cache),
+    current_user: User = Depends(auth(UserRole.EDITOR)),
+    schema=Depends(AlbumUpdateRequest)
+) -> dict:
+    """
+    Update an existing album's details by its ID. Requires EDITOR role
+    or higher. Raises an error if the album is not found or if the new
+    name conflicts with an existing album name. Returns the ID of the
+    updated album.
+    """
     album_repository = Repository(session, cache, Album)
 
     album = await album_repository.select(id=schema.album_id)
@@ -85,40 +114,61 @@ async def album_update(request: Request, session=Depends(get_session),
     return {"album_id": album.id}
 
 
-@router.delete("/album/{album_id}", response_model=AlbumDeleteResponse, tags=["albums"])  # noqa E501
-async def album_delete(session=Depends(get_session), cache=Depends(get_cache),
-                       current_user: User = Depends(auth(UserRole.ADMIN)),
-                       schema=Depends(AlbumDeleteRequest)):
+@router.delete("/album/{album_id}", response_model=AlbumDeleteResponse,
+               tags=["albums"], name="Delete an album")
+async def album_delete(
+    request: Request,
+    session=Depends(get_session),
+    cache=Depends(get_cache),
+    current_user: User = Depends(auth(UserRole.ADMIN)),
+    schema=Depends(AlbumDeleteRequest)
+) -> dict:
+    """
+    Delete an album by its ID from the repository. Requires ADMIN role.
+    Raises a 404 error if the album is not found. Deletes related posts
+    if any exist. Returns the ID of the deleted album.
+    """
     album_repository = Repository(session, cache, Album)
 
     album = await album_repository.select(id=schema.album_id)
     if not album:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND)
 
-    # TODO: delete posts with commit=False
     if album.posts_count > 0:
+        # TODO: delete related posts
         ...
 
     await album_repository.delete(album, commit=False)
     await album_repository.commit()
 
-    # hook = Hook(session, cache, current_user=current_user)
-    # await hook.execute(H.AFTER_ALBUM_DELETE, album)
+    hook = Hook(session, cache, request, current_user=current_user)
+    await hook.execute(H.AFTER_ALBUM_DELETE, album)
 
     return {"album_id": album.id}
 
 
-@router.get("/albums", response_model=AlbumsListResponse, tags=["albums"])
-async def albums_list(session=Depends(get_session), cache=Depends(get_cache),
-                      current_user: User = Depends(auth(UserRole.READER)),
-                      schema=Depends(AlbumsListRequest)):
+@router.get("/albums", response_model=AlbumsListResponse, tags=["albums"],
+            name="Retrieve album list")
+async def albums_list(
+    request: Request,
+    session=Depends(get_session),
+    cache=Depends(get_cache),
+    current_user: User = Depends(auth(UserRole.READER)),
+    schema=Depends(AlbumsListRequest)
+) -> dict:
+    """
+    Retrieve a list of albums based on the provided query parameters.
+    Returns the list of albums and the total count. If no albums are
+    found, an empty list and zero count are returned. Requires READER
+    role or higher.
+    """
     album_repository = Repository(session, cache, Album)
 
     albums = await album_repository.select_all(**schema.__dict__)
     albums_count = await album_repository.count_all(**schema.__dict__)
 
-    # hook = Hook(session, cache, current_user=current_user)
-    # await hook.execute(H.AFTER_ALBUMS_LIST, albums)
+    hook = Hook(session, cache, request, current_user=current_user)
+    await hook.execute(H.AFTER_ALBUMS_LIST, albums)
 
     return {
         "albums": [album.to_dict() for album in albums],

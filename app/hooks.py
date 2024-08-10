@@ -19,6 +19,7 @@ class H(enum.Enum):
     AFTER_USER_LOGIN = "after_user_login"
     AFTER_TOKEN_RETRIEVE = "after_token_retrieve"
     AFTER_TOKEN_INVALIDATE = "after_token_invalidate"
+    AFTER_USER_SELECT = "after_user_select"
 
     AFTER_ALBUM_INSERT = "after_album_insert"
     AFTER_ALBUM_SELECT = "after_album_select"
