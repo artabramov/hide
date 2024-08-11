@@ -1,3 +1,6 @@
+import uuid
+import os
+from time import time
 from fastapi import APIRouter, Depends, HTTPException, status, Request
 from app.database import get_session
 from app.cache import get_cache
@@ -14,15 +17,12 @@ from app.schemas.user_schemas import (
     PasswordUpdateRequest, PasswordUpdateResponse, UsersListRequest,
     UsersListResponse)
 from app.errors import E, Msg
-from app.config import get_config
-from time import time
 from app.hooks import HookAction, Hook
 from app.auth import auth
 from app.repository import Repository
-import uuid
-import os
 from app.managers.file_manager import FileManager
 from app.helpers.image_helper import ImageHelper
+from app.config import get_config
 
 router = APIRouter()
 cfg = get_config()
