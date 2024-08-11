@@ -16,7 +16,7 @@ import os
 import fnmatch
 import importlib.util
 import inspect
-from app.hooks import H, Hook
+from app.hooks import HookAction, Hook
 from app.cache import get_cache
 from fastapi.staticfiles import StaticFiles
 
@@ -28,7 +28,7 @@ log = get_log()
 async def after_startup(session=Depends(get_session),
                         cache=Depends(get_cache)):
     hook = Hook(session, cache)
-    await hook.execute(H.after_startup)
+    await hook.execute(HookAction.after_startup)
 
 
 @asynccontextmanager

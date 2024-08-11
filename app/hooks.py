@@ -12,7 +12,7 @@ from sqlalchemy.orm import DeclarativeBase
 ctx = get_context()
 
 
-class H(enum.Enum):
+class HookAction(enum.Enum):
     after_startup = "after_startup"
 
     after_user_register = "after_user_register"
@@ -42,9 +42,13 @@ class Hook:
         self.request = request
         self.current_user = current_user
 
-    async def execute(self, hook: H, entity: DeclarativeBase = None) -> Any:
-        if hook.value in ctx.hooks:
-            hook_functions = ctx.hooks[hook.value]
+    async def execute(
+        self,
+        hook_action: HookAction,
+        entity: DeclarativeBase = None
+    ) -> Any:
+        if hook_action.value in ctx.hooks:
+            hook_functions = ctx.hooks[hook_action.value]
             for func in hook_functions:
                 entity = await func(self.entity_manager, self.cache_manager,
                                     self.request, self.current_user, entity)

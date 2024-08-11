@@ -11,7 +11,7 @@ from app.schemas.album_schemas import (
 from app.repository import Repository
 from app.errors import E, Msg
 from app.config import get_config
-from app.hooks import H, Hook
+from app.hooks import HookAction, Hook
 from app.auth import auth
 
 router = APIRouter()
@@ -46,7 +46,7 @@ async def album_insert(
     await album_repository.insert(album)
 
     hook = Hook(session, cache, request, current_user=current_user)
-    await hook.execute(H.after_album_insert, album)
+    await hook.execute(HookAction.after_album_insert, album)
 
     return {"album_id": album.id}
 
@@ -72,7 +72,7 @@ async def album_select(
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND)
 
     hook = Hook(session, cache, request, current_user=current_user)
-    await hook.execute(H.after_album_select, album)
+    await hook.execute(HookAction.after_album_select, album)
 
     return album.to_dict()
 
@@ -109,7 +109,7 @@ async def album_update(
     await album_repository.update(album)
 
     hook = Hook(session, cache, request, current_user=current_user)
-    await hook.execute(H.after_album_update, album)
+    await hook.execute(HookAction.after_album_update, album)
 
     return {"album_id": album.id}
 
@@ -142,7 +142,7 @@ async def album_delete(
     await album_repository.commit()
 
     hook = Hook(session, cache, request, current_user=current_user)
-    await hook.execute(H.after_album_delete, album)
+    await hook.execute(HookAction.after_album_delete, album)
 
     return {"album_id": album.id}
 
@@ -168,7 +168,7 @@ async def albums_list(
     albums_count = await album_repository.count_all(**schema.__dict__)
 
     hook = Hook(session, cache, request, current_user=current_user)
-    await hook.execute(H.after_albums_list, albums)
+    await hook.execute(HookAction.after_albums_list, albums)
 
     return {
         "albums": [album.to_dict() for album in albums],
