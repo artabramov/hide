@@ -25,6 +25,7 @@ class HookAction(enum.Enum):
     after_password_update = "after_password_update"
     after_userpic_upload = "after_userpic_upload"
     after_userpic_delete = "after_userpic_delete"
+    after_users_list = "after_users_list"
 
     after_album_insert = "after_album_insert"
     after_album_select = "after_album_select"

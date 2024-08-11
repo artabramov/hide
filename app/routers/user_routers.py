@@ -11,7 +11,8 @@ from app.schemas.user_schemas import (
     UserSelectResponse, UserpicUploadRequest, UserpicUploadResponse,
     UserpicDeleteRequest, UserpicDeleteResponse, UserUpdateRequest,
     UserUpdateResponse, RoleUpdateRequest, RoleUpdateResponse,
-    PasswordUpdateRequest, PasswordUpdateResponse)
+    PasswordUpdateRequest, PasswordUpdateResponse, UsersListRequest,
+    UsersListResponse)
 from app.errors import E, Msg
 from app.config import get_config
 from time import time
@@ -231,9 +232,7 @@ async def user_select(
     hook = Hook(session, cache, request, current_user=user)
     await hook.execute(HookAction.after_user_select, user)
 
-    return {
-        "user": user.to_dict(),
-    }
+    return user.to_dict()
 
 
 @router.put("/user/{user_id}", response_model=UserUpdateResponse,
@@ -408,4 +407,32 @@ async def userpic_delete(
 
     return {
         "user_id": current_user.id
+    }
+
+
+@router.get("/users", response_model=UsersListResponse, tags=["users"],
+            name="Retrieve users list")
+async def users_list(
+    request: Request,
+    session=Depends(get_session),
+    cache=Depends(get_cache),
+    current_user: User = Depends(auth(UserRole.reader)),
+    schema=Depends(UsersListRequest)
+) -> dict:
+    """
+    Retrieve a list of users and their count based on the provided query
+    parameters. Ensure that the current user has at least reader role
+    to access the user list.
+    """
+    user_repository = Repository(session, cache, User)
+
+    users = await user_repository.select_all(**schema.__dict__)
+    users_count = await user_repository.count_all(**schema.__dict__)
+
+    hook = Hook(session, cache, request, current_user=current_user)
+    await hook.execute(HookAction.after_users_list, users)
+
+    return {
+        "users": [user.to_dict() for user in users],
+        "users_count": users_count,
     }

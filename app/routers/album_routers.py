@@ -148,7 +148,7 @@ async def album_delete(
 
 
 @router.get("/albums", response_model=AlbumsListResponse, tags=["albums"],
-            name="Retrieve album list")
+            name="Retrieve albums list")
 async def albums_list(
     request: Request,
     session=Depends(get_session),

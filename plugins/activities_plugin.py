@@ -233,6 +233,22 @@ async def after_userpic_delete(
     return user
 
 
+async def after_users_list(
+    entity_manager: EntityManager,
+    cache_manager: CacheManager,
+    request: Request,
+    current_user: User,
+    users: List[Album]
+) -> List[Album]:
+    """Track users list selection."""
+    for user in users:
+        activity = Activity(current_user, HookAction.after_users_list,
+                            request, user, EntityOperation.select)
+        await entity_manager.insert(activity)
+
+    return users
+
+
 async def after_album_insert(
     entity_manager: EntityManager,
     cache_manager: CacheManager,

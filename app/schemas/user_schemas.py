@@ -1,4 +1,4 @@
-from typing import Optional
+from typing import Optional, Literal, List
 from pydantic import BaseModel, SecretStr, Field, field_validator
 from fastapi import File, UploadFile
 from app.models.user_models import UserRole
@@ -157,7 +157,16 @@ class UserSelectRequest(BaseModel):
 
 class UserSelectResponse(BaseModel):
     """Pydantic schema for user selection response."""
-    user: dict
+    id: int
+    created_date: int
+    updated_date: int
+    user_role: UserRole
+    is_active: bool
+    user_login: str
+    first_name: str
+    last_name: str
+    user_summary: Optional[str]
+    userpic_url: Optional[str]
 
 
 class UserUpdateRequest(BaseModel):
@@ -236,3 +245,21 @@ class PasswordUpdateRequest(BaseModel):
 class PasswordUpdateResponse(BaseModel):
     """Pydantic schema for user password updation response."""
     user_id: int
+
+
+class UsersListRequest(BaseModel):
+    """Pydantic schema for users list selection request."""
+    user_login__ilike: Optional[str] = None
+    first_name__ilike: Optional[str] = None
+    last_name__ilike: Optional[str] = None
+    offset: int = Field(ge=0)
+    limit: int = Field(ge=1, le=200)
+    order_by: Literal["id", "created_date", "updated_date", "user_id",
+                      "user_login", "first_name", "last_name"]
+    order: Literal["asc", "desc"]
+
+
+class UsersListResponse(BaseModel):
+    """Pydantic schema for users list selection response."""
+    users: List[UserSelectResponse]
+    users_count: int
