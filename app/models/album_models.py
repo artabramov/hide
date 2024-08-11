@@ -25,6 +25,8 @@ class Album(Base):
 
     album_user = relationship("User", back_populates="user_albums",
                               lazy="joined")
+    album_posts = relationship("Post", back_populates="post_album",
+                               lazy="noload")
 
     def __init__(self, user_id: int, is_locked: bool, album_name: str,
                  album_summary: str = None):

@@ -74,6 +74,8 @@ class Config:
     USERPIC_HEIGHT: int
     USERPIC_QUALITY: int
 
+    POST_BASE_PATH: str
+
 
 @lru_cache(maxsize=None)
 def get_config() -> Config:

@@ -48,6 +48,8 @@ class User(Base, MFAMixin, FernetMixin):
 
     user_albums = relationship("Album", back_populates="album_user",
                                lazy="noload")
+    user_posts = relationship("Post", back_populates="post_user",
+                              lazy="noload")
 
     def __init__(self, user_role: UserRole, user_login: str,
                  user_password: str, first_name: str, last_name: str,
