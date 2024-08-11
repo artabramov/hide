@@ -73,8 +73,9 @@ app.include_router(system_routers.router, prefix=cfg.APP_PREFIX)
 app.include_router(user_routers.router, prefix=cfg.APP_PREFIX)
 app.include_router(album_routers.router, prefix=cfg.APP_PREFIX)
 app.mount(
-    cfg.USERPIC_PREFIX, StaticFiles(directory=cfg.USERPIC_PATH, html=False),
-    name=cfg.USERPIC_PATH)
+    cfg.USERPIC_PREFIX,
+    StaticFiles(directory=cfg.USERPIC_BASE_PATH, html=False),
+    name=cfg.USERPIC_BASE_PATH)
 
 
 @app.middleware("http")

@@ -15,16 +15,16 @@ jwt = HTTPBearer()
 
 
 def auth(user_role: UserRole):
-    if user_role == UserRole.READER:
+    if user_role == UserRole.reader:
         return _can_read
 
-    elif user_role == UserRole.WRITER:
+    elif user_role == UserRole.writer:
         return _can_write
 
-    elif user_role == UserRole.EDITOR:
+    elif user_role == UserRole.editor:
         return _can_edit
 
-    elif user_role == UserRole.ADMIN:
+    elif user_role == UserRole.admin:
         return _can_admin
 
 

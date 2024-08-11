@@ -19,7 +19,7 @@ class Album(Base):
     user_id = Column(BigInteger, ForeignKey("users.id"), index=True)
     is_locked = Column(Boolean)
     album_name = Column(String(128), index=True, unique=True)
-    album_summary = Column(String(255), nullable=True)
+    album_summary = Column(String(512), nullable=True)
     posts_count = Column(Integer, index=True, default=0)
     posts_size = Column(BigInteger, index=True, default=0)
 

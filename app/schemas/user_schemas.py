@@ -16,7 +16,7 @@ class UserRegisterRequest(BaseModel):
     user_password: SecretStr = Field(..., min_length=6)
     first_name: str = Field(..., min_length=2, max_length=40)
     last_name: str = Field(..., min_length=2, max_length=40)
-    user_summary: Optional[str] = Field(max_length=255, default=None)
+    user_summary: Optional[str] = Field(max_length=512, default=None)
 
     @field_validator("user_login", mode="before")
     def validate_user_login(cls, user_login: str) -> str:
@@ -90,10 +90,17 @@ class UserSelectResponse(BaseModel):
 
 
 class UserpicUploadRequest(BaseModel):
+    user_id: int
     file: UploadFile = File(...)
 
-    @field_validator("file", mode="before")
-    def validate_file(cls, file: str):
-        if file.content_type not in cfg.USERPIC_MIMES:
-            raise ValueError
-        return file
+
+class UserpicUploadResponse(BaseModel):
+    user_id: int
+
+
+class UserpicDeleteRequest(BaseModel):
+    user_id: int
+
+
+class UserpicDeleteResponse(BaseModel):
+    user_id: int

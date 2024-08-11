@@ -49,7 +49,7 @@ class Activity(Base):
     user_id = Column(BigInteger, ForeignKey("users.id"), index=True)
 
     request_method = Column(Enum(RequestMethod), index=True)
-    request_url = Column(String(255), index=True)
+    request_url = Column(String(256), index=True)
     query_params = Column(JSON)
 
     entity_operation = Column(Enum(EntityOperation), index=True)
@@ -84,7 +84,7 @@ async def after_startup(
     current_user: None,
     entity: None
 ):
-    """Perform actions after application startup."""
+    """Track the application startup."""
     ...
 
 
@@ -95,7 +95,7 @@ async def after_user_register(
     current_user: User,
     user: User
 ) -> User:
-    """Track a user registration and return the user."""
+    """Track a user registration."""
     activity = Activity(request, user, EntityOperation.insert, current_user)
     await entity_manager.insert(activity)
     return user
@@ -108,7 +108,7 @@ async def after_user_login(
     current_user: User,
     user: User
 ) -> User:
-    """Track a user authentication by login and password."""
+    """Track a user authentication."""
     activity = Activity(request, user, EntityOperation.update, current_user)
     await entity_manager.insert(activity)
     return user
@@ -121,7 +121,7 @@ async def after_token_retrieve(
     current_user: User,
     user: User
 ) -> User:
-    """Track the retrieval of an authentication token."""
+    """Track a token retrieval."""
     activity = Activity(request, user, EntityOperation.update, current_user)
     await entity_manager.insert(activity)
     return user
@@ -134,7 +134,7 @@ async def after_token_invalidate(
     current_user: User,
     user: User
 ) -> User:
-    """Track the invalidation of an authentication token."""
+    """Track a token invalidation."""
     activity = Activity(request, user, EntityOperation.update, current_user)
     await entity_manager.insert(activity)
     return user
@@ -147,8 +147,34 @@ async def after_user_select(
     current_user: User,
     user: User
 ) -> User:
-    """Track the selection of a user."""
+    """Track a user selection."""
     activity = Activity(request, user, EntityOperation.select, current_user)
+    await entity_manager.insert(activity)
+    return user
+
+
+async def after_userpic_upload(
+    entity_manager: EntityManager,
+    cache_manager: CacheManager,
+    request: Request,
+    current_user: User,
+    user: User
+) -> User:
+    """Track a userpic uploading."""
+    activity = Activity(request, user, EntityOperation.update, current_user)
+    await entity_manager.insert(activity)
+    return user
+
+
+async def after_userpic_delete(
+    entity_manager: EntityManager,
+    cache_manager: CacheManager,
+    request: Request,
+    current_user: User,
+    user: User
+) -> User:
+    """Track a userpic deletion."""
+    activity = Activity(request, user, EntityOperation.update, current_user)
     await entity_manager.insert(activity)
     return user
 
@@ -160,7 +186,7 @@ async def after_album_insert(
     current_user: User,
     album: Album
 ) -> Album:
-    """Track an album insertion and return the album."""
+    """Track an album insertion."""
     activity = Activity(request, album, EntityOperation.insert, current_user)
     await entity_manager.insert(activity)
     return album
@@ -173,7 +199,7 @@ async def after_album_select(
     current_user: User,
     album: Album
 ) -> Album:
-    """Track an album selection and return the album."""
+    """Track an album selection."""
     activity = Activity(request, album, EntityOperation.select, current_user)
     await entity_manager.insert(activity)
     return album
@@ -185,7 +211,7 @@ async def after_album_update(
     request: Request,
     current_user: User, album: Album
 ) -> Album:
-    """Track an album update and return the album."""
+    """Track an album updation."""
     activity = Activity(request, album, EntityOperation.update, current_user)
     await entity_manager.insert(activity)
     return album
@@ -198,7 +224,7 @@ async def after_album_delete(
     current_user: User,
     album: Album
 ) -> Album:
-    """Track an album deletion and return the album."""
+    """Track an album deletion."""
     activity = Activity(request, album, EntityOperation.delete, current_user)
     await entity_manager.insert(activity)
     return album
@@ -211,7 +237,7 @@ async def after_albums_list(
     current_user: User,
     albums: List[Album]
 ) -> List[Album]:
-    """Track the selection of multiple albums and return the list of albums."""
+    """Track albums list selection."""
     for album in albums:
         activity = Activity(request, album, EntityOperation.select,
                             current_user)

@@ -24,12 +24,12 @@ async def album_insert(
     request: Request,
     session=Depends(get_session),
     cache=Depends(get_cache),
-    current_user: User = Depends(auth(UserRole.WRITER)),
+    current_user: User = Depends(auth(UserRole.writer)),
     schema=Depends(AlbumInsertRequest)
 ) -> dict:
     """
     Create a new album if it does not already exist. Requires the user
-    to have the WRITER role or higher. Checks if an album with the same
+    to have the writer role or higher. Checks if an album with the same
     name exists, raising an error if it does. Otherwise, creates the
     album with the provided details and returns its ID.
     """
@@ -57,12 +57,12 @@ async def album_select(
     request: Request,
     session=Depends(get_session),
     cache=Depends(get_cache),
-    current_user: User = Depends(auth(UserRole.READER)),
+    current_user: User = Depends(auth(UserRole.reader)),
     schema=Depends(AlbumSelectRequest)
 ) -> dict:
     """
     Retrieve an album by its ID. Returns the album details if found;
-    otherwise, raises a 404 error. Requires the user to have the READER
+    otherwise, raises a 404 error. Requires the user to have the reader
     role or higher.
     """
     album_repository = Repository(session, cache, Album)
@@ -83,11 +83,11 @@ async def album_update(
     request: Request,
     session=Depends(get_session),
     cache=Depends(get_cache),
-    current_user: User = Depends(auth(UserRole.EDITOR)),
+    current_user: User = Depends(auth(UserRole.editor)),
     schema=Depends(AlbumUpdateRequest)
 ) -> dict:
     """
-    Update an existing album's details by its ID. Requires EDITOR role
+    Update an existing album's details by its ID. Requires editor role
     or higher. Raises an error if the album is not found or if the new
     name conflicts with an existing album name. Returns the ID of the
     updated album.
@@ -120,11 +120,11 @@ async def album_delete(
     request: Request,
     session=Depends(get_session),
     cache=Depends(get_cache),
-    current_user: User = Depends(auth(UserRole.ADMIN)),
+    current_user: User = Depends(auth(UserRole.admin)),
     schema=Depends(AlbumDeleteRequest)
 ) -> dict:
     """
-    Delete an album by its ID from the repository. Requires ADMIN role.
+    Delete an album by its ID from the repository. Requires admin role.
     Raises a 404 error if the album is not found. Deletes related posts
     if any exist. Returns the ID of the deleted album.
     """
@@ -153,13 +153,13 @@ async def albums_list(
     request: Request,
     session=Depends(get_session),
     cache=Depends(get_cache),
-    current_user: User = Depends(auth(UserRole.READER)),
+    current_user: User = Depends(auth(UserRole.reader)),
     schema=Depends(AlbumsListRequest)
 ) -> dict:
     """
     Retrieve a list of albums based on the provided query parameters.
     Returns the list of albums and the total count. If no albums are
-    found, an empty list and zero count are returned. Requires READER
+    found, an empty list and zero count are returned. Requires reader
     role or higher.
     """
     album_repository = Repository(session, cache, Album)

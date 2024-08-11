@@ -64,9 +64,9 @@ class Config:
     USER_MFA_ATTEMPTS: int
     USER_SUSPENDED_TIME: int
 
-    USERPIC_URL: str
+    USERPIC_BASE_PATH: str
+    USERPIC_BASE_URL: str
     USERPIC_PREFIX: str
-    USERPIC_PATH: str
     USERPIC_MIMES: list
     USERPIC_EXTENSION: str
     USERPIC_MODE: str

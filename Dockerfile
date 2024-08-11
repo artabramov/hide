@@ -24,6 +24,7 @@ RUN pip3 install aiofiles==24.1.0
 RUN pip3 install redis==5.0.7
 RUN pip3 install pyotp==2.9.0
 RUN pip3 install qrcode==7.4.2
+RUN pip3 install pillow==10.3.0
 RUN pip3 install cryptography==42.0.8
 RUN pip3 install PyJWT==2.8.0
 RUN pip3 install asynctest==0.13.0

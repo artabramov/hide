@@ -8,7 +8,8 @@ from app.schemas.user_schemas import (
     UserRegisterRequest, UserRegisterResponse, UserLoginRequest,
     UserLoginResponse, TokenSelectRequest, TokenSelectResponse,
     TokenDeleteRequest, TokenDeleteResponse, UserSelectRequest,
-    UserSelectResponse, UserpicUploadRequest)
+    UserSelectResponse, UserpicUploadRequest, UserpicUploadResponse,
+    UserpicDeleteRequest, UserpicDeleteResponse)
 from app.errors import E, Msg
 from app.config import get_config
 from time import time
@@ -18,13 +19,52 @@ from app.repository import Repository
 import uuid
 import os
 from app.managers.file_manager import FileManager
+from app.helpers.image_helper import ImageHelper
 
 router = APIRouter()
 cfg = get_config()
 
 
-@router.get("/user/login", response_model=UserLoginResponse, tags=["auth"],
-            name="Authenticate a user")
+@router.post("/user", response_model=UserRegisterResponse,
+             tags=["auth"], name="Register a user")
+async def user_register(
+    request: Request,
+    session=Depends(get_session),
+    cache=Depends(get_cache),
+    schema=Depends(UserRegisterRequest)
+) -> dict:
+    """
+    Register a new user. Checks if the user login already exists and
+    raises an error if it does. If the login is unique, creates a new
+    user with the provided details. Returns the user's ID, MFA secret,
+    and MFA URL. The action requires the user to have the reader role
+    or higher.
+    """
+    user_repository = Repository(session, cache, User)
+    user_exists = await user_repository.exists(
+        user_login__eq=schema.user_login)
+
+    if user_exists:
+        raise E("user_login", schema.user_login, Msg.USER_LOGIN_EXISTS)
+
+    user_password = schema.user_password.get_secret_value()
+    user = User(
+        UserRole.reader, schema.user_login, user_password, schema.first_name,
+        schema.last_name, user_summary=schema.user_summary)
+    await user_repository.insert(user)
+
+    hook = Hook(session, cache, request, current_user=user)
+    await hook.execute(H.AFTER_USER_REGISTER, user)
+
+    return {
+        "user_id": user.id,
+        "mfa_secret": user.mfa_secret,
+        "mfa_url": user.mfa_url,
+    }
+
+
+@router.get("/user/login", response_model=UserLoginResponse,
+            tags=["auth"], name="Authenticate a user")
 async def user_login(
     request: Request,
     session=Depends(get_session),
@@ -37,7 +77,7 @@ async def user_login(
     errors. On successful authentication, updates the user's password
     status and attempts, returning a confirmation of password
     acceptance. Invalid passwords increase the attempt count and may
-    suspend the user if the limit is exceeded. Requires READER role
+    suspend the user if the limit is exceeded. Requires reader role
     or higher.
     """
     user_repository = Repository(session, cache, User)
@@ -50,7 +90,7 @@ async def user_login(
         raise E("user_login", schema.user_login, Msg.USER_LOGIN_SUSPENDED)
 
     admin_exists = await user_repository.exists(
-        user_role__eq=UserRole.ADMIN, is_active__eq=True)
+        user_role__eq=UserRole.admin, is_active__eq=True)
 
     if not user.is_active and admin_exists:
         raise E("user_login", schema.user_login, Msg.USER_LOGIN_INACTIVE)
@@ -84,8 +124,8 @@ async def user_login(
         raise E("user_password", user_password, Msg.USER_PASSWORD_INVALID)
 
 
-@router.get("/auth/token", response_model=TokenSelectResponse, tags=["auth"],
-            name="Retrieve a token")
+@router.get("/auth/token", response_model=TokenSelectResponse,
+            tags=["auth"], name="Retrieve a token")
 async def token_retrieve(
     request: Request,
     session=Depends(get_session),
@@ -97,7 +137,7 @@ async def token_retrieve(
     Checks if the user is active and has accepted the password. If the
     TOTP is correct, updates the user's status and role if needed, and
     returns a token. Raises errors if the user is not found, inactive,
-    or the TOTP is incorrect. Requires READER role or higher.
+    or the TOTP is incorrect. Requires reader role or higher.
     """
     user_repository = Repository(session, cache, User)
     user = await user_repository.select(user_login__eq=schema.user_login)
@@ -106,7 +146,7 @@ async def token_retrieve(
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND)
 
     admin_exists = await user_repository.exists(
-        user_role__eq=UserRole.ADMIN, is_active__eq=True)
+        user_role__eq=UserRole.admin, is_active__eq=True)
 
     if not user.is_active and admin_exists:
         raise E("user_login", schema.user_login, Msg.USER_LOGIN_INACTIVE)
@@ -121,7 +161,7 @@ async def token_retrieve(
 
         if not admin_exists:
             user.is_active = True
-            user.user_role = UserRole.ADMIN
+            user.user_role = UserRole.admin
 
         await user_repository.update(user)
         user_token = JWTHelper.encode_token(user)
@@ -148,12 +188,12 @@ async def token_invalidate(
     request: Request,
     session=Depends(get_session),
     cache=Depends(get_cache),
-    current_user: User = Depends(auth(UserRole.READER)),
+    current_user: User = Depends(auth(UserRole.reader)),
     schema=Depends(TokenDeleteRequest)
 ) -> dict:
     """
     Invalidate the current user's token by updating their JTI. This
-    action is only allowed for users with the READER role or higher.
+    action is only allowed for users with the reader role or higher.
     Returns an empty dictionary upon successful invalidation.
     """
     user_repository = Repository(session, cache, User)
@@ -166,57 +206,19 @@ async def token_invalidate(
     return {}
 
 
-@router.post("/user", response_model=UserRegisterResponse, tags=["users"],
-             name="Register a user")
-async def user_register(
-    request: Request,
-    session=Depends(get_session),
-    cache=Depends(get_cache),
-    schema=Depends(UserRegisterRequest)
-) -> dict:
-    """
-    Register a new user. Checks if the user login already exists and
-    raises an error if it does. If the login is unique, creates a new
-    user with the provided details. Returns the user's ID, MFA secret,
-    and MFA URL. The action requires the user to have the READER role
-    or higher.
-    """
-    user_repository = Repository(session, cache, User)
-    user_exists = await user_repository.exists(
-        user_login__eq=schema.user_login)
-
-    if user_exists:
-        raise E("user_login", schema.user_login, Msg.USER_LOGIN_EXISTS)
-
-    user_password = schema.user_password.get_secret_value()
-    user = User(
-        UserRole.READER, schema.user_login, user_password, schema.first_name,
-        schema.last_name, user_summary=schema.user_summary)
-    await user_repository.insert(user)
-
-    hook = Hook(session, cache, request, current_user=user)
-    await hook.execute(H.AFTER_USER_REGISTER, user)
-
-    return {
-        "user_id": user.id,
-        "mfa_secret": user.mfa_secret,
-        "mfa_url": user.mfa_url,
-    }
-
-
 @router.get("/user/{user_id}", response_model=UserSelectResponse,
             tags=["users"], name="Retrieve a user")
 async def user_select(
     request: Request,
     session=Depends(get_session),
     cache=Depends(get_cache),
-    current_user: User = Depends(auth(UserRole.READER)),
+    current_user: User = Depends(auth(UserRole.reader)),
     schema=Depends(UserSelectRequest)
 ) -> dict:
     """
     Retrieve a user by their ID. If the user is found, return their
     details. If not found, raise a 404 error. Requires the user to
-    have the READER role or higher.
+    have the reader role or higher.
     """
     user_repository = Repository(session, cache, User)
     user = await user_repository.select(id=schema.user_id)
@@ -232,16 +234,74 @@ async def user_select(
     }
 
 
-@router.post("/user/{user_id}/userpic", tags=["users"],
-             name="Upload userpic")
+@router.post("/user/{user_id}/userpic", response_model=UserpicUploadResponse,
+             tags=["users"], name="Upload userpic")
 async def userpic_upload(
     request: Request,
     session=Depends(get_session),
     cache=Depends(get_cache),
-    current_user: User = Depends(auth(UserRole.READER)),
+    current_user: User = Depends(auth(UserRole.reader)),
     schema=Depends(UserpicUploadRequest)
 ) -> dict:
+    """
+    Delete the existing userpic if exists. Upload and save the new one,
+    resize it to the specified dimensions, and update the user's data
+    with the new userpic. Requires user to have reader role or higher.
+    """
+    if schema.user_id != current_user.id:
+        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN)
+
+    elif schema.file.content_type not in cfg.USERPIC_MIMES:
+        raise HTTPException(status_code=status.HTTP_415_UNSUPPORTED_MEDIA_TYPE)
+
+    if current_user.userpic_filename:
+        await FileManager.delete(current_user.userpic_path)
+
     userpic_filename = str(uuid.uuid4()) + cfg.USERPIC_EXTENSION
-    userpic_path = os.path.join(cfg.USERPIC_PATH, userpic_filename)
+    userpic_path = os.path.join(cfg.USERPIC_BASE_PATH, userpic_filename)
     await FileManager.upload(schema.file, userpic_path)
-    return {}
+
+    await ImageHelper.resize(userpic_path, cfg.USERPIC_WIDTH,
+                             cfg.USERPIC_HEIGHT, cfg.USERPIC_QUALITY)
+
+    user_repository = Repository(session, cache, User)
+    current_user.userpic_filename = userpic_filename
+    await user_repository.update(current_user)
+
+    hook = Hook(session, cache, request, current_user=current_user)
+    await hook.execute(H.AFTER_USERPIC_UPLOAD, current_user)
+
+    return {
+        "user_id": current_user.id
+    }
+
+
+@router.delete("/user/{user_id}/userpic", response_model=UserpicDeleteResponse,
+               tags=["users"], name="Delete userpic")
+async def userpic_delete(
+    request: Request,
+    session=Depends(get_session),
+    cache=Depends(get_cache),
+    current_user: User = Depends(auth(UserRole.reader)),
+    schema=Depends(UserpicDeleteRequest)
+) -> dict:
+    """
+    Delete the userpic if exists. Update the user's data to remove the
+    userpic. Requires user to have reader role or higher.
+    """
+    if schema.user_id != current_user.id:
+        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN)
+
+    if current_user.userpic_filename:
+        await FileManager.delete(current_user.userpic_path)
+
+    user_repository = Repository(session, cache, User)
+    current_user.userpic_filename = None
+    await user_repository.update(current_user)
+
+    hook = Hook(session, cache, request, current_user=current_user)
+    await hook.execute(H.AFTER_USERPIC_DELETE, current_user)
+
+    return {
+        "user_id": current_user.id
+    }

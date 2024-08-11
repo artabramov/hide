@@ -19,7 +19,7 @@ def _validate_album_summary(album_summary: str = None) -> str | None:
 class AlbumInsertRequest(BaseModel):
     is_locked: bool
     album_name: str = Field(..., min_length=2, max_length=128)
-    album_summary: Optional[str] = Field(max_length=255, default=None)
+    album_summary: Optional[str] = Field(max_length=512, default=None)
 
     @field_validator("album_name", mode="before")
     def validate_album_name(cls, album_name: str) -> str:
@@ -54,7 +54,7 @@ class AlbumUpdateRequest(BaseModel):
     album_id: int
     is_locked: bool
     album_name: str = Field(..., min_length=2, max_length=128)
-    album_summary: Optional[str] = Field(max_length=255, default=None)
+    album_summary: Optional[str] = Field(max_length=512, default=None)
 
 
 class AlbumUpdateResponse(BaseModel):
