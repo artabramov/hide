@@ -22,7 +22,7 @@ class FileManager:
         Read the file in chunks and write each chunk to the specified
         path.
         """
-        async with aiofiles.open(path, "wb") as fn:
+        async with aiofiles.open(path, mode="wb") as fn:
             while content := await file.read(cfg.FILE_UPLOAD_CHUNK_SIZE):
                 await fn.write(content)
 
