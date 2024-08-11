@@ -9,7 +9,8 @@ from app.schemas.user_schemas import (
     UserLoginResponse, TokenSelectRequest, TokenSelectResponse,
     TokenDeleteRequest, TokenDeleteResponse, UserSelectRequest,
     UserSelectResponse, UserpicUploadRequest, UserpicUploadResponse,
-    UserpicDeleteRequest, UserpicDeleteResponse)
+    UserpicDeleteRequest, UserpicDeleteResponse, UserUpdateRequest,
+    UserUpdateResponse)
 from app.errors import E, Msg
 from app.config import get_config
 from time import time
@@ -231,6 +232,37 @@ async def user_select(
 
     return {
         "user": user.to_dict(),
+    }
+
+
+@router.put("/user/{user_id}", response_model=UserUpdateResponse,
+            tags=["users"], name="Update a user")
+async def user_update(
+    request: Request,
+    session=Depends(get_session),
+    cache=Depends(get_cache),
+    current_user: User = Depends(auth(UserRole.reader)),
+    schema=Depends(UserUpdateRequest)
+) -> dict:
+    """
+    Update the user's details. Modify the first name, last name, and
+    user summary for the current user. Requires user to have reader role
+    or higher.
+    """
+    if schema.user_id != current_user.id:
+        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN)
+
+    user_repository = Repository(session, cache, User)
+    current_user.first_name = schema.first_name
+    current_user.last_name = schema.last_name
+    current_user.user_summary = schema.user_summary
+    await user_repository.update(current_user)
+
+    hook = Hook(session, cache, request, current_user=current_user)
+    await hook.execute(H.AFTER_USER_UPDATE, current_user)
+
+    return {
+        "user_id": current_user.id,
     }
 
 

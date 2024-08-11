@@ -153,6 +153,19 @@ async def after_user_select(
     return user
 
 
+async def after_user_update(
+    entity_manager: EntityManager,
+    cache_manager: CacheManager,
+    request: Request,
+    current_user: User,
+    user: User
+) -> User:
+    """Track a user updation."""
+    activity = Activity(request, user, EntityOperation.update, current_user)
+    await entity_manager.insert(activity)
+    return user
+
+
 async def after_userpic_upload(
     entity_manager: EntityManager,
     cache_manager: CacheManager,

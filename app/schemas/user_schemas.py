@@ -89,6 +89,17 @@ class UserSelectResponse(BaseModel):
     user: dict
 
 
+class UserUpdateRequest(BaseModel):
+    user_id: int
+    first_name: str = Field(..., min_length=2, max_length=40)
+    last_name: str = Field(..., min_length=2, max_length=40)
+    user_summary: Optional[str] = Field(max_length=512, default=None)
+
+
+class UserUpdateResponse(BaseModel):
+    user_id: int
+
+
 class UserpicUploadRequest(BaseModel):
     user_id: int
     file: UploadFile = File(...)
