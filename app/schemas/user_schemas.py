@@ -6,6 +6,7 @@ from typing import Optional
 from pydantic import Field, field_validator
 from app.config import get_config
 from fastapi import File, UploadFile
+from app.models.user_models import UserRole
 
 
 cfg = get_config()
@@ -114,4 +115,23 @@ class UserpicDeleteRequest(BaseModel):
 
 
 class UserpicDeleteResponse(BaseModel):
+    user_id: int
+
+
+class RoleUpdateRequest(BaseModel):
+    user_id: int
+    user_role: UserRole
+    is_active: bool
+
+
+class RoleUpdateResponse(BaseModel):
+    user_id: int
+
+
+class PasswordUpdateRequest(BaseModel):
+    user_id: int
+    user_password: SecretStr = Field(..., min_length=6)
+
+
+class PasswordUpdateResponse(BaseModel):
     user_id: int

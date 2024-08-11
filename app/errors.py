@@ -9,7 +9,8 @@ class Msg(enum.Enum):
     USER_TOKEN_EMPTY = "User token is missing or empty."
     USER_TOKEN_EXPIRED = "User token has already expired."
     USER_TOKEN_INVALID = "User token has invalid format."
-    USER_TOKEN_ORPHANED = "User token contains invalid user data."
+    USER_TOKEN_ORPHANED = "User token contains invalid user."
+    USER_TOKEN_INACTIVE = "User token contains inactive user."
     USER_TOKEN_DECLINED = "User token contains invalid token identifier."
     USER_TOKEN_DENIED = "User token does not have sufficient role."
 

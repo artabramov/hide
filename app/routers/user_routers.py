@@ -10,7 +10,8 @@ from app.schemas.user_schemas import (
     TokenDeleteRequest, TokenDeleteResponse, UserSelectRequest,
     UserSelectResponse, UserpicUploadRequest, UserpicUploadResponse,
     UserpicDeleteRequest, UserpicDeleteResponse, UserUpdateRequest,
-    UserUpdateResponse)
+    UserUpdateResponse, RoleUpdateRequest, RoleUpdateResponse,
+    PasswordUpdateRequest, PasswordUpdateResponse)
 from app.errors import E, Msg
 from app.config import get_config
 from time import time
@@ -55,7 +56,7 @@ async def user_register(
     await user_repository.insert(user)
 
     hook = Hook(session, cache, request, current_user=user)
-    await hook.execute(H.AFTER_USER_REGISTER, user)
+    await hook.execute(H.after_user_register, user)
 
     return {
         "user_id": user.id,
@@ -106,7 +107,7 @@ async def user_login(
         await user_repository.update(user)
 
         hook = Hook(session, cache, request, current_user=user)
-        await hook.execute(H.AFTER_USER_LOGIN, user)
+        await hook.execute(H.after_user_login, user)
 
         return {"password_accepted": True}
 
@@ -168,7 +169,7 @@ async def token_retrieve(
         user_token = JWTHelper.encode_token(user)
 
         hook = Hook(session, cache, request, current_user=user)
-        await hook.execute(H.AFTER_TOKEN_RETRIEVE, user)
+        await hook.execute(H.after_token_retrieve, user)
 
         return {"user_token": user_token}
 
@@ -202,7 +203,7 @@ async def token_invalidate(
     await user_repository.update(current_user)
 
     hook = Hook(session, cache, request, current_user=current_user)
-    await hook.execute(H.AFTER_TOKEN_INVALIDATE, current_user)
+    await hook.execute(H.after_token_invalidate, current_user)
 
     return {}
 
@@ -228,7 +229,7 @@ async def user_select(
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND)
 
     hook = Hook(session, cache, request, current_user=user)
-    await hook.execute(H.AFTER_USER_SELECT, user)
+    await hook.execute(H.after_user_select, user)
 
     return {
         "user": user.to_dict(),
@@ -259,7 +260,71 @@ async def user_update(
     await user_repository.update(current_user)
 
     hook = Hook(session, cache, request, current_user=current_user)
-    await hook.execute(H.AFTER_USER_UPDATE, current_user)
+    await hook.execute(H.after_user_update, current_user)
+
+    return {
+        "user_id": current_user.id,
+    }
+
+
+@router.put("/user/{user_id}/role", response_model=RoleUpdateResponse,
+            tags=["users"], name="Update a user role")
+async def role_update(
+    request: Request,
+    session=Depends(get_session),
+    cache=Depends(get_cache),
+    current_user: User = Depends(auth(UserRole.admin)),
+    schema=Depends(RoleUpdateRequest)
+) -> dict:
+    """
+    Update the role and active status of a user. Requires the current
+    user to have an admin role. The user to be updated must be different
+    from the current user. Returns the user ID of the updated user.
+    """
+    if schema.user_id == current_user.id:
+        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN)
+
+    user_repository = Repository(session, cache, User)
+    user = await user_repository.select(id=schema.user_id)
+
+    if not user:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND)
+
+    user.is_active = schema.is_active
+    user.user_role = schema.user_role
+    await user_repository.update(user)
+
+    hook = Hook(session, cache, request, current_user=current_user)
+    await hook.execute(H.after_role_update, user)
+
+    return {
+        "user_id": user.id,
+    }
+
+
+@router.put("/user/{user_id}/password", response_model=PasswordUpdateResponse,
+            tags=["users"], name="Update a user password")
+async def password_update(
+    request: Request,
+    session=Depends(get_session),
+    cache=Depends(get_cache),
+    current_user: User = Depends(auth(UserRole.reader)),
+    schema=Depends(PasswordUpdateRequest)
+) -> dict:
+    """
+    Update the password for a user. Requires the current user to have
+    a reader role or higher. The user ID in the request must match
+    the current user ID. Returns the user ID of the updated user.
+    """
+    if schema.user_id != current_user.id:
+        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN)
+
+    user_repository = Repository(session, cache, User)
+    current_user.user_password = schema.user_password
+    await user_repository.update(current_user)
+
+    hook = Hook(session, cache, request, current_user=current_user)
+    await hook.execute(H.after_role_update, current_user)
 
     return {
         "user_id": current_user.id,
@@ -278,7 +343,8 @@ async def userpic_upload(
     """
     Delete the existing userpic if exists. Upload and save the new one,
     resize it to the specified dimensions, and update the user's data
-    with the new userpic. Requires user to have reader role or higher.
+    with the new userpic. Allowed for current user only. Requires user
+    to have reader role or higher.
     """
     if schema.user_id != current_user.id:
         raise HTTPException(status_code=status.HTTP_403_FORBIDDEN)
@@ -301,7 +367,7 @@ async def userpic_upload(
     await user_repository.update(current_user)
 
     hook = Hook(session, cache, request, current_user=current_user)
-    await hook.execute(H.AFTER_USERPIC_UPLOAD, current_user)
+    await hook.execute(H.after_userpic_upload, current_user)
 
     return {
         "user_id": current_user.id
@@ -319,7 +385,8 @@ async def userpic_delete(
 ) -> dict:
     """
     Delete the userpic if exists. Update the user's data to remove the
-    userpic. Requires user to have reader role or higher.
+    userpic. Allowed for current user only. Requires user to have
+    reader role or higher.
     """
     if schema.user_id != current_user.id:
         raise HTTPException(status_code=status.HTTP_403_FORBIDDEN)
@@ -332,7 +399,7 @@ async def userpic_delete(
     await user_repository.update(current_user)
 
     hook = Hook(session, cache, request, current_user=current_user)
-    await hook.execute(H.AFTER_USERPIC_DELETE, current_user)
+    await hook.execute(H.after_userpic_delete, current_user)
 
     return {
         "user_id": current_user.id

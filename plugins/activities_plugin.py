@@ -11,6 +11,7 @@ from app.managers.cache_manager import CacheManager
 from sqlalchemy.orm import DeclarativeBase
 from typing import List
 from fastapi import Request
+from app.hooks import H
 
 OBSCURED_KEYS = ["user_password", "user_totp", "password_hash",
                  "mfa_secret_encrypted", "jti_encrypted"]
@@ -47,6 +48,7 @@ class Activity(Base):
     id = Column(BigInteger, primary_key=True)
     created_date = Column(Integer, index=True, default=lambda: int(time()))
     user_id = Column(BigInteger, ForeignKey("users.id"), index=True)
+    executed_hook = Column(Enum(H), index=True)
 
     request_method = Column(Enum(RequestMethod), index=True)
     request_url = Column(String(256), index=True)
@@ -57,10 +59,11 @@ class Activity(Base):
     entity_id = Column(BigInteger, index=True)
     entity_dict = Column(JSON)
 
-    def __init__(self, request: Request, entity: DeclarativeBase,
-                 entity_operation: EntityOperation, current_user: User = None):
+    def __init__(self, current_user: User, executed_hook: H, request: Request,
+                 entity: DeclarativeBase, entity_operation: EntityOperation):
         """Initialize an instance with request and entity details."""
         self.user_id = current_user.id if current_user else None
+        self.executed_hook = executed_hook
 
         self.request_method = request.method
         self.request_url = request.url.path
@@ -96,7 +99,8 @@ async def after_user_register(
     user: User
 ) -> User:
     """Track a user registration."""
-    activity = Activity(request, user, EntityOperation.insert, current_user)
+    activity = Activity(current_user, H.after_user_register, request,
+                        user, EntityOperation.insert)
     await entity_manager.insert(activity)
     return user
 
@@ -109,7 +113,8 @@ async def after_user_login(
     user: User
 ) -> User:
     """Track a user authentication."""
-    activity = Activity(request, user, EntityOperation.update, current_user)
+    activity = Activity(current_user, H.after_user_login, request,
+                        user, EntityOperation.update)
     await entity_manager.insert(activity)
     return user
 
@@ -122,7 +127,8 @@ async def after_token_retrieve(
     user: User
 ) -> User:
     """Track a token retrieval."""
-    activity = Activity(request, user, EntityOperation.update, current_user)
+    activity = Activity(current_user, H.after_token_retrieve, request,
+                        user, EntityOperation.update)
     await entity_manager.insert(activity)
     return user
 
@@ -135,7 +141,8 @@ async def after_token_invalidate(
     user: User
 ) -> User:
     """Track a token invalidation."""
-    activity = Activity(request, user, EntityOperation.update, current_user)
+    activity = Activity(current_user, H.after_token_invalidate, request,
+                        user, EntityOperation.update)
     await entity_manager.insert(activity)
     return user
 
@@ -148,7 +155,8 @@ async def after_user_select(
     user: User
 ) -> User:
     """Track a user selection."""
-    activity = Activity(request, user, EntityOperation.select, current_user)
+    activity = Activity(current_user, H.after_user_select, request,
+                        user, EntityOperation.select)
     await entity_manager.insert(activity)
     return user
 
@@ -161,7 +169,36 @@ async def after_user_update(
     user: User
 ) -> User:
     """Track a user updation."""
-    activity = Activity(request, user, EntityOperation.update, current_user)
+    activity = Activity(current_user, H.after_user_update, request,
+                        user, EntityOperation.update)
+    await entity_manager.insert(activity)
+    return user
+
+
+async def after_role_update(
+    entity_manager: EntityManager,
+    cache_manager: CacheManager,
+    request: Request,
+    current_user: User,
+    user: User
+) -> User:
+    """Track a user role updation."""
+    activity = Activity(current_user, H.after_role_update, request,
+                        user, EntityOperation.update)
+    await entity_manager.insert(activity)
+    return user
+
+
+async def after_password_update(
+    entity_manager: EntityManager,
+    cache_manager: CacheManager,
+    request: Request,
+    current_user: User,
+    user: User
+) -> User:
+    """Track a user password updation."""
+    activity = Activity(current_user, H.after_password_update, request,
+                        user, EntityOperation.update)
     await entity_manager.insert(activity)
     return user
 
@@ -174,7 +211,8 @@ async def after_userpic_upload(
     user: User
 ) -> User:
     """Track a userpic uploading."""
-    activity = Activity(request, user, EntityOperation.update, current_user)
+    activity = Activity(current_user, H.after_userpic_upload, request,
+                        user, EntityOperation.update)
     await entity_manager.insert(activity)
     return user
 
@@ -187,7 +225,8 @@ async def after_userpic_delete(
     user: User
 ) -> User:
     """Track a userpic deletion."""
-    activity = Activity(request, user, EntityOperation.update, current_user)
+    activity = Activity(current_user, H.after_userpic_delete, request,
+                        user, EntityOperation.update)
     await entity_manager.insert(activity)
     return user
 
@@ -200,7 +239,8 @@ async def after_album_insert(
     album: Album
 ) -> Album:
     """Track an album insertion."""
-    activity = Activity(request, album, EntityOperation.insert, current_user)
+    activity = Activity(current_user, H.after_album_insert, request,
+                        album, EntityOperation.insert)
     await entity_manager.insert(activity)
     return album
 
@@ -213,7 +253,8 @@ async def after_album_select(
     album: Album
 ) -> Album:
     """Track an album selection."""
-    activity = Activity(request, album, EntityOperation.select, current_user)
+    activity = Activity(current_user, H.after_album_select, request,
+                        album, EntityOperation.select)
     await entity_manager.insert(activity)
     return album
 
@@ -225,7 +266,8 @@ async def after_album_update(
     current_user: User, album: Album
 ) -> Album:
     """Track an album updation."""
-    activity = Activity(request, album, EntityOperation.update, current_user)
+    activity = Activity(current_user, H.after_album_update, request,
+                        album, EntityOperation.update)
     await entity_manager.insert(activity)
     return album
 
@@ -238,7 +280,8 @@ async def after_album_delete(
     album: Album
 ) -> Album:
     """Track an album deletion."""
-    activity = Activity(request, album, EntityOperation.delete, current_user)
+    activity = Activity(current_user, H.after_album_delete, request,
+                        album, EntityOperation.delete)
     await entity_manager.insert(activity)
     return album
 
@@ -252,8 +295,8 @@ async def after_albums_list(
 ) -> List[Album]:
     """Track albums list selection."""
     for album in albums:
-        activity = Activity(request, album, EntityOperation.select,
-                            current_user)
+        activity = Activity(current_user, H.after_albums_list, request,
+                            album, EntityOperation.select)
         await entity_manager.insert(activity)
 
     return albums

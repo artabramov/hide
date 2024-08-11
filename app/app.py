@@ -28,7 +28,7 @@ log = get_log()
 async def after_startup(session=Depends(get_session),
                         cache=Depends(get_cache)):
     hook = Hook(session, cache)
-    await hook.execute(H.AFTER_STARTUP)
+    await hook.execute(H.after_startup)
 
 
 @asynccontextmanager

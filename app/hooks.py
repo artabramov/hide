@@ -13,22 +13,24 @@ ctx = get_context()
 
 
 class H(enum.Enum):
-    AFTER_STARTUP = "after_startup"
+    after_startup = "after_startup"
 
-    AFTER_USER_REGISTER = "after_user_register"
-    AFTER_USER_LOGIN = "after_user_login"
-    AFTER_TOKEN_RETRIEVE = "after_token_retrieve"
-    AFTER_TOKEN_INVALIDATE = "after_token_invalidate"
-    AFTER_USER_SELECT = "after_user_select"
-    AFTER_USER_UPDATE = "after_user_update"
-    AFTER_USERPIC_UPLOAD = "after_userpic_upload"
-    AFTER_USERPIC_DELETE = "after_userpic_delete"
+    after_user_register = "after_user_register"
+    after_user_login = "after_user_login"
+    after_token_retrieve = "after_token_retrieve"
+    after_token_invalidate = "after_token_invalidate"
+    after_user_select = "after_user_select"
+    after_user_update = "after_user_update"
+    after_role_update = "after_role_update"
+    after_password_update = "after_password_update"
+    after_userpic_upload = "after_userpic_upload"
+    after_userpic_delete = "after_userpic_delete"
 
-    AFTER_ALBUM_INSERT = "after_album_insert"
-    AFTER_ALBUM_SELECT = "after_album_select"
-    AFTER_ALBUM_UPDATE = "after_album_update"
-    AFTER_ALBUM_DELETE = "after_album_delete"
-    AFTER_ALBUMS_LIST = "after_albums_list"
+    after_album_insert = "after_album_insert"
+    after_album_select = "after_album_select"
+    after_album_update = "after_album_update"
+    after_album_delete = "after_album_delete"
+    after_albums_list = "after_albums_list"
 
 
 class Hook:

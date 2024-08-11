@@ -83,6 +83,9 @@ async def _auth(user_token: str, session: AsyncSession, cache: Redis):
     if not user:
         raise E("user_token", user_token, Msg.USER_TOKEN_ORPHANED)
 
+    elif not user.is_active:
+        raise E("user_token", user_token, Msg.USER_TOKEN_INACTIVE)
+
     elif token_payload["jti"] != user.jti:
         raise E("user_token", user_token, Msg.USER_TOKEN_DECLINED)
 
