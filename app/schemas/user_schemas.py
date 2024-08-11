@@ -130,7 +130,8 @@ class RoleUpdateResponse(BaseModel):
 
 class PasswordUpdateRequest(BaseModel):
     user_id: int
-    user_password: SecretStr = Field(..., min_length=6)
+    current_password: SecretStr = Field(..., min_length=6)
+    updated_password: SecretStr = Field(..., min_length=6)
 
 
 class PasswordUpdateResponse(BaseModel):

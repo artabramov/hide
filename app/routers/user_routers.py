@@ -319,8 +319,13 @@ async def password_update(
     if schema.user_id != current_user.id:
         raise HTTPException(status_code=status.HTTP_403_FORBIDDEN)
 
+    current_hash = HashHelper.hash(schema.current_password.get_secret_value())
+    if current_hash != current_user.password_hash:
+        raise E("current_password", schema.current_password.get_secret_value(),
+                Msg.USER_PASSWORD_INVALID)
+
     user_repository = Repository(session, cache, User)
-    current_user.user_password = schema.user_password
+    current_user.user_password = schema.updated_password
     await user_repository.update(current_user)
 
     hook = Hook(session, cache, request, current_user=current_user)

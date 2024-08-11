@@ -13,8 +13,9 @@ from typing import List
 from fastapi import Request
 from app.hooks import HookAction
 
-OBSCURED_KEYS = ["user_password", "user_totp", "password_hash",
-                 "mfa_secret_encrypted", "jti_encrypted"]
+OBSCURED_KEYS = ["user_password", "current_password", "updated_password",
+                 "user_totp", "password_hash", "mfa_secret_encrypted",
+                 "jti_encrypted"]
 OBSCURED_VALUE = "*" * 6
 
 
