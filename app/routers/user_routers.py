@@ -28,8 +28,8 @@ router = APIRouter()
 cfg = get_config()
 
 
-@router.post("/user", response_model=UserRegisterResponse,
-             tags=["auth"], name="Register a user")
+@router.post("/user", name="Register a user",
+             tags=["auth"], response_model=UserRegisterResponse)
 async def user_register(
     request: Request,
     session=Depends(get_session),
@@ -66,8 +66,8 @@ async def user_register(
     }
 
 
-@router.get("/user/login", response_model=UserLoginResponse,
-            tags=["auth"], name="Authenticate a user")
+@router.get("/user/login", name="Authenticate a user",
+            tags=["auth"], response_model=UserLoginResponse)
 async def user_login(
     request: Request,
     session=Depends(get_session),
@@ -127,8 +127,8 @@ async def user_login(
         raise E("user_password", user_password, Msg.USER_PASSWORD_INVALID)
 
 
-@router.get("/auth/token", response_model=TokenSelectResponse,
-            tags=["auth"], name="Retrieve a token")
+@router.get("/auth/token", name="Retrieve a token",
+            tags=["auth"], response_model=TokenSelectResponse)
 async def token_retrieve(
     request: Request,
     session=Depends(get_session),
@@ -185,8 +185,8 @@ async def token_retrieve(
         raise E("user_totp", schema.user_totp, Msg.USER_TOTP_INVALID)
 
 
-@router.delete("/auth/token", response_model=TokenDeleteResponse,
-               tags=["auth"], name="Invalidate the token")
+@router.delete("/auth/token", name="Invalidate the token",
+               tags=["auth"], response_model=TokenDeleteResponse)
 async def token_invalidate(
     request: Request,
     session=Depends(get_session),
@@ -209,8 +209,8 @@ async def token_invalidate(
     return {}
 
 
-@router.get("/user/{user_id}", response_model=UserSelectResponse,
-            tags=["users"], name="Retrieve a user")
+@router.get("/user/{user_id}", name="Retrieve a user",
+            tags=["users"], response_model=UserSelectResponse)
 async def user_select(
     request: Request,
     session=Depends(get_session),
@@ -235,8 +235,8 @@ async def user_select(
     return user.to_dict()
 
 
-@router.put("/user/{user_id}", response_model=UserUpdateResponse,
-            tags=["users"], name="Update a user")
+@router.put("/user/{user_id}", name="Update a user",
+            tags=["users"], response_model=UserUpdateResponse)
 async def user_update(
     request: Request,
     session=Depends(get_session),
@@ -266,8 +266,8 @@ async def user_update(
     }
 
 
-@router.put("/user/{user_id}/role", response_model=RoleUpdateResponse,
-            tags=["users"], name="Update a user role")
+@router.put("/user/{user_id}/role", name="Update a user role",
+            tags=["users"], response_model=RoleUpdateResponse)
 async def role_update(
     request: Request,
     session=Depends(get_session),
@@ -301,8 +301,8 @@ async def role_update(
     }
 
 
-@router.put("/user/{user_id}/password", response_model=PasswordUpdateResponse,
-            tags=["users"], name="Update a user password")
+@router.put("/user/{user_id}/password", name="Update a user password",
+            tags=["users"], response_model=PasswordUpdateResponse)
 async def password_update(
     request: Request,
     session=Depends(get_session),
@@ -335,8 +335,8 @@ async def password_update(
     }
 
 
-@router.post("/user/{user_id}/userpic", response_model=UserpicUploadResponse,
-             tags=["users"], name="Upload userpic")
+@router.post("/user/{user_id}/userpic", name="Upload userpic",
+             tags=["users"], response_model=UserpicUploadResponse)
 async def userpic_upload(
     request: Request,
     session=Depends(get_session),
@@ -378,8 +378,8 @@ async def userpic_upload(
     }
 
 
-@router.delete("/user/{user_id}/userpic", response_model=UserpicDeleteResponse,
-               tags=["users"], name="Delete userpic")
+@router.delete("/user/{user_id}/userpic", name="Delete userpic",
+               tags=["users"], response_model=UserpicDeleteResponse)
 async def userpic_delete(
     request: Request,
     session=Depends(get_session),
@@ -410,8 +410,8 @@ async def userpic_delete(
     }
 
 
-@router.get("/users", response_model=UsersListResponse, tags=["users"],
-            name="Retrieve users list")
+@router.get("/users", name="Retrieve users list",
+            tags=["users"], response_model=UsersListResponse)
 async def users_list(
     request: Request,
     session=Depends(get_session),

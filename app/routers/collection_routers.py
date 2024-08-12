@@ -19,8 +19,8 @@ router = APIRouter()
 cfg = get_config()
 
 
-@router.post("/collection", response_model=CollectionInsertResponse,
-             tags=["collections"], name="Create an collection")
+@router.post("/collection", name="Create an collection",
+             tags=["collections"], response_model=CollectionInsertResponse)
 async def collection_insert(
     request: Request,
     session=Depends(get_session),
@@ -54,9 +54,8 @@ async def collection_insert(
     return {"collection_id": collection.id}
 
 
-@router.get("/collection/{collection_id}",
-            response_model=CollectionSelectResponse,
-            tags=["collections"], name="Retrieve an collection")
+@router.get("/collection/{collection_id}", name="Retrieve an collection",
+            tags=["collections"], response_model=CollectionSelectResponse)
 async def collection_select(
     request: Request,
     session=Depends(get_session),
@@ -81,8 +80,8 @@ async def collection_select(
     return collection.to_dict()
 
 
-@router.put("/collection/{collection_id}", response_model=CollectionUpdateResponse,
-            tags=["collections"], name="Update an collection")
+@router.put("/collection/{collection_id}", name="Update an collection",
+            tags=["collections"], response_model=CollectionUpdateResponse)
 async def collection_update(
     request: Request,
     session=Depends(get_session),
@@ -91,10 +90,10 @@ async def collection_update(
     schema=Depends(CollectionUpdateRequest)
 ) -> dict:
     """
-    Update an existing collection's details by its ID. Requires editor role
-    or higher. Raises an error if the collection is not found or if the new
-    name conflicts with an existing collection name. Returns the ID of the
-    updated collection.
+    Update an existing collection's details by its ID. Requires editor
+    role or higher. Raises an error if the collection is not found or
+    if the new name conflicts with an existing collection name. Returns
+    the ID of the updated collection.
     """
     collection_repository = Repository(session, cache, Collection)
 
@@ -105,7 +104,8 @@ async def collection_update(
     collection_exists = await collection_repository.exists(
         collection_name__eq=schema.collection_name, id__ne=collection.id)
     if collection_exists:
-        raise E("collection_name", schema.collection_name, Msg.COLLECTION_NAME_EXISTS)
+        raise E("collection_name", schema.collection_name,
+                Msg.COLLECTION_NAME_EXISTS)
 
     collection.is_locked = schema.is_locked
     collection.collection_name = schema.collection_name
@@ -118,8 +118,8 @@ async def collection_update(
     return {"collection_id": collection.id}
 
 
-@router.delete("/collection/{collection_id}", response_model=CollectionDeleteResponse,
-               tags=["collections"], name="Delete an collection")
+@router.delete("/collection/{collection_id}", name="Delete an collection",
+               tags=["collections"], response_model=CollectionDeleteResponse)
 async def collection_delete(
     request: Request,
     session=Depends(get_session),
@@ -128,9 +128,10 @@ async def collection_delete(
     schema=Depends(CollectionDeleteRequest)
 ) -> dict:
     """
-    Delete an collection by its ID from the repository. Requires admin role.
-    Raises a 404 error if the collection is not found. Deletes related documents
-    if any exist. Returns the ID of the deleted collection.
+    Delete an collection by its ID from the repository. Requires admin
+    role. Raises a 404 error if the collection is not found. Deletes
+    related documents if any exist. Returns the ID of the deleted
+    collection.
     """
     collection_repository = Repository(session, cache, Collection)
 
@@ -151,8 +152,8 @@ async def collection_delete(
     return {"collection_id": collection.id}
 
 
-@router.get("/collections", response_model=CollectionsListResponse, tags=["collections"],
-            name="Retrieve collections list")
+@router.get("/collections", name="Retrieve collections list",
+            tags=["collections"], response_model=CollectionsListResponse)
 async def collections_list(
     request: Request,
     session=Depends(get_session),
@@ -161,15 +162,16 @@ async def collections_list(
     schema=Depends(CollectionsListRequest)
 ) -> dict:
     """
-    Retrieve a list of collections based on the provided query parameters.
-    Returns the list of collections and the total count. If no collections are
-    found, an empty list and zero count are returned. Requires reader
-    role or higher.
+    Retrieve a list of collections based on the provided query
+    parameters. Returns the list of collections and the total count.
+    If no collections are found, an empty list and zero count are
+    returned. Requires reader role or higher.
     """
     collection_repository = Repository(session, cache, Collection)
 
     collections = await collection_repository.select_all(**schema.__dict__)
-    collections_count = await collection_repository.count_all(**schema.__dict__)
+    collections_count = await collection_repository.count_all(
+        **schema.__dict__)
 
     hook = Hook(session, cache, request, current_user=current_user)
     await hook.execute(HookAction.after_collections_list, collections)
