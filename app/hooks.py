@@ -27,11 +27,11 @@ class HookAction(enum.Enum):
     after_userpic_delete = "after_userpic_delete"
     after_users_list = "after_users_list"
 
-    after_album_insert = "after_album_insert"
-    after_album_select = "after_album_select"
-    after_album_update = "after_album_update"
-    after_album_delete = "after_album_delete"
-    after_albums_list = "after_albums_list"
+    after_collection_insert = "after_collection_insert"
+    after_collection_select = "after_collection_select"
+    after_collection_update = "after_collection_update"
+    after_collection_delete = "after_collection_delete"
+    after_collections_list = "after_collections_list"
 
 
 class Hook:

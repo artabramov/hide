@@ -16,7 +16,8 @@ class Post(Base):
     updated_date = Column(Integer, index=True, onupdate=lambda: int(time()),
                           default=0)
     user_id = Column(BigInteger, ForeignKey("users.id"), index=True)
-    album_id = Column(BigInteger, ForeignKey("albums.id"), index=True)
+    collection_id = Column(BigInteger, ForeignKey("collections.id"),
+                           index=True)
 
     original_filename = Column(String(256), index=True)
     post_filename = Column(String(256), index=True, unique=True)
@@ -33,16 +34,16 @@ class Post(Base):
 
     post_user = relationship("User", back_populates="user_posts",
                              lazy="joined")
-    post_album = relationship("Album", back_populates="album_posts",
-                              lazy="joined")
+    post_collection = relationship("Collection", back_populates="collection_posts",
+                                   lazy="joined")
 
-    def __init__(self, user_id: int, album_id: int, original_filename: str,
+    def __init__(self, user_id: int, collection_id: int, original_filename: str,
                  post_filename: str, post_filesize: int, post_mimetype: str,
                  post_width: int, post_height: int, post_duration: float,
                  post_bitrate: int, post_summary: str = None,
                  thumbnail_filename: str = None):
         self.user_id = user_id
-        self.album_id = album_id
+        self.collection_id = collection_id
 
         self.original_filename = original_filename
         self.post_filename = post_filename
@@ -63,7 +64,7 @@ class Post(Base):
             # "created_date": self.created_date,
             # "updated_date": self.updated_date,
             # "user_id": self.user_id,
-            # "album_id": self.album_id,
+            # "collection_id": self.collection_id,
 
             # "post_type": self.post_type.name,
             # "filesize": self.filesize,

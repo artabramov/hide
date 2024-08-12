@@ -8,8 +8,8 @@ from time import time
 cfg = get_config()
 
 
-class Album(Base):
-    __tablename__ = "albums"
+class Collection(Base):
+    __tablename__ = "collections"
     _cacheable = True
 
     id = Column(BigInteger, primary_key=True)
@@ -18,35 +18,35 @@ class Album(Base):
                           default=0)
     user_id = Column(BigInteger, ForeignKey("users.id"), index=True)
     is_locked = Column(Boolean)
-    album_name = Column(String(128), index=True, unique=True)
-    album_summary = Column(String(512), nullable=True)
+    collection_name = Column(String(128), index=True, unique=True)
+    collection_summary = Column(String(512), nullable=True)
     posts_count = Column(Integer, index=True, default=0)
     posts_size = Column(BigInteger, index=True, default=0)
 
-    album_user = relationship("User", back_populates="user_albums",
-                              lazy="joined")
-    album_posts = relationship("Post", back_populates="post_album",
-                               lazy="noload")
+    collection_user = relationship("User", back_populates="user_collections",
+                                   lazy="joined")
+    collection_posts = relationship("Post", back_populates="post_collection",
+                                    lazy="noload")
 
-    def __init__(self, user_id: int, is_locked: bool, album_name: str,
-                 album_summary: str = None):
+    def __init__(self, user_id: int, is_locked: bool, collection_name: str,
+                 collection_summary: str = None):
         self.user_id = user_id
         self.is_locked = is_locked
-        self.album_name = album_name
-        self.album_summary = album_summary
+        self.collection_name = collection_name
+        self.collection_summary = collection_summary
         self.posts_count = 0
         self.posts_size = 0
 
     def to_dict(self):
-        # self.album_user
+        # self.collection_user
         return {
             "id": self.id,
             "created_date": self.created_date,
             "updated_date": self.updated_date,
             "user_id": self.user_id,
             "is_locked": self.is_locked,
-            "album_name": self.album_name,
-            "album_summary": self.album_summary,
+            "collection_name": self.collection_name,
+            "collection_summary": self.collection_summary,
             "posts_count": self.posts_count,
             "posts_size": self.posts_size,
         }

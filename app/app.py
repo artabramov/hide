@@ -4,8 +4,9 @@ from fastapi.responses import JSONResponse
 from app.config import get_config
 from app.context import get_context
 from app.log import get_log
-from app.routers import (static_routers, user_routers, album_routers,
-                         post_routers, system_routers)
+from app.routers import (static_routers, user_routers,
+                         collection_routers, post_routers,
+                         system_routers)
 from app.database import Base, sessionmanager, get_session
 from app.errors import Msg
 from contextlib import asynccontextmanager
@@ -71,7 +72,7 @@ app = FastAPI(lifespan=lifespan, title=cfg.APP_TITLE, version=cfg.APP_VERSION)
 app.include_router(static_routers.router)
 app.include_router(system_routers.router, prefix=cfg.APP_PREFIX)
 app.include_router(user_routers.router, prefix=cfg.APP_PREFIX)
-app.include_router(album_routers.router, prefix=cfg.APP_PREFIX)
+app.include_router(collection_routers.router, prefix=cfg.APP_PREFIX)
 app.include_router(post_routers.router, prefix=cfg.APP_PREFIX)
 app.mount(
     cfg.USERPIC_PREFIX,

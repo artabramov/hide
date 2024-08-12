@@ -46,7 +46,7 @@ class User(Base, MFAMixin, FernetMixin):
     user_summary = Column(String(512), index=False, nullable=True)
     userpic_filename = Column(String(128), nullable=True, unique=True)
 
-    user_albums = relationship("Album", back_populates="album_user",
+    user_collections = relationship("Collection", back_populates="collection_user",
                                lazy="noload")
     user_posts = relationship("Post", back_populates="post_user",
                               lazy="noload")

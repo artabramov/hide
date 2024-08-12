@@ -22,7 +22,7 @@ class Msg(enum.Enum):
     USER_PASSWORD_UNACCEPTED = "User password is not accepted."
     USER_TOTP_INVALID = "User one-time password is invalid."
 
-    ALBUM_NAME_EXISTS = "Album name already exists."
+    COLLECTION_NAME_EXISTS = "Collection name already exists."
 
 
 class E(HTTPException):

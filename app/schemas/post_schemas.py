@@ -8,7 +8,7 @@ cfg = get_config()
 
 class PostUploadRequest(BaseModel):
     """Pydantic schema for post uploading request."""
-    album_id: int
+    collection_id: int
     post_name: Optional[str] = Field(min_length=2, max_length=128, default=None)  # noqa E501
     post_summary: Optional[str] = Field(max_length=512, default=None)
     file: UploadFile = File(...)

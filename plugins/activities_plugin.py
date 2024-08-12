@@ -4,7 +4,7 @@ from time import time
 from sqlalchemy import (Column, BigInteger, Integer, ForeignKey, Enum, JSON,
                         String)
 from app.models.user_models import User
-from app.models.album_models import Album
+from app.models.collection_models import Collection
 from app.database import Base
 from app.managers.entity_manager import EntityManager
 from app.managers.cache_manager import CacheManager
@@ -30,7 +30,7 @@ class RequestMethod(enum.Enum):
 class EntityTablename(enum.Enum):
     """Database table names for entities."""
     users = "users"
-    albums = "albums"
+    collections = "collections"
 
 
 class EntityOperation(enum.Enum):
@@ -238,8 +238,8 @@ async def after_users_list(
     cache_manager: CacheManager,
     request: Request,
     current_user: User,
-    users: List[Album]
-) -> List[Album]:
+    users: List[Collection]
+) -> List[Collection]:
     """Track users list selection."""
     for user in users:
         activity = Activity(current_user, HookAction.after_users_list,
@@ -249,72 +249,72 @@ async def after_users_list(
     return users
 
 
-async def after_album_insert(
+async def after_collection_insert(
     entity_manager: EntityManager,
     cache_manager: CacheManager,
     request: Request,
     current_user: User,
-    album: Album
-) -> Album:
-    """Track an album insertion."""
-    activity = Activity(current_user, HookAction.after_album_insert,
-                        request, album, EntityOperation.insert)
+    collection: Collection
+) -> Collection:
+    """Track an collection insertion."""
+    activity = Activity(current_user, HookAction.after_collection_insert,
+                        request, collection, EntityOperation.insert)
     await entity_manager.insert(activity)
-    return album
+    return collection
 
 
-async def after_album_select(
+async def after_collection_select(
     entity_manager: EntityManager,
     cache_manager: CacheManager,
     request: Request,
     current_user: User,
-    album: Album
-) -> Album:
-    """Track an album selection."""
-    activity = Activity(current_user, HookAction.after_album_select,
-                        request, album, EntityOperation.select)
+    collection: Collection
+) -> Collection:
+    """Track an collection selection."""
+    activity = Activity(current_user, HookAction.after_collection_select,
+                        request, collection, EntityOperation.select)
     await entity_manager.insert(activity)
-    return album
+    return collection
 
 
-async def after_album_update(
+async def after_collection_update(
     entity_manager: EntityManager,
     cache_manager: CacheManager,
     request: Request,
-    current_user: User, album: Album
-) -> Album:
-    """Track an album updation."""
-    activity = Activity(current_user, HookAction.after_album_update,
-                        request, album, EntityOperation.update)
+    current_user: User, collection: Collection
+) -> Collection:
+    """Track an collection updation."""
+    activity = Activity(current_user, HookAction.after_collection_update,
+                        request, collection, EntityOperation.update)
     await entity_manager.insert(activity)
-    return album
+    return collection
 
 
-async def after_album_delete(
-    entity_manager: EntityManager,
-    cache_manager: CacheManager,
-    request: Request,
-    current_user: User,
-    album: Album
-) -> Album:
-    """Track an album deletion."""
-    activity = Activity(current_user, HookAction.after_album_delete,
-                        request, album, EntityOperation.delete)
-    await entity_manager.insert(activity)
-    return album
-
-
-async def after_albums_list(
+async def after_collection_delete(
     entity_manager: EntityManager,
     cache_manager: CacheManager,
     request: Request,
     current_user: User,
-    albums: List[Album]
-) -> List[Album]:
-    """Track albums list selection."""
-    for album in albums:
-        activity = Activity(current_user, HookAction.after_albums_list,
-                            request, album, EntityOperation.select)
+    collection: Collection
+) -> Collection:
+    """Track an collection deletion."""
+    activity = Activity(current_user, HookAction.after_collection_delete,
+                        request, collection, EntityOperation.delete)
+    await entity_manager.insert(activity)
+    return collection
+
+
+async def after_collections_list(
+    entity_manager: EntityManager,
+    cache_manager: CacheManager,
+    request: Request,
+    current_user: User,
+    collections: List[Collection]
+) -> List[Collection]:
+    """Track collections list selection."""
+    for collection in collections:
+        activity = Activity(current_user, HookAction.after_collections_list,
+                            request, collection, EntityOperation.select)
         await entity_manager.insert(activity)
 
-    return albums
+    return collections
