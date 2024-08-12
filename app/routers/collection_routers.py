@@ -4,10 +4,11 @@ from app.cache import get_cache
 from app.models.user_models import User, UserRole
 from app.models.collection_models import Collection
 from app.schemas.collection_schemas import (
-    CollectionInsertRequest, CollectionInsertResponse,  CollectionSelectRequest,
-    CollectionSelectResponse, CollectionUpdateRequest, CollectionUpdateResponse,
-    CollectionDeleteRequest, CollectionDeleteResponse, CollectionsListRequest,
-    CollectionsListResponse)
+    CollectionInsertRequest, CollectionInsertResponse,
+    CollectionSelectRequest, CollectionSelectResponse,
+    CollectionUpdateRequest, CollectionUpdateResponse,
+    CollectionDeleteRequest, CollectionDeleteResponse,
+    CollectionsListRequest, CollectionsListResponse)
 from app.repository import Repository
 from app.errors import E, Msg
 from app.config import get_config
@@ -28,10 +29,10 @@ async def collection_insert(
     schema=Depends(CollectionInsertRequest)
 ) -> dict:
     """
-    Create a new collection if it does not already exist. Requires the user
-    to have the writer role or higher. Checks if an collection with the same
-    name exists, raising an error if it does. Otherwise, creates the
-    collection with the provided details and returns its ID.
+    Create a new collection if it does not already exist. Requires
+    the user to have the writer role or higher. Checks if an collection
+    with the same name exists, raising an error if it does. Otherwise,
+    creates the collection with the provided details and returns its ID.
     """
     collection_repository = Repository(session, cache, Collection)
 
@@ -39,10 +40,12 @@ async def collection_insert(
         collection_name__eq=schema.collection_name)
 
     if collection_exists:
-        raise E("collection_name", schema.collection_name, Msg.COLLECTION_NAME_EXISTS)
+        raise E("collection_name", schema.collection_name,
+                Msg.COLLECTION_NAME_EXISTS)
 
-    collection = Collection(current_user.id, schema.is_locked, schema.collection_name,
-                  collection_summary=schema.collection_summary)
+    collection = Collection(
+        current_user.id, schema.is_locked, schema.collection_name,
+        collection_summary=schema.collection_summary)
     await collection_repository.insert(collection)
 
     hook = Hook(session, cache, request, current_user=current_user)
@@ -51,7 +54,8 @@ async def collection_insert(
     return {"collection_id": collection.id}
 
 
-@router.get("/collection/{collection_id}", response_model=CollectionSelectResponse,
+@router.get("/collection/{collection_id}",
+            response_model=CollectionSelectResponse,
             tags=["collections"], name="Retrieve an collection")
 async def collection_select(
     request: Request,
@@ -61,9 +65,9 @@ async def collection_select(
     schema=Depends(CollectionSelectRequest)
 ) -> dict:
     """
-    Retrieve an collection by its ID. Returns the collection details if found;
-    otherwise, raises a 404 error. Requires the user to have the reader
-    role or higher.
+    Retrieve an collection by its ID. Returns the collection details
+    if found; otherwise, raises a 404 error. Requires the user to have
+    the reader role or higher.
     """
     collection_repository = Repository(session, cache, Collection)
     collection = await collection_repository.select(id=schema.collection_id)
@@ -125,7 +129,7 @@ async def collection_delete(
 ) -> dict:
     """
     Delete an collection by its ID from the repository. Requires admin role.
-    Raises a 404 error if the collection is not found. Deletes related posts
+    Raises a 404 error if the collection is not found. Deletes related documents
     if any exist. Returns the ID of the deleted collection.
     """
     collection_repository = Repository(session, cache, Collection)
@@ -134,8 +138,8 @@ async def collection_delete(
     if not collection:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND)
 
-    if collection.posts_count > 0:
-        # TODO: delete related posts
+    if collection.documents_count > 0:
+        # TODO: delete related documents
         ...
 
     await collection_repository.delete(collection, commit=False)

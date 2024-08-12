@@ -7,18 +7,18 @@ cfg = get_config()
 
 def validate_collection_name(collection_name: str) -> str:
     """
-    Ensure the collection name is at least 2 characters long after stripping
-    extra spaces.
+    Ensure the collection name is at least 2 characters long after
+    stripping extra spaces.
     """
     if len(collection_name.strip()) < 2:
         raise ValueError
     return collection_name.strip()
 
 
-def validate_collection_summary(collection_summary: str = None) -> Union[str, None]:
+def validate_collection_summary(collection_summary: str = None) -> Union[str, None]:  # noqa E501
     """
-    Strip extra spaces from the collection summary if provided; return None
-    if no summary is given.
+    Strip extra spaces from the collection summary if provided or None
+    if not.
     """
     return collection_summary.strip() if collection_summary else None
 
@@ -59,8 +59,8 @@ class CollectionSelectResponse(BaseModel):
     is_locked: bool
     collection_name: str
     collection_summary: Optional[str]
-    posts_count: int
-    posts_size: int
+    documents_count: int
+    documents_size: int
 
 
 class CollectionUpdateRequest(BaseModel):
@@ -102,7 +102,8 @@ class CollectionsListRequest(BaseModel):
     offset: int = Field(ge=0)
     limit: int = Field(ge=1, le=200)
     order_by: Literal["id", "created_date", "updated_date", "user_id",
-                      "collection_name", "posts_count", "posts_size"]
+                      "collection_name", "documents_count",
+                      "documents_size"]
     order: Literal["asc", "desc"]
 
 
