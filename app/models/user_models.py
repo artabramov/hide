@@ -46,10 +46,10 @@ class User(Base, MFAMixin, FernetMixin):
     user_summary = Column(String(512), index=False, nullable=True)
     userpic_filename = Column(String(128), nullable=True, unique=True)
 
-    user_collections = relationship("Collection", back_populates="collection_user",
-                               lazy="noload")
-    user_posts = relationship("Post", back_populates="post_user",
-                              lazy="noload")
+    user_collections = relationship(
+        "Collection", back_populates="collection_user", lazy="noload")
+    user_documents = relationship(
+        "Document", back_populates="document_user", lazy="noload")
 
     def __init__(self, user_role: UserRole, user_login: str,
                  user_password: str, first_name: str, last_name: str,

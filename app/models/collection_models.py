@@ -20,13 +20,13 @@ class Collection(Base):
     is_locked = Column(Boolean)
     collection_name = Column(String(128), index=True, unique=True)
     collection_summary = Column(String(512), nullable=True)
-    posts_count = Column(Integer, index=True, default=0)
-    posts_size = Column(BigInteger, index=True, default=0)
+    documents_count = Column(Integer, index=True, default=0)
+    documents_size = Column(BigInteger, index=True, default=0)
 
-    collection_user = relationship("User", back_populates="user_collections",
-                                   lazy="joined")
-    collection_posts = relationship("Post", back_populates="post_collection",
-                                    lazy="noload")
+    collection_user = relationship(
+        "User", back_populates="user_collections", lazy="joined")
+    collection_documents = relationship(
+        "Document", back_populates="document_collection", lazy="noload")
 
     def __init__(self, user_id: int, is_locked: bool, collection_name: str,
                  collection_summary: str = None):
@@ -34,8 +34,8 @@ class Collection(Base):
         self.is_locked = is_locked
         self.collection_name = collection_name
         self.collection_summary = collection_summary
-        self.posts_count = 0
-        self.posts_size = 0
+        self.documents_count = 0
+        self.documents_size = 0
 
     def to_dict(self):
         # self.collection_user
@@ -47,6 +47,6 @@ class Collection(Base):
             "is_locked": self.is_locked,
             "collection_name": self.collection_name,
             "collection_summary": self.collection_summary,
-            "posts_count": self.posts_count,
-            "posts_size": self.posts_size,
+            "documents_count": self.documents_count,
+            "documents_size": self.documents_size,
         }

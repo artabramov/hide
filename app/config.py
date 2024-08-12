@@ -74,7 +74,7 @@ class Config:
     USERPIC_HEIGHT: int
     USERPIC_QUALITY: int
 
-    POST_BASE_PATH: str
+    DOCUMENTS_BASE_PATH: str
 
 
 @lru_cache(maxsize=None)

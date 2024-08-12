@@ -5,8 +5,8 @@ __pycache__/
 files/userpics/*
 !files/userpics/.gitkeep
 
-files/posts/*
-!files/posts/.gitkeep
+files/documents/*
+!files/documents/.gitkeep
 
 files/thumbnails/*
 !files/thumbnails/.gitkeep
