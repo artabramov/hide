@@ -13,6 +13,8 @@ from typing import List
 from fastapi import Request
 from app.hooks import HookAction
 
+AFTER_USER_REGISTER_ENABLED = True
+
 OBSCURED_KEYS = ["user_password", "current_password", "updated_password",
                  "user_totp", "password_hash", "mfa_secret_encrypted",
                  "jti_encrypted"]
@@ -41,9 +43,9 @@ class EntityOperation(enum.Enum):
     delete = "delete"
 
 
-class Activity(Base):
-    """Model for logging activity records."""
-    __tablename__ = "activities"
+class Audit(Base):
+    """Model for logging audit records."""
+    __tablename__ = "audits"
     _cacheable = False
 
     id = Column(BigInteger, primary_key=True)
@@ -89,7 +91,7 @@ async def after_startup(
     current_user: None,
     entity: None
 ):
-    """Track the application startup."""
+    """Audit the application startup."""
     ...
 
 
@@ -100,10 +102,11 @@ async def after_user_register(
     current_user: User,
     user: User
 ) -> User:
-    """Track a user registration."""
-    activity = Activity(current_user, HookAction.after_user_register,
-                        request, user, EntityOperation.insert)
-    await entity_manager.insert(activity)
+    """Audit a user registration."""
+    if AFTER_USER_REGISTER_ENABLED:
+        audit = Audit(current_user, HookAction.after_user_register,
+                      request, user, EntityOperation.insert)
+        await entity_manager.insert(audit)
     return user
 
 
@@ -114,10 +117,10 @@ async def after_user_login(
     current_user: User,
     user: User
 ) -> User:
-    """Track a user authentication."""
-    activity = Activity(current_user, HookAction.after_user_login,
-                        request, user, EntityOperation.update)
-    await entity_manager.insert(activity)
+    """Audit a user authentication."""
+    audit = Audit(current_user, HookAction.after_user_login,
+                  request, user, EntityOperation.update)
+    await entity_manager.insert(audit)
     return user
 
 
@@ -128,10 +131,10 @@ async def after_token_retrieve(
     current_user: User,
     user: User
 ) -> User:
-    """Track a token retrieval."""
-    activity = Activity(current_user, HookAction.after_token_retrieve,
-                        request, user, EntityOperation.update)
-    await entity_manager.insert(activity)
+    """Audit a token retrieval."""
+    audit = Audit(current_user, HookAction.after_token_retrieve,
+                  request, user, EntityOperation.update)
+    await entity_manager.insert(audit)
     return user
 
 
@@ -142,10 +145,10 @@ async def after_token_invalidate(
     current_user: User,
     user: User
 ) -> User:
-    """Track a token invalidation."""
-    activity = Activity(current_user, HookAction.after_token_invalidate,
-                        request, user, EntityOperation.update)
-    await entity_manager.insert(activity)
+    """Audit a token invalidation."""
+    audit = Audit(current_user, HookAction.after_token_invalidate,
+                  request, user, EntityOperation.update)
+    await entity_manager.insert(audit)
     return user
 
 
@@ -156,10 +159,10 @@ async def after_user_select(
     current_user: User,
     user: User
 ) -> User:
-    """Track a user selection."""
-    activity = Activity(current_user, HookAction.after_user_select,
-                        request, user, EntityOperation.select)
-    await entity_manager.insert(activity)
+    """Audit a user selection."""
+    audit = Audit(current_user, HookAction.after_user_select,
+                  request, user, EntityOperation.select)
+    await entity_manager.insert(audit)
     return user
 
 
@@ -170,10 +173,10 @@ async def after_user_update(
     current_user: User,
     user: User
 ) -> User:
-    """Track a user updation."""
-    activity = Activity(current_user, HookAction.after_user_update,
-                        request, user, EntityOperation.update)
-    await entity_manager.insert(activity)
+    """Audit a user updation."""
+    audit = Audit(current_user, HookAction.after_user_update,
+                  request, user, EntityOperation.update)
+    await entity_manager.insert(audit)
     return user
 
 
@@ -184,10 +187,10 @@ async def after_role_update(
     current_user: User,
     user: User
 ) -> User:
-    """Track a user role updation."""
-    activity = Activity(current_user, HookAction.after_role_update,
-                        request, user, EntityOperation.update)
-    await entity_manager.insert(activity)
+    """Audit a user role updation."""
+    audit = Audit(current_user, HookAction.after_role_update,
+                  request, user, EntityOperation.update)
+    await entity_manager.insert(audit)
     return user
 
 
@@ -198,10 +201,10 @@ async def after_password_update(
     current_user: User,
     user: User
 ) -> User:
-    """Track a user password updation."""
-    activity = Activity(current_user, HookAction.after_password_update,
-                        request, user, EntityOperation.update)
-    await entity_manager.insert(activity)
+    """Audit a user password updation."""
+    audit = Audit(current_user, HookAction.after_password_update,
+                  request, user, EntityOperation.update)
+    await entity_manager.insert(audit)
     return user
 
 
@@ -212,10 +215,10 @@ async def after_userpic_upload(
     current_user: User,
     user: User
 ) -> User:
-    """Track a userpic uploading."""
-    activity = Activity(current_user, HookAction.after_userpic_upload,
-                        request, user, EntityOperation.update)
-    await entity_manager.insert(activity)
+    """Audit a userpic uploading."""
+    audit = Audit(current_user, HookAction.after_userpic_upload,
+                  request, user, EntityOperation.update)
+    await entity_manager.insert(audit)
     return user
 
 
@@ -226,10 +229,10 @@ async def after_userpic_delete(
     current_user: User,
     user: User
 ) -> User:
-    """Track a userpic deletion."""
-    activity = Activity(current_user, HookAction.after_userpic_delete,
-                        request, user, EntityOperation.update)
-    await entity_manager.insert(activity)
+    """Audit a userpic deletion."""
+    audit = Audit(current_user, HookAction.after_userpic_delete,
+                  request, user, EntityOperation.update)
+    await entity_manager.insert(audit)
     return user
 
 
@@ -240,11 +243,11 @@ async def after_users_list(
     current_user: User,
     users: List[Collection]
 ) -> List[Collection]:
-    """Track users list selection."""
+    """Audit users list selection."""
     for user in users:
-        activity = Activity(current_user, HookAction.after_users_list,
-                            request, user, EntityOperation.select)
-        await entity_manager.insert(activity)
+        audit = Audit(current_user, HookAction.after_users_list,
+                      request, user, EntityOperation.select)
+        await entity_manager.insert(audit)
 
     return users
 
@@ -256,10 +259,10 @@ async def after_collection_insert(
     current_user: User,
     collection: Collection
 ) -> Collection:
-    """Track an collection insertion."""
-    activity = Activity(current_user, HookAction.after_collection_insert,
-                        request, collection, EntityOperation.insert)
-    await entity_manager.insert(activity)
+    """Audit an collection insertion."""
+    audit = Audit(current_user, HookAction.after_collection_insert,
+                  request, collection, EntityOperation.insert)
+    await entity_manager.insert(audit)
     return collection
 
 
@@ -270,10 +273,10 @@ async def after_collection_select(
     current_user: User,
     collection: Collection
 ) -> Collection:
-    """Track an collection selection."""
-    activity = Activity(current_user, HookAction.after_collection_select,
-                        request, collection, EntityOperation.select)
-    await entity_manager.insert(activity)
+    """Audit an collection selection."""
+    audit = Audit(current_user, HookAction.after_collection_select,
+                  request, collection, EntityOperation.select)
+    await entity_manager.insert(audit)
     return collection
 
 
@@ -283,10 +286,10 @@ async def after_collection_update(
     request: Request,
     current_user: User, collection: Collection
 ) -> Collection:
-    """Track an collection updation."""
-    activity = Activity(current_user, HookAction.after_collection_update,
-                        request, collection, EntityOperation.update)
-    await entity_manager.insert(activity)
+    """Audit an collection updation."""
+    audit = Audit(current_user, HookAction.after_collection_update,
+                  request, collection, EntityOperation.update)
+    await entity_manager.insert(audit)
     return collection
 
 
@@ -297,10 +300,10 @@ async def after_collection_delete(
     current_user: User,
     collection: Collection
 ) -> Collection:
-    """Track an collection deletion."""
-    activity = Activity(current_user, HookAction.after_collection_delete,
-                        request, collection, EntityOperation.delete)
-    await entity_manager.insert(activity)
+    """Audit an collection deletion."""
+    audit = Audit(current_user, HookAction.after_collection_delete,
+                  request, collection, EntityOperation.delete)
+    await entity_manager.insert(audit)
     return collection
 
 
@@ -311,10 +314,10 @@ async def after_collections_list(
     current_user: User,
     collections: List[Collection]
 ) -> List[Collection]:
-    """Track collections list selection."""
+    """Audit collections list selection."""
     for collection in collections:
-        activity = Activity(current_user, HookAction.after_collections_list,
-                            request, collection, EntityOperation.select)
-        await entity_manager.insert(activity)
+        audit = Audit(current_user, HookAction.after_collections_list,
+                      request, collection, EntityOperation.select)
+        await entity_manager.insert(audit)
 
     return collections

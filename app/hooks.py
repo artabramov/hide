@@ -43,11 +43,8 @@ class Hook:
         self.request = request
         self.current_user = current_user
 
-    async def execute(
-        self,
-        hook_action: HookAction,
-        entity: DeclarativeBase = None
-    ) -> Any:
+    async def execute(self, hook_action: HookAction,
+                      entity: DeclarativeBase = None) -> Any:
         if hook_action.value in ctx.hooks:
             hook_functions = ctx.hooks[hook_action.value]
             for func in hook_functions:

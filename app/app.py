@@ -4,9 +4,9 @@ from fastapi.responses import JSONResponse
 from app.config import get_config
 from app.context import get_context
 from app.log import get_log
-from app.routers import (static_routers, user_routers,
-                         collection_routers, document_routers,
-                         system_routers)
+from app.routers import (
+    static_routers, user_routers, collection_routers, document_routers,
+    system_routers)
 from app.database import Base, sessionmanager, get_session
 from app.errors import Msg
 from contextlib import asynccontextmanager
@@ -14,7 +14,6 @@ from pydantic import ValidationError
 from time import time
 from uuid import uuid4
 import os
-import fnmatch
 import importlib.util
 import inspect
 from app.hooks import HookAction, Hook
@@ -35,31 +34,31 @@ async def after_startup(session=Depends(get_session),
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     ctx.hooks = {}
-    files = [file for file in os.listdir(cfg.PLUGINS_PATH)
-             if fnmatch.fnmatch(file, cfg.PLUGINS_MASK)]
 
-    for file in files:
-        name = file.split(".")[0]
-        path = os.path.join(cfg.PLUGINS_PATH, file)
+    filenames = [file + ".py" for file in cfg.PLUGINS_ENABLED]
+    for filename in filenames:
+        module_name = filename.split(".")[0]
+        module_path = os.path.join(cfg.PLUGINS_BASE_PATH, filename)
 
         try:
-            spec = importlib.util.spec_from_file_location(name, path)
+            spec = importlib.util.spec_from_file_location(
+                module_name, module_path)
             module = importlib.util.module_from_spec(spec)
             spec.loader.exec_module(module)
 
+            func_names = [attr for attr in dir(module)
+                          if inspect.isfunction(getattr(module, attr))]
+
+            for func_name in func_names:
+                func = getattr(module, func_name)
+                if func_name not in ctx.hooks:
+                    ctx.hooks[func_name] = [func]
+                else:
+                    ctx.hooks[func_name].append(func)
+
         except Exception as e:
-            log.debug("Hook error; file=%s; e=%s;" % (file, str(e)))
+            log.debug("Hook error; filename=%s; e=%s;" % (filename, str(e)))
             raise e
-
-        func_names = [attr for attr in dir(module)
-                      if inspect.isfunction(getattr(module, attr))]
-
-        for func_name in func_names:
-            func = getattr(module, func_name)
-            if func_name not in ctx.hooks:
-                ctx.hooks[func_name] = [func]
-            else:
-                ctx.hooks[func_name].append(func)
 
     async with sessionmanager.async_engine.begin() as conn:
         await conn.run_sync(Base.metadata.create_all)

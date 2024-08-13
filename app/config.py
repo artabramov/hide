@@ -57,8 +57,8 @@ class Config:
     JWT_ALGORITHM: str
     JTI_LENGTH: int
 
-    PLUGINS_PATH: str
-    PLUGINS_MASK: str
+    PLUGINS_BASE_PATH: str
+    PLUGINS_ENABLED: list
 
     USER_LOGIN_ATTEMPTS: int
     USER_MFA_ATTEMPTS: int
