@@ -6,7 +6,7 @@ router = APIRouter()
 jwt = HTTPBearer()
 
 
-@router.get("/time", tags=["system"])
+@router.get("/time", tags=["sys"])
 async def current_time():
     return {
         "unix_timestamp": int(time.time()),

@@ -33,6 +33,8 @@ class HookAction(enum.Enum):
     after_collection_delete = "after_collection_delete"
     after_collections_list = "after_collections_list"
 
+    after_document_insert = "after_document_insert"
+
 
 class Hook:
 

@@ -69,14 +69,13 @@ async def lifespan(app: FastAPI):
 
 app = FastAPI(lifespan=lifespan, title=cfg.APP_TITLE, version=cfg.APP_VERSION)
 app.include_router(static_routers.router)
-app.include_router(system_routers.router, prefix=cfg.APP_PREFIX)
 app.include_router(user_routers.router, prefix=cfg.APP_PREFIX)
 app.include_router(collection_routers.router, prefix=cfg.APP_PREFIX)
 app.include_router(document_routers.router, prefix=cfg.APP_PREFIX)
-app.mount(
-    cfg.USERPIC_PREFIX,
-    StaticFiles(directory=cfg.USERPIC_BASE_PATH, html=False),
-    name=cfg.USERPIC_BASE_PATH)
+app.include_router(system_routers.router, prefix=cfg.APP_PREFIX)
+app.mount(cfg.USERPIC_PREFIX,
+          StaticFiles(directory=cfg.USERPIC_BASE_PATH, html=False),
+          name=cfg.USERPIC_BASE_PATH)
 
 
 @app.middleware("http")
