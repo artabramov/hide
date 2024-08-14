@@ -1,6 +1,5 @@
 import uuid
 import os
-from time import time
 from fastapi import APIRouter, Depends, HTTPException, status, Request
 from app.database import get_session
 from app.cache import get_cache
@@ -8,12 +7,10 @@ from app.models.user_models import User, UserRole
 from app.models.collection_models import Collection
 from app.schemas.document_schemas import (
     DocumentUploadRequest, DocumentUploadResponse)
-from app.errors import E, Msg
-from app.hooks import HookAction, Hook
+from app.hooks import H, Hook
 from app.auth import auth
 from app.repository import Repository
 from app.managers.file_manager import FileManager
-from app.helpers.image_helper import ImageHelper
 from app.config import get_config
 from app.models.document_model import Document
 
@@ -61,7 +58,7 @@ async def document_upload(
     await document_repository.insert(document)
 
     hook = Hook(session, cache, request, current_user=current_user)
-    await hook.execute(HookAction.after_document_insert, document)
+    await hook.execute(H.AFTER_DOCUMENT_INSERT, document)
 
     return {
         "document_id": document.id

@@ -16,7 +16,7 @@ from uuid import uuid4
 import os
 import importlib.util
 import inspect
-from app.hooks import HookAction, Hook
+from app.hooks import H, Hook
 from app.cache import get_cache
 from fastapi.staticfiles import StaticFiles
 
@@ -28,17 +28,17 @@ log = get_log()
 async def after_startup(session=Depends(get_session),
                         cache=Depends(get_cache)):
     hook = Hook(session, cache)
-    await hook.execute(HookAction.after_startup)
+    await hook.execute(H.AFTER_STARTUP)
 
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     ctx.hooks = {}
 
-    filenames = [file + ".py" for file in cfg.PLUGINS_ENABLED]
+    filenames = [file + ".py" for file in cfg.EXTENSIONS_ENABLED]
     for filename in filenames:
         module_name = filename.split(".")[0]
-        module_path = os.path.join(cfg.PLUGINS_BASE_PATH, filename)
+        module_path = os.path.join(cfg.EXTENSIONS_BASE_PATH, filename)
 
         try:
             spec = importlib.util.spec_from_file_location(

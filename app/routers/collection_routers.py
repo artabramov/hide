@@ -12,7 +12,7 @@ from app.schemas.collection_schemas import (
 from app.repository import Repository
 from app.errors import E, Msg
 from app.config import get_config
-from app.hooks import HookAction, Hook
+from app.hooks import H, Hook
 from app.auth import auth
 
 router = APIRouter()
@@ -49,7 +49,7 @@ async def collection_insert(
     await collection_repository.insert(collection)
 
     hook = Hook(session, cache, request, current_user=current_user)
-    await hook.execute(HookAction.after_collection_insert, collection)
+    await hook.execute(H.AFTER_COLLECTION_INSERT, collection)
 
     return {"collection_id": collection.id}
 
@@ -75,7 +75,7 @@ async def collection_select(
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND)
 
     hook = Hook(session, cache, request, current_user=current_user)
-    await hook.execute(HookAction.after_collection_select, collection)
+    await hook.execute(H.AFTER_COLLECTION_SELECT, collection)
 
     return collection.to_dict()
 
@@ -113,7 +113,7 @@ async def collection_update(
     await collection_repository.update(collection)
 
     hook = Hook(session, cache, request, current_user=current_user)
-    await hook.execute(HookAction.after_collection_update, collection)
+    await hook.execute(H.AFTER_COLLECTION_UPDATE, collection)
 
     return {"collection_id": collection.id}
 
@@ -147,7 +147,7 @@ async def collection_delete(
     await collection_repository.commit()
 
     hook = Hook(session, cache, request, current_user=current_user)
-    await hook.execute(HookAction.after_collection_delete, collection)
+    await hook.execute(H.AFTER_COLLECTION_DELETE, collection)
 
     return {"collection_id": collection.id}
 
@@ -174,7 +174,7 @@ async def collections_list(
         **schema.__dict__)
 
     hook = Hook(session, cache, request, current_user=current_user)
-    await hook.execute(HookAction.after_collections_list, collections)
+    await hook.execute(H.AFTER_COLLECTIONS_LIST, collections)
 
     return {
         "collections": [collection.to_dict() for collection in collections],

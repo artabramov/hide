@@ -7,33 +7,32 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from app.models.user_models import User
 from typing import Any
 from fastapi import Request
-from sqlalchemy.orm import DeclarativeBase
 
 ctx = get_context()
 
 
-class HookAction(enum.Enum):
-    after_startup = "after_startup"
+class H(enum.Enum):
+    AFTER_STARTUP = "after_startup"
 
-    after_user_register = "after_user_register"
-    after_user_login = "after_user_login"
-    after_token_retrieve = "after_token_retrieve"
-    after_token_invalidate = "after_token_invalidate"
-    after_user_select = "after_user_select"
-    after_user_update = "after_user_update"
-    after_role_update = "after_role_update"
-    after_password_update = "after_password_update"
-    after_userpic_upload = "after_userpic_upload"
-    after_userpic_delete = "after_userpic_delete"
-    after_users_list = "after_users_list"
+    AFTER_USER_REGISTER = "after_user_register"
+    AFTER_USER_LOGIN = "after_user_login"
+    AFTER_TOKEN_RETRIEVE = "after_token_retrieve"
+    AFTER_TOKEN_INVALIDATE = "after_token_invalidate"
+    AFTER_USER_SELECT = "after_user_select"
+    AFTER_USER_UPDATE = "after_user_update"
+    AFTER_ROLE_UPDATE = "after_role_update"
+    AFTER_PASSWORD_UPDATE = "after_password_update"
+    AFTER_USERPIC_UPLOAD = "after_userpic_upload"
+    AFTER_USERPIC_DELETE = "after_userpic_delete"
+    AFTER_USERS_LIST = "after_users_list"
 
-    after_collection_insert = "after_collection_insert"
-    after_collection_select = "after_collection_select"
-    after_collection_update = "after_collection_update"
-    after_collection_delete = "after_collection_delete"
-    after_collections_list = "after_collections_list"
+    AFTER_COLLECTION_INSERT = "after_collection_insert"
+    AFTER_COLLECTION_SELECT = "after_collection_select"
+    AFTER_COLLECTION_UPDATE = "after_collection_update"
+    AFTER_COLLECTION_DELETE = "after_collection_delete"
+    AFTER_COLLECTIONS_LIST = "after_collections_list"
 
-    after_document_insert = "after_document_insert"
+    AFTER_DOCUMENT_INSERT = "after_document_insert"
 
 
 class Hook:
@@ -45,11 +44,10 @@ class Hook:
         self.request = request
         self.current_user = current_user
 
-    async def execute(self, hook_action: HookAction,
-                      entity: DeclarativeBase = None) -> Any:
+    async def execute(self, hook_action: H, data: Any = None) -> Any:
         if hook_action.value in ctx.hooks:
             hook_functions = ctx.hooks[hook_action.value]
             for func in hook_functions:
-                entity = await func(self.entity_manager, self.cache_manager,
-                                    self.request, self.current_user, entity)
-        return entity
+                data = await func(self.entity_manager, self.cache_manager,
+                                  self.request, self.current_user, data)
+        return data

@@ -29,7 +29,7 @@ class RequestMethod(enum.Enum):
     DELETE = "DELETE"
 
 
-class EntityOperation(enum.Enum):
+class AuditAction(enum.Enum):
     """Types of operations performed on entities."""
     insert = "insert"
     select = "select"
@@ -50,21 +50,20 @@ class Audit(Base):
     request_url = Column(String(256), index=True)
     query_params = Column(JSON)
 
-    entity_operation = Column(Enum(EntityOperation), index=True)
+    audit_action = Column(Enum(AuditAction), index=True)
     entity_tablename = Column(String(128), index=True)
     entity_id = Column(BigInteger, index=True)
     entity_dict = Column(JSON)
 
     def __init__(self, current_user: User, request: Request,
-                 entity: DeclarativeBase, entity_operation: EntityOperation):
+                 entity: DeclarativeBase, audit_action: AuditAction):
         """Initialize an instance with request and entity details."""
         self.user_id = current_user.id if current_user else None
-
         self.request_method = request.method
         self.request_url = request.url.path
         self.query_params = self._to_dict(request.query_params._dict)
+        self.audit_action = audit_action
 
-        self.entity_operation = entity_operation
         self.entity_tablename = entity.__tablename__
         self.entity_id = entity.id
         self.entity_dict = self._to_dict(entity.__dict__)
@@ -73,7 +72,7 @@ class Audit(Base):
         """Convert a dict to string representation."""
         return {x: repr(entity_dict[x])
                 if x not in OBSCURED_KEYS else OBSCURED_VALUE
-                for x in entity_dict}
+                for x in entity_dict if not x.startswith("_")}
 
 
 async def after_startup(
@@ -95,7 +94,7 @@ async def after_user_register(
 ) -> User:
     """Audit a user registration."""
     if AFTER_USER_REGISTER_ENABLED:
-        audit = Audit(current_user, request, user, EntityOperation.insert)
+        audit = Audit(current_user, request, user, AuditAction.insert)
         await entity_manager.insert(audit)
     return user
 
@@ -108,7 +107,7 @@ async def after_user_login(
     user: User
 ) -> User:
     """Audit a user authentication."""
-    audit = Audit(current_user, request, user, EntityOperation.update)
+    audit = Audit(current_user, request, user, AuditAction.update)
     await entity_manager.insert(audit)
     return user
 
@@ -121,7 +120,7 @@ async def after_token_retrieve(
     user: User
 ) -> User:
     """Audit a token retrieval."""
-    audit = Audit(current_user, request, user, EntityOperation.update)
+    audit = Audit(current_user, request, user, AuditAction.update)
     await entity_manager.insert(audit)
     return user
 
@@ -134,7 +133,7 @@ async def after_token_invalidate(
     user: User
 ) -> User:
     """Audit a token invalidation."""
-    audit = Audit(current_user, request, user, EntityOperation.update)
+    audit = Audit(current_user, request, user, AuditAction.update)
     await entity_manager.insert(audit)
     return user
 
@@ -147,7 +146,7 @@ async def after_user_select(
     user: User
 ) -> User:
     """Audit a user selection."""
-    audit = Audit(current_user, request, user, EntityOperation.select)
+    audit = Audit(current_user, request, user, AuditAction.select)
     await entity_manager.insert(audit)
     return user
 
@@ -160,7 +159,7 @@ async def after_user_update(
     user: User
 ) -> User:
     """Audit a user updation."""
-    audit = Audit(current_user, request, user, EntityOperation.update)
+    audit = Audit(current_user, request, user, AuditAction.update)
     await entity_manager.insert(audit)
     return user
 
@@ -173,7 +172,7 @@ async def after_role_update(
     user: User
 ) -> User:
     """Audit a user role updation."""
-    audit = Audit(current_user, request, user, EntityOperation.update)
+    audit = Audit(current_user, request, user, AuditAction.update)
     await entity_manager.insert(audit)
     return user
 
@@ -186,7 +185,7 @@ async def after_password_update(
     user: User
 ) -> User:
     """Audit a user password updation."""
-    audit = Audit(current_user, request, user, EntityOperation.update)
+    audit = Audit(current_user, request, user, AuditAction.update)
     await entity_manager.insert(audit)
     return user
 
@@ -199,7 +198,7 @@ async def after_userpic_upload(
     user: User
 ) -> User:
     """Audit a userpic uploading."""
-    audit = Audit(current_user, request, user, EntityOperation.update)
+    audit = Audit(current_user, request, user, AuditAction.update)
     await entity_manager.insert(audit)
     return user
 
@@ -212,7 +211,7 @@ async def after_userpic_delete(
     user: User
 ) -> User:
     """Audit a userpic deletion."""
-    audit = Audit(current_user, request, user, EntityOperation.update)
+    audit = Audit(current_user, request, user, AuditAction.update)
     await entity_manager.insert(audit)
     return user
 
@@ -226,7 +225,7 @@ async def after_users_list(
 ) -> List[Collection]:
     """Audit users list selection."""
     for user in users:
-        audit = Audit(current_user, request, user, EntityOperation.select)
+        audit = Audit(current_user, request, user, AuditAction.select)
         await entity_manager.insert(audit)
     return users
 
@@ -239,7 +238,7 @@ async def after_collection_insert(
     collection: Collection
 ) -> Collection:
     """Audit an collection insertion."""
-    audit = Audit(current_user, request, collection, EntityOperation.insert)
+    audit = Audit(current_user, request, collection, AuditAction.insert)
     await entity_manager.insert(audit)
     return collection
 
@@ -252,7 +251,7 @@ async def after_collection_select(
     collection: Collection
 ) -> Collection:
     """Audit an collection selection."""
-    audit = Audit(current_user, request, collection, EntityOperation.select)
+    audit = Audit(current_user, request, collection, AuditAction.select)
     await entity_manager.insert(audit)
     return collection
 
@@ -264,7 +263,7 @@ async def after_collection_update(
     current_user: User, collection: Collection
 ) -> Collection:
     """Audit an collection updation."""
-    audit = Audit(current_user, request, collection, EntityOperation.update)
+    audit = Audit(current_user, request, collection, AuditAction.update)
     await entity_manager.insert(audit)
     return collection
 
@@ -277,7 +276,7 @@ async def after_collection_delete(
     collection: Collection
 ) -> Collection:
     """Audit an collection deletion."""
-    audit = Audit(current_user, request, collection, EntityOperation.delete)
+    audit = Audit(current_user, request, collection, AuditAction.delete)
     await entity_manager.insert(audit)
     return collection
 
@@ -291,8 +290,7 @@ async def after_collections_list(
 ) -> List[Collection]:
     """Audit collections list selection."""
     for collection in collections:
-        audit = Audit(current_user, request, collection,
-                      EntityOperation.select)
+        audit = Audit(current_user, request, collection, AuditAction.select)
         await entity_manager.insert(audit)
     return collections
 
@@ -305,6 +303,6 @@ async def after_document_insert(
     document: Document
 ) -> Document:
     """Audit a document insertion."""
-    audit = Audit(current_user, request, document, EntityOperation.insert)
+    audit = Audit(current_user, request, document, AuditAction.insert)
     await entity_manager.insert(audit)
     return document

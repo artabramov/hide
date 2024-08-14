@@ -17,7 +17,7 @@ from app.schemas.user_schemas import (
     PasswordUpdateRequest, PasswordUpdateResponse, UsersListRequest,
     UsersListResponse)
 from app.errors import E, Msg
-from app.hooks import HookAction, Hook
+from app.hooks import H, Hook
 from app.auth import auth
 from app.repository import Repository
 from app.managers.file_manager import FileManager
@@ -57,7 +57,7 @@ async def user_register(
     await user_repository.insert(user)
 
     hook = Hook(session, cache, request, current_user=user)
-    await hook.execute(HookAction.after_user_register, user)
+    await hook.execute(H.AFTER_USER_REGISTER, user)
 
     return {
         "user_id": user.id,
@@ -108,7 +108,7 @@ async def user_login(
         await user_repository.update(user)
 
         hook = Hook(session, cache, request, current_user=user)
-        await hook.execute(HookAction.after_user_login, user)
+        await hook.execute(H.AFTER_USER_LOGIN, user)
 
         return {"password_accepted": True}
 
@@ -170,7 +170,7 @@ async def token_retrieve(
         user_token = JWTHelper.encode_token(user)
 
         hook = Hook(session, cache, request, current_user=user)
-        await hook.execute(HookAction.after_token_retrieve, user)
+        await hook.execute(H.AFTER_TOKEN_RETRIEVE, user)
 
         return {"user_token": user_token}
 
@@ -204,7 +204,7 @@ async def token_invalidate(
     await user_repository.update(current_user)
 
     hook = Hook(session, cache, request, current_user=current_user)
-    await hook.execute(HookAction.after_token_invalidate, current_user)
+    await hook.execute(H.AFTER_TOKEN_INVALIDATE, current_user)
 
     return {}
 
@@ -230,7 +230,7 @@ async def user_select(
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND)
 
     hook = Hook(session, cache, request, current_user=user)
-    await hook.execute(HookAction.after_user_select, user)
+    await hook.execute(H.AFTER_USER_SELECT, user)
 
     return user.to_dict()
 
@@ -259,7 +259,7 @@ async def user_update(
     await user_repository.update(current_user)
 
     hook = Hook(session, cache, request, current_user=current_user)
-    await hook.execute(HookAction.after_user_update, current_user)
+    await hook.execute(H.AFTER_USER_UPDATE, current_user)
 
     return {
         "user_id": current_user.id,
@@ -294,7 +294,7 @@ async def role_update(
     await user_repository.update(user)
 
     hook = Hook(session, cache, request, current_user=current_user)
-    await hook.execute(HookAction.after_role_update, user)
+    await hook.execute(H.AFTER_ROLE_UPDATE, user)
 
     return {
         "user_id": user.id,
@@ -328,7 +328,7 @@ async def password_update(
     await user_repository.update(current_user)
 
     hook = Hook(session, cache, request, current_user=current_user)
-    await hook.execute(HookAction.after_role_update, current_user)
+    await hook.execute(H.AFTER_PASSWORD_UPDATE, current_user)
 
     return {
         "user_id": current_user.id,
@@ -371,7 +371,7 @@ async def userpic_upload(
     await user_repository.update(current_user)
 
     hook = Hook(session, cache, request, current_user=current_user)
-    await hook.execute(HookAction.after_userpic_upload, current_user)
+    await hook.execute(H.AFTER_USERPIC_UPLOAD, current_user)
 
     return {
         "user_id": current_user.id
@@ -403,7 +403,7 @@ async def userpic_delete(
     await user_repository.update(current_user)
 
     hook = Hook(session, cache, request, current_user=current_user)
-    await hook.execute(HookAction.after_userpic_delete, current_user)
+    await hook.execute(H.AFTER_USERPIC_DELETE, current_user)
 
     return {
         "user_id": current_user.id
@@ -430,7 +430,7 @@ async def users_list(
     users_count = await user_repository.count_all(**schema.__dict__)
 
     hook = Hook(session, cache, request, current_user=current_user)
-    await hook.execute(HookAction.after_users_list, users)
+    await hook.execute(H.AFTER_USERS_LIST, users)
 
     return {
         "users": [user.to_dict() for user in users],

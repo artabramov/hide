@@ -43,6 +43,9 @@ class Config:
     MFA_COLOR: str
     MFA_BACKGROUND: str
 
+    EXTENSIONS_BASE_PATH: str
+    EXTENSIONS_ENABLED: list
+
     APP_TITLE: str
     APP_VERSION: str
     APP_PREFIX: str
@@ -56,9 +59,6 @@ class Config:
     JWT_EXPIRES: int
     JWT_ALGORITHM: str
     JTI_LENGTH: int
-
-    PLUGINS_BASE_PATH: str
-    PLUGINS_ENABLED: list
 
     USER_LOGIN_ATTEMPTS: int
     USER_MFA_ATTEMPTS: int
