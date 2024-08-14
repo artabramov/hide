@@ -123,3 +123,23 @@ class CacheManagerTestCase(asynctest.TestCase):
                          call.open().__aexit__(None, None, None))
         self.assertEqual(aiofiles_mock.mock_calls[2],
                          call.open().__aenter__().read())
+
+    @patch("app.managers.file_manager.cipher_suite")
+    async def test__encrypt(self, cipher_suite_mock):
+        data = "data"
+
+        result = await FileManager.encrypt(data)
+        self.assertEqual(result, cipher_suite_mock.encrypt.return_value)
+
+        cipher_suite_mock.encrypt.assert_called_once()
+        cipher_suite_mock.encrypt.assert_called_with(data)
+
+    @patch("app.managers.file_manager.cipher_suite")
+    async def test__decrypt(self, cipher_suite_mock):
+        data = "data"
+
+        result = await FileManager.decrypt(data)
+        self.assertEqual(result, cipher_suite_mock.decrypt.return_value)
+
+        cipher_suite_mock.decrypt.assert_called_once()
+        cipher_suite_mock.decrypt.assert_called_with(data)

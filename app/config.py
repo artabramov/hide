@@ -75,6 +75,7 @@ class Config:
     USERPIC_QUALITY: int
 
     DOCUMENTS_BASE_PATH: str
+    DOCUMENTS_EXTENSION: str
 
 
 @lru_cache(maxsize=None)

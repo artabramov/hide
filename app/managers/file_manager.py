@@ -2,8 +2,10 @@ import aiofiles
 import aiofiles.os
 from app.decorators.timed_deco import timed
 from app.config import get_config
+from cryptography.fernet import Fernet
 
 cfg = get_config()
+cipher_suite = Fernet(cfg.FERNET_KEY)
 
 
 class FileManager:
@@ -53,3 +55,13 @@ class FileManager:
         """
         async with aiofiles.open(path, mode="rb") as fn:
             return await fn.read()
+
+    @staticmethod
+    @timed
+    async def encrypt(data: bytes) -> bytes:
+        return cipher_suite.encrypt(data)
+
+    @staticmethod
+    @timed
+    async def decrypt(data: bytes) -> bytes:
+        return cipher_suite.decrypt(data)

@@ -40,9 +40,13 @@ async def document_upload(
     elif collection.is_locked:
         raise HTTPException(status_code=status.HTTP_403_FORBIDDEN)
 
-    filename = str(uuid.uuid4())
+    filename = str(uuid.uuid4()) + cfg.DOCUMENTS_EXTENSION
     path = os.path.join(cfg.DOCUMENTS_BASE_PATH, filename)
     await FileManager.upload(schema.file, path)
+
+    data = await FileManager.read(path)
+    encrypted_data = await FileManager.encrypt(data)
+    await FileManager.write(path, encrypted_data)
 
     document_name = schema.file.filename
     document_summary = schema.document_summary
@@ -51,10 +55,10 @@ async def document_upload(
     thumbnail_filename = None
 
     document_repository = Repository(session, cache, Document)
-    document = Document(current_user.id, schema.collection_id, document_name,
-                        filename, filesize, mimetype,
-                        document_summary=document_summary,
-                        thumbnail_filename=thumbnail_filename)
+    document = Document(
+        current_user.id, schema.collection_id, document_name, filename,
+        filesize, mimetype, document_summary=document_summary,
+        thumbnail_filename=thumbnail_filename)
     await document_repository.insert(document)
 
     hook = Hook(session, cache, request, current_user=current_user)
