@@ -17,3 +17,7 @@ class DocumentUploadRequest(BaseModel):
 class DocumentUploadResponse(BaseModel):
     """Pydantic schema for document uploading response."""
     document_id: int
+
+
+class DocumentDownloadRequest(BaseModel):
+    document_id: int

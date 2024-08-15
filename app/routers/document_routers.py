@@ -1,18 +1,19 @@
 import uuid
 import os
 from fastapi import APIRouter, Depends, HTTPException, status, Request
+from fastapi.responses import Response
 from app.database import get_session
 from app.cache import get_cache
 from app.models.user_models import User, UserRole
 from app.models.collection_models import Collection
+from app.models.document_model import Document
 from app.schemas.document_schemas import (
-    DocumentUploadRequest, DocumentUploadResponse)
+    DocumentUploadRequest, DocumentUploadResponse, DocumentDownloadRequest)
 from app.hooks import H, Hook
 from app.auth import auth
 from app.repository import Repository
 from app.managers.file_manager import FileManager
 from app.config import get_config
-from app.models.document_model import Document
 
 router = APIRouter()
 cfg = get_config()
@@ -48,7 +49,8 @@ async def document_upload(
     encrypted_data = await FileManager.encrypt(data)
     await FileManager.write(path, encrypted_data)
 
-    document_name = schema.file.filename
+    document_name = (schema.document_name if schema.document_name
+                     else schema.file.filename)
     document_summary = schema.document_summary
     filesize = schema.file.size
     mimetype = schema.file.content_type
@@ -67,3 +69,28 @@ async def document_upload(
     return {
         "document_id": document.id
     }
+
+
+@router.get("/document/{document_id}/download", tags=["documents"],
+            name="Download document")
+async def document_download(
+    request: Request,
+    session=Depends(get_session),
+    cache=Depends(get_cache),
+    current_user: User = Depends(auth(UserRole.reader)),
+    schema=Depends(DocumentDownloadRequest)
+) -> Response:
+    """
+    Returns the raw binary data of the file specified by the
+    document ID. The file is decrypted before being sent to the client.
+    The user has the reader role or higher before proceeding with the
+    download.
+    """
+    document_repository = Repository(session, cache, Document)
+    document = await document_repository.select(id=schema.document_id)
+    if not document:
+        raise HTTPException(status_code=404)
+
+    data = await FileManager.read(document.file_path)
+    decrypted_data = await FileManager.decrypt(data)
+    return Response(content=decrypted_data, media_type=document.mimetype)

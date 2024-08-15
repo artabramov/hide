@@ -1,3 +1,4 @@
+import os
 from time import time
 from sqlalchemy import Column, Integer, BigInteger, String, ForeignKey
 from sqlalchemy.orm import relationship
@@ -49,6 +50,10 @@ class Document(Base):
 
         self.thumbnail_filename = thumbnail_filename
         self.comments_count = 0
+
+    @property
+    def file_path(self):
+        return os.path.join(cfg.DOCUMENTS_BASE_PATH, self.filename)
 
     def to_dict(self):
         return {
