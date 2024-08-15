@@ -93,4 +93,8 @@ async def document_download(
 
     data = await FileManager.read(document.file_path)
     decrypted_data = await FileManager.decrypt(data)
+
+    hook = Hook(session, cache, request, current_user=current_user)
+    await hook.execute(H.AFTER_DOCUMENT_DOWNLOAD, document)
+
     return Response(content=decrypted_data, media_type=document.mimetype)
