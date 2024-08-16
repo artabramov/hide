@@ -22,7 +22,7 @@ copyright = '2024, Artem Abramov'
 author = 'Artem Abramov'
 
 version = '0.0.1'
-release = '0.0.1'
+release = '1'
 
 # -- General configuration ---------------------------------------------------
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#general-configuration
