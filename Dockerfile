@@ -35,8 +35,10 @@ RUN pip3 install safety
 # sphinx
 # RUN pip3 install sphinx==8.0.2
 # RUN pip3 install sphinx sphinx_rtd_theme
-# sphinx-quickstart docs -q -p "hide" -a "Artem Abramov" -v "0.0.1" -r "1" --no-makefile --no-batchfile
-# sphinx-apidoc -o docs app/
+
+# sphinx-quickstart docs -q -p "hide" -a "Artem Abramov" -v "0.0.1" -r "1" --no-batchfile
+# sphinx-apidoc -o docs/app app/ --remove-old
+# sphinx-apidoc -o docs/app/managers app/managers/ --remove-old
 # make -C docs html
 
 ADD . /hide
