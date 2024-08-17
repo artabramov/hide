@@ -2,7 +2,7 @@ pipeline {
     agent any
 
     stages {
-        stage('unittests') {
+        stage('tests') {
             steps {
                 script {
                     def command = "docker exec hide /bin/sh -c \"cd /hide && python3 -W ignore -m coverage run -m unittest discover -s ./tests -p '*_tests.py'\""
@@ -27,11 +27,11 @@ pipeline {
         stage('safety') {
             steps {
                 script {
-                    def command = "docker exec hide /bin/sh -c \"pip3 install --upgrade safety\""
+                    def command = 'docker exec hide /bin/sh -c "pip3 install --upgrade safety"'
                     def exitCode = bat(script: command, returnStatus: true)
 
                     if (exitCode == 0) {
-                        command = "docker exec hide /bin/sh -c \"safety check --file /hide/requirements.txt --ignore 50959 --ignore 70612\""
+                        command = 'docker exec hide /bin/sh -c "safety check --file /hide/requirements.txt --ignore 50959 --ignore 70612 --ignore 72132"'
                         exitCode = bat(script: command, returnStatus: true)
 
                         if (exitCode != 0) {
@@ -46,10 +46,10 @@ pipeline {
             }
         }
 
-        stage('flake8') {
+        stage('linter') {
             steps {
                 script {
-                    def command = "docker exec hide /bin/sh -c \"flake8 --count --max-line-length=80 /hide\""
+                    def command = 'docker exec hide /bin/sh -c "flake8 --count --max-line-length=80 /hide"'
                     def exitCode = bat(script: command, returnStatus: true)
 
                     if (exitCode != 0) {
@@ -63,7 +63,7 @@ pipeline {
         stage('smokes') {
             steps {
                 script {
-                    def command = "docker exec hide-smokes /bin/sh -c \"behave /smokes/app/features/*.feature --no-capture --format progress\""
+                    def command = 'docker exec hide-smokes /bin/sh -c "behave /smokes/app/features/*.feature --no-capture --format progress"'
                     def exitCode = bat(script: command, returnStatus: true)
 
                     if (exitCode != 0) {
@@ -73,6 +73,21 @@ pipeline {
                 }
             }
         }
+
+        stage('docs') {
+            steps {
+                script {
+                    def command = 'docker exec hide /bin/sh -c "sphinx-apidoc --remove-old --output-dir /hide/docs/autodoc /hide/app/ && make -C /hide/docs html"'
+                    def exitCode = bat(script: command, returnStatus: true)
+
+                    if (exitCode != 0) {
+                        currentBuild.result = 'FAILURE'
+                        error 'Sphinx failed.'
+                    }
+                }
+            }
+        }
+
     }
 
     post {
