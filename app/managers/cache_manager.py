@@ -19,8 +19,6 @@ log = get_log()
 
 class CacheManager:
     """
-    Manages caching operations for SQLAlchemy entities using Redis.
-
     Provides methods to set, get, delete, and delete all cache entries
     for SQLAlchemy entities. Uses Redis for storage and supports
     asynchronous operations.

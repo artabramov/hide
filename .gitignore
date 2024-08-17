@@ -20,5 +20,5 @@ docs/_static/*
 docs/_templates/*
 !docs/_templates/.gitignore
 
-docs/apidoc/*
-!docs/apidoc/.gitignore
+docs/autodoc/*
+!docs/autodoc/.gitignore

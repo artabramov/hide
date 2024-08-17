@@ -10,6 +10,10 @@ DOTENV_FILE = "/hide/.env"
 
 @dataclass
 class Config:
+    COPYRIGHT: str
+    PROJECT: str
+    AUTHOR: str
+
     UVICORN_HOST: str
     UVICORN_PORT: int
     UVICORN_WORKERS: int

@@ -12,25 +12,28 @@
 #
 import os
 import sys
+
 sys.path.insert(0, os.path.abspath('..'))
+
+from app.version import __version__ as version  # noqa E402
+from app.config import get_config  # noqa E402
+
+config = get_config()
 
 # -- Project information -----------------------------------------------------
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#project-information
 
-project = 'hide'
-copyright = '2024, Artem Abramov'
-author = 'Artem Abramov'
-
-version = '0.0.1'
-release = '1'
+project = config.PROJECT
+copyright = config.COPYRIGHT
+author = config.AUTHOR
 
 # -- General configuration ---------------------------------------------------
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#general-configuration
 
 extensions = [
-    'sphinx.ext.autodoc',
-    'sphinx.ext.viewcode',
-    'sphinx.ext.napoleon'
+    "sphinx.ext.autodoc",
+    "sphinx.ext.viewcode",
+    "sphinx.ext.napoleon"
 ]
 
 templates_path = ['_templates']

@@ -37,8 +37,8 @@ RUN pip3 install safety
 # RUN pip3 install sphinx sphinx_rtd_theme
 
 # sphinx-quickstart docs -q -p "hide" -a "Artem Abramov" -v "0.0.1" -r "1" --no-batchfile
-# sphinx-apidoc --remove-old --output-dir docs/_rst app/
-# make -C docs html
+# sphinx-apidoc --remove-old --output-dir /hide/docs/autodoc /hide/app/
+# make -C /hide/docs html
 
 ADD . /hide
 WORKDIR /hide
