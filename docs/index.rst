@@ -16,5 +16,8 @@ documentation for details.
    :caption: Contents:
 
    app/app
+   app/app.decorators
+   app/app.extensions
+   app/app.helpers
    app/app.mixins
    app/app.managers

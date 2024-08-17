@@ -10,3 +10,7 @@ files/documents/*
 
 files/thumbnails/*
 !files/thumbnails/.gitkeep
+
+docs/_build/*
+docs/_static/*
+docs/_templates
