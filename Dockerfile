@@ -40,6 +40,9 @@ RUN pip3 install safety
 # sphinx-apidoc --remove-old --output-dir /hide/docs/autodoc /hide/app/
 # make -C /hide/docs html
 
+# git tag -a v1.0.0 -m "version v.0.0.14"
+# git push --tags
+
 ADD . /hide
 WORKDIR /hide
 RUN mkdir /var/log/app
