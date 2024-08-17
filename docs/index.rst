@@ -15,9 +15,9 @@ documentation for details.
    :maxdepth: 4
    :caption: Contents:
 
-   app/app
-   app/app.decorators
-   app/app.extensions
-   app/app.helpers
-   app/app.mixins
-   app/app.managers
+   _rst/app
+   _rst/app.decorators
+   _rst/app.extensions
+   _rst/app.helpers
+   _rst/app.mixins
+   _rst/app.managers

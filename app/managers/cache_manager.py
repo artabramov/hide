@@ -1,3 +1,9 @@
+"""
+This module provides the CacheManager class for managing caching
+operations with Redis for SQLAlchemy entities. It includes methods
+to set, get, delete, and delete all cached entities, and supports
+asynchronous operations.
+"""
 
 from typing import Type, Optional, Union
 from sqlalchemy.ext.serializer import dumps, loads
