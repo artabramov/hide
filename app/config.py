@@ -81,6 +81,12 @@ class Config:
     DOCUMENTS_BASE_PATH: str
     DOCUMENTS_EXTENSION: str
 
+    THUMBNAILS_BASE_PATH: str
+    THUMBNAILS_EXTENSION: str
+    THUMBNAIL_WIDTH: int
+    THUMBNAIL_HEIGHT: int
+    THUMBNAIL_QUALITY: int
+
 
 @lru_cache(maxsize=None)
 def get_config() -> Config:

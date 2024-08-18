@@ -14,6 +14,8 @@ from app.auth import auth
 from app.repository import Repository
 from app.managers.file_manager import FileManager
 from app.config import get_config
+from app.helpers.image_helper import ImageHelper
+from app.helpers.video_helper import VideoHelper
 
 router = APIRouter()
 cfg = get_config()
@@ -29,9 +31,17 @@ async def document_upload(
     schema=Depends(DocumentUploadRequest)
 ) -> dict:
     """
-    Upload a new document to the specified collection. Ensures the
-    collection exists and the user has the writer role or higher
-    before proceeding with the upload.
+    Handles the upload of a document to a specified collection,
+    performing necessary validations and processing. Checks if the
+    collection exists and if the current user has the required
+    permissions to upload documents. Saves the uploaded file with
+    a unique name, and if the file is an image or video, generates
+    a corresponding thumbnail. The document file is encrypted before
+    being stored. Creates an entry for the document in the repository
+    with details such as the document name, size, and mime type.
+    In case of errors during thumbnail creation, the process continues
+    without generating a thumbnail. Returns the ID of the newly created
+    document.
     """
     collection_repository = Repository(session, cache, Collection)
     collection = await collection_repository.select(id=schema.collection_id)
@@ -42,19 +52,42 @@ async def document_upload(
         raise HTTPException(status_code=status.HTTP_403_FORBIDDEN)
 
     filename = str(uuid.uuid4()) + cfg.DOCUMENTS_EXTENSION
-    path = os.path.join(cfg.DOCUMENTS_BASE_PATH, filename)
-    await FileManager.upload(schema.file, path)
+    file_path = os.path.join(cfg.DOCUMENTS_BASE_PATH, filename)
+    await FileManager.upload(schema.file, file_path)
 
-    data = await FileManager.read(path)
+    mimetype = schema.file.content_type
+    is_image = FileManager.is_image(mimetype)
+    is_video = FileManager.is_video(mimetype) if not is_image else False
+
+    thumbnail_filename = None
+    if is_image or is_video:
+
+        thumbnail_filename = str(uuid.uuid4()) + cfg.THUMBNAILS_EXTENSION
+        thumbnail_path = os.path.join(
+            cfg.THUMBNAILS_BASE_PATH, thumbnail_filename)
+
+        try:
+            if is_image:
+                await FileManager.copy(file_path, thumbnail_path)
+
+            elif is_video:
+                await VideoHelper.freeze(file_path, thumbnail_path)
+
+            await ImageHelper.resize(
+                thumbnail_path, cfg.THUMBNAIL_WIDTH, cfg.THUMBNAIL_HEIGHT,
+                cfg.THUMBNAIL_QUALITY)
+
+        except Exception:
+            thumbnail_filename = None
+
+    data = await FileManager.read(file_path)
     encrypted_data = await FileManager.encrypt(data)
-    await FileManager.write(path, encrypted_data)
+    await FileManager.write(file_path, encrypted_data)
 
     document_name = (schema.document_name if schema.document_name
                      else schema.file.filename)
     document_summary = schema.document_summary
     filesize = schema.file.size
-    mimetype = schema.file.content_type
-    thumbnail_filename = None
 
     document_repository = Repository(session, cache, Document)
     document = Document(

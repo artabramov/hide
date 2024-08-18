@@ -13,6 +13,7 @@ RUN apt install -y postgresql
 RUN apt install -y redis
 RUN apt install -y sudo
 RUN apt install -y wget
+RUN apt install -y ffmpeg
 RUN apt install -y git
 RUN apt install -y vim
 
@@ -25,6 +26,7 @@ RUN pip3 install redis==5.0.7
 RUN pip3 install pyotp==2.9.0
 RUN pip3 install qrcode==7.4.2
 RUN pip3 install pillow==10.3.0
+RUN pip3 install ffmpeg-python==0.2.0
 RUN pip3 install cryptography==42.0.8
 RUN pip3 install PyJWT==2.8.0
 RUN pip3 install asynctest==0.13.0
