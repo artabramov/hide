@@ -295,14 +295,14 @@ async def after_collections_list(
     return collections
 
 
-async def after_document_insert(
+async def after_document_upload(
     entity_manager: EntityManager,
     cache_manager: CacheManager,
     request: Request,
     current_user: User,
     document: Document
 ) -> Document:
-    """Audit a document insertion."""
+    """Audit a document uploading."""
     audit = Audit(current_user, request, document, AuditAction.insert)
     await entity_manager.insert(audit)
     return document
@@ -316,6 +316,19 @@ async def after_document_download(
     document: Document
 ) -> Document:
     """Audit a document downloading."""
+    audit = Audit(current_user, request, document, AuditAction.select)
+    await entity_manager.insert(audit)
+    return document
+
+
+async def after_document_select(
+    entity_manager: EntityManager,
+    cache_manager: CacheManager,
+    request: Request,
+    current_user: User,
+    document: Document
+) -> Document:
+    """Audit a document selecting."""
     audit = Audit(current_user, request, document, AuditAction.select)
     await entity_manager.insert(audit)
     return document

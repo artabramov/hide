@@ -76,6 +76,9 @@ app.include_router(system_routers.router, prefix=cfg.APP_PREFIX)
 app.mount(cfg.USERPIC_PREFIX,
           StaticFiles(directory=cfg.USERPIC_BASE_PATH, html=False),
           name=cfg.USERPIC_BASE_PATH)
+app.mount(cfg.THUMBNAILS_PREFIX,
+          StaticFiles(directory=cfg.THUMBNAILS_BASE_PATH, html=False),
+          name=cfg.THUMBNAILS_BASE_PATH)
 
 
 @app.middleware("http")

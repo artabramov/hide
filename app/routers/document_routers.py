@@ -8,7 +8,8 @@ from app.models.user_models import User, UserRole
 from app.models.collection_models import Collection
 from app.models.document_model import Document
 from app.schemas.document_schemas import (
-    DocumentUploadRequest, DocumentUploadResponse, DocumentDownloadRequest)
+    DocumentUploadRequest, DocumentUploadResponse, DocumentDownloadRequest,
+    DocumentSelectRequest, DocumentSelectResponse)
 from app.hooks import H, Hook
 from app.auth import auth
 from app.repository import Repository
@@ -97,7 +98,7 @@ async def document_upload(
     await document_repository.insert(document)
 
     hook = Hook(session, cache, request, current_user=current_user)
-    await hook.execute(H.AFTER_DOCUMENT_INSERT, document)
+    await hook.execute(H.AFTER_DOCUMENT_UPLOAD, document)
 
     return {
         "document_id": document.id
@@ -131,3 +132,32 @@ async def document_download(
     await hook.execute(H.AFTER_DOCUMENT_DOWNLOAD, document)
 
     return Response(content=decrypted_data, media_type=document.mimetype)
+
+
+@router.get("/document/{document_id}", name="Retrieve a document",
+            tags=["documents"], response_model=DocumentSelectResponse)
+async def document_select(
+    request: Request,
+    session=Depends(get_session),
+    cache=Depends(get_cache),
+    current_user: User = Depends(auth(UserRole.reader)),
+    schema=Depends(DocumentSelectRequest)
+) -> dict:
+    """
+    Retrieves details of a specific document by its ID. Validates the
+    user's access permissions to ensure they have at least a reader
+    role. Fetches the document from the repository and, if found,
+    triggers a hook for any post-retrieval actions. Returns the document
+    details in a dictionary format. Raises a 404 error if the document
+    does not exist.
+    """
+    document_repository = Repository(session, cache, Document)
+    document = await document_repository.select(id=schema.document_id)
+
+    if not document:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND)
+
+    hook = Hook(session, cache, request, current_user=current_user)
+    await hook.execute(H.AFTER_DOCUMENT_SELECT, document)
+
+    return document.to_dict()

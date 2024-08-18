@@ -1,6 +1,14 @@
 Changelog
 =========
 
+Version 0.0.18 (2024-08-18)
+-------------
+- Implemented a new route to retrieve document details by ID. This route
+  ensures that the user has the appropriate access level and triggers
+  post-retrieval actions via a hook. It provides a detailed response
+  containing the document's metadata and content if found, otherwise
+  returning a 404 error if the document does not exist.
+
 Version 0.0.17 (2024-08-18)
 -------------
 

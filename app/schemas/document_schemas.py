@@ -21,3 +21,24 @@ class DocumentUploadResponse(BaseModel):
 
 class DocumentDownloadRequest(BaseModel):
     document_id: int
+
+
+class DocumentSelectRequest(BaseModel):
+    document_id: int
+
+
+class DocumentSelectResponse(BaseModel):
+    id: int
+    created_date: int
+    updated_date: int
+    user_id: int
+    collection_id: int
+
+    document_name: str
+    document_summary: Optional[str]
+
+    filesize: int
+    mimetype: str
+
+    thumbnail_url: Optional[str]
+    comments_count: int

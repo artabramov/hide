@@ -55,18 +55,25 @@ class Document(Base):
     def file_path(self):
         return os.path.join(cfg.DOCUMENTS_BASE_PATH, self.filename)
 
+    @property
+    def thumbnail_url(self):
+        if self.thumbnail_filename:
+            return cfg.THUMBNAILS_BASE_URL + self.thumbnail_filename
+
     def to_dict(self):
         return {
-            # "id": self.id,
-            # "created_date": self.created_date,
-            # "updated_date": self.updated_date,
-            # "user_id": self.user_id,
-            # "collection_id": self.collection_id,
+            "id": self.id,
+            "created_date": self.created_date,
+            "updated_date": self.updated_date,
+            "user_id": self.user_id,
+            "collection_id": self.collection_id,
 
-            # "document_type": self.document_type.name,
-            # "filesize": self.filesize,
-            # "mimetype": self.mimetype,
-            # "width": self.width,
-            # "height": self.height,
-            # "duration": self.duration,
+            "document_name": self.document_name,
+            "document_summary": self.document_summary,
+
+            "filesize": self.filesize,
+            "mimetype": self.mimetype,
+
+            "thumbnail_url": self.thumbnail_url,
+            "comments_count": self.comments_count,
         }

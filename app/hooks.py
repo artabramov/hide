@@ -32,8 +32,9 @@ class H(enum.Enum):
     AFTER_COLLECTION_DELETE = "after_collection_delete"
     AFTER_COLLECTIONS_LIST = "after_collections_list"
 
-    AFTER_DOCUMENT_INSERT = "after_document_insert"
+    AFTER_DOCUMENT_UPLOAD = "after_document_upload"
     AFTER_DOCUMENT_DOWNLOAD = "after_document_download"
+    AFTER_DOCUMENT_SELECT = "after_document_select"
 
 
 class Hook:
