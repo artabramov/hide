@@ -1,6 +1,14 @@
 Changelog
 =========
 
+Version 0.0.19 (2024-08-18)
+-------------
+
+- Added a static endpoint for retrieving document thumbnails, enhancing
+  document preview capabilities.
+- Refactored code structure and organization for better maintainability
+  and performance.
+
 Version 0.0.18 (2024-08-18)
 -------------
 - Implemented a new route to retrieve document details by ID. This route

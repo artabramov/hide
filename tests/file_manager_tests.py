@@ -1,6 +1,7 @@
 import asynctest
 from unittest.mock import AsyncMock, patch, call
-from app.managers.file_manager import FileManager, FILE_COPY_CHUNK_SIZE
+from app.managers.file_manager import (
+    FileManager, FILE_UPLOAD_CHUNK_SIZE, FILE_COPY_CHUNK_SIZE)
 from app.config import get_config
 
 cfg = get_config()
@@ -92,9 +93,9 @@ class FileManagerTestCase(asynctest.TestCase):
 
         self.assertEqual(file_mock.read.call_count, 3)
         self.assertListEqual(file_mock.mock_calls, [
-            call.read(cfg.FILE_UPLOAD_CHUNK_SIZE),
-            call.read(cfg.FILE_UPLOAD_CHUNK_SIZE),
-            call.read(cfg.FILE_UPLOAD_CHUNK_SIZE),
+            call.read(FILE_UPLOAD_CHUNK_SIZE),
+            call.read(FILE_UPLOAD_CHUNK_SIZE),
+            call.read(FILE_UPLOAD_CHUNK_SIZE),
         ])
 
         self.assertEqual(len(aiofiles_mock.mock_calls), 5)

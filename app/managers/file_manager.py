@@ -20,6 +20,7 @@ from cryptography.fernet import Fernet
 cfg = get_config()
 cipher_suite = Fernet(cfg.FERNET_KEY)
 
+FILE_UPLOAD_CHUNK_SIZE = 1024 * 8  # 8 KB
 FILE_COPY_CHUNK_SIZE = 1024 * 8  # 8 KB
 IMAGE_MIMETYPES = [
     "image/jpeg", "image/png", "image/gif", "image/bmp", "image/tiff",
@@ -72,7 +73,7 @@ class FileManager:
         entirely into memory.
         """
         async with aiofiles.open(path, mode="wb") as fn:
-            while content := await file.read(cfg.FILE_UPLOAD_CHUNK_SIZE):
+            while content := await file.read(FILE_UPLOAD_CHUNK_SIZE):
                 await fn.write(content)
 
     @staticmethod

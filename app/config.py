@@ -57,8 +57,6 @@ class Config:
     HASH_SALT: str
     FERNET_KEY: str
 
-    FILE_UPLOAD_CHUNK_SIZE: int
-
     JWT_SECRET: str
     JWT_EXPIRES: int
     JWT_ALGORITHM: str
