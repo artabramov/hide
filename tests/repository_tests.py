@@ -1,3 +1,13 @@
+"""
+Unit tests for the Repository class, validating its methods for
+initializing, inserting, selecting, updating, deleting, and counting
+entities, both cacheable and uncacheable. The tests ensure that
+interactions with the entity manager and cache manager occur correctly
+and that repository operations perform as expected under various
+conditions, using mocking to simulate dependencies and validate
+behavior.
+"""
+
 import asynctest
 import unittest
 from unittest.mock import MagicMock, AsyncMock, call
@@ -49,9 +59,6 @@ class RepositoryTestCase(asynctest.TestCase):
         repository.entity_manager.insert.assert_called_once()
         repository.entity_manager.insert.assert_called_with(
             dummy_mock, commit=True)
-
-        repository.cache_manager.set.assert_called_once()
-        repository.cache_manager.set.assert_called_with(dummy_mock)
 
     async def test__repository_insert_cacheable_commit_false(self):
         """Test insert with cacheable entity and commit False."""
@@ -279,9 +286,8 @@ class RepositoryTestCase(asynctest.TestCase):
         repository.entity_manager.update.assert_called_with(
             dummy_mock, commit=True)
 
-        repository.cache_manager.set.assert_called_once()
-        repository.cache_manager.set.assert_called_with(dummy_mock)
-        repository.cache_manager.delete.assert_not_called()
+        repository.cache_manager.delete.assert_called_once()
+        repository.cache_manager.delete.assert_called_with(dummy_mock)
 
     async def test__repository_update_cacheable_commit_false(self):
         """Test update with cacheable entity and commit False."""
@@ -299,7 +305,6 @@ class RepositoryTestCase(asynctest.TestCase):
         repository.entity_manager.update.assert_called_with(
             dummy_mock, commit=False)
 
-        repository.cache_manager.set.assert_not_called()
         repository.cache_manager.delete.assert_called_once()
         repository.cache_manager.delete.assert_called_with(dummy_mock)
 

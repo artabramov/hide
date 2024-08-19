@@ -1,5 +1,6 @@
-import uuid
 import os
+import uuid
+import asyncio
 from fastapi import APIRouter, Depends, HTTPException, status, Request
 from fastapi.responses import Response
 from app.database import get_session
@@ -7,6 +8,7 @@ from app.cache import get_cache
 from app.models.user_models import User, UserRole
 from app.models.collection_models import Collection
 from app.models.document_model import Document
+from app.models.tag_models import Tag, DocumentTag
 from app.schemas.document_schemas import (
     DocumentUploadRequest, DocumentUploadResponse, DocumentDownloadRequest,
     DocumentSelectRequest, DocumentSelectResponse)
@@ -17,9 +19,11 @@ from app.managers.file_manager import FileManager
 from app.config import get_config
 from app.helpers.image_helper import ImageHelper
 from app.helpers.video_helper import VideoHelper
+from app.helpers.tag_helper import TagHelper
 
-router = APIRouter()
 cfg = get_config()
+router = APIRouter()
+asyncio_lock = asyncio.Lock()
 
 
 @router.post("/document", response_model=DocumentUploadResponse,
@@ -32,18 +36,18 @@ async def document_upload(
     schema=Depends(DocumentUploadRequest)
 ) -> dict:
     """
-    Handles the upload of a document to a specified collection,
-    performing necessary validations and processing. Checks if the
-    collection exists and if the current user has the required
-    permissions to upload documents. Saves the uploaded file with
-    a unique name, and if the file is an image or video, generates
-    a corresponding thumbnail. The document file is encrypted before
-    being stored. Creates an entry for the document in the repository
-    with details such as the document name, size, and mime type.
-    In case of errors during thumbnail creation, the process continues
-    without generating a thumbnail. Returns the ID of the newly created
-    document.
+    Handles the upload of a document, including validation, file
+    processing, and storage. Validates that the specified collection
+    exists and is not locked, checks that the current user has the
+    necessary permissions, and saves the uploaded file with a unique
+    filename. Generates a thumbnail if the file is an image or video,
+    encrypts the file, and creates an entry in the document repository
+    with metadata including name, size, MIME type, and optional summary.
+    Tags are applied to the document, and a post-upload hook is
+    triggered. Returns the ID of the newly created document.
     """
+
+    # Validate collection
     collection_repository = Repository(session, cache, Collection)
     collection = await collection_repository.select(id=schema.collection_id)
     if not collection:
@@ -52,10 +56,12 @@ async def document_upload(
     elif collection.is_locked:
         raise HTTPException(status_code=status.HTTP_403_FORBIDDEN)
 
+    # Save uploaded file
     filename = str(uuid.uuid4()) + cfg.DOCUMENTS_EXTENSION
     file_path = os.path.join(cfg.DOCUMENTS_BASE_PATH, filename)
     await FileManager.upload(schema.file, file_path)
 
+    # Generate thumbnail if applicable
     mimetype = schema.file.content_type
     is_image = FileManager.is_image(mimetype)
     is_video = FileManager.is_video(mimetype) if not is_image else False
@@ -81,10 +87,12 @@ async def document_upload(
         except Exception:
             thumbnail_filename = None
 
+    # Encrypt file
     data = await FileManager.read(file_path)
     encrypted_data = await FileManager.encrypt(data)
     await FileManager.write(file_path, encrypted_data)
 
+    # Insert document SQLAlchemy model
     document_name = (schema.document_name if schema.document_name
                      else schema.file.filename)
     document_summary = schema.document_summary
@@ -97,6 +105,28 @@ async def document_upload(
         thumbnail_filename=thumbnail_filename)
     await document_repository.insert(document)
 
+    # Apply tags to document
+    tags_values = TagHelper.extract(schema.tags)
+    if tags_values:
+        tag_repository = Repository(session, cache, Tag)
+        document_tag_repository = Repository(session, cache, DocumentTag)
+
+        for value in tags_values:
+            try:
+                tag = await tag_repository.select(value__eq=value)
+                if not tag:
+                    async with asyncio_lock:
+                        tag = Tag(value)
+                        await tag_repository.insert(tag, commit=False)
+
+                async with asyncio_lock:
+                    document_tag = DocumentTag(document.id, tag.id)
+                    await document_tag_repository.insert(document_tag)
+
+            except Exception:
+                pass
+
+    # Execute post-upload hook
     hook = Hook(session, cache, request, current_user=current_user)
     await hook.execute(H.AFTER_DOCUMENT_UPLOAD, document)
 

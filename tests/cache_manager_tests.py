@@ -1,36 +1,44 @@
+"""
+This module contains unit tests for the CacheManager class, which
+handles caching operations with Redis. It includes tests for
+initialization, key generation, and methods for setting, retrieving,
+and deleting cache entries, as well as managing cases where cache
+entries are missing. The tests use the asynctest and unittest libraries
+to ensure that CacheManager functions correctly under various scenarios.
+"""
+
 import asynctest
 import unittest
 from unittest.mock import MagicMock, AsyncMock, patch, call
 
 
 class CacheManagerTestCase(asynctest.TestCase):
-    """Test case for CacheManager class."""
 
     async def setUp(self):
-        """Set up the test case environment."""
+        """Sets up the test environment."""
         from app.managers.cache_manager import CacheManager
 
         self.cache_mock = AsyncMock()
         self.cache_manager = CacheManager(self.cache_mock)
 
     async def tearDown(self):
-        """Clean up the test case environment."""
+        """Cleans up after tests."""
         del self.cache_mock
         del self.cache_manager
 
     async def test__init(self):
-        """Test CacheManager initialization."""
+        """Tests that the CacheManager is correctly initialized."""
         self.assertEqual(self.cache_manager.cache, self.cache_mock)
 
     async def test__get_key_int(self):
-        """Test _get_key method with integer id."""
+        """Tests the _get_key method for integer IDs."""
         dummy_mock = MagicMock(__tablename__="dummies")
 
         result = self.cache_manager._get_key(dummy_mock, 123)
         self.assertEqual(result, "dummies:123")
 
     async def test__get_key_asterisk(self):
-        """Test _get_key method with asterisk id."""
+        """Tests the _get_key method for wildcard (*) IDs."""
         dummy_mock = MagicMock(__tablename__="dummies")
 
         result = self.cache_manager._get_key(dummy_mock, "*")
@@ -39,7 +47,7 @@ class CacheManagerTestCase(asynctest.TestCase):
     @patch("app.managers.cache_manager.cfg")
     @patch("app.managers.cache_manager.dumps")
     async def test__cache_manager_set(self, dumps_mock, cfg_mock):
-        """Test set method of CacheManager."""
+        """Tests the set method of CacheManager to cache an object."""
         dummy_mock = MagicMock(__tablename__="dummies", id=123)
 
         result = await self.cache_manager.set(dummy_mock)
@@ -54,7 +62,7 @@ class CacheManagerTestCase(asynctest.TestCase):
 
     @patch("app.managers.cache_manager.loads")
     async def test__cache_manager_get(self, loads_mock):
-        """Test get method of CacheManager."""
+        """Tests the get method to retrieve a cached object."""
         dummy_class_mock = MagicMock(__tablename__="dummies")
 
         result = await self.cache_manager.get(dummy_class_mock, 123)
@@ -68,7 +76,7 @@ class CacheManagerTestCase(asynctest.TestCase):
 
     @patch("app.managers.cache_manager.loads")
     async def test__cache_manager_get_none(self, loads_mock):
-        """Test get method of CacheManager when no data is found."""
+        """Tests the get method when the cache returns None."""
         self.cache_mock.get.return_value = None
         dummy_class_mock = MagicMock(__tablename__="dummies")
 
@@ -81,7 +89,7 @@ class CacheManagerTestCase(asynctest.TestCase):
         loads_mock.assert_not_called()
 
     async def test__cache_manager_delete(self):
-        """Test delete method of CacheManager."""
+        """Tests the delete method to remove an item from cache."""
         dummy_mock = MagicMock(__tablename__="dummies", id=123)
 
         result = await self.cache_manager.delete(dummy_mock)
@@ -91,7 +99,7 @@ class CacheManagerTestCase(asynctest.TestCase):
         self.cache_mock.delete.assert_called_with("dummies:123")
 
     async def test__cache_manager_delete_all(self):
-        """Test delete_all method of CacheManager."""
+        """Tests the delete_all method to remove all items."""
         dummy_class_mock = MagicMock(__tablename__="dummies")
         key_1, key_2, key_3 = "dummies:1", "dummies:2", "dummies:3"
         self.cache_mock.keys.return_value = [key_1, key_2, key_3]

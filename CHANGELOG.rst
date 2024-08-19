@@ -1,6 +1,15 @@
 Changelog
 =========
 
+Version 0.0.20 (2024-08-18)
+-------------
+
+- Introduced the capability to add and manage tags associated with
+  documents, enhancing metadata and search functionality.
+- Enhanced cache management to prevent the storage of entities with
+  broken relationships, ensuring data integrity and reducing potential
+  cache errors.
+
 Version 0.0.19 (2024-08-18)
 -------------
 

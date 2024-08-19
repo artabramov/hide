@@ -1,3 +1,13 @@
+"""
+Unit tests for the FileManager class, covering methods for file
+operations such as upload, delete, write, read, encrypt, decrypt, and
+copy. The tests verify correct functionality by mocking dependencies
+and checking interactions with the filesystem and encryption utilities,
+ensuring that each method behaves as expected under different
+conditions.
+"""
+
+import unittest
 import asynctest
 from unittest.mock import AsyncMock, patch, call
 from app.managers.file_manager import (
@@ -19,10 +29,7 @@ class FileManagerTestCase(asynctest.TestCase):
         pass
 
     def test_is_image_true(self):
-        """
-        Verify that is_image method correctly identifies known image
-        MIME types as images.
-        """
+        """Test that is_image method correctly identifies image."""
         mimetypes = [
             "image/jpeg", "image/png", "image/gif", "image/bmp",
             "image/tiff", "image/webp", "image/svg+xml", "image/x-icon",
@@ -36,10 +43,7 @@ class FileManagerTestCase(asynctest.TestCase):
             self.assertTrue(result)
 
     def test_is_image_false(self):
-        """
-        Verify that is_image method correctly identifies non-image MIME
-        types as not images.
-        """
+        """Test that is_image method correctly identifies non-image."""
         mimetypes = [
             "video/mp4", "video/avi", "video/mkv", "video/webm",
             "video/x-msvideo", "video/x-matroska", "video/quicktime"]
@@ -49,10 +53,7 @@ class FileManagerTestCase(asynctest.TestCase):
             self.assertFalse(result)
 
     def test_is_video_true(self):
-        """
-        Verify that is_video method correctly identifies known video
-        MIME types as videos.
-        """
+        """Test that is_video method correctly identifies video."""
         mimetypes = [
             "video/mp4", "video/avi", "video/mkv", "video/webm",
             "video/x-msvideo", "video/x-matroska", "video/quicktime"]
@@ -62,10 +63,7 @@ class FileManagerTestCase(asynctest.TestCase):
             self.assertTrue(result)
 
     def test_is_video_false(self):
-        """
-        Verify that is_video method correctly identifies non-video MIME
-        types as not videos.
-        """
+        """Test that is_video method correctly identifies non-video."""
         mimetypes = [
             "image/jpeg", "image/png", "image/gif", "image/bmp",
             "image/tiff", "image/webp", "image/jp2", "image/avif"]
@@ -76,10 +74,7 @@ class FileManagerTestCase(asynctest.TestCase):
 
     @patch("app.managers.file_manager.aiofiles")
     async def test__upload(self, aiofiles_mock):
-        """
-        Test the upload method to ensure it writes data to a file
-        correctly.
-        """
+        """Test the upload method to ensure it writes data to a file."""
         file_mock = AsyncMock()
         chunk1, chunk2 = b"data1", b"data2"
         file_mock.read.side_effect = [chunk1, chunk2, None]
@@ -112,10 +107,7 @@ class FileManagerTestCase(asynctest.TestCase):
 
     @patch("app.managers.file_manager.aiofiles")
     async def test__delete_file_exists(self, aiofiles_mock):
-        """
-        Test the delete method when the file exists to ensure it is
-        removed
-        ."""
+        """Test the delete method when the file exists."""
         os_mock = AsyncMock()
         os_mock.path.isfile.return_value = True
         aiofiles_mock.os = os_mock
@@ -132,10 +124,7 @@ class FileManagerTestCase(asynctest.TestCase):
 
     @patch("app.managers.file_manager.aiofiles")
     async def test__delete_file_not_exists(self, aiofiles_mock):
-        """
-        Test the delete method when the file does not exist to ensure
-        no deletion occurs.
-        """
+        """Test the delete method when the file does not exist."""
         os_mock = AsyncMock()
         os_mock.path.isfile.return_value = False
         aiofiles_mock.os = os_mock
@@ -151,10 +140,7 @@ class FileManagerTestCase(asynctest.TestCase):
 
     @patch("app.managers.file_manager.aiofiles")
     async def test__write(self, aiofiles_mock):
-        """
-        Test the write method to ensure data is correctly written to
-        a file.
-        """
+        """Test the write method to ensure data is correctly written."""
         path = "/path"
         data = "data"
 
@@ -176,10 +162,7 @@ class FileManagerTestCase(asynctest.TestCase):
 
     @patch("app.managers.file_manager.aiofiles")
     async def test__read(self, aiofiles_mock):
-        """
-        Test the read method to ensure data is correctly read from
-        a file.
-        """
+        """Test the read method to ensure data is correctly read."""
         path = "/path"
 
         result = await FileManager.read(path)
@@ -203,9 +186,7 @@ class FileManagerTestCase(asynctest.TestCase):
 
     @patch("app.managers.file_manager.cipher_suite")
     async def test__encrypt(self, cipher_suite_mock):
-        """
-        Test the encrypt method to ensure data is correctly encrypted.
-        """
+        """Test the encrypt method to ensure data is encrypted."""
         data = "data"
 
         result = await FileManager.encrypt(data)
@@ -216,9 +197,7 @@ class FileManagerTestCase(asynctest.TestCase):
 
     @patch("app.managers.file_manager.cipher_suite")
     async def test__decrypt(self, cipher_suite_mock):
-        """
-        Test the decrypt method to ensure data is correctly decrypted.
-        """
+        """Test the decrypt method to ensure data is decrypted."""
         data = "data"
 
         result = await FileManager.decrypt(data)
@@ -229,10 +208,7 @@ class FileManagerTestCase(asynctest.TestCase):
 
     @patch("app.managers.file_manager.aiofiles")
     async def test__copy(self, aiofiles_mock):
-        """
-        Test the copy method to ensure data is copied from source to
-        destination file correctly.
-        """
+        """Test the copy method to ensure data is copied correctly."""
         src_path = "/src_path"
         dst_path = "/dst_path"
 
@@ -266,3 +242,7 @@ class FileManagerTestCase(asynctest.TestCase):
             call.__aenter__().write(chunk2),
             call.__aexit__(None, None, None)
         ])
+
+
+if __name__ == "__main__":
+    unittest.main()

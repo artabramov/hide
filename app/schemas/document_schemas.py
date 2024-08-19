@@ -11,6 +11,7 @@ class DocumentUploadRequest(BaseModel):
     collection_id: int
     document_name: Optional[str] = Field(min_length=2, max_length=128, default=None)  # noqa E501
     document_summary: Optional[str] = Field(max_length=512, default=None)
+    tags: Optional[str] = Field(max_length=256, default=None)
     file: UploadFile = File(...)
 
 
@@ -42,3 +43,4 @@ class DocumentSelectResponse(BaseModel):
 
     thumbnail_url: Optional[str]
     comments_count: int
+    document_tags: list
