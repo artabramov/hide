@@ -29,9 +29,11 @@ class Tag(Base):
     id = Column(BigInteger, primary_key=True)
     created_date = Column(Integer, index=True, default=lambda: int(time()))
     value = Column(String(256), nullable=False, unique=True)
+    documents_count = Column(Integer, index=True, default=0)
 
     tag_documents = relationship("Document", secondary=DocumentTag.__table__,
                                  back_populates="document_tags", lazy="noload")
 
     def __init__(self, value: str):
         self.value = value
+        self.documents_count = 0

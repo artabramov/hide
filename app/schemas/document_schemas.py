@@ -44,3 +44,11 @@ class DocumentSelectResponse(BaseModel):
     thumbnail_url: Optional[str]
     comments_count: int
     document_tags: list
+
+
+class DocumentDeleteRequest(BaseModel):
+    document_id: int
+
+
+class DocumentDeleteResponse(BaseModel):
+    document_id: int

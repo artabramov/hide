@@ -1,6 +1,13 @@
 Changelog
 =========
 
+Version 0.0.21 (2024-08-18)
+-------------
+
+- Added libraries level.
+- Made helpers classeless.
+
+
 Version 0.0.20 (2024-08-18)
 -------------
 

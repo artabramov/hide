@@ -5,8 +5,8 @@ from fastapi import APIRouter, Depends, HTTPException, status, Request
 from app.database import get_session
 from app.cache import get_cache
 from app.models.user_models import User, UserRole
-from app.helpers.hash_helper import HashHelper
-from app.helpers.jwt_helper import JWTHelper
+from app.helpers.hash_helper import get_hash
+from app.helpers.jwt_helper import jwt_encode, jti_create
 from app.schemas.user_schemas import (
     UserRegisterRequest, UserRegisterResponse, UserLoginRequest,
     UserLoginResponse, TokenSelectRequest, TokenSelectResponse,
@@ -21,7 +21,7 @@ from app.hooks import H, Hook
 from app.auth import auth
 from app.repository import Repository
 from app.managers.file_manager import FileManager
-from app.helpers.image_helper import ImageHelper
+from app.helpers.image_helper import image_resize
 from app.config import get_config
 
 router = APIRouter()
@@ -99,7 +99,7 @@ async def user_login(
         raise E("user_login", schema.user_login, Msg.USER_LOGIN_INACTIVE)
 
     user_password = schema.user_password.get_secret_value()
-    password_hash = HashHelper.hash(user_password)
+    password_hash = get_hash(user_password)
 
     if user.password_hash == password_hash:
         user.password_accepted = True
@@ -167,7 +167,7 @@ async def token_retrieve(
             user.user_role = UserRole.admin
 
         await user_repository.update(user)
-        user_token = JWTHelper.encode_token(user)
+        user_token = jwt_encode(user)
 
         hook = Hook(session, cache, request, current_user=user)
         await hook.execute(H.AFTER_TOKEN_RETRIEVE, user)
@@ -200,7 +200,7 @@ async def token_invalidate(
     Returns an empty dictionary upon successful invalidation.
     """
     user_repository = Repository(session, cache, User)
-    current_user.jti = JWTHelper.create_jti()
+    current_user.jti = jti_create()
     await user_repository.update(current_user)
 
     hook = Hook(session, cache, request, current_user=current_user)
@@ -318,7 +318,7 @@ async def password_update(
     if schema.user_id != current_user.id:
         raise HTTPException(status_code=status.HTTP_403_FORBIDDEN)
 
-    current_hash = HashHelper.hash(schema.current_password.get_secret_value())
+    current_hash = get_hash(schema.current_password.get_secret_value())
     if current_hash != current_user.password_hash:
         raise E("current_password", schema.current_password.get_secret_value(),
                 Msg.USER_PASSWORD_INVALID)
@@ -363,8 +363,8 @@ async def userpic_upload(
     userpic_path = os.path.join(cfg.USERPIC_BASE_PATH, userpic_filename)
     await FileManager.upload(schema.file, userpic_path)
 
-    await ImageHelper.resize(userpic_path, cfg.USERPIC_WIDTH,
-                             cfg.USERPIC_HEIGHT, cfg.USERPIC_QUALITY)
+    await image_resize(userpic_path, cfg.USERPIC_WIDTH,
+                       cfg.USERPIC_HEIGHT, cfg.USERPIC_QUALITY)
 
     user_repository = Repository(session, cache, User)
     current_user.userpic_filename = userpic_filename

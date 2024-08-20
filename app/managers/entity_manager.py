@@ -19,10 +19,11 @@ from sqlalchemy.sql import func
 from app.decorators.timed_deco import timed
 
 ID = "id"
+SUBQUERY = "subquery"
 ORDER_BY, ORDER = "order_by", "order"
 ASC, DESC = "asc", "desc"
 OFFSET, LIMIT = "offset", "limit"
-RESERVED_KEYS = [ORDER_BY, ORDER, OFFSET, LIMIT]
+RESERVED_KEYS = [SUBQUERY, ORDER_BY, ORDER, OFFSET, LIMIT]
 RESERVED_OPERATORS = {
     "in": "in_",
     "eq": "__eq__",
@@ -119,6 +120,7 @@ class EntityManager:
             .order_by(self._order_by(cls, **kwargs))
             .offset(self._offset(**kwargs))
             .limit(self._limit(**kwargs)))
+
         return async_result.unique().scalars().all()
 
     @timed
@@ -207,9 +209,10 @@ class EntityManager:
         await self.session.execute(text(
             "LOCK TABLE %s IN ACCESS EXCLUSIVE MODE;" % cls.__tablename__))
 
-    # async def subquery(self, cls, foreign_key, **kwargs):
-    #     return self.session.query(getattr(cls, foreign_key)).filter(
-    # *self._where(cls, **kwargs))
+    @timed
+    async def subquery(self, cls, foreign_key, **kwargs):
+        return await self.session.query(getattr(cls, foreign_key)).filter(
+            *self._where(cls, **kwargs))
 
     async def flush(self):
         """

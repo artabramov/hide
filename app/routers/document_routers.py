@@ -1,6 +1,5 @@
 import os
 import uuid
-import asyncio
 from fastapi import APIRouter, Depends, HTTPException, status, Request
 from fastapi.responses import Response
 from app.database import get_session
@@ -8,22 +7,21 @@ from app.cache import get_cache
 from app.models.user_models import User, UserRole
 from app.models.collection_models import Collection
 from app.models.document_model import Document
-from app.models.tag_models import Tag, DocumentTag
 from app.schemas.document_schemas import (
     DocumentUploadRequest, DocumentUploadResponse, DocumentDownloadRequest,
-    DocumentSelectRequest, DocumentSelectResponse)
+    DocumentSelectRequest, DocumentSelectResponse, DocumentDeleteRequest,
+    DocumentDeleteResponse)
 from app.hooks import H, Hook
 from app.auth import auth
 from app.repository import Repository
 from app.managers.file_manager import FileManager
 from app.config import get_config
-from app.helpers.image_helper import ImageHelper
-from app.helpers.video_helper import VideoHelper
-from app.helpers.tag_helper import TagHelper
+from app.helpers.image_helper import image_resize
+from app.helpers.video_helper import video_freeze
+from app.libraries.tag_library import TagLibrary
 
 cfg = get_config()
 router = APIRouter()
-asyncio_lock = asyncio.Lock()
 
 
 @router.post("/document", response_model=DocumentUploadResponse,
@@ -78,11 +76,10 @@ async def document_upload(
                 await FileManager.copy(file_path, thumbnail_path)
 
             elif is_video:
-                await VideoHelper.freeze(file_path, thumbnail_path)
+                await video_freeze(file_path, thumbnail_path)
 
-            await ImageHelper.resize(
-                thumbnail_path, cfg.THUMBNAIL_WIDTH, cfg.THUMBNAIL_HEIGHT,
-                cfg.THUMBNAIL_QUALITY)
+            await image_resize(thumbnail_path, cfg.THUMBNAIL_WIDTH,
+                               cfg.THUMBNAIL_HEIGHT, cfg.THUMBNAIL_QUALITY)
 
         except Exception:
             thumbnail_filename = None
@@ -106,25 +103,8 @@ async def document_upload(
     await document_repository.insert(document)
 
     # Apply tags to document
-    tags_values = TagHelper.extract(schema.tags)
-    if tags_values:
-        tag_repository = Repository(session, cache, Tag)
-        document_tag_repository = Repository(session, cache, DocumentTag)
-
-        for value in tags_values:
-            try:
-                tag = await tag_repository.select(value__eq=value)
-                if not tag:
-                    async with asyncio_lock:
-                        tag = Tag(value)
-                        await tag_repository.insert(tag, commit=False)
-
-                async with asyncio_lock:
-                    document_tag = DocumentTag(document.id, tag.id)
-                    await document_tag_repository.insert(document_tag)
-
-            except Exception:
-                pass
+    tag_library = TagLibrary(session, cache)
+    await tag_library.insert_all(document.id, schema.tags)
 
     # Execute post-upload hook
     hook = Hook(session, cache, request, current_user=current_user)
@@ -191,3 +171,38 @@ async def document_select(
     await hook.execute(H.AFTER_DOCUMENT_SELECT, document)
 
     return document.to_dict()
+
+
+@router.delete("/document/{document_id}", name="Delete a document",
+               tags=["documents"], response_model=DocumentDeleteResponse)
+async def document_delete(
+    request: Request,
+    session=Depends(get_session),
+    cache=Depends(get_cache),
+    current_user: User = Depends(auth(UserRole.admin)),
+    schema=Depends(DocumentDeleteRequest)
+) -> dict:
+    document_repository = Repository(session, cache, Document)
+
+    document = await document_repository.select(id=schema.document_id)
+    if not document:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND)
+
+    elif document.document_collection.is_locked:
+        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN)
+
+    if document.comments_count > 0:
+        # TODO: delete related comments
+        ...
+
+    # Delete tags
+    tag_library = TagLibrary(session, cache)
+    await tag_library.delete_all(document.id)
+
+    # await document_repository.delete(document, commit=False)
+    # await document_repository.commit()
+
+    # hook = Hook(session, cache, request, current_user=current_user)
+    # await hook.execute(H.AFTER_COLLECTION_DELETE, collection)
+
+    return {"document_id": document.id}

@@ -4,12 +4,12 @@ from sqlalchemy import (Boolean, Column, BigInteger, Integer, SmallInteger,
 from sqlalchemy.ext.hybrid import hybrid_property
 from app.mixins.mfa_mixin import MFAMixin
 from app.mixins.fernet_mixin import FernetMixin
-from app.helpers.hash_helper import HashHelper
+from app.helpers.hash_helper import get_hash
 from sqlalchemy.orm import relationship
 from app.config import get_config
 from app.database import Base
 from time import time
-from app.helpers.jwt_helper import JWTHelper
+from app.helpers.jwt_helper import jti_create
 import os
 
 cfg = get_config()
@@ -58,14 +58,14 @@ class User(Base, MFAMixin, FernetMixin):
         self.user_role = user_role
         self.is_active = is_active
         self.user_login = user_login
-        self.password_hash = HashHelper.hash(user_password)
+        self.password_hash = get_hash(user_password)
         self.password_attempts = 0
         self.password_accepted = False
         self.first_name = first_name
         self.last_name = last_name
         self.mfa_secret = self.create_mfa_secret()
         self.mfa_attempts = 0
-        self.jti = JWTHelper.create_jti()
+        self.jti = jti_create()
         self.user_summary = user_summary
         self.userpic_filename = None
 

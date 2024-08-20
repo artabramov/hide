@@ -7,7 +7,7 @@ from app.cache import get_cache
 from fastapi import Depends
 from app.repository import Repository
 from fastapi.security import HTTPBearer
-from app.helpers.jwt_helper import JWTHelper
+from app.helpers.jwt_helper import jwt_decode
 from jwt.exceptions import ExpiredSignatureError, PyJWTError
 from app.errors import E, Msg
 
@@ -69,7 +69,7 @@ async def _auth(user_token: str, session: AsyncSession, cache: Redis):
         raise E("user_token", user_token, Msg.USER_TOKEN_EMPTY)
 
     try:
-        token_payload = JWTHelper.decode_token(user_token)
+        token_payload = jwt_decode(user_token)
 
     except ExpiredSignatureError:
         raise E("user_token", user_token, Msg.USER_TOKEN_EXPIRED)
