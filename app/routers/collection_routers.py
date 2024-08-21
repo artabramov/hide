@@ -41,7 +41,7 @@ async def collection_insert(
 
     if collection_exists:
         raise E("collection_name", schema.collection_name,
-                Msg.COLLECTION_NAME_EXISTS)
+                Msg.COLLECTION_EXISTS)
 
     collection = Collection(
         current_user.id, schema.is_locked, schema.collection_name,
@@ -105,7 +105,7 @@ async def collection_update(
         collection_name__eq=schema.collection_name, id__ne=collection.id)
     if collection_exists:
         raise E("collection_name", schema.collection_name,
-                Msg.COLLECTION_NAME_EXISTS)
+                Msg.COLLECTION_EXISTS)
 
     collection.is_locked = schema.is_locked
     collection.collection_name = schema.collection_name

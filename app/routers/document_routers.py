@@ -10,7 +10,8 @@ from app.models.document_model import Document
 from app.schemas.document_schemas import (
     DocumentUploadRequest, DocumentUploadResponse, DocumentDownloadRequest,
     DocumentSelectRequest, DocumentSelectResponse, DocumentDeleteRequest,
-    DocumentDeleteResponse)
+    DocumentDeleteResponse, DocumentsListRequest, DocumentsListResponse,
+    DocumentUpdateRequest, DocumentUpdateResponse)
 from app.hooks import H, Hook
 from app.auth import auth
 from app.repository import Repository
@@ -19,6 +20,7 @@ from app.config import get_config
 from app.helpers.image_helper import image_resize
 from app.helpers.video_helper import video_freeze
 from app.libraries.tag_library import TagLibrary
+from app.errors import E
 
 cfg = get_config()
 router = APIRouter()
@@ -104,7 +106,8 @@ async def document_upload(
 
     # Apply tags to document
     tag_library = TagLibrary(session, cache)
-    await tag_library.insert_all(document.id, schema.tags)
+    tag_values = tag_library.extract(schema.tags)
+    await tag_library.insert_all(document.id, tag_values)
 
     # Execute post-upload hook
     hook = Hook(session, cache, request, current_user=current_user)
@@ -173,6 +176,57 @@ async def document_select(
     return document.to_dict()
 
 
+@router.put("/document/{document_id}", name="Update a document",
+            tags=["documents"], response_model=DocumentUpdateResponse)
+async def document_update(
+    request: Request,
+    session=Depends(get_session),
+    cache=Depends(get_cache),
+    current_user: User = Depends(auth(UserRole.editor)),
+    schema=Depends(DocumentUpdateRequest)
+) -> dict:
+    document_repository = Repository(session, cache, Document)
+    document = await document_repository.select(id=schema.document_id)
+    if not document:
+        raise E("document_id", schema.document_id, E.NOT_FOUND,
+                status_code=status.HTTP_404_NOT_FOUND)
+
+    elif document.document_collection.is_locked:
+        raise E("document_id", schema.document_id, E.LOCKED,
+                status_code=status.HTTP_423_LOCKED)
+
+    if document.document_collection.id != schema.collection_id:
+        collection_repository = Repository(session, cache, Collection)
+        collection = await collection_repository.select(
+            id=schema.collection_id)
+
+        if not collection:
+            raise E("collection_id", schema.collection_id, E.NOT_FOUND,
+                    status_code=status.HTTP_404_NOT_FOUND)
+
+        if collection.is_locked:
+            raise E("collection_id", schema.collection_id, E.LOCKED,
+                    status_code=status.HTTP_423_LOCKED)
+
+    document.collection_id = schema.collection_id
+    document.document_name = schema.document_name
+    document.document_summary = schema.document_summary
+    await document_repository.update(document)
+
+    # Apply tags to document
+    tag_library = TagLibrary(session, cache)
+    tag_values = tag_library.extract(schema.tags)
+    await tag_library.delete_all(document.id)
+    await tag_library.insert_all(document.id, tag_values)
+
+    # TODO: update counters
+
+    # hook = Hook(session, cache, request, current_user=current_user)
+    # await hook.execute(H.AFTER_COLLECTION_UPDATE, collection)
+
+    return {"document_id": document.id}
+
+
 @router.delete("/document/{document_id}", name="Delete a document",
                tags=["documents"], response_model=DocumentDeleteResponse)
 async def document_delete(
@@ -196,8 +250,8 @@ async def document_delete(
         ...
 
     # Delete tags
-    tag_library = TagLibrary(session, cache)
-    await tag_library.delete_all(document.id)
+    # tag_library = TagLibrary(session, cache)
+    # await tag_library.delete_all(document.id)
 
     # await document_repository.delete(document, commit=False)
     # await document_repository.commit()
@@ -206,3 +260,27 @@ async def document_delete(
     # await hook.execute(H.AFTER_COLLECTION_DELETE, collection)
 
     return {"document_id": document.id}
+
+
+@router.get("/documents", name="Retrieve documents list",
+            tags=["documents"], response_model=DocumentsListResponse)
+async def documents_list(
+    request: Request,
+    session=Depends(get_session),
+    cache=Depends(get_cache),
+    current_user: User = Depends(auth(UserRole.reader)),
+    schema=Depends(DocumentsListRequest)
+) -> dict:
+    document_repository = Repository(session, cache, Document)
+
+    documents = await document_repository.select_all(**schema.__dict__)
+    documents_count = await document_repository.count_all(
+        **schema.__dict__)
+
+    # hook = Hook(session, cache, request, current_user=current_user)
+    # await hook.execute(H.AFTER_COLLECTIONS_LIST, collections)
+
+    return {
+        "documents": [document.to_dict() for document in documents],
+        "documents_count": documents_count,
+    }

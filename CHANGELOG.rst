@@ -1,11 +1,16 @@
 Changelog
 =========
 
-Version 0.0.21 (2024-08-18)
+Version 0.0.21 (2024-08-21)
 -------------
 
-- Added libraries level.
-- Made helpers classeless.
+- Added libraries to improve accessibility and streamline imports across
+  the application.
+- Refactored helper functions to be standalone and classless,
+  simplifying their usage and reducing overhead.
+- Enhanced the E class by refining its structure and functionality,
+  leading to better handling of error details and a more streamlined
+  initialization process.
 
 
 Version 0.0.20 (2024-08-18)

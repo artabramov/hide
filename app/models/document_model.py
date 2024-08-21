@@ -4,7 +4,6 @@ from sqlalchemy import Column, Integer, BigInteger, String, ForeignKey
 from sqlalchemy.orm import relationship
 from app.database import Base
 from app.config import get_config
-from app.models.tag_models import DocumentTag
 
 cfg = get_config()
 
@@ -36,8 +35,7 @@ class Document(Base):
     document_collection = relationship(
         "Collection", back_populates="collection_documents", lazy="joined")
     document_tags = relationship(
-        "Tag", secondary=DocumentTag.__table__, back_populates="tag_documents",
-        lazy="joined")
+        "Tag", back_populates="tag_document", lazy="joined")
 
     def __init__(self, user_id: int, collection_id: int, document_name: str,
                  filename: str, filesize: int, mimetype: str,
@@ -65,9 +63,9 @@ class Document(Base):
             return cfg.THUMBNAILS_BASE_URL + self.thumbnail_filename
 
     @property
-    def _document_tags(self) -> list:
+    def _tag_values(self) -> list:
         if self.document_tags:
-            return [x.value for x in self.document_tags]
+            return [x.tag_value for x in self.document_tags]
         return []
 
     def to_dict(self):
@@ -86,5 +84,5 @@ class Document(Base):
 
             "thumbnail_url": self.thumbnail_url,
             "comments_count": self.comments_count,
-            "document_tags": self._document_tags,
+            "document_tags": self._tag_values,
         }

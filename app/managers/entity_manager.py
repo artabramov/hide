@@ -114,14 +114,19 @@ class EntityManager:
         ordering, pagination, and limiting to fetch all matching
         entities.
         """
-        async_result = await self.session.execute(
-            select(cls)
-            .where(*self._where(cls, **kwargs))
-            .order_by(self._order_by(cls, **kwargs))
-            .offset(self._offset(**kwargs))
-            .limit(self._limit(**kwargs)))
+        query = select(cls) \
+            .where(*self._where(cls, **kwargs)) \
+            .order_by(self._order_by(cls, **kwargs)) \
+            .offset(self._offset(**kwargs)) \
+            .limit(self._limit(**kwargs)) \
 
-        return async_result.unique().scalars().all()
+        if SUBQUERY in kwargs:
+            subquery = await self._get_subquery(**kwargs[SUBQUERY])
+            query = query.filter(cls.id.in_(subquery))
+
+        async_result = await self.session.execute(query)
+        data = async_result.unique().scalars().all()
+        return data
 
     @timed
     async def update(self, obj: DeclarativeBase, flush: bool = True,
@@ -209,8 +214,7 @@ class EntityManager:
         await self.session.execute(text(
             "LOCK TABLE %s IN ACCESS EXCLUSIVE MODE;" % cls.__tablename__))
 
-    @timed
-    async def subquery(self, cls, foreign_key, **kwargs):
+    async def _subquery(self, cls, foreign_key, **kwargs):
         return await self.session.query(getattr(cls, foreign_key)).filter(
             *self._where(cls, **kwargs))
 
