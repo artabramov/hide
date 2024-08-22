@@ -48,10 +48,32 @@ class E(HTTPException):
     information in responses, useful for debugging and user feedback.
     """
 
-    EXISTS = "EXISTS"
-    LOCKED = "LOCKED"
-    INVALID = "INVALID"
-    NOT_FOUND = "NOT_FOUND"
+    # Token is missing or empty.
+    E401_TOKEN_MISSING = "token_missing"
+
+    # Token has already expired.
+    E401_TOKEN_EXPIRED = "token_expired"
+
+    # Token has invalid format.
+    E401_TOKEN_INVALID = "token_invalid"
+
+    # Token contains invalid JTI.
+    E401_TOKEN_DECLINED = "token_declined"
+
+    E403_USER_NOT_FOUND = "user_not_found"
+    E403_USER_INACTIVE = "user_inactive"
+    E403_USER_SUSPENDED = "user_suspended"
+
+    # User declined because the role is insufficient.
+    E403_USER_DECLINED = "user_declined"
+
+    E404_ENTITY_NOT_FOUND = "entity_not_found"
+
+    E422_VALUE_INVALID = "value_invalid"
+    E422_VALUE_EXISTS = "value_exists"
+    E422_VALUE_DECLINED = "value_declined"
+
+    E423_ENTITY_LOCKED = "entity_locked"
 
     def __init__(self, loc: str, error_input: str, error_type: str,
                  status_code: int = status.HTTP_422_UNPROCESSABLE_ENTITY):

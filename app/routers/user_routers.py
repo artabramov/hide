@@ -48,7 +48,8 @@ async def user_register(
         user_login__eq=schema.user_login)
 
     if user_exists:
-        raise E("user_login", schema.user_login, Msg.USER_LOGIN_EXISTS)
+        raise E("user_login", schema.user_login, E.VALUE_EXISTS,
+                status_code=status.HTTP_422_UNPROCESSABLE_ENTITY)
 
     user_password = schema.user_password.get_secret_value()
     user = User(
@@ -87,16 +88,19 @@ async def user_login(
     user = await user_repository.select(user_login__eq=schema.user_login)
 
     if not user:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND)
+        raise E("user_login", schema.user_login, E.ENTITY_NOT_FOUND,
+                status_code=status.HTTP_404_NOT_FOUND)
 
     elif user.suspended_date > int(time()):
-        raise E("user_login", schema.user_login, Msg.USER_LOGIN_SUSPENDED)
+        raise E("user_login", schema.user_login, E.ENTITY_SUSPENDED,
+                status_code=status.HTTP_403_FORBIDDEN)
 
     admin_exists = await user_repository.exists(
         user_role__eq=UserRole.admin, is_active__eq=True)
 
     if not user.is_active and admin_exists:
-        raise E("user_login", schema.user_login, Msg.USER_LOGIN_INACTIVE)
+        raise E("user_login", schema.user_login, E.ENTITY_INACTIVE,
+                status_code=status.HTTP_403_FORBIDDEN)
 
     user_password = schema.user_password.get_secret_value()
     password_hash = get_hash(user_password)
@@ -124,7 +128,9 @@ async def user_login(
             user.password_attempts += 1
 
         await user_repository.update(user)
-        raise E("user_password", user_password, Msg.USER_PASSWORD_INVALID)
+
+        raise E("user_password", schema.user_password, E.VALUE_INVALID,
+                status_code=status.HTTP_422_UNPROCESSABLE_ENTITY)
 
 
 @router.get("/auth/token", name="Retrieve a token",
@@ -146,16 +152,19 @@ async def token_retrieve(
     user = await user_repository.select(user_login__eq=schema.user_login)
 
     if not user:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND)
+        raise E("user_login", schema.user_login, E.ENTITY_NOT_FOUND,
+                status_code=status.HTTP_404_NOT_FOUND)
 
     admin_exists = await user_repository.exists(
         user_role__eq=UserRole.admin, is_active__eq=True)
 
     if not user.is_active and admin_exists:
-        raise E("user_login", schema.user_login, Msg.USER_LOGIN_INACTIVE)
+        raise E("user_login", schema.user_login, E.ENTITY_INACTIVE,
+                status_code=status.HTTP_403_FORBIDDEN)
 
     elif not user.password_accepted:
-        raise E("user_login", schema.user_login, Msg.USER_PASSWORD_UNACCEPTED)
+        raise E("user_totp", schema.user_totp, E.VALUE_DECLINED,
+                status_code=status.HTTP_422_UNPROCESSABLE_ENTITY)
 
     user_totp = user.get_totp(user.mfa_secret)
     if user_totp == schema.user_totp:
@@ -182,7 +191,8 @@ async def token_retrieve(
             user.password_accepted = False
 
         await user_repository.update(user)
-        raise E("user_totp", schema.user_totp, Msg.USER_TOTP_INVALID)
+        raise E("user_totp", schema.user_totp, E.VALUE_INVALID,
+                status_code=status.HTTP_422_UNPROCESSABLE_ENTITY)
 
 
 @router.delete("/auth/token", name="Invalidate the token",
@@ -227,7 +237,8 @@ async def user_select(
     user = await user_repository.select(id=schema.user_id)
 
     if not user:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND)
+        raise E("user_id", schema.user_id, E.ENTITY_NOT_FOUND,
+                status_code=status.HTTP_404_NOT_FOUND)
 
     hook = Hook(session, cache, request, current_user=user)
     await hook.execute(H.AFTER_USER_SELECT, user)
@@ -250,7 +261,8 @@ async def user_update(
     or higher.
     """
     if schema.user_id != current_user.id:
-        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN)
+        raise E("user_id", schema.user_id, E.ENTITY_FORBIDDEN,
+                status_code=status.HTTP_403_FORBIDDEN)
 
     user_repository = Repository(session, cache, User)
     current_user.first_name = schema.first_name
@@ -281,13 +293,15 @@ async def role_update(
     from the current user. Returns the user ID of the updated user.
     """
     if schema.user_id == current_user.id:
-        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN)
+        raise E("user_id", schema.user_id, E.ENTITY_FORBIDDEN,
+                status_code=status.HTTP_403_FORBIDDEN)
 
     user_repository = Repository(session, cache, User)
     user = await user_repository.select(id=schema.user_id)
 
     if not user:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND)
+        raise E("user_id", schema.user_id, E.ENTITY_NOT_FOUND,
+                status_code=status.HTTP_404_NOT_FOUND)
 
     user.is_active = schema.is_active
     user.user_role = schema.user_role
@@ -316,12 +330,14 @@ async def password_update(
     the current user ID. Returns the user ID of the updated user.
     """
     if schema.user_id != current_user.id:
-        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN)
+        raise E("user_id", schema.user_id, E.ENTITY_FORBIDDEN,
+                status_code=status.HTTP_403_FORBIDDEN)
 
-    current_hash = get_hash(schema.current_password.get_secret_value())
+    current_password = schema.current_password.get_secret_value()
+    current_hash = get_hash(current_password)
     if current_hash != current_user.password_hash:
-        raise E("current_password", schema.current_password.get_secret_value(),
-                Msg.USER_PASSWORD_INVALID)
+        raise E("current_password", current_password, E.VALUE_INVALID,
+                status_code=status.HTTP_422_UNPROCESSABLE_ENTITY)
 
     user_repository = Repository(session, cache, User)
     current_user.user_password = schema.updated_password

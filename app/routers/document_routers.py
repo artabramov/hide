@@ -188,11 +188,11 @@ async def document_update(
     document_repository = Repository(session, cache, Document)
     document = await document_repository.select(id=schema.document_id)
     if not document:
-        raise E("document_id", schema.document_id, E.NOT_FOUND,
+        raise E("document_id", schema.document_id, E.ENTITY_NOT_FOUND,
                 status_code=status.HTTP_404_NOT_FOUND)
 
     elif document.document_collection.is_locked:
-        raise E("document_id", schema.document_id, E.LOCKED,
+        raise E("document_id", schema.document_id, E.ENTITY_LOCKED,
                 status_code=status.HTTP_423_LOCKED)
 
     if document.document_collection.id != schema.collection_id:
@@ -201,11 +201,11 @@ async def document_update(
             id=schema.collection_id)
 
         if not collection:
-            raise E("collection_id", schema.collection_id, E.NOT_FOUND,
+            raise E("collection_id", schema.collection_id, E.ENTITY_NOT_FOUND,
                     status_code=status.HTTP_404_NOT_FOUND)
 
         if collection.is_locked:
-            raise E("collection_id", schema.collection_id, E.LOCKED,
+            raise E("collection_id", schema.collection_id, E.ENTITY_LOCKED,
                     status_code=status.HTTP_423_LOCKED)
 
     document.collection_id = schema.collection_id
