@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends, Request, HTTPException, status
+from fastapi import APIRouter, Depends, Request, status
 from app.database import get_session
 from app.cache import get_cache
 from app.models.user_models import User, UserRole
@@ -10,7 +10,7 @@ from app.schemas.collection_schemas import (
     CollectionDeleteRequest, CollectionDeleteResponse,
     CollectionsListRequest, CollectionsListResponse)
 from app.repository import Repository
-from app.errors import E, Msg
+from app.errors import E
 from app.config import get_config
 from app.hooks import H, Hook
 from app.auth import auth
@@ -40,8 +40,8 @@ async def collection_insert(
         collection_name__eq=schema.collection_name)
 
     if collection_exists:
-        raise E("collection_name", schema.collection_name,
-                Msg.COLLECTION_EXISTS)
+        raise E("collection_name", schema.collection_name, E.VALUE_DUPLICATED,  # noqa E501
+                status_code=status.HTTP_422_UNPROCESSABLE_ENTITY)
 
     collection = Collection(
         current_user.id, schema.is_locked, schema.collection_name,
@@ -72,7 +72,8 @@ async def collection_select(
     collection = await collection_repository.select(id=schema.collection_id)
 
     if not collection:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND)
+        raise E("collection_id", schema.collection_id, E.RESOURCE_NOT_FOUND,  # noqa E501
+                status_code=status.HTTP_404_NOT_FOUND)
 
     hook = Hook(session, cache, request, current_user=current_user)
     await hook.execute(H.AFTER_COLLECTION_SELECT, collection)
@@ -99,13 +100,14 @@ async def collection_update(
 
     collection = await collection_repository.select(id=schema.collection_id)
     if not collection:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND)
+        raise E("collection_id", schema.collection_id, E.RESOURCE_NOT_FOUND,  # noqa E501
+                status_code=status.HTTP_404_NOT_FOUND)
 
     collection_exists = await collection_repository.exists(
         collection_name__eq=schema.collection_name, id__ne=collection.id)
     if collection_exists:
-        raise E("collection_name", schema.collection_name,
-                Msg.COLLECTION_EXISTS)
+        raise E("collection_name", schema.collection_name, E.VALUE_DUPLICATED,  # noqa E501
+                status_code=status.HTTP_422_UNPROCESSABLE_ENTITY)
 
     collection.is_locked = schema.is_locked
     collection.collection_name = schema.collection_name
@@ -137,7 +139,8 @@ async def collection_delete(
 
     collection = await collection_repository.select(id=schema.collection_id)
     if not collection:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND)
+        raise E("collection_id", schema.collection_id, E.RESOURCE_NOT_FOUND,  # noqa E501
+                status_code=status.HTTP_404_NOT_FOUND)
 
     if collection.documents_count > 0:
         # TODO: delete related documents

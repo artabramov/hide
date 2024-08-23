@@ -1,6 +1,12 @@
 Changelog
 =========
 
+Version 0.0.22 (2024-08-23)
+-------------
+
+- Enhanced error handling across authentication and permission functions
+  to provide more detailed and accurate error messages.
+
 Version 0.0.21 (2024-08-21)
 -------------
 

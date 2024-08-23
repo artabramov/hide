@@ -1,20 +1,36 @@
+"""
+This module provides utility functions for user authentication and
+permission checking in the application. It includes functions to
+validate user roles and permissions based on JWT tokens. The auth
+function maps user roles (reader, writer, editor, admin) to their
+corresponding permission-checking functions. Dependencies include
+database sessions, Redis cache, and JWT headers.
+"""
 
-from app.models.user_models import User, UserRole
+import time
 from sqlalchemy.ext.asyncio import AsyncSession
 from redis import Redis
+from fastapi import Depends, status
+from fastapi.security import HTTPBearer
+from jwt.exceptions import ExpiredSignatureError, PyJWTError
+from app.models.user_models import User, UserRole
 from app.database import get_session
 from app.cache import get_cache
-from fastapi import Depends
 from app.repository import Repository
-from fastapi.security import HTTPBearer
 from app.helpers.jwt_helper import jwt_decode
-from jwt.exceptions import ExpiredSignatureError, PyJWTError
-from app.errors import E, Msg
+from app.errors import E
 
 jwt = HTTPBearer()
 
 
 def auth(user_role: UserRole):
+    """
+    Returns the appropriate permission function based on the given
+    user role. The function maps user roles such as reader, writer,
+    editor, and admin to their corresponding permission functions,
+    enabling role-based access control. If the role is not recognized,
+    it returns None.
+    """
     if user_role == UserRole.reader:
         return _can_read
 
@@ -30,63 +46,115 @@ def auth(user_role: UserRole):
 
 async def _can_read(session: AsyncSession = Depends(get_session),
                     cache: Redis = Depends(get_cache), header=Depends(jwt)):
+    """
+    Verifies if a user has read permissions based on their JWT token.
+    It retrieves the user using the token and checks if the user
+    has the corresponding permission. If not, it raises an exception.
+    The function depends on the session, cache, and JWT header to
+    authenticate and authorize the user.
+    """
     user_token = header.credentials
     user = await _auth(user_token, session, cache)
     if not user.can_read:
-        raise E("user_token", user_token, Msg.USER_TOKEN_DENIED)
+        raise E("user_token", user_token, E.ROLE_REJECTED,
+                status_code=status.HTTP_401_UNAUTHORIZED)
     return user
 
 
 async def _can_write(session: AsyncSession = Depends(get_session),
                      cache: Redis = Depends(get_cache), header=Depends(jwt)):
+    """
+    Verifies if a user has write permissions based on their JWT token.
+    It retrieves the user using the token and checks if the user
+    has the corresponding permission. If not, it raises an exception.
+    The function depends on the session, cache, and JWT header to
+    authenticate and authorize the user.
+    """
     user_token = header.credentials
     user = await _auth(user_token, session, cache)
     if not user.can_write:
-        raise E("user_token", user_token, Msg.USER_TOKEN_DENIED)
+        raise E("user_token", user_token, E.ROLE_REJECTED,
+                status_code=status.HTTP_401_UNAUTHORIZED)
     return user
 
 
 async def _can_edit(session: AsyncSession = Depends(get_session),
                     cache: Redis = Depends(get_cache), header=Depends(jwt)):
+    """
+    Verifies if a user has edit permissions based on their JWT token.
+    It retrieves the user using the token and checks if the user
+    has the corresponding permission. If not, it raises an exception.
+    The function depends on the session, cache, and JWT header to
+    authenticate and authorize the user.
+    """
     user_token = header.credentials
     user = await _auth(user_token, session, cache)
     if not user.can_edit:
-        raise E("user_token", user_token, Msg.USER_TOKEN_DENIED)
+        raise E("user_token", user_token, E.ROLE_REJECTED,
+                status_code=status.HTTP_401_UNAUTHORIZED)
     return user
 
 
 async def _can_admin(session: AsyncSession = Depends(get_session),
                      cache: Redis = Depends(get_cache), header=Depends(jwt)):
+    """
+    Verifies if a user has admin permissions based on their JWT token.
+    It retrieves the user using the token and checks if the user
+    has the corresponding permission. If not, it raises an exception.
+    The function depends on the session, cache, and JWT header to
+    authenticate and authorize the user.
+    """
     user_token = header.credentials
     user = await _auth(user_token, session, cache)
     if not user.can_admin:
-        raise E("user_token", user_token, Msg.USER_TOKEN_DENIED)
+        raise E("user_token", user_token, E.ROLE_REJECTED,
+                status_code=status.HTTP_401_UNAUTHORIZED)
     return user
 
 
 async def _auth(user_token: str, session: AsyncSession, cache: Redis):
+    """
+    Authenticates a user based on the provided JWT token. The function
+    verifies the token, handling errors such as missing, expired, or
+    invalid tokens, and checks if the token is associated with a valid
+    and active user. It retrieves the user from the repository using the
+    token's user ID, validates the token's identifier, and ensures the
+    user is not suspended. If any check fails, an exception is raised
+    with an appropriate error code. Returns the authenticated user if
+    all checks pass.
+    """
     if not user_token:
-        raise E("user_token", user_token, Msg.USER_TOKEN_EMPTY)
+        raise E("user_token", user_token, E.TOKEN_MISSING,
+                status_code=status.HTTP_401_UNAUTHORIZED)
 
     try:
         token_payload = jwt_decode(user_token)
 
     except ExpiredSignatureError:
-        raise E("user_token", user_token, Msg.USER_TOKEN_EXPIRED)
+        raise E("user_token", user_token, E.TOKEN_EXPIRED,
+                status_code=status.HTTP_401_UNAUTHORIZED)
 
     except PyJWTError:
-        raise E("user_token", user_token, Msg.USER_TOKEN_INVALID)
+        raise E("user_token", user_token, E.TOKEN_INVALID,
+                status_code=status.HTTP_401_UNAUTHORIZED)
 
     user_repository = Repository(session, cache, User)
     user = await user_repository.select(id=token_payload["user_id"])
 
-    if not user:
-        raise E("user_token", user_token, Msg.USER_TOKEN_ORPHANED)
+    if token_payload["jti"] != user.jti:
+        raise E("user_token", user_token, E.TOKEN_REJECTED,
+                status_code=status.HTTP_401_UNAUTHORIZED)
+
+    elif not user:
+        raise E("user_token", user_token, E.USER_NOT_FOUND,
+                status_code=status.HTTP_401_UNAUTHORIZED)
 
     elif not user.is_active:
-        raise E("user_token", user_token, Msg.USER_TOKEN_INACTIVE)
+        raise E("user_token", user_token, E.USER_INACTIVE,
+                status_code=status.HTTP_401_UNAUTHORIZED)
 
-    elif token_payload["jti"] != user.jti:
-        raise E("user_token", user_token, Msg.USER_TOKEN_DECLINED)
+    elif user.suspended_date > int(time.time()):
+        raise E("user_token", user_token, E.USER_SUSPENDED,
+                status_code=status.HTTP_401_UNAUTHORIZED)
 
     return user

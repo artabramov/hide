@@ -1,7 +1,7 @@
 import uuid
 import os
 from time import time
-from fastapi import APIRouter, Depends, HTTPException, status, Request
+from fastapi import APIRouter, Depends, status, Request
 from app.database import get_session
 from app.cache import get_cache
 from app.models.user_models import User, UserRole
@@ -16,7 +16,7 @@ from app.schemas.user_schemas import (
     UserUpdateResponse, RoleUpdateRequest, RoleUpdateResponse,
     PasswordUpdateRequest, PasswordUpdateResponse, UsersListRequest,
     UsersListResponse)
-from app.errors import E, Msg
+from app.errors import E
 from app.hooks import H, Hook
 from app.auth import auth
 from app.repository import Repository
@@ -48,7 +48,7 @@ async def user_register(
         user_login__eq=schema.user_login)
 
     if user_exists:
-        raise E("user_login", schema.user_login, E.VALUE_EXISTS,
+        raise E("user_login", schema.user_login, E.VALUE_DUPLICATED,
                 status_code=status.HTTP_422_UNPROCESSABLE_ENTITY)
 
     user_password = schema.user_password.get_secret_value()
@@ -88,19 +88,19 @@ async def user_login(
     user = await user_repository.select(user_login__eq=schema.user_login)
 
     if not user:
-        raise E("user_login", schema.user_login, E.ENTITY_NOT_FOUND,
+        raise E("user_login", schema.user_login, E.RESOURCE_NOT_FOUND,
                 status_code=status.HTTP_404_NOT_FOUND)
 
     elif user.suspended_date > int(time()):
-        raise E("user_login", schema.user_login, E.ENTITY_SUSPENDED,
-                status_code=status.HTTP_403_FORBIDDEN)
+        raise E("user_login", schema.user_login, E.USER_SUSPENDED,
+                status_code=status.HTTP_401_UNAUTHORIZED)
 
     admin_exists = await user_repository.exists(
         user_role__eq=UserRole.admin, is_active__eq=True)
 
     if not user.is_active and admin_exists:
-        raise E("user_login", schema.user_login, E.ENTITY_INACTIVE,
-                status_code=status.HTTP_403_FORBIDDEN)
+        raise E("user_login", schema.user_login, E.USER_INACTIVE,
+                status_code=status.HTTP_401_UNAUTHORIZED)
 
     user_password = schema.user_password.get_secret_value()
     password_hash = get_hash(user_password)
@@ -129,7 +129,7 @@ async def user_login(
 
         await user_repository.update(user)
 
-        raise E("user_password", schema.user_password, E.VALUE_INVALID,
+        raise E("user_password", schema.user_login, E.VALUE_INVALID,
                 status_code=status.HTTP_422_UNPROCESSABLE_ENTITY)
 
 
@@ -152,18 +152,18 @@ async def token_retrieve(
     user = await user_repository.select(user_login__eq=schema.user_login)
 
     if not user:
-        raise E("user_login", schema.user_login, E.ENTITY_NOT_FOUND,
+        raise E("user_login", schema.user_login, E.RESOURCE_NOT_FOUND,
                 status_code=status.HTTP_404_NOT_FOUND)
 
     admin_exists = await user_repository.exists(
         user_role__eq=UserRole.admin, is_active__eq=True)
 
     if not user.is_active and admin_exists:
-        raise E("user_login", schema.user_login, E.ENTITY_INACTIVE,
-                status_code=status.HTTP_403_FORBIDDEN)
+        raise E("user_login", schema.user_login, E.USER_INACTIVE,
+                status_code=status.HTTP_401_UNAUTHORIZED)
 
     elif not user.password_accepted:
-        raise E("user_totp", schema.user_totp, E.VALUE_DECLINED,
+        raise E("user_totp", schema.user_totp, E.VALUE_INVALID,
                 status_code=status.HTTP_422_UNPROCESSABLE_ENTITY)
 
     user_totp = user.get_totp(user.mfa_secret)
@@ -237,7 +237,7 @@ async def user_select(
     user = await user_repository.select(id=schema.user_id)
 
     if not user:
-        raise E("user_id", schema.user_id, E.ENTITY_NOT_FOUND,
+        raise E("user_id", schema.user_id, E.RESOURCE_NOT_FOUND,
                 status_code=status.HTTP_404_NOT_FOUND)
 
     hook = Hook(session, cache, request, current_user=user)
@@ -261,7 +261,7 @@ async def user_update(
     or higher.
     """
     if schema.user_id != current_user.id:
-        raise E("user_id", schema.user_id, E.ENTITY_FORBIDDEN,
+        raise E("user_id", schema.user_id, E.RESOURCE_FORBIDDEN,
                 status_code=status.HTTP_403_FORBIDDEN)
 
     user_repository = Repository(session, cache, User)
@@ -300,7 +300,7 @@ async def role_update(
     user = await user_repository.select(id=schema.user_id)
 
     if not user:
-        raise E("user_id", schema.user_id, E.ENTITY_NOT_FOUND,
+        raise E("user_id", schema.user_id, E.RESOURCE_NOT_FOUND,
                 status_code=status.HTTP_404_NOT_FOUND)
 
     user.is_active = schema.is_active
@@ -330,7 +330,7 @@ async def password_update(
     the current user ID. Returns the user ID of the updated user.
     """
     if schema.user_id != current_user.id:
-        raise E("user_id", schema.user_id, E.ENTITY_FORBIDDEN,
+        raise E("user_id", schema.user_id, E.RESOURCE_FORBIDDEN,
                 status_code=status.HTTP_403_FORBIDDEN)
 
     current_password = schema.current_password.get_secret_value()
@@ -367,10 +367,12 @@ async def userpic_upload(
     to have reader role or higher.
     """
     if schema.user_id != current_user.id:
-        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN)
+        raise E("user_id", schema.user_id, E.RESOURCE_FORBIDDEN,
+                status_code=status.HTTP_403_FORBIDDEN)
 
     elif schema.file.content_type not in cfg.USERPIC_MIMES:
-        raise HTTPException(status_code=status.HTTP_415_UNSUPPORTED_MEDIA_TYPE)
+        raise E("user_id", schema.user_id, E.MIMETYPE_UNSUPPORTED,
+                status_code=status.HTTP_422_UNPROCESSABLE_ENTITY)
 
     if current_user.userpic_filename:
         await FileManager.delete(current_user.userpic_path)
@@ -409,7 +411,8 @@ async def userpic_delete(
     reader role or higher.
     """
     if schema.user_id != current_user.id:
-        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN)
+        raise E("user_id", schema.user_id, E.RESOURCE_FORBIDDEN,
+                status_code=status.HTTP_403_FORBIDDEN)
 
     if current_user.userpic_filename:
         await FileManager.delete(current_user.userpic_path)

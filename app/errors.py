@@ -1,87 +1,88 @@
-from fastapi import HTTPException, status
-import enum
-
-
-class Msg(enum.Enum):
-    SERVER_ERROR = "Internal server error."
-    BAD_REQUEST = "Bad request."
-
-    USER_TOKEN_EMPTY = "User token is missing or empty."
-    USER_TOKEN_EXPIRED = "User token has already expired."
-    USER_TOKEN_INVALID = "User token has invalid format."
-    USER_TOKEN_ORPHANED = "User token contains invalid user."
-    USER_TOKEN_INACTIVE = "User token contains inactive user."
-    USER_TOKEN_DECLINED = "User token contains invalid token identifier."
-    USER_TOKEN_DENIED = "User token does not have sufficient role."
-
-    USER_LOGIN_EXISTS = "User login already exists."
-    USER_LOGIN_INACTIVE = "User is inactive."
-    USER_LOGIN_SUSPENDED = "User is temporarily suspended."
-    USER_LOGIN_DENIED = "User login denied because password is not accepted."
-    USER_PASSWORD_INVALID = "User password is invalid."
-    USER_PASSWORD_UNACCEPTED = "User password is not accepted."
-    USER_TOTP_INVALID = "User one-time password is invalid."
-
-    COLLECTION_EXISTS = "Collection already exists."
-    COLLECTION_NOT_FOUND = "Collection not found."
-    COLLECTION_LOCKED = "Collection locked."
-
-
 """
-This module defines a custom HTTP exception class E for detailed error
-reporting. It allows specifying the location of the error, the input
-that caused it, and the type of the error, along with an optional HTTP
-status code. This facilitates more informative error responses, aiding
-in debugging and providing clearer feedback to users.
+This module provides a custom HTTP exception class E, for detailed
+error reporting in the applications. The E class extends HTTPException
+to include additional error details such as location, input, type,
+and HTTP status code. It defines various error codes for common issues,
+including token-related errors, user status problems, resource access
+issues, and value validation errors. By using this exception class,
+we can deliver more granular and actionable error information in API
+responses, aiding both debugging and user experience.
 """
 
-E_LOC = "loc"
-E_INPUT = "input"
-E_TYPE = "type"
+from fastapi import HTTPException
+
+SERVER_ERROR = "Internal server error"
 
 
 class E(HTTPException):
     """
     Custom HTTP exception class for detailed error reporting, allowing
-    specification of error location, input, and type, with an optional
-    HTTP status code. This class helps to provide more granular error
-    information in responses, useful for debugging and user feedback.
+    specification of error location, input, type and HTTP status code.
+    This class helps to provide more granular error information in
+    responses, useful for debugging and user experience.
     """
 
-    # Token is missing or empty.
-    E401_TOKEN_MISSING = "token_missing"
+    _LOC = "loc"
+    _INPUT = "input"
+    _TYPE = "type"
 
-    # Token has already expired.
-    E401_TOKEN_EXPIRED = "token_expired"
+    # The token is missing from the request headers (401).
+    TOKEN_MISSING = "token_missing"
 
-    # Token has invalid format.
-    E401_TOKEN_INVALID = "token_invalid"
+    # The token has expired and is no longer valid (401).
+    TOKEN_EXPIRED = "token_expired"
 
-    # Token contains invalid JTI.
-    E401_TOKEN_DECLINED = "token_declined"
+    # The token is invalid and cannot be processed (401).
+    TOKEN_INVALID = "token_invalid"
 
-    E403_USER_NOT_FOUND = "user_not_found"
-    E403_USER_INACTIVE = "user_inactive"
-    E403_USER_SUSPENDED = "user_suspended"
+    # The token contains an invalid token identifier (401).
+    TOKEN_REJECTED = "token_rejected"
 
-    # User declined because the role is insufficient.
-    E403_USER_DECLINED = "user_declined"
+    # The user is deleted or could not be found (401).
+    USER_NOT_FOUND = "user_not_found"
 
-    E404_ENTITY_NOT_FOUND = "entity_not_found"
+    # The user is inactive and cannot access the resource (401).
+    USER_INACTIVE = "user_inactive"
 
-    E422_VALUE_INVALID = "value_invalid"
-    E422_VALUE_EXISTS = "value_exists"
-    E422_VALUE_DECLINED = "value_declined"
+    # The user is temporarily suspended; try again later (401).
+    USER_SUSPENDED = "user_suspended"
 
-    E423_ENTITY_LOCKED = "entity_locked"
+    # The user role is insufficient for this action (401).
+    ROLE_REJECTED = "role_rejected"
+
+    # The user cannot perform this action on the resource (403).
+    RESOURCE_FORBIDDEN = "resource_forbidden"
+
+    # The requested resource could not be found (404).
+    RESOURCE_NOT_FOUND = "resource_not_found"
+
+    # The resource that is being accessed is locked (423).
+    RESOURCE_LOCKED = "resource_locked"
+
+    # The value provided already exists (422).
+    VALUE_DUPLICATED = "value_duplicated"
+
+    # The value provided is invalid (422).
+    VALUE_INVALID = "value_invalid"
+
+    # The file MIME type is unsupported (422).
+    MIMETYPE_UNSUPPORTED = "mimetype_unsupported"
+
+    # The value provided is empty (422).
+    # VALUE_EMPTY = "value_empty"
+
+    # The value provided was rejected due to constraints (422).
+    # VALUE_REJECTED = "value_rejected"
+
+    # The value required for the operation is missing (422).
+    # VALUE_REQUIRED = "value_required"
 
     def __init__(self, loc: str, error_input: str, error_type: str,
-                 status_code: int = status.HTTP_422_UNPROCESSABLE_ENTITY):
+                 status_code: int):
         """
         Initializes the exception with detailed error information,
         including the location of the error, the input that caused it,
-        and the type of the error, along with an optional HTTP status
-        code, defaulting to 422 Unprocessable Entity.
+        the type of the error, and the HTTP status code.
         """
-        detail = [{E_LOC: [loc], E_INPUT: error_input, E_TYPE: error_type}]
+        detail = [{E._LOC: [loc], E._INPUT: error_input, E._TYPE: error_type}]
         super().__init__(status_code=status_code, detail=detail)
