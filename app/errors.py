@@ -59,17 +59,17 @@ class E(HTTPException):
     # The resource that is being accessed is locked (423).
     RESOURCE_LOCKED = "resource_locked"
 
-    # The value provided already exists (422).
-    VALUE_DUPLICATED = "value_duplicated"
+    # The value provided is empty (422).
+    VALUE_EMPTY = "value_empty"
 
     # The value provided is invalid (422).
     VALUE_INVALID = "value_invalid"
 
+    # The value provided already exists (422).
+    VALUE_DUPLICATED = "value_duplicated"
+
     # The file MIME type is unsupported (422).
     MIMETYPE_UNSUPPORTED = "mimetype_unsupported"
-
-    # The value provided is empty (422).
-    # VALUE_EMPTY = "value_empty"
 
     # The value provided was rejected due to constraints (422).
     # VALUE_REJECTED = "value_rejected"

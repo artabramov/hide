@@ -20,7 +20,8 @@ def validate_user_password(user_password: SecretStr) -> SecretStr:
     Validate the user password. The password must be at least
     6 characters long.
     """
-    if len(user_password.get_secret_value().strip()) < 6:
+    user_password = user_password.get_secret_value().strip()
+    if len(user_password) < 6:
         raise ValueError
     return user_password
 

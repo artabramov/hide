@@ -1,6 +1,23 @@
 Changelog
 =========
 
+Version 0.0.23 (2024-08-23)
+-------------
+
+- Improved error handling to enhance the management and response to
+  exceptions. The update includes more precise logging for both
+  validation errors and unhandled exceptions, providing detailed
+  information to aid in debugging. The responses now include appropriate
+  HTTP status codes and informative messages, reflecting the nature of
+  the errors more accurately.
+- Enhanced logging for requests and responses. The middleware now logs
+  request and response details more comprehensively, including request
+  method, URL, headers, and response status and headers, to better track
+  and diagnose issues during request processing.
+- Improved extension initialization. Refined the process for
+  initializing extensions to ensure more reliable loading and
+  registration of hooks from extension modules.
+
 Version 0.0.22 (2024-08-23)
 -------------
 

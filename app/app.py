@@ -1,3 +1,13 @@
+"""
+This module sets up and configures the FastAPI application. It includes
+middleware for logging HTTP requests and responses, an exception handler
+for managing and responding to errors, and a lifespan context manager
+for handling startup tasks such as loading extension modules,
+registering hooks, and initializing the database schema. The application
+also includes routes for static files and other resources, with specific
+configuration for the application's title, version, and file paths.
+"""
+
 from fastapi import FastAPI, Request, status, Depends
 from fastapi.encoders import jsonable_encoder
 from fastapi.responses import JSONResponse
@@ -18,6 +28,7 @@ import inspect
 from app.hooks import H, Hook
 from app.cache import get_cache
 from fastapi.staticfiles import StaticFiles
+from pydantic import ValidationError
 
 cfg = get_config()
 ctx = get_context()
@@ -26,28 +37,43 @@ log = get_log()
 
 async def after_startup(session=Depends(get_session),
                         cache=Depends(get_cache)):
+    """
+    Executes actions needed after the application startup using the
+    provided session and cache.
+    """
     hook = Hook(session, cache)
     await hook.execute(H.AFTER_STARTUP)
 
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
+    """
+    Manages the application startup lifecycle by loading extension
+    modules, registering functions as hooks, initializing the database
+    schema, and performing additional startup actions. This function
+    loads specified modules, gathers functions from these modules into
+    a hook registry, and creates necessary database tables. It yields
+    control after these setup tasks are completed, ensuring that the
+    application is properly configured before serving requests.
+    """
     ctx.hooks = {}
 
+    # Load and register functions from extension modules.
     filenames = [file + ".py" for file in cfg.EXTENSIONS_ENABLED]
     for filename in filenames:
         module_name = filename.split(".")[0]
         module_path = os.path.join(cfg.EXTENSIONS_BASE_PATH, filename)
 
         try:
+            # Load the module from the specified file path.
             spec = importlib.util.spec_from_file_location(
                 module_name, module_path)
             module = importlib.util.module_from_spec(spec)
             spec.loader.exec_module(module)
 
+            # Register functions from the module as hooks.
             func_names = [attr for attr in dir(module)
                           if inspect.isfunction(getattr(module, attr))]
-
             for func_name in func_names:
                 func = getattr(module, func_name)
                 if func_name not in ctx.hooks:
@@ -59,6 +85,7 @@ async def lifespan(app: FastAPI):
             log.debug("Hook error; filename=%s; e=%s;" % (filename, str(e)))
             raise e
 
+    # Create the database schema.
     async with sessionmanager.async_engine.begin() as conn:
         await conn.run_sync(Base.metadata.create_all)
 
@@ -82,7 +109,14 @@ app.mount(cfg.THUMBNAILS_PREFIX,
 
 @app.middleware("http")
 async def middleware_handler(request: Request, call_next):
-    # ctx = get_context()
+    """
+    Middleware function that logs details of incoming HTTP requests and
+    outgoing responses. It records the start time and a unique trace ID
+    for each request, logs the request method, URL, and headers, then
+    processes the request. After receiving the response, it calculates
+    the elapsed time, logs the response status and headers, and returns
+    the response to the client.
+    """
     ctx.request_start_time = time()
     ctx.trace_request_uuid = str(uuid4())
 
@@ -103,11 +137,31 @@ async def middleware_handler(request: Request, call_next):
 
 @app.exception_handler(Exception)
 async def exception_handler(request: Request, e: Exception):
-    # ctx = get_context()
+    """
+    Handles all exceptions raised during request processing by
+    calculating the elapsed time and returning a JSON response with
+    an appropriate status code. If the exception is a ValidationError
+    from Pydantic, it logs detailed validation error information and
+    responds with 422 status code and the validation errors. For other
+    exceptions, it logs an error message and responds with 500 status
+    code and a generic error message.
+    """
     elapsed_time = time() - ctx.request_start_time
 
-    log.error("Request failed; module=app; function=exception_handler; "
-              "elapsed_time=%s; e=%s;" % (elapsed_time, str(e)), exc_info=True)
+    # Handle validation errors raised by Pydantic schema validators.
+    if isinstance(e, ValidationError):
+        log.debug("Response sent; module=app; function=exception_handler; "
+                  "elapsed_time=%s; status=%s; headers=%s;" % (
+                    elapsed_time, status.HTTP_422_UNPROCESSABLE_ENTITY,
+                    str(e)))
 
-    return JSONResponse(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-                        content=jsonable_encoder({"detail": SERVER_ERROR}))
+        return JSONResponse(status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
+                            content=jsonable_encoder({"detail": e.errors()}))
+
+    # Handle all other exceptions.
+    else:
+        log.error("Request failed; module=app; function=exception_handler; "
+                  "elapsed_time=%s; e=%s;" % (elapsed_time, str(e)))
+
+        return JSONResponse(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+                            content=jsonable_encoder({"detail": SERVER_ERROR}))
