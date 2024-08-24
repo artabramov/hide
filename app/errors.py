@@ -74,9 +74,6 @@ class E(HTTPException):
     # The value provided was rejected due to constraints (422).
     # VALUE_REJECTED = "value_rejected"
 
-    # The value required for the operation is missing (422).
-    # VALUE_REQUIRED = "value_required"
-
     def __init__(self, loc: str, error_input: str, error_type: str,
                  status_code: int):
         """
