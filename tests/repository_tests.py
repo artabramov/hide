@@ -44,7 +44,7 @@ class RepositoryTestCase(asynctest.TestCase):
 
         self.assertEqual(repository.entity_class, dummy_class_mock)
 
-    async def test__repository_insert_cacheable_commit_true(self):
+    async def test__insert_cacheable_commit_true(self):
         """Test insert with cacheable entity and commit True."""
         dummy_class_mock = MagicMock(__tablename__="dummies", _cacheable=True)
         dummy_mock = MagicMock()
@@ -60,7 +60,7 @@ class RepositoryTestCase(asynctest.TestCase):
         repository.entity_manager.insert.assert_called_with(
             dummy_mock, commit=True)
 
-    async def test__repository_insert_cacheable_commit_false(self):
+    async def test__insert_cacheable_commit_false(self):
         """Test insert with cacheable entity and commit False."""
         dummy_class_mock = MagicMock(__tablename__="dummies", _cacheable=True)
         dummy_mock = MagicMock()
@@ -78,7 +78,7 @@ class RepositoryTestCase(asynctest.TestCase):
 
         repository.cache_manager.set.assert_not_called()
 
-    async def test__repository_insert_uncacheable_commit_true(self):
+    async def test__insert_uncacheable_commit_true(self):
         """Test insert with uncacheable entity and commit True."""
         dummy_class_mock = MagicMock(__tablename__="dummies", _cacheable=False)
         dummy_mock = MagicMock()
@@ -96,7 +96,7 @@ class RepositoryTestCase(asynctest.TestCase):
 
         repository.cache_manager.set.assert_not_called()
 
-    async def test__repository_insert_uncacheable_commit_false(self):
+    async def test__insert_uncacheable_commit_false(self):
         """Test insert with uncacheable entity and commit False."""
         dummy_class_mock = MagicMock(__tablename__="dummies", _cacheable=False)
         dummy_mock = MagicMock()
@@ -114,7 +114,7 @@ class RepositoryTestCase(asynctest.TestCase):
 
         repository.cache_manager.set.assert_not_called()
 
-    async def test__repository_select_id_cacheable_cached(self):
+    async def test__select_id_cacheable_cached(self):
         """Test select by id with cacheable entity when cached."""
         dummy_class_mock = MagicMock(__tablename__="dummies", _cacheable=True)
         dummy_mock = MagicMock(id=123)
@@ -137,7 +137,7 @@ class RepositoryTestCase(asynctest.TestCase):
         repository.cache_manager.set.assert_called_once()
         repository.cache_manager.set.assert_called_with(dummy_mock)
 
-    async def test__repository_select_id_cacheable_uncached(self):
+    async def test__select_id_cacheable_uncached(self):
         """Test select by id with cacheable entity when not cached."""
         dummy_class_mock = MagicMock(__tablename__="dummies", _cacheable=True)
         dummy_mock = MagicMock(id=123)
@@ -163,7 +163,7 @@ class RepositoryTestCase(asynctest.TestCase):
         repository.cache_manager.set.assert_called_once()
         repository.cache_manager.set.assert_called_with(dummy_mock)
 
-    async def test__repository_select_id_uncacheable(self):
+    async def test__select_id_uncacheable(self):
         """Test select by id with uncacheable entity."""
         dummy_class_mock = MagicMock(__tablename__="dummies", _cacheable=False)
         dummy_mock = MagicMock(id=123)
@@ -184,7 +184,7 @@ class RepositoryTestCase(asynctest.TestCase):
         repository.cache_manager.get.assert_not_called()
         repository.cache_manager.set.assert_not_called()
 
-    async def test__repository_select_by_cacheable(self):
+    async def test__select_by_cacheable(self):
         """Test select by criteria with cacheable entity."""
         dummy_class_mock = MagicMock(__tablename__="dummies", _cacheable=True)
         dummy_mock = MagicMock(key="value")
@@ -207,7 +207,7 @@ class RepositoryTestCase(asynctest.TestCase):
         repository.cache_manager.set.assert_called_once()
         repository.cache_manager.set.assert_called_with(dummy_mock)
 
-    async def test__repository_select_by_uncacheable(self):
+    async def test__select_by_uncacheable(self):
         """Test select by criteria with uncacheable entity."""
         dummy_class_mock = MagicMock(__tablename__="dummies", _cacheable=False)
         dummy_mock = MagicMock(key="value")
@@ -229,7 +229,7 @@ class RepositoryTestCase(asynctest.TestCase):
         repository.cache_manager.get.assert_not_called()
         repository.cache_manager.set.assert_not_called()
 
-    async def test__repository_select_all_cacheable(self):
+    async def test__select_all_cacheable(self):
         """Test select all with cacheable entities."""
         dummy_class_mock = MagicMock(__tablename__="dummies", _cacheable=True)
         dummy_mocks = [MagicMock(key="value"), MagicMock(key="value")]
@@ -251,7 +251,7 @@ class RepositoryTestCase(asynctest.TestCase):
             repository.cache_manager.set.call_args_list,
             [call(dummy_mocks[0]), call(dummy_mocks[1])])
 
-    async def test__repository_select_all_uncacheable(self):
+    async def test__select_all_uncacheable(self):
         """Test select all with uncacheable entities."""
         dummy_class_mock = MagicMock(__tablename__="dummies", _cacheable=False)
         dummy_mocks = [MagicMock(key="value"), MagicMock(key="value")]
@@ -270,7 +270,7 @@ class RepositoryTestCase(asynctest.TestCase):
 
         repository.cache_manager.set.assert_not_called()
 
-    async def test__repository_update_cacheable_commit_true(self):
+    async def test__update_cacheable_commit_true(self):
         """Test update with cacheable entity and commit True."""
         dummy_class_mock = MagicMock(__tablename__="dummies", _cacheable=True)
         dummy_mock = MagicMock()
@@ -289,7 +289,7 @@ class RepositoryTestCase(asynctest.TestCase):
         repository.cache_manager.delete.assert_called_once()
         repository.cache_manager.delete.assert_called_with(dummy_mock)
 
-    async def test__repository_update_cacheable_commit_false(self):
+    async def test__update_cacheable_commit_false(self):
         """Test update with cacheable entity and commit False."""
         dummy_class_mock = MagicMock(__tablename__="dummies", _cacheable=True)
         dummy_mock = MagicMock()
@@ -308,7 +308,7 @@ class RepositoryTestCase(asynctest.TestCase):
         repository.cache_manager.delete.assert_called_once()
         repository.cache_manager.delete.assert_called_with(dummy_mock)
 
-    async def test__repository_update_uncacheable_commit_true(self):
+    async def test__update_uncacheable_commit_true(self):
         """Test update with uncacheable entity and commit True."""
         dummy_class_mock = MagicMock(__tablename__="dummies", _cacheable=False)
         dummy_mock = MagicMock()
@@ -327,7 +327,7 @@ class RepositoryTestCase(asynctest.TestCase):
         repository.cache_manager.set.assert_not_called()
         repository.cache_manager.delete.assert_not_called()
 
-    async def test__repository_update_uncacheable_commit_false(self):
+    async def test__update_uncacheable_commit_false(self):
         """Test update with uncacheable entity and commit False."""
         dummy_class_mock = MagicMock(__tablename__="dummies", _cacheable=False)
         dummy_mock = MagicMock()
@@ -346,7 +346,7 @@ class RepositoryTestCase(asynctest.TestCase):
         repository.cache_manager.set.assert_not_called()
         repository.cache_manager.delete.assert_not_called()
 
-    async def test__repository_delete_cacheable_commit_true(self):
+    async def test__delete_cacheable_commit_true(self):
         """Test delete with cacheable entity and commit True."""
         dummy_class_mock = MagicMock(__tablename__="dummies", _cacheable=True)
         dummy_mock = MagicMock()
@@ -365,7 +365,7 @@ class RepositoryTestCase(asynctest.TestCase):
         repository.cache_manager.delete.assert_called_once()
         repository.cache_manager.delete.assert_called_with(dummy_mock)
 
-    async def test__repository_delete_cacheable_commit_false(self):
+    async def test__delete_cacheable_commit_false(self):
         """Test delete with cacheable entity and commit False."""
         dummy_class_mock = MagicMock(__tablename__="dummies", _cacheable=True)
         dummy_mock = MagicMock()
@@ -384,7 +384,7 @@ class RepositoryTestCase(asynctest.TestCase):
         repository.cache_manager.delete.assert_called_once()
         repository.cache_manager.delete.assert_called_with(dummy_mock)
 
-    async def test__repository_delete_uncacheable_commit_true(self):
+    async def test__delete_uncacheable_commit_true(self):
         """Test delete with uncacheable entity and commit True."""
         dummy_class_mock = MagicMock(__tablename__="dummies", _cacheable=False)
         dummy_mock = MagicMock()
@@ -402,7 +402,7 @@ class RepositoryTestCase(asynctest.TestCase):
 
         repository.cache_manager.delete.assert_not_called()
 
-    async def test__repository_delete_uncacheable_commit_false(self):
+    async def test__delete_uncacheable_commit_false(self):
         """Test delete with uncacheable entity and commit False."""
         dummy_class_mock = MagicMock(__tablename__="dummies", _cacheable=False)
         dummy_mock = MagicMock()
@@ -420,7 +420,7 @@ class RepositoryTestCase(asynctest.TestCase):
 
         repository.cache_manager.delete.assert_not_called()
 
-    async def test__repository_count_all(self):
+    async def test__count_all(self):
         """Test count_all method."""
         dummy_class_mock = MagicMock()
         dummies_count = 123
@@ -436,7 +436,7 @@ class RepositoryTestCase(asynctest.TestCase):
         repository.entity_manager.count_all.assert_called_with(
             dummy_class_mock, key__eq="value")
 
-    async def test__repository_sum_all(self):
+    async def test__sum_all(self):
         """Test sum_all method."""
         dummy_class_mock = MagicMock()
         dummies_sum = 123
@@ -452,7 +452,7 @@ class RepositoryTestCase(asynctest.TestCase):
         repository.entity_manager.sum_all.assert_called_with(
             dummy_class_mock, "key", key__eq="value")
 
-    async def test__repository_commit(self):
+    async def test__commit(self):
         """Test commit method."""
         repository = Repository(None, None, None)
         repository.entity_manager = AsyncMock()
@@ -463,7 +463,7 @@ class RepositoryTestCase(asynctest.TestCase):
         repository.entity_manager.commit.assert_called_once()
         repository.entity_manager.commit.assert_called_with()
 
-    async def test__repository_rollback(self):
+    async def test__rollback(self):
         """Test rollback method."""
         repository = Repository(None, None, None)
         repository.entity_manager = AsyncMock()

@@ -7,6 +7,7 @@ from app.cache import get_cache
 from app.models.user_models import User, UserRole
 from app.models.collection_models import Collection
 from app.models.document_model import Document
+from app.models.tag_models import Tag
 from app.schemas.document_schemas import (
     DocumentUploadRequest, DocumentUploadResponse, DocumentDownloadRequest,
     DocumentSelectRequest, DocumentSelectResponse, DocumentDeleteRequest,
@@ -21,6 +22,9 @@ from app.helpers.image_helper import image_resize
 from app.helpers.video_helper import video_freeze
 from app.libraries.tag_library import TagLibrary
 from app.errors import E
+from app.managers.entity_manager import SUBQUERY
+
+DOCUMENT_ID = "document_id"
 
 cfg = get_config()
 router = APIRouter()
@@ -278,9 +282,13 @@ async def documents_list(
 ) -> dict:
     document_repository = Repository(session, cache, Document)
 
-    documents = await document_repository.select_all(**schema.__dict__)
-    documents_count = await document_repository.count_all(
-        **schema.__dict__)
+    kwargs = schema.__dict__
+    if schema.tag_value__eq:
+        kwargs[SUBQUERY] = await document_repository.entity_manager.subquery(
+            Tag, DOCUMENT_ID, tag_value__eq=schema.tag_value__eq)
+
+    documents = await document_repository.select_all(**kwargs)
+    documents_count = await document_repository.count_all(**kwargs)
 
     # hook = Hook(session, cache, request, current_user=current_user)
     # await hook.execute(H.AFTER_COLLECTIONS_LIST, collections)

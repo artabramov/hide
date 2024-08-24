@@ -46,7 +46,7 @@ class CacheManagerTestCase(asynctest.TestCase):
 
     @patch("app.managers.cache_manager.cfg")
     @patch("app.managers.cache_manager.dumps")
-    async def test__cache_manager_set(self, dumps_mock, cfg_mock):
+    async def test__set(self, dumps_mock, cfg_mock):
         """Tests the set method of CacheManager to cache an object."""
         dummy_mock = MagicMock(__tablename__="dummies", id=123)
 
@@ -61,7 +61,7 @@ class CacheManagerTestCase(asynctest.TestCase):
             "dummies:123", dumps_mock.return_value, ex=cfg_mock.REDIS_EXPIRE)
 
     @patch("app.managers.cache_manager.loads")
-    async def test__cache_manager_get(self, loads_mock):
+    async def test__get(self, loads_mock):
         """Tests the get method to retrieve a cached object."""
         dummy_class_mock = MagicMock(__tablename__="dummies")
 
@@ -75,7 +75,7 @@ class CacheManagerTestCase(asynctest.TestCase):
         loads_mock.assert_called_with(self.cache_mock.get.return_value)
 
     @patch("app.managers.cache_manager.loads")
-    async def test__cache_manager_get_none(self, loads_mock):
+    async def test__get_none(self, loads_mock):
         """Tests the get method when the cache returns None."""
         self.cache_mock.get.return_value = None
         dummy_class_mock = MagicMock(__tablename__="dummies")
@@ -88,7 +88,7 @@ class CacheManagerTestCase(asynctest.TestCase):
 
         loads_mock.assert_not_called()
 
-    async def test__cache_manager_delete(self):
+    async def test__delete(self):
         """Tests the delete method to remove an item from cache."""
         dummy_mock = MagicMock(__tablename__="dummies", id=123)
 
@@ -98,7 +98,7 @@ class CacheManagerTestCase(asynctest.TestCase):
         self.cache_mock.delete.assert_called_once()
         self.cache_mock.delete.assert_called_with("dummies:123")
 
-    async def test__cache_manager_delete_all(self):
+    async def test__delete_all(self):
         """Tests the delete_all method to remove all items."""
         dummy_class_mock = MagicMock(__tablename__="dummies")
         key_1, key_2, key_3 = "dummies:1", "dummies:2", "dummies:3"

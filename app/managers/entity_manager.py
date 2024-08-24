@@ -112,7 +112,9 @@ class EntityManager:
         Retrieve all SQLAlchemy model instances of the given class that
         match the provided filters. Constructs a query with optional
         ordering, pagination, and limiting to fetch all matching
-        entities.
+        entities. If a subquery is provided in the filters, it further
+        filters the results to include only those entities whose IDs are
+        present in the subquery.
         """
         query = select(cls) \
             .where(*self._where(cls, **kwargs)) \
@@ -121,8 +123,7 @@ class EntityManager:
             .limit(self._limit(**kwargs)) \
 
         if SUBQUERY in kwargs:
-            subquery = await self._get_subquery(**kwargs[SUBQUERY])
-            query = query.filter(cls.id.in_(subquery))
+            query = query.filter(cls.id.in_(kwargs[SUBQUERY]))
 
         async_result = await self.session.execute(query)
         data = async_result.unique().scalars().all()
@@ -181,12 +182,17 @@ class EntityManager:
         """
         Count the number of SQLAlchemy model instances of the given
         class that match the provided filters. Constructs a query to
-        count all entities that meet the criteria specified by the
-        filters.
+        count all entities meeting the criteria. If a subquery is
+        provided, it counts only those entities whose IDs are present
+        in the subquery.
         """
-        async_result = await self.session.execute(
-            select(func.count(getattr(cls, ID))).where(
-                *self._where(cls, **kwargs)))
+        query = select(func.count(getattr(cls, ID))).where(
+                *self._where(cls, **kwargs))
+        
+        if SUBQUERY in kwargs:
+            query = query.filter(cls.id.in_(kwargs[SUBQUERY]))
+
+        async_result = await self.session.execute(query)
         return async_result.unique().scalars().one_or_none() or 0
 
     @timed
@@ -196,11 +202,16 @@ class EntityManager:
         Sum the values of a specified column for all SQLAlchemy model
         instances matching the filters. Constructs a query to calculate
         the sum of the values in the specified column for entities
-        meeting the criteria.
+        meeting the criteria. If a subquery is provided, it sums only
+        those values for entities whose IDs are present in the subquery.
         """
-        async_result = await self.session.execute(
-            select(func.sum(getattr(cls, column_name))).where(
-                *self._where(cls, **kwargs)))
+        query = select(func.sum(getattr(cls, column_name))).where(
+            *self._where(cls, **kwargs))
+
+        if SUBQUERY in kwargs:
+            query = query.filter(cls.id.in_(kwargs[SUBQUERY]))
+
+        async_result = await self.session.execute(query)
         return async_result.unique().scalars().one_or_none() or 0
 
     @timed
@@ -214,10 +225,22 @@ class EntityManager:
         await self.session.execute(text(
             "LOCK TABLE %s IN ACCESS EXCLUSIVE MODE;" % cls.__tablename__))
 
-    async def _subquery(self, cls, foreign_key, **kwargs):
-        return await self.session.query(getattr(cls, foreign_key)).filter(
-            *self._where(cls, **kwargs))
+    @timed
+    async def subquery(self, cls: Type[DeclarativeBase],
+                       foreign_key: str, **kwargs) -> select:
+        """
+        Constructs and returns a subquery for the given SQLAlchemy model
+        class, selecting the values of the specified foreign key column
+        and applying the provided filters. This method builds a subquery
+        object that can be used to filter other queries based on the
+        foreign key column values of entities that match the specified
+        criteria.
+        """
+        subquery = select(getattr(cls, foreign_key)).filter(
+            *self._where(cls, **kwargs)).subquery()
+        return subquery    
 
+    @timed
     async def flush(self):
         """
         Flush the session to synchronize with the database. Sends all
@@ -226,6 +249,7 @@ class EntityManager:
         """
         await self.session.flush()
 
+    @timed
     async def commit(self):
         """
         Commit the current transaction. Commits all changes made during
@@ -233,6 +257,7 @@ class EntityManager:
         """
         await self.session.commit()
 
+    @timed
     async def rollback(self):
         """
         Roll back the current transaction. Reverts all changes made

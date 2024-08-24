@@ -68,7 +68,7 @@ class DocumentDeleteResponse(BaseModel):
 
 class DocumentsListRequest(BaseModel):
     document_name__ilike: Optional[str] = None
-    tag__ilike: Optional[str] = None
+    tag_value__eq: Optional[str] = None
     offset: int = Field(ge=0)
     limit: int = Field(ge=1, le=200)
     order_by: Literal["id", "created_date", "updated_date", "user_id",

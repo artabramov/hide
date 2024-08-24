@@ -1,6 +1,12 @@
 Changelog
 =========
 
+Version 0.0.24 (2024-08-24)
+-------------
+
+- Introduced subquery functionality in the entity manager for more
+  complex querying capabilities.
+
 Version 0.0.23 (2024-08-23)
 -------------
 
