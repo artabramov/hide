@@ -4,8 +4,8 @@ Changelog
 Version 0.0.25 (2024-08-24)
 -------------
 
-- Added Comment model and integrated Pydantic schemas for comment
-  management, including validation, pagination,and sorting.
+- Added SQLAlchemy model and Pydantic schemas for comment management,
+  including validation.
 - Added full set of CRUD operations for comments, encompassing creation,
   retrieval, updating, and deletion functionalities.
 
