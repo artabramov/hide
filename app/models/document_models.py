@@ -35,7 +35,11 @@ class Document(Base):
     document_collection = relationship(
         "Collection", back_populates="collection_documents", lazy="joined")
     document_tags = relationship(
-        "Tag", back_populates="tag_document", lazy="joined")
+        "Tag", back_populates="tag_document", lazy="joined",
+        cascade="all, delete-orphan")
+    document_comments = relationship(
+        "Comment", back_populates="comment_document", lazy="noload",
+        cascade="all, delete-orphan")
 
     def __init__(self, user_id: int, collection_id: int, document_name: str,
                  filename: str, filesize: int, mimetype: str,
@@ -63,7 +67,7 @@ class Document(Base):
             return cfg.THUMBNAILS_BASE_URL + self.thumbnail_filename
 
     @property
-    def _tag_values(self) -> list:
+    def tag_values(self) -> list:
         if self.document_tags:
             return [x.tag_value for x in self.document_tags]
         return []
@@ -84,5 +88,5 @@ class Document(Base):
 
             "thumbnail_url": self.thumbnail_url,
             "comments_count": self.comments_count,
-            "document_tags": self._tag_values,
+            "document_tags": self.tag_values,
         }

@@ -6,7 +6,7 @@ from app.database import get_session
 from app.cache import get_cache
 from app.models.user_models import User, UserRole
 from app.models.collection_models import Collection
-from app.models.document_model import Document
+from app.models.document_models import Document
 from app.models.tag_models import Tag
 from app.schemas.document_schemas import (
     DocumentUploadRequest, DocumentUploadResponse, DocumentDownloadRequest,
@@ -112,8 +112,15 @@ async def document_upload(
 
     # Apply tags to document
     tag_library = TagLibrary(session, cache)
-    tag_values = tag_library.extract(schema.tags)
+    tag_values = tag_library.extract_values(schema.tags)
     await tag_library.insert_all(document.id, tag_values)
+
+    # Update counters
+    collection.documents_count = await document_repository.count_all(
+        collection_id__eq=collection.id)
+    collection.documents_size = await document_repository.sum_all(
+        "filesize", collection_id__eq=collection.id)
+    await collection_repository.update(collection)
 
     # Execute post-upload hook
     hook = Hook(session, cache, request, current_user=current_user)
@@ -212,7 +219,7 @@ async def document_update(
                     status_code=status.HTTP_404_NOT_FOUND)
 
         if collection.is_locked:
-            raise E("collection_id", schema.collection_id, E.RESOURCE_LOCKED,  # noqa E501
+            raise E("collection_id", schema.collection_id, E.RESOURCE_LOCKED,
                     status_code=status.HTTP_423_LOCKED)
 
     document.collection_id = schema.collection_id
@@ -222,11 +229,26 @@ async def document_update(
 
     # Apply tags to document
     tag_library = TagLibrary(session, cache)
-    tag_values = tag_library.extract(schema.tags)
     await tag_library.delete_all(document.id)
+
+    tag_values = tag_library.extract_values(schema.tags)
     await tag_library.insert_all(document.id, tag_values)
 
-    # TODO: update counters
+    # Update counters when document moved between collections
+    if document.document_collection.id != schema.collection_id:
+        documents_count = await document_repository.count_all(
+            collection_id__eq=document.document_collection.id)
+        documents_size = await document_repository.sum_all(
+            "filesize", collection_id__eq=document.document_collection.id)
+        document.document_collection.documents_count = documents_count
+        document.document_collection.documents_size = documents_size
+        await collection_repository.update(document.document_collection)
+
+        collection.documents_count = await document_repository.count_all(
+            collection_id__eq=collection.id)
+        collection.documents_size = await document_repository.sum_all(
+            "filesize", collection_id__eq=collection.id)
+        await collection_repository.update(collection)
 
     # hook = Hook(session, cache, request, current_user=current_user)
     # await hook.execute(H.AFTER_COLLECTION_UPDATE, collection)
@@ -255,15 +277,22 @@ async def document_delete(
                 status_code=status.HTTP_403_FORBIDDEN)
 
     if document.comments_count > 0:
-        # TODO: delete related comments
+        # TODO: DO NOT DELETE COMMENTS MANUALLY! DO IT BY ALCHEMY!
         ...
 
-    # Delete tags
-    # tag_library = TagLibrary(session, cache)
-    # await tag_library.delete_all(document.id)
+    await document_repository.delete(document)
+    await document_repository.commit()
 
-    # await document_repository.delete(document, commit=False)
-    # await document_repository.commit()
+    # Update counters.
+    documents_count = await document_repository.count_all(
+        collection_id__eq=document.document_collection.id)
+    documents_size = await document_repository.sum_all(
+        "filesize", collection_id__eq=document.document_collection.id)
+    document.document_collection.documents_count = documents_count
+    document.document_collection.documentes_size = documents_size
+
+    collection_repository = Repository(session, cache, Collection)
+    await collection_repository.update(document.document_collection)
 
     # hook = Hook(session, cache, request, current_user=current_user)
     # await hook.execute(H.AFTER_COLLECTION_DELETE, collection)

@@ -5,7 +5,7 @@ from sqlalchemy import (Column, BigInteger, Integer, ForeignKey, Enum, JSON,
                         String)
 from app.models.user_models import User
 from app.models.collection_models import Collection
-from app.models.document_model import Document
+from app.models.document_models import Document
 from app.database import Base
 from app.managers.entity_manager import EntityManager
 from app.managers.cache_manager import CacheManager
