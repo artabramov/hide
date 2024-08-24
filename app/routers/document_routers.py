@@ -7,6 +7,7 @@ from app.cache import get_cache
 from app.models.user_models import User, UserRole
 from app.models.collection_models import Collection
 from app.models.document_models import Document
+from app.models.download_models import Download
 from app.models.tag_models import Tag
 from app.schemas.document_schemas import (
     DocumentUploadRequest, DocumentUploadResponse, DocumentDownloadRequest,
@@ -141,10 +142,11 @@ async def document_download(
     schema=Depends(DocumentDownloadRequest)
 ) -> Response:
     """
-    Returns the raw binary data of the file specified by the
-    document ID. The file is decrypted before being sent to the client.
-    The user has the reader role or higher before proceeding with the
-    download.
+    Handles the download of a document by returning its raw binary data
+    after decryption. Updates the document's download count and records
+    the download in the database. The user must have the reader role or
+    higher to access the download. If the document is not found, a 404
+    error is raised. After processing, a post-download hook is executed.
     """
     document_repository = Repository(session, cache, Document)
     document = await document_repository.select(id=schema.document_id)
@@ -153,6 +155,14 @@ async def document_download(
 
     data = await FileManager.read(document.file_path)
     decrypted_data = await FileManager.decrypt(data)
+
+    download_repository = Repository(session, cache, Download)
+    download = Download(current_user.id, document.id)
+    await download_repository.insert(download)
+
+    document.downloads_count = await download_repository.count_all(
+        document_id__eq=document.id)
+    await document_repository.update(document)
 
     hook = Hook(session, cache, request, current_user=current_user)
     await hook.execute(H.AFTER_DOCUMENT_DOWNLOAD, document)

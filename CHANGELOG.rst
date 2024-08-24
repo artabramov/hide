@@ -1,6 +1,15 @@
 Changelog
 =========
 
+Version 0.0.26 (2024-08-24)
+-------------
+
+- Added download tracking functionality, including a counter for
+  document downloads and detailed record-keeping for each download
+  event.
+- Added endpoints and functionality to retrieve and manage download
+  events, including listing and viewing individual downloads.
+
 Version 0.0.25 (2024-08-24)
 -------------
 

@@ -42,6 +42,9 @@ class H(enum.Enum):
     AFTER_COMMENT_DELETE = "after_comment_delete"
     AFTER_COMMENTS_LIST = "after_comments_list"
 
+    AFTER_DOWNLOAD_SELECT = "after_download_select"
+    AFTER_DOWNLOADS_LIST = "after_downloads_list"
+
 
 class Hook:
 

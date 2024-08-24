@@ -7,6 +7,7 @@ from app.models.user_models import User
 from app.models.collection_models import Collection
 from app.models.document_models import Document
 from app.models.comment_models import Comment
+from app.models.download_models import Download
 from app.database import Base
 from app.managers.entity_manager import EntityManager
 from app.managers.cache_manager import CacheManager
@@ -416,3 +417,40 @@ async def after_comments_list(
         audit = Audit(current_user, request, comment, AuditAction.select)
         await entity_manager.insert(audit)
     return comments
+
+
+async def after_download_select(
+    entity_manager: EntityManager,
+    cache_manager: CacheManager,
+    request: Request,
+    current_user: User,
+    download: Download
+) -> Download:
+    """
+    Audits the selection of a download by recording the action in the
+    audit log. The function creates an Audit entry for the download
+    selection, inserts it into the database, and returns the original
+    download object.
+    """
+    audit = Audit(current_user, request, download, AuditAction.select)
+    await entity_manager.insert(audit)
+    return download
+
+
+async def after_downloads_list(
+    entity_manager: EntityManager,
+    cache_manager: CacheManager,
+    request: Request,
+    current_user: User,
+    downloads: List[Download]
+) -> List[Download]:
+    """
+    Audits the retrieval of a list of downloads by recording each action
+    in the audit log. The function creates an Audit entry for each
+    download in the list, inserts them into the database, and returns
+    the original list of downloads.
+    """
+    for download in downloads:
+        audit = Audit(current_user, request, download, AuditAction.select)
+        await entity_manager.insert(audit)
+    return downloads
