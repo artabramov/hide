@@ -188,7 +188,7 @@ class EntityManager:
         """
         query = select(func.count(getattr(cls, ID))).where(
                 *self._where(cls, **kwargs))
-        
+
         if SUBQUERY in kwargs:
             query = query.filter(cls.id.in_(kwargs[SUBQUERY]))
 
@@ -238,7 +238,7 @@ class EntityManager:
         """
         subquery = select(getattr(cls, foreign_key)).filter(
             *self._where(cls, **kwargs)).subquery()
-        return subquery    
+        return subquery
 
     @timed
     async def flush(self):

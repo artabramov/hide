@@ -36,6 +36,12 @@ class H(enum.Enum):
     AFTER_DOCUMENT_DOWNLOAD = "after_document_download"
     AFTER_DOCUMENT_SELECT = "after_document_select"
 
+    AFTER_COMMENT_INSERT = "after_comment_insert"
+    AFTER_COMMENT_SELECT = "after_comment_select"
+    AFTER_COMMENT_UPDATE = "after_comment_update"
+    AFTER_COMMENT_DELETE = "after_comment_delete"
+    AFTER_COMMENTS_LIST = "after_comments_list"
+
 
 class Hook:
 

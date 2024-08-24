@@ -50,6 +50,8 @@ class User(Base, MFAMixin, FernetMixin):
         "Collection", back_populates="collection_user", lazy="noload")
     user_documents = relationship(
         "Document", back_populates="document_user", lazy="noload")
+    user_comments = relationship(
+        "Comment", back_populates="comment_user", lazy="noload")
 
     def __init__(self, user_role: UserRole, user_login: str,
                  user_password: str, first_name: str, last_name: str,

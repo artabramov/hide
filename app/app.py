@@ -16,7 +16,7 @@ from app.context import get_context
 from app.log import get_log
 from app.routers import (
     static_routers, user_routers, collection_routers, document_routers,
-    system_routers)
+    comment_routers, system_routers)
 from app.database import Base, sessionmanager, get_session
 from app.errors import SERVER_ERROR
 from contextlib import asynccontextmanager
@@ -98,6 +98,7 @@ app.include_router(static_routers.router)
 app.include_router(user_routers.router, prefix=cfg.APP_PREFIX)
 app.include_router(collection_routers.router, prefix=cfg.APP_PREFIX)
 app.include_router(document_routers.router, prefix=cfg.APP_PREFIX)
+app.include_router(comment_routers.router, prefix=cfg.APP_PREFIX)
 app.include_router(system_routers.router, prefix=cfg.APP_PREFIX)
 app.mount(cfg.USERPIC_PREFIX,
           StaticFiles(directory=cfg.USERPIC_BASE_PATH, html=False),

@@ -6,6 +6,7 @@ from sqlalchemy import (Column, BigInteger, Integer, ForeignKey, Enum, JSON,
 from app.models.user_models import User
 from app.models.collection_models import Collection
 from app.models.document_models import Document
+from app.models.comment_models import Comment
 from app.database import Base
 from app.managers.entity_manager import EntityManager
 from app.managers.cache_manager import CacheManager
@@ -260,7 +261,8 @@ async def after_collection_update(
     entity_manager: EntityManager,
     cache_manager: CacheManager,
     request: Request,
-    current_user: User, collection: Collection
+    current_user: User,
+    collection: Collection
 ) -> Collection:
     """Audit an collection updation."""
     audit = Audit(current_user, request, collection, AuditAction.update)
@@ -332,3 +334,85 @@ async def after_document_select(
     audit = Audit(current_user, request, document, AuditAction.select)
     await entity_manager.insert(audit)
     return document
+
+
+async def after_comment_insert(
+    entity_manager: EntityManager,
+    cache_manager: CacheManager,
+    request: Request,
+    current_user: User,
+    comment: Comment
+) -> Comment:
+    """
+    Audits the comment insertion by recording an audit entry with user
+    and request details, then returns the original comment.
+    """
+    audit = Audit(current_user, request, comment, AuditAction.insert)
+    await entity_manager.insert(audit)
+    return comment
+
+
+async def after_comment_select(
+    entity_manager: EntityManager,
+    cache_manager: CacheManager,
+    request: Request,
+    current_user: User,
+    comment: Comment
+) -> Comment:
+    """
+    Records an audit entry for the selection of a comment, including
+    details of the user and request, and returns the selected comment.
+    """
+    audit = Audit(current_user, request, comment, AuditAction.select)
+    await entity_manager.insert(audit)
+    return comment
+
+
+async def after_comment_update(
+    entity_manager: EntityManager,
+    cache_manager: CacheManager,
+    request: Request,
+    current_user: User,
+    comment: Comment
+) -> Comment:
+    """
+    Records an audit entry for the update of a comment, capturing user
+    and request details, and returns the updated comment.
+    """
+    audit = Audit(current_user, request, comment, AuditAction.update)
+    await entity_manager.insert(audit)
+    return comment
+
+
+async def after_comment_delete(
+    entity_manager: EntityManager,
+    cache_manager: CacheManager,
+    request: Request,
+    current_user: User,
+    comment: Comment
+) -> Comment:
+    """
+    Created an audit record for the deletion of a comment, documenting
+    user and request details, and returns the deleted comment.
+    """
+    audit = Audit(current_user, request, comment, AuditAction.delete)
+    await entity_manager.insert(audit)
+    return comment
+
+
+async def after_comments_list(
+    entity_manager: EntityManager,
+    cache_manager: CacheManager,
+    request: Request,
+    current_user: User,
+    comments: List[Comment]
+) -> List[Comment]:
+    """
+    Logs an audit entry for each comment in the list when they are
+    retrieved, capturing details of the user and request, and returns
+    the list of comments.
+    """
+    for comment in comments:
+        audit = Audit(current_user, request, comment, AuditAction.select)
+        await entity_manager.insert(audit)
+    return comments
