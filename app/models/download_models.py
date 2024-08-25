@@ -26,7 +26,7 @@ class Download(Base):
     document models, with methods to initialize the object and convert
     it to a dictionary representation.
     """
-    __tablename__ = "downloads"
+    __tablename__ = "documents_downloads"
     _cacheable = True
 
     id = Column(BigInteger, primary_key=True)
