@@ -27,6 +27,37 @@ from app.models.favorite_models import Favorite
 from app.managers.entity_manager import EntityManager
 from app.managers.cache_manager import CacheManager
 
+LOG_AFTER_USER_REGISTER = True
+LOG_AFTER_USER_LOGIN = True
+LOG_AFTER_TOKEN_RETRIEVE = True
+LOG_AFTER_TOKEN_INVALIDATE = True
+LOG_AFTER_USER_SELECT = True
+LOG_AFTER_USER_UPDATE = True
+LOG_AFTER_ROLE_UPDATE = True
+LOG_AFTER_PASSWORD_UPDATE = True
+LOG_AFTER_USERPIC_UPLOAD = True
+LOG_AFTER_USERPIC_DELETE = True
+LOG_AFTER_USERS_LIST = True
+LOG_AFTER_COLLECTION_INSERT = True
+LOG_AFTER_COLLECTION_SELECT = True
+LOG_AFTER_COLLECTION_UPDATE = True
+LOG_AFTER_COLLECTION_DELETE = True
+LOG_AFTER_COLLECTIONS_LIST = True
+LOG_AFTER_DOCUMENT_UPLOAD = True
+LOG_AFTER_DOCUMENT_DOWNLOAD = True
+LOG_AFTER_DOCUMENT_SELECT = True
+LOG_AFTER_COMMENT_INSERT = True
+LOG_AFTER_COMMENT_SELECT = True
+LOG_AFTER_COMMENT_UPDATE = True
+LOG_AFTER_COMMENT_DELETE = True
+LOG_AFTER_COMMENTS_LIST = True
+LOG_AFTER_DOWNLOAD_SELECT = True
+LOG_AFTER_DOWNLOADS_LIST = True
+LOG_AFTER_FAVORITE_INSERT = True
+LOG_AFTER_FAVORITE_SELECT = True
+LOG_AFTER_FAVORITE_DELETE = True
+LOG_AFTER_FAVORITES_LIST = True
+
 OBSCURED_KEYS = ["user_password", "current_password", "updated_password",
                  "user_totp", "password_hash", "mfa_secret_encrypted",
                  "jti_encrypted"]
@@ -110,21 +141,6 @@ class Log(Base):
                 for x in entity_dict if not x.startswith("_")}
 
 
-async def after_startup(
-    entity_manager: EntityManager,
-    cache_manager: CacheManager, request: None,
-    current_user: None,
-    entity: None
-):
-    """
-    Handles post-startup actions, such as initializing or configuring
-    components related to the entity manager and cache manager. This
-    function is invoked after the application starts and does not
-    process any specific user or entity information.
-    """
-    ...
-
-
 async def after_user_register(
     entity_manager: EntityManager,
     cache_manager: CacheManager,
@@ -136,8 +152,9 @@ async def after_user_register(
     Logs a user registration event, capturing details about the
     new user and the request. Returns the registered user.
     """
-    log = Log(current_user, request, user, EntityAction.insert)
-    await entity_manager.insert(log)
+    if LOG_AFTER_USER_REGISTER:
+        log = Log(current_user, request, user, EntityAction.insert)
+        await entity_manager.insert(log)
     return user
 
 
@@ -152,8 +169,9 @@ async def after_user_login(
     Logs a user login event, capturing details about the user
     and the request. Returns the logged-in user.
     """
-    log = Log(current_user, request, user, EntityAction.update)
-    await entity_manager.insert(log)
+    if LOG_AFTER_USER_LOGIN:
+        log = Log(current_user, request, user, EntityAction.update)
+        await entity_manager.insert(log)
     return user
 
 
@@ -168,8 +186,9 @@ async def after_token_retrieve(
     Logs a token retrieval event, capturing details about the user
     and the request. Returns the user associated with the token.
     """
-    log = Log(current_user, request, user, EntityAction.update)
-    await entity_manager.insert(log)
+    if LOG_AFTER_TOKEN_RETRIEVE:
+        log = Log(current_user, request, user, EntityAction.update)
+        await entity_manager.insert(log)
     return user
 
 
@@ -185,8 +204,9 @@ async def after_token_invalidate(
     and the request. Returns the user associated with the invalidated
     token.
     """
-    log = Log(current_user, request, user, EntityAction.update)
-    await entity_manager.insert(log)
+    if LOG_AFTER_TOKEN_INVALIDATE:
+        log = Log(current_user, request, user, EntityAction.update)
+        await entity_manager.insert(log)
     return user
 
 
@@ -201,8 +221,9 @@ async def after_user_select(
     Logs a user selection event, capturing details about the user
     and the request. Returns the selected user.
     """
-    log = Log(current_user, request, user, EntityAction.select)
-    await entity_manager.insert(log)
+    if LOG_AFTER_USER_SELECT:
+        log = Log(current_user, request, user, EntityAction.select)
+        await entity_manager.insert(log)
     return user
 
 
@@ -217,8 +238,9 @@ async def after_user_update(
     Logs a user update event, capturing details about the user and
     the request. Returns the updated user.
     """
-    log = Log(current_user, request, user, EntityAction.update)
-    await entity_manager.insert(log)
+    if LOG_AFTER_USER_UPDATE:
+        log = Log(current_user, request, user, EntityAction.update)
+        await entity_manager.insert(log)
     return user
 
 
@@ -233,8 +255,9 @@ async def after_role_update(
     Logs a user role update event, capturing details about the user and
     the request. Returns the user whose role was updated.
     """
-    log = Log(current_user, request, user, EntityAction.update)
-    await entity_manager.insert(log)
+    if LOG_AFTER_ROLE_UPDATE:
+        log = Log(current_user, request, user, EntityAction.update)
+        await entity_manager.insert(log)
     return user
 
 
@@ -249,8 +272,9 @@ async def after_password_update(
     Logs a password update event, capturing details about the user and
     the request. Returns the user whose password was updated.
     """
-    log = Log(current_user, request, user, EntityAction.update)
-    await entity_manager.insert(log)
+    if LOG_AFTER_PASSWORD_UPDATE:
+        log = Log(current_user, request, user, EntityAction.update)
+        await entity_manager.insert(log)
     return user
 
 
@@ -265,8 +289,9 @@ async def after_userpic_upload(
     Logs a user picture upload event, capturing details about the user
     and the request. Returns the user whose picture was uploaded.
     """
-    log = Log(current_user, request, user, EntityAction.update)
-    await entity_manager.insert(log)
+    if LOG_AFTER_USERPIC_UPLOAD:
+        log = Log(current_user, request, user, EntityAction.update)
+        await entity_manager.insert(log)
     return user
 
 
@@ -281,8 +306,9 @@ async def after_userpic_delete(
     Logs a user picture deletion event, capturing details about the user
     and the request. Returns the user whose picture was deleted.
     """
-    log = Log(current_user, request, user, EntityAction.update)
-    await entity_manager.insert(log)
+    if LOG_AFTER_USERPIC_DELETE:
+        log = Log(current_user, request, user, EntityAction.update)
+        await entity_manager.insert(log)
     return user
 
 
@@ -298,9 +324,10 @@ async def after_users_list(
     capturing details about each user and the request. Returns the
     list of users.
     """
-    for user in users:
-        log = Log(current_user, request, user, EntityAction.select)
-        await entity_manager.insert(log)
+    if LOG_AFTER_USERS_LIST:
+        for user in users:
+            log = Log(current_user, request, user, EntityAction.select)
+            await entity_manager.insert(log)
     return users
 
 
@@ -315,8 +342,9 @@ async def after_collection_insert(
     Logs a collection insertion event, capturing details about the
     collection and the request. Returns the newly inserted collection.
     """
-    log = Log(current_user, request, collection, EntityAction.insert)
-    await entity_manager.insert(log)
+    if LOG_AFTER_COLLECTION_INSERT:
+        log = Log(current_user, request, collection, EntityAction.insert)
+        await entity_manager.insert(log)
     return collection
 
 
@@ -331,8 +359,9 @@ async def after_collection_select(
     Logs a collection selection event, capturing details about the
     collection and the request. Returns the selected collection.
     """
-    log = Log(current_user, request, collection, EntityAction.select)
-    await entity_manager.insert(log)
+    if LOG_AFTER_COLLECTION_SELECT:
+        log = Log(current_user, request, collection, EntityAction.select)
+        await entity_manager.insert(log)
     return collection
 
 
@@ -347,8 +376,9 @@ async def after_collection_update(
     Logs a collection update event, capturing details about the
     collection and the request. Returns the updated collection.
     """
-    log = Log(current_user, request, collection, EntityAction.update)
-    await entity_manager.insert(log)
+    if LOG_AFTER_COLLECTION_UPDATE:
+        log = Log(current_user, request, collection, EntityAction.update)
+        await entity_manager.insert(log)
     return collection
 
 
@@ -363,8 +393,9 @@ async def after_collection_delete(
     Logs a collection deletion event, capturing details about the
     collection and the request. Returns the deleted collection.
     """
-    log = Log(current_user, request, collection, EntityAction.delete)
-    await entity_manager.insert(log)
+    if LOG_AFTER_COLLECTION_DELETE:
+        log = Log(current_user, request, collection, EntityAction.delete)
+        await entity_manager.insert(log)
     return collection
 
 
@@ -380,9 +411,10 @@ async def after_collections_list(
     list, capturing details about each collection and the request.
     Returns the list of collections.
     """
-    for collection in collections:
-        log = Log(current_user, request, collection, EntityAction.select)
-        await entity_manager.insert(log)
+    if LOG_AFTER_COLLECTIONS_LIST:
+        for collection in collections:
+            log = Log(current_user, request, collection, EntityAction.select)
+            await entity_manager.insert(log)
     return collections
 
 
@@ -397,8 +429,9 @@ async def after_document_upload(
     Logs a document upload event, capturing details about the document
     and the request. Returns the uploaded document.
     """
-    log = Log(current_user, request, document, EntityAction.insert)
-    await entity_manager.insert(log)
+    if LOG_AFTER_DOCUMENT_UPLOAD:
+        log = Log(current_user, request, document, EntityAction.insert)
+        await entity_manager.insert(log)
     return document
 
 
@@ -413,8 +446,9 @@ async def after_document_download(
     Logs a document download event, capturing details about the document
     and the request. Returns the downloaded document.
     """
-    log = Log(current_user, request, document, EntityAction.select)
-    await entity_manager.insert(log)
+    if LOG_AFTER_DOCUMENT_DOWNLOAD:
+        log = Log(current_user, request, document, EntityAction.select)
+        await entity_manager.insert(log)
     return document
 
 
@@ -429,8 +463,9 @@ async def after_document_select(
     Logs a document selection event, capturing details about the
     document and the request. Returns the selected document.
     """
-    log = Log(current_user, request, document, EntityAction.select)
-    await entity_manager.insert(log)
+    if LOG_AFTER_DOCUMENT_SELECT:
+        log = Log(current_user, request, document, EntityAction.select)
+        await entity_manager.insert(log)
     return document
 
 
@@ -445,8 +480,9 @@ async def after_comment_insert(
     Logs a comment insertion event, capturing details about the comment
     and the request. Returns the inserted comment.
     """
-    log = Log(current_user, request, comment, EntityAction.insert)
-    await entity_manager.insert(log)
+    if LOG_AFTER_COMMENT_INSERT:
+        log = Log(current_user, request, comment, EntityAction.insert)
+        await entity_manager.insert(log)
     return comment
 
 
@@ -461,8 +497,9 @@ async def after_comment_select(
     Logs a comment retrieval event, capturing details about the comment
     and the request. Returns the selected comment.
     """
-    log = Log(current_user, request, comment, EntityAction.select)
-    await entity_manager.insert(log)
+    if LOG_AFTER_COMMENT_SELECT:
+        log = Log(current_user, request, comment, EntityAction.select)
+        await entity_manager.insert(log)
     return comment
 
 
@@ -477,8 +514,9 @@ async def after_comment_update(
     Logs a comment update event, capturing details about the updated
     comment and the request. Returns the updated comment.
     """
-    log = Log(current_user, request, comment, EntityAction.update)
-    await entity_manager.insert(log)
+    if LOG_AFTER_COMMENT_UPDATE:
+        log = Log(current_user, request, comment, EntityAction.update)
+        await entity_manager.insert(log)
     return comment
 
 
@@ -493,8 +531,9 @@ async def after_comment_delete(
     Logs a comment deletion event, capturing details about the deleted
     comment and the request. Returns the deleted comment.
     """
-    log = Log(current_user, request, comment, EntityAction.delete)
-    await entity_manager.insert(log)
+    if LOG_AFTER_COMMENT_DELETE:
+        log = Log(current_user, request, comment, EntityAction.delete)
+        await entity_manager.insert(log)
     return comment
 
 
@@ -509,9 +548,10 @@ async def after_comments_list(
     Logs the retrieval of a list of comments, capturing details about
     each comment and the request. Returns the list of comments.
     """
-    for comment in comments:
-        log = Log(current_user, request, comment, EntityAction.select)
-        await entity_manager.insert(log)
+    if LOG_AFTER_COMMENTS_LIST:
+        for comment in comments:
+            log = Log(current_user, request, comment, EntityAction.select)
+            await entity_manager.insert(log)
     return comments
 
 
@@ -526,8 +566,9 @@ async def after_download_select(
     Logs the selection of a download event, capturing details about the
     download and the request. Returns the download record.
     """
-    log = Log(current_user, request, download, EntityAction.select)
-    await entity_manager.insert(log)
+    if LOG_AFTER_DOWNLOAD_SELECT:
+        log = Log(current_user, request, download, EntityAction.select)
+        await entity_manager.insert(log)
     return download
 
 
@@ -542,9 +583,10 @@ async def after_downloads_list(
     Logs the retrieval of a list of downloads, capturing details about
     each download and the request. Returns the list of downloads.
     """
-    for download in downloads:
-        log = Log(current_user, request, download, EntityAction.select)
-        await entity_manager.insert(log)
+    if LOG_AFTER_DOWNLOADS_LIST:
+        for download in downloads:
+            log = Log(current_user, request, download, EntityAction.select)
+            await entity_manager.insert(log)
     return downloads
 
 
@@ -559,8 +601,9 @@ async def after_favorite_insert(
     Logs the addition of a new favorite, capturing details about the
     favorite and the request. Returns the newly added favorite.
     """
-    log = Log(current_user, request, favorite, EntityAction.insert)
-    await entity_manager.insert(log)
+    if LOG_AFTER_FAVORITE_INSERT:
+        log = Log(current_user, request, favorite, EntityAction.insert)
+        await entity_manager.insert(log)
     return favorite
 
 
@@ -575,8 +618,9 @@ async def after_favorite_select(
     Logs the retrieval of a favorite, capturing details about the
     favorite and the request. Returns the favorite.
     """
-    log = Log(current_user, request, favorite, EntityAction.select)
-    await entity_manager.insert(log)
+    if LOG_AFTER_FAVORITE_SELECT:
+        log = Log(current_user, request, favorite, EntityAction.select)
+        await entity_manager.insert(log)
     return favorite
 
 
@@ -591,8 +635,9 @@ async def after_favorite_delete(
     Logs the deletion of a favorite, capturing details about the
     favorite and the request. Returns the deleted favorite.
     """
-    log = Log(current_user, request, favorite, EntityAction.delete)
-    await entity_manager.insert(log)
+    if LOG_AFTER_FAVORITE_DELETE:
+        log = Log(current_user, request, favorite, EntityAction.delete)
+        await entity_manager.insert(log)
     return favorite
 
 
@@ -608,7 +653,8 @@ async def after_favorites_list(
     each favorite and the request. Returns the list of retrieved
     favorites.
     """
-    for favorite in favorites:
-        log = Log(current_user, request, favorite, EntityAction.select)
-        await entity_manager.insert(log)
+    if LOG_AFTER_FAVORITES_LIST:
+        for favorite in favorites:
+            log = Log(current_user, request, favorite, EntityAction.select)
+            await entity_manager.insert(log)
     return favorites
