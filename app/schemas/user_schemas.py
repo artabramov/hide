@@ -62,7 +62,8 @@ class UserRegisterRequest(BaseModel):
     user_password: SecretStr = Field(..., min_length=6)
     first_name: str = Field(..., min_length=2, max_length=40)
     last_name: str = Field(..., min_length=2, max_length=40)
-    user_summary: Optional[str] = Field(max_length=512, default=None)
+    user_signature: Optional[str] = Field(max_length=40, default=None)
+    user_contacts: Optional[str] = Field(max_length=512, default=None)
 
     @field_validator("user_login", mode="before")
     def validate_user_login(cls, user_login: str) -> str:
@@ -120,10 +121,11 @@ class UserLoginResponse(BaseModel):
     password_accepted: bool
 
 
-class TokenSelectRequest(BaseModel):
+class TokenRetrieveRequest(BaseModel):
     """Pydantic schema for token selection request."""
     user_login: str
     user_totp: str = Field(..., min_length=6, max_length=6)
+    token_exp: Optional[int] = None
 
     @field_validator("user_login", mode="before")
     def validate_user_login(cls, user_login: str) -> str:
@@ -136,17 +138,17 @@ class TokenSelectRequest(BaseModel):
         return validate_user_totp(user_login)
 
 
-class TokenSelectResponse(BaseModel):
+class TokenRetrieveResponse(BaseModel):
     """Pydantic schema for token selection response."""
     user_token: str
 
 
-class TokenDeleteRequest(BaseModel):
+class TokenInvalidateRequest(BaseModel):
     """Pydantic schema for token deletion request."""
     pass
 
 
-class TokenDeleteResponse(BaseModel):
+class TokenInvalidateResponse(BaseModel):
     """Pydantic schema for token deletion response."""
     pass
 
@@ -161,13 +163,15 @@ class UserSelectResponse(BaseModel):
     id: int
     created_date: int
     updated_date: int
+    logged_date: int
     user_role: UserRole
     is_active: bool
     user_login: str
     first_name: str
     last_name: str
-    user_summary: Optional[str]
-    userpic_url: Optional[str]
+    user_signature: Optional[str] = None
+    user_contacts: Optional[str] = None
+    userpic_url: Optional[str] = None
 
 
 class UserUpdateRequest(BaseModel):
@@ -175,7 +179,8 @@ class UserUpdateRequest(BaseModel):
     user_id: int
     first_name: str = Field(..., min_length=2, max_length=40)
     last_name: str = Field(..., min_length=2, max_length=40)
-    user_summary: Optional[str] = Field(max_length=512, default=None)
+    user_signature: Optional[str] = Field(max_length=40, default=None)
+    user_contacts: Optional[str] = Field(max_length=512, default=None)
 
     @field_validator("first_name", mode="before")
     def validate_first_name(cls, first_name: str) -> str:

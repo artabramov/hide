@@ -36,12 +36,12 @@ class DocumentSelectResponse(BaseModel):
     collection_id: int
 
     document_name: str
-    document_summary: Optional[str]
+    document_summary: Optional[str] = None
 
     filesize: int
     mimetype: str
 
-    thumbnail_url: Optional[str]
+    thumbnail_url: Optional[str] = None
     comments_count: int
     downloads_count: int
     favorites_count: int

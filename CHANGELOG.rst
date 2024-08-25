@@ -1,6 +1,15 @@
 Changelog
 =========
 
+Version 0.0.28 (2024-08-25)
+-------------
+
+- Added a new editable field for user signatures, allowing users to
+  input and update their signature information.
+- Added tracking for the date when users last signed in.
+- Added the ability for each user to define their own token expiration
+  date upon login, providing flexibility in managing token validity.
+
 Version 0.0.27 (2024-08-25)
 -------------
 

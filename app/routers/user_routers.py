@@ -9,8 +9,8 @@ from app.helpers.hash_helper import get_hash
 from app.helpers.jwt_helper import jwt_encode, jti_create
 from app.schemas.user_schemas import (
     UserRegisterRequest, UserRegisterResponse, UserLoginRequest,
-    UserLoginResponse, TokenSelectRequest, TokenSelectResponse,
-    TokenDeleteRequest, TokenDeleteResponse, UserSelectRequest,
+    UserLoginResponse, TokenRetrieveRequest, TokenRetrieveResponse,
+    TokenInvalidateRequest, TokenInvalidateResponse, UserSelectRequest,
     UserSelectResponse, UserpicUploadRequest, UserpicUploadResponse,
     UserpicDeleteRequest, UserpicDeleteResponse, UserUpdateRequest,
     UserUpdateResponse, RoleUpdateRequest, RoleUpdateResponse,
@@ -28,7 +28,7 @@ router = APIRouter()
 cfg = get_config()
 
 
-@router.post("/user", name="Register a user",
+@router.post("/user", name="Register user",
              tags=["auth"], response_model=UserRegisterResponse)
 async def user_register(
     request: Request,
@@ -54,7 +54,8 @@ async def user_register(
     user_password = schema.user_password.get_secret_value()
     user = User(
         UserRole.reader, schema.user_login, user_password, schema.first_name,
-        schema.last_name, user_summary=schema.user_summary)
+        schema.last_name, user_signature=schema.user_signature,
+        user_contacts=schema.user_contacts)
     await user_repository.insert(user)
 
     hook = Hook(session, cache, request, current_user=user)
@@ -67,7 +68,7 @@ async def user_register(
     }
 
 
-@router.get("/user/login", name="Authenticate a user",
+@router.get("/user/login", name="Authenticate user",
             tags=["auth"], response_model=UserLoginResponse)
 async def user_login(
     request: Request,
@@ -106,6 +107,7 @@ async def user_login(
     password_hash = get_hash(user_password)
 
     if user.password_hash == password_hash:
+        user.logged_date = time()
         user.password_accepted = True
         user.password_attempts = 0
 
@@ -133,13 +135,13 @@ async def user_login(
                 status_code=status.HTTP_422_UNPROCESSABLE_ENTITY)
 
 
-@router.get("/auth/token", name="Retrieve a token",
-            tags=["auth"], response_model=TokenSelectResponse)
+@router.get("/auth/token", name="Retrieve token",
+            tags=["auth"], response_model=TokenRetrieveResponse)
 async def token_retrieve(
     request: Request,
     session=Depends(get_session),
     cache=Depends(get_cache),
-    schema=Depends(TokenSelectRequest)
+    schema=Depends(TokenRetrieveRequest)
 ) -> dict:
     """
     Retrieve a token by validating the provided one-time password.
@@ -176,7 +178,7 @@ async def token_retrieve(
             user.user_role = UserRole.admin
 
         await user_repository.update(user)
-        user_token = jwt_encode(user)
+        user_token = jwt_encode(user, token_exp=schema.token_exp)
 
         hook = Hook(session, cache, request, current_user=user)
         await hook.execute(H.AFTER_TOKEN_RETRIEVE, user)
@@ -195,14 +197,14 @@ async def token_retrieve(
                 status_code=status.HTTP_422_UNPROCESSABLE_ENTITY)
 
 
-@router.delete("/auth/token", name="Invalidate the token",
-               tags=["auth"], response_model=TokenDeleteResponse)
+@router.delete("/auth/token", name="Invalidate token",
+               tags=["auth"], response_model=TokenInvalidateResponse)
 async def token_invalidate(
     request: Request,
     session=Depends(get_session),
     cache=Depends(get_cache),
     current_user: User = Depends(auth(UserRole.reader)),
-    schema=Depends(TokenDeleteRequest)
+    schema=Depends(TokenInvalidateRequest)
 ) -> dict:
     """
     Invalidate the current user's token by updating their JTI. This
@@ -219,7 +221,7 @@ async def token_invalidate(
     return {}
 
 
-@router.get("/user/{user_id}", name="Retrieve a user",
+@router.get("/user/{user_id}", name="Retrieve user",
             tags=["users"], response_model=UserSelectResponse)
 async def user_select(
     request: Request,
@@ -267,7 +269,8 @@ async def user_update(
     user_repository = Repository(session, cache, User)
     current_user.first_name = schema.first_name
     current_user.last_name = schema.last_name
-    current_user.user_summary = schema.user_summary
+    current_user.user_signature = schema.user_signature
+    current_user.user_contacts = schema.user_contacts
     await user_repository.update(current_user)
 
     hook = Hook(session, cache, request, current_user=current_user)

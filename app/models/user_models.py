@@ -30,6 +30,7 @@ class User(Base, MFAMixin, FernetMixin):
     created_date = Column(Integer, index=True, default=lambda: int(time()))
     updated_date = Column(Integer, index=True, default=0,
                           onupdate=lambda: int(time()))
+    logged_date = Column(Integer, nullable=False, default=0)
     suspended_date = Column(Integer, nullable=False, default=0)
     user_role = Column(Enum(UserRole), nullable=False, index=True,
                        default=UserRole.reader)
@@ -43,7 +44,8 @@ class User(Base, MFAMixin, FernetMixin):
     mfa_secret_encrypted = Column(String(256), nullable=False, unique=True)
     mfa_attempts = Column(SmallInteger(), nullable=False, default=0)
     jti_encrypted = Column(String(256), nullable=False, unique=True)
-    user_summary = Column(String(512), index=False, nullable=True)
+    user_signature = Column(String(40), index=False, nullable=True)
+    user_contacts = Column(String(512), index=False, nullable=True)
     userpic_filename = Column(String(128), nullable=True, unique=True)
 
     user_collections = relationship(
@@ -59,7 +61,9 @@ class User(Base, MFAMixin, FernetMixin):
 
     def __init__(self, user_role: UserRole, user_login: str,
                  user_password: str, first_name: str, last_name: str,
-                 is_active: bool = False, user_summary: str = ""):
+                 is_active: bool = False, user_signature: str = "",
+                 user_contacts: str = ""):
+        self.logged_date = 0
         self.suspended_date = 0
         self.user_role = user_role
         self.is_active = is_active
@@ -72,7 +76,8 @@ class User(Base, MFAMixin, FernetMixin):
         self.mfa_secret = self.create_mfa_secret()
         self.mfa_attempts = 0
         self.jti = jti_create()
-        self.user_summary = user_summary
+        self.user_signature = user_signature
+        self.user_contacts = user_contacts
         self.userpic_filename = None
 
     @property
@@ -132,11 +137,13 @@ class User(Base, MFAMixin, FernetMixin):
             "id": self.id,
             "created_date": self.created_date,
             "updated_date": self.updated_date,
+            "logged_date": self.logged_date,
             "user_role": self.user_role.value,
             "is_active": self.is_active,
             "user_login": self.user_login,
             "first_name": self.first_name,
             "last_name": self.last_name,
-            "user_summary": self.user_summary,
+            "user_signature": self.user_signature,
+            "user_contacts": self.user_contacts,
             "userpic_url": self.userpic_url,
         }

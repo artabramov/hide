@@ -14,28 +14,36 @@ def jti_create():
                                   k=cfg.JTI_LENGTH))
 
 
-def jwt_encode(user) -> str:
+def jwt_encode(user, token_exp: int = None) -> str:
     current_time = int(time.time())
-    payload = {
+    token_payload = {
         "user_id": user.id,
         "user_role": user.user_role.value,
         "user_login": user.user_login,
         "jti": user.jti,
         "iat": current_time,
-        "exp": current_time + cfg.JWT_EXPIRES,
     }
-    return jwt.encode(payload, cfg.JWT_SECRET, algorithm=cfg.JWT_ALGORITHM)
+    if token_exp:
+        token_payload["exp"] = token_exp
+
+    token_encoded = jwt.encode(token_payload, cfg.JWT_SECRET,
+                               algorithm=cfg.JWT_ALGORITHM)
+    return token_encoded
 
 
 def jwt_decode(jwt_token: str) -> dict:
-    payload = jwt.decode(jwt_token, cfg.JWT_SECRET,
-                         algorithms=cfg.JWT_ALGORITHM)
+    token_decoded = jwt.decode(jwt_token, cfg.JWT_SECRET,
+                               algorithms=cfg.JWT_ALGORITHM)
 
-    return {
-        "user_id": payload["user_id"],
-        "user_role": payload["user_role"],
-        "user_login": payload["user_login"],
-        "iat": payload["iat"],
-        "jti": payload["jti"],
-        "exp": payload["exp"]
+    token_payload = {
+        "user_id": token_decoded["user_id"],
+        "user_role": token_decoded["user_role"],
+        "user_login": token_decoded["user_login"],
+        "iat": token_decoded["iat"],
+        "jti": token_decoded["jti"],
     }
+
+    if "exp" in token_decoded:
+        token_payload["exp"] = token_decoded["exp"]
+
+    return token_payload

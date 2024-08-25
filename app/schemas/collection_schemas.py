@@ -58,7 +58,7 @@ class CollectionSelectResponse(BaseModel):
     user_id: int
     is_locked: bool
     collection_name: str
-    collection_summary: Optional[str]
+    collection_summary: Optional[str] = None
     documents_count: int
     documents_size: int
 
