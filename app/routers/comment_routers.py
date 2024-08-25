@@ -3,7 +3,7 @@ This module defines the FastAPI routes for managing comments within the
 application. It includes endpoints to create, retrieve, update, delete,
 and list comments. Each route handles its respective operation,
 validates the request data, checks resource constraints, interacts with
-the database, and executes relevant hooks for auditing and
+the database, and executes relevant hooks for logging and
 post-processing. It relies on various dependencies such as session
 management, caching, user authentication, and schema validation.
 """
