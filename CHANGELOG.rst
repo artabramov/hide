@@ -4,7 +4,7 @@ Changelog
 Version 0.0.29 (2024-08-25)
 -------------
 
-- Added a new template extension for managing application hooks.
+- Added an example extension for managing application hooks.
 - Added lifecycle hooks for user actions, collection operations, and
   document management.
 
