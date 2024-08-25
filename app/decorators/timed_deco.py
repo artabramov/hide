@@ -1,5 +1,14 @@
-import functools
+"""
+This module provides a decorator for timing and logging the execution of
+asynchronous functions. The decorator records the duration of function
+execution, along with function details, arguments, and results. It also
+handles and logs exceptions, making it useful for performance monitoring
+and debugging by providing detailed insights into function behavior and
+execution time.
+"""
+
 import time
+import functools
 from typing import Callable, Any
 from app.log import get_log
 
@@ -7,7 +16,14 @@ log = get_log()
 
 
 def timed(func: Callable) -> Callable:
-    """Measure elapsed time of functions execution."""
+    """
+    Decorator for measuring and logging the execution time of
+    asynchronous functions. It logs the duration, function name, module,
+    arguments, keyword arguments, and result of the function call. In
+    case of an exception, it logs the error along with the elapsed time,
+    function details, and exception message. Useful for performance
+    monitoring and debugging.
+    """
     @functools.wraps(func)
     async def wrapped(*args, **kwargs) -> Any:
         try:

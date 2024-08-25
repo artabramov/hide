@@ -12,20 +12,20 @@ entity or list of entities.
 import enum
 import json
 import time
-from sqlalchemy import (Column, BigInteger, Integer, ForeignKey, Enum, JSON,
-                        String)
+from typing import List
+from sqlalchemy.orm import DeclarativeBase
+from sqlalchemy import (Column, BigInteger, Integer, ForeignKey, Enum,
+                        JSON, String)
+from fastapi import Request
+from app.database import Base
 from app.models.user_models import User
 from app.models.collection_models import Collection
 from app.models.document_models import Document
 from app.models.comment_models import Comment
 from app.models.download_models import Download
 from app.models.favorite_models import Favorite
-from app.database import Base
 from app.managers.entity_manager import EntityManager
 from app.managers.cache_manager import CacheManager
-from sqlalchemy.orm import DeclarativeBase
-from typing import List
-from fastapi import Request
 
 OBSCURED_KEYS = ["user_password", "current_password", "updated_password",
                  "user_totp", "password_hash", "mfa_secret_encrypted",
