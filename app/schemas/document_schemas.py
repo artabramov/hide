@@ -44,6 +44,7 @@ class DocumentSelectResponse(BaseModel):
     thumbnail_url: Optional[str]
     comments_count: int
     downloads_count: int
+    favorites_count: int
     document_tags: list
 
 

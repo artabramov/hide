@@ -1,6 +1,12 @@
 Changelog
 =========
 
+Version 0.0.27 (2024-08-25)
+-------------
+
+- Added favorites feature with endpoints for creating, retrieving,
+  deleting, and listing favorites.
+
 Version 0.0.26 (2024-08-24)
 -------------
 

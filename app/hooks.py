@@ -45,6 +45,11 @@ class H(enum.Enum):
     AFTER_DOWNLOAD_SELECT = "after_download_select"
     AFTER_DOWNLOADS_LIST = "after_downloads_list"
 
+    AFTER_FAVORITE_INSERT = "after_favorite_insert"
+    AFTER_FAVORITE_SELECT = "after_favorite_select"
+    AFTER_FAVORITE_DELETE = "after_favorite_delete"
+    AFTER_FAVORITES_LIST = "after_favorites_list"
+
 
 class Hook:
 

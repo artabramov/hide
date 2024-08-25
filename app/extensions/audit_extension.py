@@ -8,6 +8,7 @@ from app.models.collection_models import Collection
 from app.models.document_models import Document
 from app.models.comment_models import Comment
 from app.models.download_models import Download
+from app.models.favorite_models import Favorite
 from app.database import Base
 from app.managers.entity_manager import EntityManager
 from app.managers.cache_manager import CacheManager
@@ -454,3 +455,68 @@ async def after_downloads_list(
         audit = Audit(current_user, request, download, AuditAction.select)
         await entity_manager.insert(audit)
     return downloads
+
+
+async def after_favorite_insert(
+    entity_manager: EntityManager,
+    cache_manager: CacheManager,
+    request: Request,
+    current_user: User,
+    favorite: Favorite
+) -> Favorite:
+    """
+    Logs an audit entry after a favorite entity is inserted and returns
+    the favorite entity.
+    """
+    audit = Audit(current_user, request, favorite, AuditAction.insert)
+    await entity_manager.insert(audit)
+    return favorite
+
+
+async def after_favorite_select(
+    entity_manager: EntityManager,
+    cache_manager: CacheManager,
+    request: Request,
+    current_user: User,
+    favorite: Favorite
+) -> Favorite:
+    """
+    Logs an audit entry for selecting a favorite entity and returns the
+    favorite entity.
+    """
+    audit = Audit(current_user, request, favorite, AuditAction.select)
+    await entity_manager.insert(audit)
+    return favorite
+
+
+async def after_favorite_delete(
+    entity_manager: EntityManager,
+    cache_manager: CacheManager,
+    request: Request,
+    current_user: User,
+    favorite: Favorite
+) -> Favorite:
+    """
+    Logs an audit entry for deleting a favorite entity and returns the
+    deleted favorite entity.
+    """
+    audit = Audit(current_user, request, favorite, AuditAction.delete)
+    await entity_manager.insert(audit)
+    return favorite
+
+
+async def after_favorites_list(
+    entity_manager: EntityManager,
+    cache_manager: CacheManager,
+    request: Request,
+    current_user: User,
+    favorites: List[Favorite]
+) -> List[Favorite]:
+    """
+    Logs an audit entry for each favorite entity in a list and returns
+    the list of favorites.
+    """
+    for favorite in favorites:
+        audit = Audit(current_user, request, favorite, AuditAction.select)
+        await entity_manager.insert(audit)
+    return favorites

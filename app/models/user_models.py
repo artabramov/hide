@@ -54,6 +54,8 @@ class User(Base, MFAMixin, FernetMixin):
         "Comment", back_populates="comment_user", lazy="noload")
     user_downloads = relationship(
         "Download", back_populates="download_user", lazy="noload")
+    user_favorites = relationship(
+        "Favorite", back_populates="favorite_user", lazy="noload")
 
     def __init__(self, user_role: UserRole, user_login: str,
                  user_password: str, first_name: str, last_name: str,
