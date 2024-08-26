@@ -1,5 +1,10 @@
-
-"""Config."""
+"""
+Defines the configuration settings for the application using a dataclass
+to hold various configuration parameters. Loads these settings from an
+.env file using dotenv and converts them to the appropriate types.
+Utilizes an LRU cache to store the configuration object for efficient
+retrieval.
+"""
 
 from dotenv import dotenv_values
 from dataclasses import dataclass, fields
@@ -90,7 +95,13 @@ class Config:
 
 @lru_cache(maxsize=None)
 def get_config() -> Config:
-    """Create config object from dotenv file."""
+    """
+    Loads configuration settings from an .env file and returns them as a
+    Config dataclass instance. The function uses type hints to convert
+    the environment variable values to their appropriate types, such as
+    int, list, or bool. Caches the result to optimize performance
+    for subsequent calls.
+    """
     keys_and_types = {x.name: x.type for x in fields(Config)}
     values = dotenv_values(DOTENV_FILE)
     config_dict = {}
