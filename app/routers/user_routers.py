@@ -28,47 +28,7 @@ router = APIRouter()
 cfg = get_config()
 
 
-@router.post("/user", name="Register user",
-             tags=["auth"], response_model=UserRegisterResponse)
-async def user_register(
-    request: Request,
-    session=Depends(get_session),
-    cache=Depends(get_cache),
-    schema=Depends(UserRegisterRequest)
-) -> dict:
-    """
-    Register a new user. Checks if the user login already exists and
-    raises an error if it does. If the login is unique, creates a new
-    user with the provided details. Returns the user's ID, MFA secret,
-    and MFA URL. The action requires the user to have the reader role
-    or higher.
-    """
-    user_repository = Repository(session, cache, User)
-    user_exists = await user_repository.exists(
-        user_login__eq=schema.user_login)
-
-    if user_exists:
-        raise E("user_login", schema.user_login, E.VALUE_DUPLICATED,
-                status_code=status.HTTP_422_UNPROCESSABLE_ENTITY)
-
-    user_password = schema.user_password.get_secret_value()
-    user = User(
-        UserRole.reader, schema.user_login, user_password, schema.first_name,
-        schema.last_name, user_signature=schema.user_signature,
-        user_contacts=schema.user_contacts)
-    await user_repository.insert(user)
-
-    hook = Hook(session, cache, request, current_user=user)
-    await hook.execute(H.AFTER_USER_REGISTER, user)
-
-    return {
-        "user_id": user.id,
-        "mfa_secret": user.mfa_secret,
-        "mfa_url": user.mfa_url,
-    }
-
-
-@router.get("/user/login", name="Authenticate user",
+@router.get("/auth/login", name="Authenticate user",
             tags=["auth"], response_model=UserLoginResponse)
 async def user_login(
     request: Request,
@@ -219,6 +179,46 @@ async def token_invalidate(
     await hook.execute(H.AFTER_TOKEN_INVALIDATE, current_user)
 
     return {}
+
+
+@router.post("/user", name="Register user",
+             tags=["users"], response_model=UserRegisterResponse)
+async def user_register(
+    request: Request,
+    session=Depends(get_session),
+    cache=Depends(get_cache),
+    schema=Depends(UserRegisterRequest)
+) -> dict:
+    """
+    Register a new user. Checks if the user login already exists and
+    raises an error if it does. If the login is unique, creates a new
+    user with the provided details. Returns the user's ID, MFA secret,
+    and MFA URL. The action requires the user to have the reader role
+    or higher.
+    """
+    user_repository = Repository(session, cache, User)
+    user_exists = await user_repository.exists(
+        user_login__eq=schema.user_login)
+
+    if user_exists:
+        raise E("user_login", schema.user_login, E.VALUE_DUPLICATED,
+                status_code=status.HTTP_422_UNPROCESSABLE_ENTITY)
+
+    user_password = schema.user_password.get_secret_value()
+    user = User(
+        UserRole.reader, schema.user_login, user_password, schema.first_name,
+        schema.last_name, user_signature=schema.user_signature,
+        user_contacts=schema.user_contacts)
+    await user_repository.insert(user)
+
+    hook = Hook(session, cache, request, current_user=user)
+    await hook.execute(H.AFTER_USER_REGISTER, user)
+
+    return {
+        "user_id": user.id,
+        "mfa_secret": user.mfa_secret,
+        "mfa_url": user.mfa_url,
+    }
 
 
 @router.get("/user/{user_id}", name="Retrieve user",

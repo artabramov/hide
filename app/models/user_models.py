@@ -34,7 +34,7 @@ class User(Base, MFAMixin, FernetMixin):
     suspended_date = Column(Integer, nullable=False, default=0)
     user_role = Column(Enum(UserRole), nullable=False, index=True,
                        default=UserRole.reader)
-    is_active = Column(Boolean)
+    is_active = Column(Boolean, nullable=False)
     user_login = Column(String(40), nullable=False, index=True, unique=True)
     password_hash = Column(String(128), nullable=False, index=True)
     password_attempts = Column(SmallInteger, nullable=False, default=0)
