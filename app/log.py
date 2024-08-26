@@ -38,7 +38,7 @@ def get_log():
     filtering. The logger writes logs to a file with rotation based on
     size and keeps a limited number of backup files. It applies a custom
     filter to include trace request UUIDs in log messages.
-    """ 
+    """
     handler = RotatingFileHandler(
         filename=cfg.LOG_FILENAME, maxBytes=cfg.LOG_FILESIZE,
         backupCount=cfg.LOG_FILES_LIMIT)
