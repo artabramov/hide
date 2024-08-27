@@ -93,7 +93,19 @@ async def lifespan(app: FastAPI):
     yield
 
 
-app = FastAPI(lifespan=lifespan, title=cfg.APP_TITLE, version=cfg.APP_VERSION)
+def read_description():
+    """
+    Reads and returns the content of a short application description
+    file as a string. The file is opened in read mode, and its entire
+    content is returned. The function assumes the file exists and is
+    accessible.
+    """
+    with open(cfg.APP_DESCRIPTION_FILE, "r") as fn:
+        return fn.read()
+
+
+app = FastAPI(lifespan=lifespan, title=cfg.APP_TITLE, version=cfg.APP_VERSION,
+              description=read_description())
 app.include_router(static_routers.router)
 app.include_router(user_routers.router, prefix=cfg.APP_PREFIX)
 app.include_router(collection_routers.router, prefix=cfg.APP_PREFIX)

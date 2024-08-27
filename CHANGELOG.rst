@@ -1,6 +1,14 @@
 Changelog
 =========
 
+Version 0.0.30 (2024-08-27)
+-------------
+
+- Added an external application description in the Markdown (.md) file
+  for improved documentation and user understanding.
+- Added minor fixes to Pydantic schemas to enhance data validation and
+  consistency.
+
 Version 0.0.29 (2024-08-25)
 -------------
 
