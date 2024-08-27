@@ -1,4 +1,5 @@
 from fastapi import APIRouter, Depends, Request, status
+from fastapi.responses import JSONResponse
 from app.database import get_session
 from app.cache import get_cache
 from app.models.user_models import User, UserRole
@@ -51,7 +52,10 @@ async def collection_insert(
     hook = Hook(session, cache, request, current_user=current_user)
     await hook.execute(H.AFTER_COLLECTION_INSERT, collection)
 
-    return {"collection_id": collection.id}
+    return JSONResponse(
+        status_code=status.HTTP_201_CREATED,
+        content={"collection_id": collection.id}
+    )
 
 
 @router.get("/collection/{collection_id}", name="Retrieve an collection",
