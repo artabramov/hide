@@ -26,29 +26,29 @@ class E(HTTPException):
     _INPUT = "input"
     _TYPE = "type"
 
-    # The token is missing from the request headers (401).
+    # The token is missing from the request headers (403).
     TOKEN_MISSING = "token_missing"
 
-    # The token has expired and is no longer valid (401).
+    # The token has expired and is no longer valid (403).
     TOKEN_EXPIRED = "token_expired"
 
-    # The token is invalid and cannot be processed (401).
+    # The token is invalid and cannot be processed (403).
     TOKEN_INVALID = "token_invalid"
 
-    # The token contains an invalid token identifier (401).
+    # The token contains an invalid token identifier (403).
     TOKEN_REJECTED = "token_rejected"
 
-    # The user is deleted or could not be found (401).
-    USER_NOT_FOUND = "user_not_found"
+    # The user is deleted or could not be found (403).
+    TOKEN_ORPHANED = "token_orphaned"
 
-    # The user is inactive and cannot access the resource (401).
+    # The user is inactive and cannot access the resource (403).
     USER_INACTIVE = "user_inactive"
 
-    # The user is temporarily suspended; try again later (401).
+    # The user is temporarily suspended; try again later (403).
     USER_SUSPENDED = "user_suspended"
 
-    # The user role is insufficient for this action (401).
-    ROLE_REJECTED = "role_rejected"
+    # The user role is insufficient for this action (403).
+    USER_REJECTED = "user_rejected"
 
     # The user cannot perform this action on the resource (403).
     RESOURCE_FORBIDDEN = "resource_forbidden"

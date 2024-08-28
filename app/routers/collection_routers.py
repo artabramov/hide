@@ -82,7 +82,10 @@ async def collection_select(
     hook = Hook(session, cache, request, current_user=current_user)
     await hook.execute(H.AFTER_COLLECTION_SELECT, collection)
 
-    return collection.to_dict()
+    return JSONResponse(
+        status_code=status.HTTP_200_OK,
+        content=collection.to_dict()
+    )
 
 
 @router.put("/collection/{collection_id}", name="Update an collection",

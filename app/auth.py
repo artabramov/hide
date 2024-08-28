@@ -56,8 +56,8 @@ async def _can_read(session: AsyncSession = Depends(get_session),
     user_token = header.credentials
     user = await _auth(user_token, session, cache)
     if not user.can_read:
-        raise E("user_token", user_token, E.ROLE_REJECTED,
-                status_code=status.HTTP_401_UNAUTHORIZED)
+        raise E("user_token", user_token, E.USER_REJECTED,
+                status_code=status.HTTP_403_FORBIDDEN)
     return user
 
 
@@ -73,8 +73,8 @@ async def _can_write(session: AsyncSession = Depends(get_session),
     user_token = header.credentials
     user = await _auth(user_token, session, cache)
     if not user.can_write:
-        raise E("user_token", user_token, E.ROLE_REJECTED,
-                status_code=status.HTTP_401_UNAUTHORIZED)
+        raise E("user_token", user_token, E.USER_REJECTED,
+                status_code=status.HTTP_403_FORBIDDEN)
     return user
 
 
@@ -90,8 +90,8 @@ async def _can_edit(session: AsyncSession = Depends(get_session),
     user_token = header.credentials
     user = await _auth(user_token, session, cache)
     if not user.can_edit:
-        raise E("user_token", user_token, E.ROLE_REJECTED,
-                status_code=status.HTTP_401_UNAUTHORIZED)
+        raise E("user_token", user_token, E.USER_REJECTED,
+                status_code=status.HTTP_403_FORBIDDEN)
     return user
 
 
@@ -107,8 +107,8 @@ async def _can_admin(session: AsyncSession = Depends(get_session),
     user_token = header.credentials
     user = await _auth(user_token, session, cache)
     if not user.can_admin:
-        raise E("user_token", user_token, E.ROLE_REJECTED,
-                status_code=status.HTTP_401_UNAUTHORIZED)
+        raise E("user_token", user_token, E.USER_REJECTED,
+                status_code=status.HTTP_403_FORBIDDEN)
     return user
 
 
@@ -125,36 +125,36 @@ async def _auth(user_token: str, session: AsyncSession, cache: Redis):
     """
     if not user_token:
         raise E("user_token", user_token, E.TOKEN_MISSING,
-                status_code=status.HTTP_401_UNAUTHORIZED)
+                status_code=status.HTTP_403_FORBIDDEN)
 
     try:
         token_payload = jwt_decode(user_token)
 
     except ExpiredSignatureError:
         raise E("user_token", user_token, E.TOKEN_EXPIRED,
-                status_code=status.HTTP_401_UNAUTHORIZED)
+                status_code=status.HTTP_403_FORBIDDEN)
 
     except PyJWTError:
         raise E("user_token", user_token, E.TOKEN_INVALID,
-                status_code=status.HTTP_401_UNAUTHORIZED)
+                status_code=status.HTTP_403_FORBIDDEN)
 
     user_repository = Repository(session, cache, User)
     user = await user_repository.select(id=token_payload["user_id"])
 
     if token_payload["jti"] != user.jti:
         raise E("user_token", user_token, E.TOKEN_REJECTED,
-                status_code=status.HTTP_401_UNAUTHORIZED)
+                status_code=status.HTTP_403_FORBIDDEN)
 
     elif not user:
-        raise E("user_token", user_token, E.USER_NOT_FOUND,
-                status_code=status.HTTP_401_UNAUTHORIZED)
+        raise E("user_token", user_token, E.TOKEN_ORPHANED,
+                status_code=status.HTTP_403_FORBIDDEN)
 
     elif not user.is_active:
         raise E("user_token", user_token, E.USER_INACTIVE,
-                status_code=status.HTTP_401_UNAUTHORIZED)
+                status_code=status.HTTP_403_FORBIDDEN)
 
     elif user.suspended_date > int(time.time()):
         raise E("user_token", user_token, E.USER_SUSPENDED,
-                status_code=status.HTTP_401_UNAUTHORIZED)
+                status_code=status.HTTP_403_FORBIDDEN)
 
     return user

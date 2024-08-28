@@ -54,14 +54,14 @@ async def user_login(
 
     elif user.suspended_date > int(time()):
         raise E("user_login", schema.user_login, E.USER_SUSPENDED,
-                status_code=status.HTTP_401_UNAUTHORIZED)
+                status_code=status.HTTP_403_FORBIDDEN)
 
     admin_exists = await user_repository.exists(
         user_role__eq=UserRole.admin, is_active__eq=True)
 
     if not user.is_active and admin_exists:
         raise E("user_login", schema.user_login, E.USER_INACTIVE,
-                status_code=status.HTTP_401_UNAUTHORIZED)
+                status_code=status.HTTP_403_FORBIDDEN)
 
     user_password = schema.user_password.get_secret_value()
     password_hash = get_hash(user_password)
@@ -122,7 +122,7 @@ async def token_retrieve(
 
     if not user.is_active and admin_exists:
         raise E("user_login", schema.user_login, E.USER_INACTIVE,
-                status_code=status.HTTP_401_UNAUTHORIZED)
+                status_code=status.HTTP_403_FORBIDDEN)
 
     elif not user.password_accepted:
         raise E("user_totp", schema.user_totp, E.VALUE_INVALID,
