@@ -58,7 +58,7 @@ class Config:
     APP_TITLE: str
     APP_VERSION: str
     APP_PREFIX: str
-    APP_DESCRIPTION_FILE: str
+    APP_DESCRIPTION: str
 
     HASH_SALT: str
     FERNET_KEY: str

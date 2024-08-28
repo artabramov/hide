@@ -100,7 +100,7 @@ def read_description():
     content is returned. The function assumes the file exists and is
     accessible.
     """
-    with open(cfg.APP_DESCRIPTION_FILE, "r") as fn:
+    with open(cfg.APP_DESCRIPTION, "r") as fn:
         return fn.read()
 
 
