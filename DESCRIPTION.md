@@ -10,3 +10,6 @@ the application.
 | Action            | Reader  | Writer  | Editor  | Admin   |
 |-------------------|---------|---------|---------|---------|
 | Collection insert |         | +       | +       | +       |
+| Collection select | +       | +       | +       | +       |
+| Collection update |         |         | +       | +       |
+| Collection delete |         |         |         | +       |
