@@ -124,7 +124,10 @@ async def collection_update(
     hook = Hook(session, cache, request, current_user=current_user)
     await hook.execute(H.AFTER_COLLECTION_UPDATE, collection)
 
-    return {"collection_id": collection.id}
+    return JSONResponse(
+        status_code=status.HTTP_200_OK,
+        content={"collection_id": collection.id}
+    )
 
 
 @router.delete("/collection/{collection_id}", name="Delete an collection",

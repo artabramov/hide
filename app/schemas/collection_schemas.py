@@ -98,7 +98,8 @@ class CollectionUpdateRequest(BaseModel):
     collection_id: int
     is_locked: bool
     collection_name: str = Field(..., min_length=2, max_length=128)
-    collection_summary: Optional[str] = Field(max_length=512, default=None)
+    collection_summary: Optional[str] = Field(min_length=2, max_length=512,
+                                              default=None)
 
     @field_validator("collection_name", mode="before")
     def validate_collection_name(cls, collection_name: str) -> str:
