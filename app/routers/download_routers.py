@@ -1,11 +1,10 @@
 """
-This module defines API routes for managing download records. It
-includes endpoints to retrieve a single download by its ID and to list
-downloads with support for pagination and sorting. The routes use
-Pydantic schemas for request and response validation and include hooks
-for post-retrieval actions. Access to these endpoints is controlled
-based on user roles, and errors are handled with appropriate HTTP status
-codes.
+This module handles operations related to downloads. Users with at least
+a reader role can access details about individual downloads and retrieve
+lists of downloads. The endpoints cover creating, updating, and deleting
+download records, with appropriate validation and access controls. Each
+router responds with status codes reflecting success or errors based on
+the user's permissions and resource availability.
 """
 
 from fastapi import APIRouter, Depends, Request, status
@@ -36,10 +35,11 @@ async def download_select(
     schema=Depends(DownloadSelectRequest)
 ) -> dict:
     """
-    Retrieves a download record by its ID, verifies its existence, and
-    executes a post-retrieval hook. If the download is not found, a 404
-    error is raised. Returns the details of the download as a
-    dictionary.
+    Retrieves details of a specific download by its ID. Requires the
+    current user to have a reader role or higher. Returns a 200 status
+    with the download details if found. Raises a 403 error if the user
+    does not have the required permissions or a 404 error if the
+    download does not exist.
     """
     download_repository = Repository(session, cache, Download)
     download = await download_repository.select(id=schema.download_id)
@@ -64,10 +64,11 @@ async def downloads_list(
     schema=Depends(DownloadsListRequest)
 ) -> dict:
     """
-    Retrieves a list of download records based on query parameters,
-    including pagination and sorting options. Executes a post-retrieval
-    hook and returns a dictionary containing the list of downloads and
-    the total count. If no downloads are found, returns an empty list.
+    Retrieves a list of downloads and their count based on the provided
+    query parameters. Requires the current user to have a reader role or
+    higher. Returns a 200 status with the list of downloads and the
+    total count. Returns a 403 error if the user does not have the
+    required role.
     """
     download_repository = Repository(session, cache, Download)
     downloads = await download_repository.select_all(**schema.__dict__)

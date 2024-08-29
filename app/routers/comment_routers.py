@@ -1,11 +1,10 @@
 """
-This module defines the FastAPI routes for managing comments within the
-application. It includes endpoints to create, retrieve, update, delete,
-and list comments. Each route handles its respective operation,
-validates the request data, checks resource constraints, interacts with
-the database, and executes relevant hooks for logging and
-post-processing. It relies on various dependencies such as session
-management, caching, user authentication, and schema validation.
+This module manages comments with endpoints to create, retrieve, update,
+and delete them. It requires specific user roles for different actions:
+creating or updating comments needs a writer or higher role, and
+deleting comments requires an admin role. Responses include status codes
+for success or various errors such as forbidden actions, missing
+resources, or invalid attributes.
 """
 
 from fastapi import APIRouter, Depends, Request, status
@@ -40,10 +39,14 @@ async def comment_insert(
     schema=Depends(CommentInsertRequest)
 ) -> dict:
     """
-    Handles the creation of a new comment by validating the associated
-    document and collection, inserting the comment into the database,
-    updating the document's comment count, and executing any
-    post-insertion hooks. Returns the ID of the newly created comment.
+    Creates a new comment for a specified document. Validates the
+    existence and status of the document and its collection. Inserts
+    the comment into the database, updates the document's comment count,
+    and returns the ID of the created comment. The user must have a
+    writer role or higher. Returns a 201 Created status on success.
+    Raises a 404 error if the document is not found, a 403 error if
+    the collection is locked or does not exist, and a 422 error for
+    issues with comment validation.
     """
     document_repository = Repository(session, cache, Document)
     document = await document_repository.select(id__eq=schema.document_id)
@@ -84,9 +87,10 @@ async def comment_select(
     schema=Depends(CommentSelectRequest)
 ) -> dict:
     """
-    Retrieves a comment by its ID, verifies its existence, and executes
-    a post-retrieval hook; returns the comment details as a dictionary.
-    Raises a 404 error if the comment is not found.
+    Retrieves a specific comment by its ID. Validates that the comment
+    exists and returns its details. The user must have a reader role or
+    higher to access the comment. Returns a 200 OK status with the
+    comment details. Raises a 404 error if the comment is not found.
     """
     comment_repository = Repository(session, cache, Comment)
     comment = await comment_repository.select(id=schema.comment_id)
@@ -111,11 +115,13 @@ async def comment_update(
     schema=Depends(CommentUpdateRequest)
 ) -> dict:
     """
-    Updates an existing comment if it exists and belongs to the current
-    user, checks if the associated collection is unlocked, and executes
-    a post-update hook; returns the ID of the updated comment. Raises
-    errors if the comment is not found, not owned by the user, or if
-    the collection is locked.
+    Updates an existing comment for a specified document. Validates the
+    existence of the comment, checks that the current user is the author
+    of the comment, and ensures the associated collection is not locked.
+    Requires the user to have an editor role or higher. Returns a 200
+    status on success. Raises a 404 error if the comment is not found,
+    a 403 error if the current user does not own the comment, and a 423
+    error if the collection is locked.
     """
     comment_repository = Repository(session, cache, Comment)
     comment = await comment_repository.select(id=schema.comment_id)
@@ -155,10 +161,11 @@ async def comment_delete(
     schema=Depends(CommentDeleteRequest)
 ) -> dict:
     """
-    Deletes a comment if it exists and the associated collection is not
-    locked, updates the comment count for the document, and executes a
-    post-deletion hook; returns the ID of the deleted comment. Raises
-    errors if the comment is not found or if the collection is locked.
+    Deletes a specified comment. Validates the existence of the comment
+    and checks that the associated collection is not locked. Requires
+    the user to have an admin role. Returns a 200 status on success.
+    Raises a 404 error if the comment is not found, and a 423 error if
+    the collection is locked or does not exist.
     """
     comment_repository = Repository(session, cache, Comment)
     comment = await comment_repository.select(id=schema.comment_id)
@@ -199,9 +206,10 @@ async def comments_list(
     schema=Depends(CommentsListRequest)
 ) -> dict:
     """
-    Retrieves a list of comments based on query parameters, including
-    pagination and sorting, and executes a post-retrieval hook; returns
-    the list of comments along with the total count.
+    Retrieves a list of comments based on the provided query parameters.
+    Requires the user to have a reader role or higher. Returns a 200
+    response on success. Raises a 403 error if the user does not have
+    the required role or if the token is missing.
     """
     comment_repository = Repository(session, cache, Comment)
     comments = await comment_repository.select_all(**schema.__dict__)

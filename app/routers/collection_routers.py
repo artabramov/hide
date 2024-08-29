@@ -1,3 +1,11 @@
+"""
+Module for managing collections in the system. Provides routers for
+creating, retrieving, updating, and deleting collections. Each router
+requires specific user roles for access and handles various responses
+based on the operation's success or failure. Includes functionality
+for managing collection data and ensuring proper authorization.
+"""
+
 from fastapi import APIRouter, Depends, Request, status
 from fastapi.responses import JSONResponse
 from app.database import get_session
@@ -20,7 +28,7 @@ router = APIRouter()
 cfg = get_config()
 
 
-@router.post("/collection", name="Create an collection",
+@router.post("/collection", name="Create collection",
              tags=["collections"], response_model=CollectionInsertResponse)
 async def collection_insert(
     request: Request,
@@ -30,10 +38,12 @@ async def collection_insert(
     schema=Depends(CollectionInsertRequest)
 ) -> dict:
     """
-    Create a new collection if it does not already exist. Requires
-    the user to have the writer role or higher. Checks if an collection
-    with the same name exists, raising an error if it does. Otherwise,
-    creates the collection with the provided details and returns its ID.
+    Creates a collection with the provided details and returns its ID.
+    Requires the user to have the writer or admin role. Returns a 201
+    response on success. Returns a 422 error if any collection attribute
+    is invalid, including if a collection with the same name already
+    exists. Returns a 403 error if the user's token is invalid or if the
+    user does not have the required role.
     """
     collection_repository = Repository(session, cache, Collection)
 
@@ -41,7 +51,7 @@ async def collection_insert(
         collection_name__eq=schema.collection_name)
 
     if collection_exists:
-        raise E("collection_name", schema.collection_name, E.VALUE_DUPLICATED,  # noqa E501
+        raise E("collection_name", schema.collection_name, E.VALUE_DUPLICATED,
                 status_code=status.HTTP_422_UNPROCESSABLE_ENTITY)
 
     collection = Collection(
@@ -58,7 +68,7 @@ async def collection_insert(
     )
 
 
-@router.get("/collection/{collection_id}", name="Retrieve an collection",
+@router.get("/collection/{collection_id}", name="Read collection",
             tags=["collections"], response_model=CollectionSelectResponse)
 async def collection_select(
     request: Request,
@@ -68,15 +78,18 @@ async def collection_select(
     schema=Depends(CollectionSelectRequest)
 ) -> dict:
     """
-    Retrieve an collection by its ID. Returns the collection details
-    if found; otherwise, raises a 404 error. Requires the user to have
-    the reader role or higher.
+    Retrieves a collection by its ID and returns the collection details.
+    Requires the user to have the reader or higher role. Returns a 200
+    response with the collection details if found. Returns a 404 error
+    if the collection with the specified ID is not found. Returns a 403
+    error if the user's token is invalid or if the user does not have
+    the required role.
     """
     collection_repository = Repository(session, cache, Collection)
     collection = await collection_repository.select(id=schema.collection_id)
 
     if not collection:
-        raise E("collection_id", schema.collection_id, E.RESOURCE_NOT_FOUND,  # noqa E501
+        raise E("collection_id", schema.collection_id, E.RESOURCE_NOT_FOUND,
                 status_code=status.HTTP_404_NOT_FOUND)
 
     hook = Hook(session, cache, request, current_user=current_user)
@@ -88,7 +101,7 @@ async def collection_select(
     )
 
 
-@router.put("/collection/{collection_id}", name="Update an collection",
+@router.put("/collection/{collection_id}", name="Update collection",
             tags=["collections"], response_model=CollectionUpdateResponse)
 async def collection_update(
     request: Request,
@@ -98,22 +111,25 @@ async def collection_update(
     schema=Depends(CollectionUpdateRequest)
 ) -> dict:
     """
-    Update an existing collection's details by its ID. Requires editor
-    role or higher. Raises an error if the collection is not found or
+    Updates an existing collection's details by its ID. Requires the
+    user to have the editor or higher role. Returns a 200 response with
+    the ID of the updated collection. Returns a 404 error if the
+    collection with the specified ID is not found. Returns a 422 error
     if the new name conflicts with an existing collection name. Returns
-    the ID of the updated collection.
+    a 403 error if the user's token is invalid or if the user does not
+    have the required role.
     """
     collection_repository = Repository(session, cache, Collection)
 
     collection = await collection_repository.select(id=schema.collection_id)
     if not collection:
-        raise E("collection_id", schema.collection_id, E.RESOURCE_NOT_FOUND,  # noqa E501
+        raise E("collection_id", schema.collection_id, E.RESOURCE_NOT_FOUND,
                 status_code=status.HTTP_404_NOT_FOUND)
 
     collection_exists = await collection_repository.exists(
         collection_name__eq=schema.collection_name, id__ne=collection.id)
     if collection_exists:
-        raise E("collection_name", schema.collection_name, E.VALUE_DUPLICATED,  # noqa E501
+        raise E("collection_name", schema.collection_name, E.VALUE_DUPLICATED,
                 status_code=status.HTTP_422_UNPROCESSABLE_ENTITY)
 
     collection.is_locked = schema.is_locked
@@ -130,7 +146,7 @@ async def collection_update(
     )
 
 
-@router.delete("/collection/{collection_id}", name="Delete an collection",
+@router.delete("/collection/{collection_id}", name="Delete collection",
                tags=["collections"], response_model=CollectionDeleteResponse)
 async def collection_delete(
     request: Request,
@@ -140,16 +156,19 @@ async def collection_delete(
     schema=Depends(CollectionDeleteRequest)
 ) -> dict:
     """
-    Delete an collection by its ID from the repository. Requires admin
-    role. Raises a 404 error if the collection is not found. Deletes
-    related documents if any exist. Returns the ID of the deleted
-    collection.
+    Deletes a collection by its ID from the repository. Requires the
+    user to have the admin role. Returns a 200 response with the ID of
+    the deleted collection. Returns a 404 error if the collection with
+    the specified ID is not found. If the collection contains related
+    documents, they will be deleted as well. Returns a 403 error if the
+    user's token is invalid or if the user does not have the required
+    role.
     """
     collection_repository = Repository(session, cache, Collection)
 
     collection = await collection_repository.select(id=schema.collection_id)
     if not collection:
-        raise E("collection_id", schema.collection_id, E.RESOURCE_NOT_FOUND,  # noqa E501
+        raise E("collection_id", schema.collection_id, E.RESOURCE_NOT_FOUND,
                 status_code=status.HTTP_404_NOT_FOUND)
 
     if collection.documents_count > 0:
@@ -168,7 +187,7 @@ async def collection_delete(
     )
 
 
-@router.get("/collections", name="Retrieve collections list",
+@router.get("/collections", name="Collections list",
             tags=["collections"], response_model=CollectionsListResponse)
 async def collections_list(
     request: Request,
@@ -178,10 +197,13 @@ async def collections_list(
     schema=Depends(CollectionsListRequest)
 ) -> dict:
     """
-    Retrieve a list of collections based on the provided query
-    parameters. Returns the list of collections and the total count.
-    If no collections are found, an empty list and zero count are
-    returned. Requires reader role or higher.
+    Retrieves a list of collections based on the provided query
+    parameters. Requires the user to have the reader or higher role.
+    Returns a 200 response with the list of collections and the total
+    count. If no collections are found, an empty list and a count of
+    zero are returned. Returns a 422 error if any of the query
+    parameters are invalid. Returns a 403 error if the user's token
+    is invalid or if the user does not have the required role.
     """
     collection_repository = Repository(session, cache, Collection)
 

@@ -1,3 +1,15 @@
+"""
+This module provides API endpoints for managing documents. It includes
+functionalities for uploading, downloading, updating, and deleting
+documents, as well as retrieving detailed information and lists of
+documents. The endpoints enforce access controls based on user roles
+and handle various aspects of document processing, including file
+storage, encryption, and metadata management. The module ensures that
+users interact with documents according to their permissions and
+maintains the integrity of document-related data throughout different
+operations.
+"""
+
 import os
 import uuid
 from fastapi import APIRouter, Depends, HTTPException, status, Request
@@ -43,15 +55,12 @@ async def document_upload(
     """
     Handles the upload of a document, including validation, file
     processing, and storage. Validates that the specified collection
-    exists and is not locked, checks that the current user has the
-    necessary permissions, and saves the uploaded file with a unique
-    filename. Generates a thumbnail if the file is an image or video,
-    encrypts the file, and creates an entry in the document repository
-    with metadata including name, size, MIME type, and optional summary.
-    Tags are applied to the document, and a post-upload hook is
-    triggered. Returns the ID of the newly created document.
+    exists and is not locked. Requires the user to have the writer role
+    or higher. Returns a 201 response with the ID of the newly created
+    document. Returns a 404 error if the collection does not exist, a
+    423 error if the collection is locked, and a 403 error if the user's
+    token is invalid or if the user lacks the required role.
     """
-
     # Validate collection
     collection_repository = Repository(session, cache, Collection)
     collection = await collection_repository.select(id=schema.collection_id)
@@ -144,9 +153,8 @@ async def document_download(
     """
     Handles the download of a document by returning its raw binary data
     after decryption. Updates the document's download count and records
-    the download in the database. The user must have the reader role or
-    higher to access the download. If the document is not found, a 404
-    error is raised. After processing, a post-download hook is executed.
+    the download in the database. Requires the user to have the reader
+    role or higher. If the document is not found, raises a 404 error.
     """
     document_repository = Repository(session, cache, Document)
     document = await document_repository.select(id=schema.document_id)
@@ -180,12 +188,10 @@ async def document_select(
     schema=Depends(DocumentSelectRequest)
 ) -> dict:
     """
-    Retrieves details of a specific document by its ID. Validates the
-    user's access permissions to ensure they have at least a reader
-    role. Fetches the document from the repository and, if found,
-    triggers a hook for any post-retrieval actions. Returns the document
-    details in a dictionary format. Raises a 404 error if the document
-    does not exist.
+    Retrieves details of a specific document by its ID. Requires the
+    user to have at least a reader role. Returns the document details
+    if found. Raises a 403 error if the user does not have sufficient
+    permissions, or a 404 error if the document does not exist.
     """
     document_repository = Repository(session, cache, Document)
     document = await document_repository.select(id=schema.document_id)
@@ -209,6 +215,17 @@ async def document_update(
     current_user: User = Depends(auth(UserRole.editor)),
     schema=Depends(DocumentUpdateRequest)
 ) -> dict:
+    """
+    Update the details of a specific document. Requires the user to have
+    at least an editor role. Checks if the document exists and ensures
+    that the collection to which the document is moved is not locked. If
+    the collection ID is changed, updates the document and collection
+    counters accordingly. Returns the document ID upon successful
+    update. Raises a 403 error if the user does not have sufficient
+    permissions, a 404 error if the document or collection does not
+    exist, and a 423 error if the document or collection is locked,
+    and a 422 error if any provided attributes are invalid.
+    """
     document_repository = Repository(session, cache, Document)
     document = await document_repository.select(id=schema.document_id)
     if not document:
@@ -275,6 +292,15 @@ async def document_delete(
     current_user: User = Depends(auth(UserRole.admin)),
     schema=Depends(DocumentDeleteRequest)
 ) -> dict:
+    """
+    Deletes a specific document by its ID. Requires the user to have an
+    admin role. Checks if the document exists and if its collection is
+    not locked. If the document is found and the collection is not
+    locked, it is removed from the repository, and the collection's
+    document counters are updated. Raises a 404 error if the document
+    is not found, a 403 error if the collection is locked, and a 422
+    error if the attributes are invalid.
+    """
     document_repository = Repository(session, cache, Document)
 
     document = await document_repository.select(id=schema.document_id)
@@ -319,6 +345,14 @@ async def documents_list(
     current_user: User = Depends(auth(UserRole.reader)),
     schema=Depends(DocumentsListRequest)
 ) -> dict:
+    """
+    Retrieve a list of documents based on the provided query parameters.
+    The user must have at least a reader role. The endpoint dynamically
+    prepares query parameters, including any tag filters if specified,
+    and fetches the list of documents and their count from the
+    repository. It returns a dictionary with the documents and their
+    total count.
+    """
     document_repository = Repository(session, cache, Document)
 
     kwargs = schema.__dict__

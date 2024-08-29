@@ -36,9 +36,13 @@ async def favorite_insert(
     schema=Depends(FavoriteInsertRequest)
 ) -> dict:
     """
-    Creates a new favorite if it doesn't already exist, updates the
-    document's favorite count, and logs the insertion event. Returns
-    the ID of the newly created or existing favorite.
+    Allows users with at least a reader role to create a favorite for
+    a specific document. It checks for the existence of the document
+    and whether the user has already favorited it. If not, it adds the
+    favorite and updates the document's favorites count. Returns a 201
+    status code upon successful creation. Raises a 404 status code if
+    the document is not found and a 403 status code if the user does
+    not have the required permissions.
     """
     document_repository = Repository(session, cache, Document)
     document = await document_repository.select(id__eq=schema.document_id)
@@ -75,8 +79,11 @@ async def favorite_select(
     schema=Depends(FavoriteSelectRequest)
 ) -> dict:
     """
-    Retrieves a favorite by its ID, checks if it belongs to the current
-    user, logs the retrieval event, and returns the favorite details.
+    Retrieves details of a specific favorite. Ensures the favorite
+    exists and that the requesting user has permission to view it.
+    Returns a 200 status code with the favorite details. Returns a 404
+    status code if the favorite is not found, and a 403 status code if
+    the favorite does not belong to the requesting user.
     """
     favorite_repository = Repository(session, cache, Favorite)
     favorite = await favorite_repository.select(id=schema.favorite_id)
@@ -105,9 +112,11 @@ async def favorite_delete(
     schema=Depends(FavoriteDeleteRequest)
 ) -> dict:
     """
-    Deletes a favorite by its ID, checks ownership, updates the
-    document's favorite count, logs the deletion event, and returns
-    the ID of the deleted favorite.
+    Deletes a specific favorite. Validates that the favorite exists and
+    that it belongs to the requesting user. Returns a 200 status code
+    with the ID of the deleted favorite. Returns a 404 status code if
+    the favorite is not found, and a 403 status code if the favorite
+    does not belong to the requesting user.
     """
     favorite_repository = Repository(session, cache, Favorite)
     favorite = await favorite_repository.select(id=schema.favorite_id)
@@ -144,8 +153,10 @@ async def favorites_list(
 ) -> dict:
     """
     Retrieves a list of favorites for the current user based on the
-    provided filters, logs the retrieval event, and returns the list of
-    favorites along with the total count.
+    specified query parameters. Returns the list of favorites and their
+    count. Raises a 403 status code if the user is not authenticated or
+    does not have permission to view the favorites, and a 422 status
+    code for invalid query parameters.
     """
     kwargs = schema.__dict__
     kwargs["user_id__eq"] = current_user.id
