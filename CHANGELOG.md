@@ -1,5 +1,9 @@
 # Changelog
 
+## Version 0.0.31 (2024-08-29)
+- Added filters for document count and document size in the collections
+  list router.
+
 ## Version 0.0.30 (2024-08-27)
 - Added external application description to Markdown (.md) file for
   improved documentation and user understanding.

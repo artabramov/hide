@@ -13,6 +13,7 @@ the application.
 | Collection select | +       | +       | +       | +       |
 | Collection update |         |         | +       | +       |
 | Collection delete |         |         |         | +       |
+| Collections list  | +       | +       | +       | +       |
 
 How to obtain a token
 ---------------------

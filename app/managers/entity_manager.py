@@ -279,7 +279,7 @@ class EntityManager:
             if hasattr(cls, column_name):
                 value = kwargs[key]
 
-                if value:
+                if value is not None:
                     if operator == "in":
                         value = [x.strip() for x in value.split(",")]
 

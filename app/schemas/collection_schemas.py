@@ -143,6 +143,11 @@ class CollectionsListRequest(BaseModel):
     options by various attributes and order.
     """
     collection_name__ilike: Optional[str] = None
+    is_locked__eq: Optional[bool] = None
+    documents_count__ge: Optional[int] = None
+    documents_count__le: Optional[int] = None
+    documents_size__ge: Optional[int] = None
+    documents_size__le: Optional[int] = None
     offset: int = Field(ge=0)
     limit: int = Field(ge=1, le=200)
     order_by: Literal["id", "created_date", "updated_date", "user_id",

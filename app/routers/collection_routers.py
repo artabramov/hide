@@ -162,7 +162,10 @@ async def collection_delete(
     hook = Hook(session, cache, request, current_user=current_user)
     await hook.execute(H.AFTER_COLLECTION_DELETE, collection)
 
-    return {"collection_id": collection.id}
+    return JSONResponse(
+        status_code=status.HTTP_200_OK,
+        content={"collection_id": collection.id}
+    )
 
 
 @router.get("/collections", name="Retrieve collections list",
@@ -189,7 +192,10 @@ async def collections_list(
     hook = Hook(session, cache, request, current_user=current_user)
     await hook.execute(H.AFTER_COLLECTIONS_LIST, collections)
 
-    return {
-        "collections": [collection.to_dict() for collection in collections],
-        "collections_count": collections_count,
-    }
+    return JSONResponse(
+        status_code=status.HTTP_200_OK,
+        content={
+            "collections": [collection.to_dict() for collection in collections],  # noqa E501
+            "collections_count": collections_count,
+        }
+    )
