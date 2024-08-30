@@ -68,7 +68,7 @@ async def collection_insert(
     )
 
 
-@router.get("/collection/{collection_id}", name="Read collection",
+@router.get("/collection/{collection_id}", name="Retrieve collection",
             tags=["collections"], response_model=CollectionSelectResponse)
 async def collection_select(
     request: Request,

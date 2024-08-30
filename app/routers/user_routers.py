@@ -14,8 +14,9 @@ parameters.
 
 import uuid
 import os
-from time import time
+import time
 from fastapi import APIRouter, Depends, status, Request
+from fastapi.responses import JSONResponse
 from app.database import get_session
 from app.cache import get_cache
 from app.models.user_models import User, UserRole
@@ -66,7 +67,7 @@ async def user_login(
         raise E("user_login", schema.user_login, E.RESOURCE_NOT_FOUND,
                 status_code=status.HTTP_404_NOT_FOUND)
 
-    elif user.suspended_date > int(time()):
+    elif user.suspended_date > int(time.time()):
         raise E("user_login", schema.user_login, E.USER_SUSPENDED,
                 status_code=status.HTTP_403_FORBIDDEN)
 
@@ -81,7 +82,7 @@ async def user_login(
     password_hash = get_hash(user_password)
 
     if user.password_hash == password_hash:
-        user.logged_date = time()
+        user.logged_date = time.time()
         user.password_accepted = True
         user.password_attempts = 0
 
@@ -231,11 +232,14 @@ async def user_register(
     hook = Hook(session, cache, request, current_user=user)
     await hook.execute(H.AFTER_USER_REGISTER, user)
 
-    return {
-        "user_id": user.id,
-        "mfa_secret": user.mfa_secret,
-        "mfa_url": user.mfa_url,
-    }
+    return JSONResponse(
+        status_code=status.HTTP_201_CREATED,
+        content={
+            "user_id": user.id,
+            "mfa_secret": user.mfa_secret,
+            "mfa_url": user.mfa_url,
+        }
+    )
 
 
 @router.get("/user/{user_id}", name="Retrieve user",
@@ -267,7 +271,7 @@ async def user_select(
     return user.to_dict()
 
 
-@router.put("/user/{user_id}", name="Update a user",
+@router.put("/user/{user_id}", name="Update user",
             tags=["users"], response_model=UserUpdateResponse)
 async def user_update(
     request: Request,
@@ -303,7 +307,7 @@ async def user_update(
     }
 
 
-@router.put("/user/{user_id}/role", name="Update a user role",
+@router.put("/user/{user_id}/role", name="Change role",
             tags=["users"], response_model=RoleUpdateResponse)
 async def role_update(
     request: Request,
@@ -344,7 +348,7 @@ async def role_update(
     }
 
 
-@router.put("/user/{user_id}/password", name="Update a user password",
+@router.put("/user/{user_id}/password", name="Change password",
             tags=["users"], response_model=PasswordUpdateResponse)
 async def password_update(
     request: Request,
@@ -466,7 +470,7 @@ async def userpic_delete(
     }
 
 
-@router.get("/users", name="Retrieve users list",
+@router.get("/users", name="Users list",
             tags=["users"], response_model=UsersListResponse)
 async def users_list(
     request: Request,

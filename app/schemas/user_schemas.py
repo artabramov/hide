@@ -48,12 +48,23 @@ def validate_last_name(last_name: str) -> str:
 
 def validate_user_totp(user_totp: str) -> str:
     """
-    Validate that the user TOTP (Time-based One-Time Password)
-    is numeric.
+    Validate that the user TOTP (Time-based One-Time Password) is
+    numeric. Raises a ValueError if the TOTP is not numeric.
     """
     if not user_totp.isnumeric():
         raise ValueError
     return user_totp
+
+
+def validate_token_exp(token_exp: int) -> int:
+    """
+    Validate that the token expiration time is numeric and positive.
+    Raises a ValueError if it is not numeric or is less than or equal
+    to zero.
+    """
+    if token_exp is not None and int(token_exp) <= 0:
+        raise ValueError
+    return token_exp
 
 
 class UserRegisterRequest(BaseModel):
@@ -102,8 +113,8 @@ class MFARequest(BaseModel):
 
 class UserLoginRequest(BaseModel):
     """Pydantic schema for user login request."""
-    user_login: str
-    user_password: SecretStr
+    user_login: str = Field(..., pattern=r"^[a-z0-9]{2,40}$")
+    user_password: SecretStr = Field(..., min_length=6)
 
     @field_validator("user_login", mode="before")
     def validate_user_login(cls, user_login: str) -> str:
@@ -123,7 +134,7 @@ class UserLoginResponse(BaseModel):
 
 class TokenRetrieveRequest(BaseModel):
     """Pydantic schema for token selection request."""
-    user_login: str
+    user_login: str = Field(..., pattern=r"^[a-z0-9]{2,40}$")
     user_totp: str = Field(..., min_length=6, max_length=6)
     token_exp: Optional[int] = None
 
@@ -134,8 +145,13 @@ class TokenRetrieveRequest(BaseModel):
 
     @field_validator("user_totp", mode="before")
     def validate_user_totp(cls, user_login: str) -> str:
-        """Validate that the user TOTP."""
+        """Validate that the user TOTP is correct."""
         return validate_user_totp(user_login)
+
+    @field_validator("token_exp", mode="before")
+    def validate_token_exp(cls, token_exp: str = None) -> str:
+        """Validate that the token expiration time is correct."""
+        return validate_token_exp(token_exp)
 
 
 class TokenRetrieveResponse(BaseModel):
