@@ -1,6 +1,16 @@
 # How to Set Up a Basic Web Development Environment with Node.js and Express
 
-This guide will walk you through setting up a basic web development environment using Node.js and Express. This setup will help you get started with building web applications.
+## Table of Contents
+
+1. [Prerequisites](#prerequisites)
+2. [Step 1: Install Node.js](#step-1-install-nodejs)
+3. [Step 2: Set Up Your Project](#step-2-set-up-your-project)
+4. [Step 3: Install Express](#step-3-install-express)
+5. [Step 4: Create Your Application](#step-4-create-your-application)
+6. [Step 5: Run Your Application](#step-5-run-your-application)
+7. [Step 6: Next Steps](#step-6-next-steps)
+8. [Troubleshooting](#troubleshooting)
+9. [Conclusion](#conclusion)
 
 ## Prerequisites
 
