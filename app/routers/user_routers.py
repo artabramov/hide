@@ -91,7 +91,10 @@ async def user_login(
         hook = Hook(session, cache, request, current_user=user)
         await hook.execute(H.AFTER_USER_LOGIN, user)
 
-        return {"password_accepted": True}
+        return JSONResponse(
+            status_code=status.HTTP_200_OK,
+            content={"password_accepted": True}
+        )
 
     else:
         user.password_accepted = False
@@ -159,7 +162,10 @@ async def token_retrieve(
         hook = Hook(session, cache, request, current_user=user)
         await hook.execute(H.AFTER_TOKEN_RETRIEVE, user)
 
-        return {"user_token": user_token}
+        return JSONResponse(
+            status_code=status.HTTP_200_OK,
+            content={"user_token": user_token}
+        )
 
     else:
         user.mfa_attempts += 1
@@ -196,7 +202,10 @@ async def token_invalidate(
     hook = Hook(session, cache, request, current_user=current_user)
     await hook.execute(H.AFTER_TOKEN_INVALIDATE, current_user)
 
-    return {}
+    return JSONResponse(
+        status_code=status.HTTP_200_OK,
+        content={}
+    )
 
 
 @router.post("/user", name="Register user",
@@ -268,7 +277,10 @@ async def user_select(
     hook = Hook(session, cache, request, current_user=user)
     await hook.execute(H.AFTER_USER_SELECT, user)
 
-    return user.to_dict()
+    return JSONResponse(
+        status_code=status.HTTP_200_OK,
+        content=user.to_dict()
+    )
 
 
 @router.put("/user/{user_id}", name="Update user",
@@ -302,9 +314,10 @@ async def user_update(
     hook = Hook(session, cache, request, current_user=current_user)
     await hook.execute(H.AFTER_USER_UPDATE, current_user)
 
-    return {
-        "user_id": current_user.id,
-    }
+    return JSONResponse(
+        status_code=status.HTTP_200_OK,
+        content={"user_id": current_user.id}
+    )
 
 
 @router.put("/user/{user_id}/role", name="Change role",
@@ -343,9 +356,10 @@ async def role_update(
     hook = Hook(session, cache, request, current_user=current_user)
     await hook.execute(H.AFTER_ROLE_UPDATE, user)
 
-    return {
-        "user_id": user.id,
-    }
+    return JSONResponse(
+        status_code=status.HTTP_200_OK,
+        content={"user_id": user.id}
+    )
 
 
 @router.put("/user/{user_id}/password", name="Change password",
@@ -382,9 +396,10 @@ async def password_update(
     hook = Hook(session, cache, request, current_user=current_user)
     await hook.execute(H.AFTER_PASSWORD_UPDATE, current_user)
 
-    return {
-        "user_id": current_user.id,
-    }
+    return JSONResponse(
+        status_code=status.HTTP_200_OK,
+        content={"user_id": current_user.id}
+    )
 
 
 @router.post("/user/{user_id}/userpic", name="Upload userpic",
@@ -430,9 +445,10 @@ async def userpic_upload(
     hook = Hook(session, cache, request, current_user=current_user)
     await hook.execute(H.AFTER_USERPIC_UPLOAD, current_user)
 
-    return {
-        "user_id": current_user.id
-    }
+    return JSONResponse(
+        status_code=status.HTTP_200_OK,
+        content={"user_id": current_user.id}
+    )
 
 
 @router.delete("/user/{user_id}/userpic", name="Delete userpic",
@@ -465,9 +481,10 @@ async def userpic_delete(
     hook = Hook(session, cache, request, current_user=current_user)
     await hook.execute(H.AFTER_USERPIC_DELETE, current_user)
 
-    return {
-        "user_id": current_user.id
-    }
+    return JSONResponse(
+        status_code=status.HTTP_200_OK,
+        content={"user_id": current_user.id}
+    )
 
 
 @router.get("/users", name="Users list",
@@ -495,7 +512,10 @@ async def users_list(
     hook = Hook(session, cache, request, current_user=current_user)
     await hook.execute(H.AFTER_USERS_LIST, users)
 
-    return {
-        "users": [user.to_dict() for user in users],
-        "users_count": users_count,
-    }
+    return JSONResponse(
+        status_code=status.HTTP_200_OK,
+        content={
+            "users": [user.to_dict() for user in users],
+            "users_count": users_count,
+        }
+    )
