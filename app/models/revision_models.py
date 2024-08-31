@@ -8,8 +8,8 @@ from app.config import get_config
 cfg = get_config()
 
 
-class Upload(Base):
-    __tablename__ = "documents_uploads"
+class Revision(Base):
+    __tablename__ = "documents_revisions"
     _cacheable = True
 
     id = Column(BigInteger, primary_key=True)
@@ -30,11 +30,12 @@ class Upload(Base):
     thumbnail_filename = Column(String(80), nullable=True, unique=True)
     downloads_count = Column(Integer, index=True, default=0)
 
-    upload_user = relationship(
-        "User", back_populates="user_uploads", lazy="joined")
+    revision_user = relationship(
+        "User", back_populates="user_revisions", lazy="joined")
 
-    upload_document = relationship(
-        "Document", back_populates="document_uploads", lazy="joined")
+    revision_document = relationship(
+        "Document", back_populates="document_revisions", lazy="joined",
+        foreign_keys=document_id, remote_side="Document.id")
 
     def __init__(self, user_id: int, document_id: int,
                  original_filename: str, encrypted_filename: str,
@@ -52,7 +53,7 @@ class Upload(Base):
 
     @property
     def path(self):
-        return os.path.join(cfg.UPLOADS_BASE_PATH, self.encrypted_filename)
+        return os.path.join(cfg.REVISIONS_BASE_PATH, self.encrypted_filename)
 
     @property
     def thumbnail_url(self):

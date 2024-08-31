@@ -17,8 +17,8 @@ class Document(Base):
     updated_date = Column(Integer, index=True, onupdate=lambda: int(time()),
                           default=0)
     user_id = Column(BigInteger, ForeignKey("users.id"), index=True)
-    collection_id = Column(BigInteger, ForeignKey("collections.id"),
-                           index=True)
+    collection_id = Column(BigInteger, ForeignKey("collections.id"), index=True)  # noqa E501
+    last_revision_id = Column(BigInteger, ForeignKey("documents_revisions.id"))
 
     document_filename = Column(String(256), index=True, nullable=False)
     document_summary = Column(String(512), nullable=True)
@@ -43,9 +43,9 @@ class Document(Base):
         "Tag", back_populates="tag_document", lazy="joined",
         cascade="all, delete-orphan")
 
-    document_uploads = relationship(
-        "Upload", back_populates="upload_document", lazy="noload",
-        cascade="all, delete-orphan")
+    document_revisions = relationship(
+        "Revision", back_populates="revision_document", lazy="noload",
+        foreign_keys="Revision.document_id")
 
     document_comments = relationship(
         "Comment", back_populates="comment_document", lazy="noload",
@@ -58,6 +58,10 @@ class Document(Base):
     document_favorites = relationship(
         "Favorite", back_populates="favorite_document", lazy="noload",
         cascade="all, delete-orphan")
+
+    last_revision = relationship(
+        "Revision", primaryjoin="Document.last_revision_id == Revision.id",
+        lazy="joined", uselist=False)
 
     def __init__(self, user_id: int, collection_id: int,
                  document_filename: str, filename: str, filesize: int,
@@ -80,7 +84,7 @@ class Document(Base):
 
     @property
     def file_path(self):
-        return os.path.join(cfg.UPLOADS_BASE_PATH, self.filename)
+        return os.path.join(cfg.REVISIONS_BASE_PATH, self.filename)
 
     @property
     def thumbnail_url(self):
@@ -112,4 +116,5 @@ class Document(Base):
             "downloads_count": self.downloads_count,
             "favorites_count": self.favorites_count,
             "document_tags": self.tag_values,
+            "last_revision": self.last_revision.to_dict(),
         }

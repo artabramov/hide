@@ -20,7 +20,7 @@ from app.cache import get_cache
 from app.models.user_models import User, UserRole
 from app.models.collection_models import Collection
 from app.models.document_models import Document
-from app.models.upload_models import Upload
+from app.models.revision_models import Revision
 from app.models.download_models import Download
 from app.models.tag_models import Tag
 from app.schemas.document_schemas import (
@@ -75,8 +75,8 @@ async def document_upload(
                 status_code=status.HTTP_423_LOCKED)
 
     # Save uploaded file
-    upload_filename = str(uuid.uuid4()) + cfg.UPLOADS_EXTENSION
-    upload_path = os.path.join(cfg.UPLOADS_BASE_PATH, upload_filename)
+    upload_filename = str(uuid.uuid4()) + cfg.REVISIONS_EXTENSION
+    upload_path = os.path.join(cfg.REVISIONS_BASE_PATH, upload_filename)
     await FileManager.upload(file, upload_path)
 
     # Generate thumbnail if applicable
@@ -93,6 +93,7 @@ async def document_upload(
     document_summary = schema.document_summary
     filesize = file.size
 
+    # Insert document
     document_repository = Repository(session, cache, Document)
     document = Document(
         current_user.id, schema.collection_id, document_filename,
@@ -117,11 +118,15 @@ async def document_upload(
     # await hook.execute(H.AFTER_DOCUMENT_UPLOAD, document)
 
     # Insert upload
-    upload_repository = Repository(session, cache, Upload)
-    upload = Upload(current_user.id, document.id, file.filename,
-                    upload_filename, file.size, os.path.getsize(upload_path),
-                    file.content_type, thumbnail_filename=thumbnail_filename)
-    await upload_repository.insert(upload)
+    revision_repository = Repository(session, cache, Revision)
+    revision = Revision(
+        current_user.id, document.id, file.filename, upload_filename,
+        file.size, os.path.getsize(upload_path), file.content_type,
+        thumbnail_filename=thumbnail_filename)
+    await revision_repository.insert(revision)
+
+    document.last_revision_id = revision.id
+    await document_repository.update(document)
 
     return {
         "document_id": document.id

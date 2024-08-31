@@ -1,6 +1,10 @@
 # Changelog
 
-## Version 0.0.32 (2024-08-1)
+## Version 0.0.33 (2024-08-31)
+- Added revisions for uploaded files, enhancing the capability to manage
+  and track different versions of files throughout their lifecycle.
+
+## Version 0.0.33 (2024-08-31)
 - Added a locking mechanism to prevent concurrent modifications of
   records. This feature ensures that all records of a specified model
   class are locked during critical operations, enhancing data integrity
