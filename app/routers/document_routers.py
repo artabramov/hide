@@ -13,12 +13,14 @@ operations.
 import os
 import uuid
 from fastapi import APIRouter, Depends, HTTPException, status, Request
+from fastapi import File, UploadFile
 from fastapi.responses import Response
 from app.database import get_session
 from app.cache import get_cache
 from app.models.user_models import User, UserRole
 from app.models.collection_models import Collection
 from app.models.document_models import Document
+from app.models.upload_models import Upload
 from app.models.download_models import Download
 from app.models.tag_models import Tag
 from app.schemas.document_schemas import (
@@ -31,8 +33,7 @@ from app.auth import auth
 from app.repository import Repository
 from app.managers.file_manager import FileManager
 from app.config import get_config
-from app.helpers.image_helper import image_resize
-from app.helpers.video_helper import video_freeze
+from app.helpers.image_helper import thumbnail_create
 from app.libraries.tag_library import TagLibrary
 from app.errors import E
 from app.managers.entity_manager import SUBQUERY
@@ -47,6 +48,7 @@ router = APIRouter()
              tags=["documents"], name="Upload document")
 async def document_upload(
     request: Request,
+    file: UploadFile = File(...),
     session=Depends(get_session),
     cache=Depends(get_cache),
     current_user: User = Depends(auth(UserRole.writer)),
@@ -73,50 +75,28 @@ async def document_upload(
                 status_code=status.HTTP_423_LOCKED)
 
     # Save uploaded file
-    filename = str(uuid.uuid4()) + cfg.DOCUMENTS_EXTENSION
-    file_path = os.path.join(cfg.DOCUMENTS_BASE_PATH, filename)
-    await FileManager.upload(schema.file, file_path)
+    upload_filename = str(uuid.uuid4()) + cfg.UPLOADS_EXTENSION
+    upload_path = os.path.join(cfg.UPLOADS_BASE_PATH, upload_filename)
+    await FileManager.upload(file, upload_path)
 
     # Generate thumbnail if applicable
-    mimetype = schema.file.content_type
-    is_image = FileManager.is_image(mimetype)
-    is_video = FileManager.is_video(mimetype) if not is_image else False
-
-    thumbnail_filename = None
-    if is_image or is_video:
-
-        thumbnail_filename = str(uuid.uuid4()) + cfg.THUMBNAILS_EXTENSION
-        thumbnail_path = os.path.join(
-            cfg.THUMBNAILS_BASE_PATH, thumbnail_filename)
-
-        try:
-            if is_image:
-                await FileManager.copy(file_path, thumbnail_path)
-
-            elif is_video:
-                await video_freeze(file_path, thumbnail_path)
-
-            await image_resize(thumbnail_path, cfg.THUMBNAIL_WIDTH,
-                               cfg.THUMBNAIL_HEIGHT, cfg.THUMBNAIL_QUALITY)
-
-        except Exception:
-            thumbnail_filename = None
+    mimetype = file.content_type
+    thumbnail_filename = await thumbnail_create(upload_path, mimetype)
 
     # Encrypt file
-    data = await FileManager.read(file_path)
+    data = await FileManager.read(upload_path)
     encrypted_data = await FileManager.encrypt(data)
-    await FileManager.write(file_path, encrypted_data)
+    await FileManager.write(upload_path, encrypted_data)
 
-    # Insert document SQLAlchemy model
-    document_name = (schema.document_name if schema.document_name
-                     else schema.file.filename)
+    # Insert document
+    document_filename = file.filename
     document_summary = schema.document_summary
-    filesize = schema.file.size
+    filesize = file.size
 
     document_repository = Repository(session, cache, Document)
     document = Document(
-        current_user.id, schema.collection_id, document_name, filename,
-        filesize, mimetype, document_summary=document_summary,
+        current_user.id, schema.collection_id, document_filename,
+        upload_filename, filesize, mimetype, document_summary=document_summary,
         thumbnail_filename=thumbnail_filename)
     await document_repository.insert(document)
 
@@ -132,9 +112,16 @@ async def document_upload(
         "filesize", collection_id__eq=collection.id)
     await collection_repository.update(collection)
 
-    # Execute post-upload hook
-    hook = Hook(session, cache, request, current_user=current_user)
-    await hook.execute(H.AFTER_DOCUMENT_UPLOAD, document)
+    # # Execute post-upload hook
+    # hook = Hook(session, cache, request, current_user=current_user)
+    # await hook.execute(H.AFTER_DOCUMENT_UPLOAD, document)
+
+    # Insert upload
+    upload_repository = Repository(session, cache, Upload)
+    upload = Upload(current_user.id, document.id, file.filename,
+                    upload_filename, file.size, os.path.getsize(upload_path),
+                    file.content_type, thumbnail_filename=thumbnail_filename)
+    await upload_repository.insert(upload)
 
     return {
         "document_id": document.id
@@ -250,7 +237,7 @@ async def document_update(
                     status_code=status.HTTP_423_LOCKED)
 
     document.collection_id = schema.collection_id
-    document.document_name = schema.document_name
+    document.document_filename = schema.document_filename
     document.document_summary = schema.document_summary
     await document_repository.update(document)
 

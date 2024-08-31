@@ -20,14 +20,14 @@ class Document(Base):
     collection_id = Column(BigInteger, ForeignKey("collections.id"),
                            index=True)
 
-    document_name = Column(String(256), index=True, nullable=False)
+    document_filename = Column(String(256), index=True, nullable=False)
     document_summary = Column(String(512), nullable=True)
 
     filename = Column(String(256), index=True, nullable=False, unique=True)
     filesize = Column(BigInteger, index=True, nullable=False)
     mimetype = Column(String(256), index=True, nullable=False)
 
-    thumbnail_filename = Column(String(128), nullable=True, unique=True)
+    thumbnail_filename = Column(String(128), nullable=False)
 
     comments_count = Column(Integer, index=True, default=0)
     downloads_count = Column(Integer, index=True, default=0)
@@ -43,6 +43,10 @@ class Document(Base):
         "Tag", back_populates="tag_document", lazy="joined",
         cascade="all, delete-orphan")
 
+    document_uploads = relationship(
+        "Upload", back_populates="upload_document", lazy="noload",
+        cascade="all, delete-orphan")
+
     document_comments = relationship(
         "Comment", back_populates="comment_document", lazy="noload",
         cascade="all, delete-orphan")
@@ -55,13 +59,14 @@ class Document(Base):
         "Favorite", back_populates="favorite_document", lazy="noload",
         cascade="all, delete-orphan")
 
-    def __init__(self, user_id: int, collection_id: int, document_name: str,
-                 filename: str, filesize: int, mimetype: str,
-                 document_summary: str = None, thumbnail_filename: str = None):
+    def __init__(self, user_id: int, collection_id: int,
+                 document_filename: str, filename: str, filesize: int,
+                 mimetype: str, document_summary: str = None,
+                 thumbnail_filename: str = None):
         self.user_id = user_id
         self.collection_id = collection_id
 
-        self.document_name = document_name
+        self.document_filename = document_filename
         self.document_summary = document_summary
 
         self.filename = filename
@@ -75,7 +80,7 @@ class Document(Base):
 
     @property
     def file_path(self):
-        return os.path.join(cfg.DOCUMENTS_BASE_PATH, self.filename)
+        return os.path.join(cfg.UPLOADS_BASE_PATH, self.filename)
 
     @property
     def thumbnail_url(self):
@@ -96,7 +101,7 @@ class Document(Base):
             "user_id": self.user_id,
             "collection_id": self.collection_id,
 
-            "document_name": self.document_name,
+            "document_filename": self.document_filename,
             "document_summary": self.document_summary,
 
             "filesize": self.filesize,

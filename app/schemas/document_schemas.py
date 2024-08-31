@@ -1,6 +1,5 @@
 from typing import Optional, Literal, List
 from pydantic import BaseModel, Field
-from fastapi import File, UploadFile
 from app.config import get_config
 
 cfg = get_config()
@@ -9,10 +8,8 @@ cfg = get_config()
 class DocumentUploadRequest(BaseModel):
     """Pydantic schema for document uploading request."""
     collection_id: int
-    document_name: Optional[str] = Field(min_length=2, max_length=128, default=None)  # noqa E501
     document_summary: Optional[str] = Field(max_length=512, default=None)
     tags: Optional[str] = Field(max_length=256, default=None)
-    file: UploadFile = File(...)
 
 
 class DocumentUploadResponse(BaseModel):
@@ -35,7 +32,7 @@ class DocumentSelectResponse(BaseModel):
     user_id: int
     collection_id: int
 
-    document_name: str
+    document_filename: str
     document_summary: Optional[str] = None
 
     filesize: int
@@ -51,7 +48,7 @@ class DocumentSelectResponse(BaseModel):
 class DocumentUpdateRequest(BaseModel):
     document_id: int
     collection_id: int
-    document_name: Optional[str] = Field(min_length=2, max_length=256)
+    document_filename: Optional[str] = Field(min_length=2, max_length=256)
     document_summary: Optional[str] = Field(max_length=512, default=None)
     tags: Optional[str] = Field(max_length=256, default=None)
 
@@ -69,12 +66,12 @@ class DocumentDeleteResponse(BaseModel):
 
 
 class DocumentsListRequest(BaseModel):
-    document_name__ilike: Optional[str] = None
+    document_filename__ilike: Optional[str] = None
     tag_value__eq: Optional[str] = None
     offset: int = Field(ge=0)
     limit: int = Field(ge=1, le=200)
     order_by: Literal["id", "created_date", "updated_date", "user_id",
-                      "collection_id", "document_name", "filesize",
+                      "collection_id", "document_filename", "filesize",
                       "mimetype", "comments_count"]
     order: Literal["asc", "desc"]
 
