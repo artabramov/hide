@@ -153,8 +153,8 @@ class CollectionsListRequest(BaseModel):
     offset: int = Field(ge=0)
     limit: int = Field(ge=1, le=200)
     order_by: Literal["id", "created_date", "updated_date", "user_id",
-                      "collection_name", "documents_count", "revisions_count",
-                      "revisions_size", "originals_size"]
+                      "collection_name", "documents_count", "documents_size",
+                      "revisions_count", "revisions_size"]
     order: Literal["asc", "desc"]
 
 

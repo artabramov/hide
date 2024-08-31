@@ -99,13 +99,6 @@ async def document_upload(
     tag_values = tag_library.extract_values(schema.tags)
     await tag_library.insert_all(document.id, tag_values)
 
-    # # Update counters
-    # collection.documents_count = await document_repository.count_all(
-    #     collection_id__eq=collection.id)
-    # collection.documents_size = await document_repository.sum_all(
-    #     "filesize", collection_id__eq=collection.id)
-    # await collection_repository.update(collection)
-
     # # Execute post-upload hook
     # hook = Hook(session, cache, request, current_user=current_user)
     # await hook.execute(H.AFTER_DOCUMENT_UPLOAD, document)
@@ -120,25 +113,24 @@ async def document_upload(
 
     # Update document
     await revision_repository.lock_all()
+    document.last_revision_id = revision.id
+    document.document_size = file.size
     document.revisions_count = await revision_repository.count_all(
         document_id__eq=revision.document_id)
     document.revisions_size = await revision_repository.sum_all(
         "revision_size", document_id__eq=revision.document_id)
-    document.originals_size = await revision_repository.sum_all(
-        "original_size", document_id__eq=revision.document_id)
-    document.last_revision_id = revision.id
     await document_repository.update(document)
 
     # Update collection
     await document_repository.lock_all()
     collection.documents_count = await document_repository.count_all(
         collection_id__eq=document.collection_id)
+    collection.documents_size = await document_repository.sum_all(
+        "document_size", collection_id__eq=document.collection_id)
     collection.revisions_count = await document_repository.sum_all(
         "revisions_count", collection_id__eq=document.collection_id)
     collection.revisions_size = await document_repository.sum_all(
         "revisions_size", collection_id__eq=document.collection_id)
-    collection.originals_size = await document_repository.sum_all(
-        "originals_size", collection_id__eq=document.collection_id)
     await collection_repository.update(collection)
 
     return {

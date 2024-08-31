@@ -22,10 +22,10 @@ class Document(Base):
 
     document_filename = Column(String(256), index=True, nullable=False)
     document_summary = Column(String(512), nullable=True)
+    document_size = Column(Integer, index=True, default=0)
 
     revisions_count = Column(Integer, index=True, default=0)
     revisions_size = Column(Integer, index=True, default=0)
-    originals_size = Column(Integer, index=True, default=0)
 
     comments_count = Column(Integer, index=True, default=0)
     downloads_count = Column(Integer, index=True, default=0)
@@ -68,10 +68,10 @@ class Document(Base):
 
         self.document_filename = document_filename
         self.document_summary = document_summary
+        self.document_size = 0
 
         self.revisions_count = 0
         self.revisions_size = 0
-        self.originals_size = 0
 
         self.comments_count = 0
         self.downloads_count = 0
@@ -98,10 +98,10 @@ class Document(Base):
 
             "document_filename": self.document_filename,
             "document_summary": self.document_summary,
+            "document_size": self.document_size,
 
             "revisions_count": self.revisions_count,
             "revisions_size": self.revisions_size,
-            "originals_size": self.originals_size,
 
             "comments_count": self.comments_count,
             "downloads_count": self.downloads_count,

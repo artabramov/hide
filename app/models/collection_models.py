@@ -37,10 +37,12 @@ class Collection(Base):
     is_locked = Column(Boolean)
     collection_name = Column(String(128), index=True, unique=True)
     collection_summary = Column(String(512), nullable=True)
+
     documents_count = Column(Integer, index=True, default=0)
+    documents_size = Column(BigInteger, index=True, default=0)
+
     revisions_count = Column(Integer, index=True, default=0)
     revisions_size = Column(BigInteger, index=True, default=0)
-    originals_size = Column(BigInteger, index=True, default=0)
 
     collection_user = relationship(
         "User", back_populates="user_collections", lazy="joined")
@@ -59,9 +61,9 @@ class Collection(Base):
         self.collection_name = collection_name
         self.collection_summary = collection_summary
         self.documents_count = 0
+        self.documents_size = 0
         self.revisions_count = 0
         self.revisions_size = 0
-        self.originals_size = 0
 
     def to_dict(self):
         """
@@ -81,8 +83,8 @@ class Collection(Base):
             "collection_name": self.collection_name,
             "collection_summary": self.collection_summary,
             "documents_count": self.documents_count,
+            "documents_size": self.documents_size,
             "revisions_count": self.revisions_count,
             "revisions_size": self.revisions_size,
-            "originals_size": self.originals_size,
             "collection_user": self.collection_user.to_dict(),
         }

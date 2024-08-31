@@ -18,10 +18,8 @@ class Revision(Base):
     document_id = Column(BigInteger, ForeignKey("documents.id"), index=True)
 
     revision_filename = Column(String(256), nullable=False, unique=True)
-
-    original_size = Column(BigInteger, index=True, nullable=False)
     revision_size = Column(BigInteger, index=False, nullable=False)
-
+    original_size = Column(BigInteger, index=True, nullable=False)
     original_mimetype = Column(String(256), index=True, nullable=False)
     thumbnail_filename = Column(String(80), nullable=True, unique=True)
     downloads_count = Column(Integer, index=True, default=0)
@@ -34,8 +32,8 @@ class Revision(Base):
         foreign_keys=document_id, remote_side="Document.id")
 
     def __init__(self, user_id: int, document_id: int, revision_filename: str,
-                 revision_size: int, original_size: int,
-                 original_mimetype: str, thumbnail_filename: str = None):
+                 revision_size: int, original_size: int, original_mimetype: str,  # noqa E501
+                 thumbnail_filename: str = None):
         self.user_id = user_id
         self.document_id = document_id
         self.revision_filename = revision_filename

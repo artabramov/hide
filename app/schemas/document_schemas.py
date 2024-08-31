@@ -36,10 +36,10 @@ class DocumentSelectResponse(BaseModel):
 
     document_filename: str
     document_summary: Optional[str] = None
+    document_size: int
 
     revisions_count: int
     revisions_size: int
-    originals_size: int
 
     comments_count: int
     downloads_count: int
