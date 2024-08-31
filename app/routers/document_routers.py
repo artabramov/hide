@@ -107,8 +107,8 @@ async def document_upload(
     revision_repository = Repository(session, cache, Revision)
     revision = Revision(
         current_user.id, document.id, revision_filename,
-        os.path.getsize(upload_path), file.size, file.content_type,
-        thumbnail_filename=thumbnail_filename)
+        os.path.getsize(upload_path), file.filename, file.size,
+        file.content_type, thumbnail_filename=thumbnail_filename)
     await revision_repository.insert(revision)
 
     # Update document

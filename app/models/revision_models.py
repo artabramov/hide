@@ -14,11 +14,14 @@ class Revision(Base):
 
     id = Column(BigInteger, primary_key=True)
     created_date = Column(Integer, index=True, default=lambda: int(time()))
+    updated_date = Column(Integer, index=True, onupdate=lambda: int(time()),
+                          default=0)
     user_id = Column(BigInteger, ForeignKey("users.id"), index=True)
     document_id = Column(BigInteger, ForeignKey("documents.id"), index=True)
 
     revision_filename = Column(String(256), nullable=False, unique=True)
     revision_size = Column(BigInteger, index=False, nullable=False)
+    original_filename = Column(String(256), nullable=False)
     original_size = Column(BigInteger, index=True, nullable=False)
     original_mimetype = Column(String(256), index=True, nullable=False)
     thumbnail_filename = Column(String(80), nullable=True, unique=True)
@@ -32,12 +35,13 @@ class Revision(Base):
         foreign_keys=document_id, remote_side="Document.id")
 
     def __init__(self, user_id: int, document_id: int, revision_filename: str,
-                 revision_size: int, original_size: int, original_mimetype: str,  # noqa E501
-                 thumbnail_filename: str = None):
+                 revision_size: int, original_filename: str, original_size: int, # noqa E501
+                 original_mimetype: str, thumbnail_filename: str = None):
         self.user_id = user_id
         self.document_id = document_id
         self.revision_filename = revision_filename
         self.revision_size = revision_size
+        self.original_filename = original_filename
         self.original_size = original_size
         self.original_mimetype = original_mimetype
         self.thumbnail_filename = thumbnail_filename
@@ -56,9 +60,11 @@ class Revision(Base):
         return {
             "id": self.id,
             "created_date": self.created_date,
+            "updated_date": self.updated_date,
             "user_id": self.user_id,
             "document_id": self.document_id,
             "revision_size": self.revision_size,
+            "original_filename": self.original_filename,
             "original_size": self.original_size,
             "original_mimetype": self.original_mimetype,
             "thumbnail_url": self.thumbnail_url,
