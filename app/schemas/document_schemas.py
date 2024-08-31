@@ -44,7 +44,7 @@ class DocumentSelectResponse(BaseModel):
     downloads_count: int
     favorites_count: int
     document_tags: list
-    last_revision: RevisionSelectResponse
+    current_revision: RevisionSelectResponse
 
 
 class DocumentUpdateRequest(BaseModel):

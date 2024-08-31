@@ -125,7 +125,7 @@ async def document_upload(
         thumbnail_filename=thumbnail_filename)
     await revision_repository.insert(revision)
 
-    document.last_revision_id = revision.id
+    document.current_revision_id = revision.id
     await document_repository.update(document)
 
     return {

@@ -18,7 +18,8 @@ class Document(Base):
                           default=0)
     user_id = Column(BigInteger, ForeignKey("users.id"), index=True)
     collection_id = Column(BigInteger, ForeignKey("collections.id"), index=True)  # noqa E501
-    last_revision_id = Column(BigInteger, ForeignKey("documents_revisions.id"))
+    current_revision_id = Column(
+        BigInteger, ForeignKey("documents_revisions.id"), nullable=True)
 
     document_filename = Column(String(256), index=True, nullable=False)
     document_summary = Column(String(512), nullable=True)
@@ -59,8 +60,8 @@ class Document(Base):
         "Favorite", back_populates="favorite_document", lazy="noload",
         cascade="all, delete-orphan")
 
-    last_revision = relationship(
-        "Revision", primaryjoin="Document.last_revision_id == Revision.id",
+    current_revision = relationship(
+        "Revision", primaryjoin="Document.current_revision_id == Revision.id",
         lazy="joined", uselist=False)
 
     def __init__(self, user_id: int, collection_id: int,
@@ -116,5 +117,5 @@ class Document(Base):
             "downloads_count": self.downloads_count,
             "favorites_count": self.favorites_count,
             "document_tags": self.tag_values,
-            "last_revision": self.last_revision.to_dict(),
+            "current_revision": self.current_revision.to_dict(),
         }
