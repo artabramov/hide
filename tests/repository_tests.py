@@ -452,6 +452,18 @@ class RepositoryTestCase(asynctest.TestCase):
         repository.entity_manager.sum_all.assert_called_with(
             dummy_class_mock, "key", key__eq="value")
 
+    async def test__lock_all(self):
+        """Test lock_all method."""
+        dummy_class_mock = MagicMock()
+        repository = Repository(None, None, dummy_class_mock)
+        repository.entity_manager = AsyncMock()
+
+        result = await repository.lock_all()
+        self.assertIsNone(result)
+
+        repository.entity_manager.lock_all.assert_called_once()
+        repository.entity_manager.lock_all.assert_called_with(dummy_class_mock)
+
     async def test__commit(self):
         """Test commit method."""
         repository = Repository(None, None, None)

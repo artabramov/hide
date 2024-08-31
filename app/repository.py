@@ -125,6 +125,22 @@ class Repository:
         return await self.entity_manager.sum_all(
             self.entity_class, column_name, **kwargs)
 
+    async def lock_all(self):
+        """
+        Locks all records of the entity class to prevent concurrent
+        modifications. This method acquires locks on all records of
+        the model represented by entity_class, ensuring that no other
+        transaction can modify these records while critical operations
+        are performed. The actual behavior depends on the database's
+        support for locking mechanisms and might require appropriate
+        isolation levels. Use this method with caution as it can impact
+        performance and ensure that locks are properly managed by
+        committing or rolling back the transaction. Exceptions may be
+        raised if there are issues with the locking process or database
+        transactions.
+        """
+        await self.entity_manager.lock_all(self.entity_class)
+
     async def commit(self):
         """
         Commits the current transaction to the database.

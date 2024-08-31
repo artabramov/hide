@@ -1,5 +1,11 @@
 # Changelog
 
+## Version 0.0.32 (2024-08-1)
+- Added a locking mechanism to prevent concurrent modifications of
+  records. This feature ensures that all records of a specified model
+  class are locked during critical operations, enhancing data integrity
+  and consistency in multi-user environments.
+
 ## Version 0.0.31 (2024-08-29)
 - Added filters for document count and document size in the collections
   list router.
