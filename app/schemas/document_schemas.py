@@ -32,14 +32,15 @@ class DocumentSelectResponse(BaseModel):
     updated_date: int
     user_id: int
     collection_id: int
+    last_revision_id: int
 
     document_filename: str
     document_summary: Optional[str] = None
 
-    filesize: int
-    mimetype: str
+    revisions_count: int
+    revisions_size: int
+    originals_size: int
 
-    thumbnail_url: Optional[str] = None
     comments_count: int
     downloads_count: int
     favorites_count: int

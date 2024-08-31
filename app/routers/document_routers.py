@@ -75,8 +75,8 @@ async def document_upload(
                 status_code=status.HTTP_423_LOCKED)
 
     # Save uploaded file
-    upload_filename = str(uuid.uuid4()) + cfg.REVISIONS_EXTENSION
-    upload_path = os.path.join(cfg.REVISIONS_BASE_PATH, upload_filename)
+    revision_filename = str(uuid.uuid4()) + cfg.REVISIONS_EXTENSION
+    upload_path = os.path.join(cfg.REVISIONS_BASE_PATH, revision_filename)
     await FileManager.upload(file, upload_path)
 
     # Generate thumbnail if applicable
@@ -89,16 +89,9 @@ async def document_upload(
     await FileManager.write(upload_path, encrypted_data)
 
     # Insert document
-    document_filename = file.filename
-    document_summary = schema.document_summary
-    filesize = file.size
-
-    # Insert document
     document_repository = Repository(session, cache, Document)
-    document = Document(
-        current_user.id, schema.collection_id, document_filename,
-        upload_filename, filesize, mimetype, document_summary=document_summary,
-        thumbnail_filename=thumbnail_filename)
+    document = Document(current_user.id, schema.collection_id, file.filename,
+                        document_summary=schema.document_summary)
     await document_repository.insert(document)
 
     # Apply tags to document
@@ -106,27 +99,47 @@ async def document_upload(
     tag_values = tag_library.extract_values(schema.tags)
     await tag_library.insert_all(document.id, tag_values)
 
-    # Update counters
-    collection.documents_count = await document_repository.count_all(
-        collection_id__eq=collection.id)
-    collection.documents_size = await document_repository.sum_all(
-        "filesize", collection_id__eq=collection.id)
-    await collection_repository.update(collection)
+    # # Update counters
+    # collection.documents_count = await document_repository.count_all(
+    #     collection_id__eq=collection.id)
+    # collection.documents_size = await document_repository.sum_all(
+    #     "filesize", collection_id__eq=collection.id)
+    # await collection_repository.update(collection)
 
     # # Execute post-upload hook
     # hook = Hook(session, cache, request, current_user=current_user)
     # await hook.execute(H.AFTER_DOCUMENT_UPLOAD, document)
 
-    # Insert upload
+    # Insert revision
     revision_repository = Repository(session, cache, Revision)
     revision = Revision(
-        current_user.id, document.id, file.filename, upload_filename,
-        file.size, os.path.getsize(upload_path), file.content_type,
+        current_user.id, document.id, revision_filename,
+        os.path.getsize(upload_path), file.size, file.content_type,
         thumbnail_filename=thumbnail_filename)
     await revision_repository.insert(revision)
 
+    # Update document
+    await revision_repository.lock_all()
+    document.revisions_count = await revision_repository.count_all(
+        document_id__eq=revision.document_id)
+    document.revisions_size = await revision_repository.sum_all(
+        "revision_size", document_id__eq=revision.document_id)
+    document.originals_size = await revision_repository.sum_all(
+        "original_size", document_id__eq=revision.document_id)
     document.last_revision_id = revision.id
     await document_repository.update(document)
+
+    # Update collection
+    await document_repository.lock_all()
+    collection.documents_count = await document_repository.count_all(
+        collection_id__eq=document.collection_id)
+    collection.revisions_count = await document_repository.sum_all(
+        "revisions_count", collection_id__eq=document.collection_id)
+    collection.revisions_size = await document_repository.sum_all(
+        "revisions_size", collection_id__eq=document.collection_id)
+    collection.originals_size = await document_repository.sum_all(
+        "originals_size", collection_id__eq=document.collection_id)
+    await collection_repository.update(collection)
 
     return {
         "document_id": document.id

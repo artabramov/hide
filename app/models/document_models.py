@@ -23,11 +23,9 @@ class Document(Base):
     document_filename = Column(String(256), index=True, nullable=False)
     document_summary = Column(String(512), nullable=True)
 
-    filename = Column(String(256), index=True, nullable=False, unique=True)
-    filesize = Column(BigInteger, index=True, nullable=False)
-    mimetype = Column(String(256), index=True, nullable=False)
-
-    thumbnail_filename = Column(String(128), nullable=False)
+    revisions_count = Column(Integer, index=True, default=0)
+    revisions_size = Column(Integer, index=True, default=0)
+    originals_size = Column(Integer, index=True, default=0)
 
     comments_count = Column(Integer, index=True, default=0)
     downloads_count = Column(Integer, index=True, default=0)
@@ -64,20 +62,17 @@ class Document(Base):
         lazy="joined", uselist=False)
 
     def __init__(self, user_id: int, collection_id: int,
-                 document_filename: str, filename: str, filesize: int,
-                 mimetype: str, document_summary: str = None,
-                 thumbnail_filename: str = None):
+                 document_filename: str, document_summary: str = None):
         self.user_id = user_id
         self.collection_id = collection_id
 
         self.document_filename = document_filename
         self.document_summary = document_summary
 
-        self.filename = filename
-        self.filesize = filesize
-        self.mimetype = mimetype
+        self.revisions_count = 0
+        self.revisions_size = 0
+        self.originals_size = 0
 
-        self.thumbnail_filename = thumbnail_filename
         self.comments_count = 0
         self.downloads_count = 0
         self.favorites_count = 0
@@ -85,11 +80,6 @@ class Document(Base):
     @property
     def file_path(self):
         return os.path.join(cfg.REVISIONS_BASE_PATH, self.filename)
-
-    @property
-    def thumbnail_url(self):
-        if self.thumbnail_filename:
-            return cfg.THUMBNAILS_BASE_URL + self.thumbnail_filename
 
     @property
     def tag_values(self) -> list:
@@ -104,17 +94,19 @@ class Document(Base):
             "updated_date": self.updated_date,
             "user_id": self.user_id,
             "collection_id": self.collection_id,
+            "last_revision_id": self.last_revision_id,
 
             "document_filename": self.document_filename,
             "document_summary": self.document_summary,
 
-            "filesize": self.filesize,
-            "mimetype": self.mimetype,
+            "revisions_count": self.revisions_count,
+            "revisions_size": self.revisions_size,
+            "originals_size": self.originals_size,
 
-            "thumbnail_url": self.thumbnail_url,
             "comments_count": self.comments_count,
             "downloads_count": self.downloads_count,
             "favorites_count": self.favorites_count,
+
             "document_tags": self.tag_values,
             "last_revision": self.last_revision.to_dict(),
         }
