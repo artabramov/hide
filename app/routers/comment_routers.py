@@ -5,6 +5,7 @@ comments pased on query parameters.
 """
 
 from fastapi import APIRouter, Depends, Request, status
+from fastapi.responses import JSONResponse
 from app.database import get_session
 from app.cache import get_cache
 from app.models.user_models import User, UserRole
@@ -68,7 +69,10 @@ async def comment_insert(
     await hook.execute(H.AFTER_COMMENT_INSERT, comment)
 
     await comment_repository.commit()
-    return {"comment_id": comment.id}
+    return JSONResponse(
+        status_code=status.HTTP_201_CREATED,
+        content={"comment_id": comment.id}
+    )
 
 
 @router.get("/comment/{comment_id}", name="Retrieve a comment",
@@ -98,7 +102,10 @@ async def comment_select(
     hook = Hook(session, cache, request, current_user=current_user)
     await hook.execute(H.AFTER_COMMENT_SELECT, comment)
 
-    return comment.to_dict()
+    return JSONResponse(
+        status_code=status.HTTP_200_OK,
+        content=comment.to_dict()
+    )
 
 
 @router.put("/comment/{comment_id}", name="Update a comment",
@@ -143,7 +150,10 @@ async def comment_update(
     await hook.execute(H.AFTER_COMMENT_UPDATE, comment)
 
     await comment_repository.commit()
-    return {"comment_id": comment.id}
+    return JSONResponse(
+        status_code=status.HTTP_200_OK,
+        content={"comment_id": comment.id}
+    )
 
 
 @router.delete("/comment/{comment_id}", name="Delete a comment",
@@ -194,7 +204,10 @@ async def comment_delete(
                        comment.comment_document.document_collection)
 
     await comment_repository.commit()
-    return {"comment_id": comment.id}
+    return JSONResponse(
+        status_code=status.HTTP_200_OK,
+        content={"comment_id": comment.id}
+    )
 
 
 @router.get("/comments", name="Retrieve comments list",
@@ -221,7 +234,10 @@ async def comments_list(
     hook = Hook(session, cache, request, current_user=current_user)
     await hook.execute(H.AFTER_COMMENTS_LIST, comments)
 
-    return {
-        "comments": [comment.to_dict() for comment in comments],
-        "comments_count": comments_count,
-    }
+    return JSONResponse(
+        status_code=status.HTTP_200_OK,
+        content={
+            "comments": [comment.to_dict() for comment in comments],
+            "comments_count": comments_count,
+        }
+    )

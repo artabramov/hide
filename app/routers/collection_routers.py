@@ -1,11 +1,3 @@
-"""
-Module for managing collections in the system. Provides routers for
-creating, retrieving, updating, and deleting collections. Each router
-requires specific user roles for access and handles various responses
-based on the operation's success or failure. Includes functionality
-for managing collection data and ensuring proper authorization.
-"""
-
 from fastapi import APIRouter, Depends, Request, status
 from fastapi.responses import JSONResponse
 from app.database import get_session
@@ -37,14 +29,6 @@ async def collection_insert(
     current_user: User = Depends(auth(UserRole.writer)),
     schema=Depends(CollectionInsertRequest)
 ) -> dict:
-    """
-    Creates a collection with the provided details and returns its ID.
-    Requires the user to have the writer or admin role. Returns a 201
-    response on success. Returns a 422 error if any collection attribute
-    is invalid, including if a collection with the same name already
-    exists. Returns a 403 error if the user's token is invalid or if the
-    user does not have the required role.
-    """
     collection_repository = Repository(session, cache, Collection)
 
     collection_exists = await collection_repository.exists(
@@ -77,14 +61,6 @@ async def collection_select(
     current_user: User = Depends(auth(UserRole.reader)),
     schema=Depends(CollectionSelectRequest)
 ) -> dict:
-    """
-    Retrieves a collection by its ID and returns the collection details.
-    Requires the user to have the reader or higher role. Returns a 200
-    response with the collection details if found. Returns a 404 error
-    if the collection with the specified ID is not found. Returns a 403
-    error if the user's token is invalid or if the user does not have
-    the required role.
-    """
     collection_repository = Repository(session, cache, Collection)
     collection = await collection_repository.select(id=schema.collection_id)
 
@@ -110,15 +86,6 @@ async def collection_update(
     current_user: User = Depends(auth(UserRole.editor)),
     schema=Depends(CollectionUpdateRequest)
 ) -> dict:
-    """
-    Updates an existing collection's details by its ID. Requires the
-    user to have the editor or higher role. Returns a 200 response with
-    the ID of the updated collection. Returns a 404 error if the
-    collection with the specified ID is not found. Returns a 422 error
-    if the new name conflicts with an existing collection name. Returns
-    a 403 error if the user's token is invalid or if the user does not
-    have the required role.
-    """
     collection_repository = Repository(session, cache, Collection)
 
     collection = await collection_repository.select(id=schema.collection_id)
@@ -155,15 +122,6 @@ async def collection_delete(
     current_user: User = Depends(auth(UserRole.admin)),
     schema=Depends(CollectionDeleteRequest)
 ) -> dict:
-    """
-    Deletes a collection by its ID from the repository. Requires the
-    user to have the admin role. Returns a 200 response with the ID of
-    the deleted collection. Returns a 404 error if the collection with
-    the specified ID is not found. If the collection contains related
-    documents, they will be deleted as well. Returns a 403 error if the
-    user's token is invalid or if the user does not have the required
-    role.
-    """
     collection_repository = Repository(session, cache, Collection)
 
     collection = await collection_repository.select(id=schema.collection_id)
@@ -196,15 +154,6 @@ async def collections_list(
     current_user: User = Depends(auth(UserRole.reader)),
     schema=Depends(CollectionsListRequest)
 ) -> dict:
-    """
-    Retrieves a list of collections based on the provided query
-    parameters. Requires the user to have the reader or higher role.
-    Returns a 200 response with the list of collections and the total
-    count. If no collections are found, an empty list and a count of
-    zero are returned. Returns a 422 error if any of the query
-    parameters are invalid. Returns a 403 error if the user's token
-    is invalid or if the user does not have the required role.
-    """
     collection_repository = Repository(session, cache, Collection)
 
     collections = await collection_repository.select_all(**schema.__dict__)

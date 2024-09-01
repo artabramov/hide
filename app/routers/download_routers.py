@@ -5,6 +5,7 @@ listing downloads based on query parameters.
 """
 
 from fastapi import APIRouter, Depends, Request, status
+from fastapi.responses import JSONResponse
 from app.database import get_session
 from app.cache import get_cache
 from app.models.user_models import User, UserRole
@@ -49,7 +50,10 @@ async def download_select(
     hook = Hook(session, cache, request, current_user=current_user)
     await hook.execute(H.AFTER_DOWNLOAD_SELECT, download)
 
-    return download.to_dict()
+    return JSONResponse(
+        status_code=status.HTTP_200_OK,
+        content=download.to_dict()
+    )
 
 
 @router.get("/downloads", name="Retrieve downloads list",
@@ -76,7 +80,10 @@ async def downloads_list(
     hook = Hook(session, cache, request, current_user=current_user)
     await hook.execute(H.AFTER_DOWNLOADS_LIST, downloads)
 
-    return {
-        "downloads": [download.to_dict() for download in downloads],
-        "downloads_count": downloads_count,
-    }
+    return JSONResponse(
+        status_code=status.HTTP_200_OK,
+        content={
+            "downloads": [download.to_dict() for download in downloads],
+            "downloads_count": downloads_count,
+        }
+    )

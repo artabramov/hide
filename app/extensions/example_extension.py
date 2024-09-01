@@ -33,11 +33,6 @@ async def after_user_register(
     current_user: User,
     user: User
 ) -> User:
-    """
-    Handles post-user registration actions. This function is invoked
-    after the user registration process completes. Returns the
-    registered user.
-    """
     ...
     return user
 
@@ -49,10 +44,6 @@ async def after_user_login(
     current_user: User,
     user: User
 ) -> User:
-    """
-    Handles post-user login actions. This function is invoked after
-    a user has successfully logged in. Returns the logged-in user.
-    """
     ...
     return user
 
@@ -64,11 +55,6 @@ async def after_token_retrieve(
     current_user: User,
     user: User
 ) -> User:
-    """
-    Handles post-token retrieval actions. This function is invoked after
-    a token has been retrieved. Returns the user associated with the
-    token.
-    """
     ...
     return user
 
@@ -80,11 +66,6 @@ async def after_token_invalidate(
     current_user: User,
     user: User
 ) -> User:
-    """
-    Handles post-token invalidation actions. This function is invoked
-    after a token has been invalidated. Returns the user associated with
-    the token.
-    """
     ...
     return user
 
@@ -96,10 +77,6 @@ async def after_user_select(
     current_user: User,
     user: User
 ) -> User:
-    """
-    Handles post-user-selection actions. This function is invoked after
-    a user has been selected. Returns the selected user.
-    """
     ...
     return user
 
@@ -111,10 +88,6 @@ async def after_user_update(
     current_user: User,
     user: User
 ) -> User:
-    """
-    Handles post-user-update actions. This function is invoked after
-    a user has been updated. Returns the updated user.
-    """
     ...
     return user
 
@@ -126,10 +99,6 @@ async def after_role_update(
     current_user: User,
     user: User
 ) -> User:
-    """
-    Handles post-role-update actions. This function is invoked after
-    a user's role has been updated. Returns the updated user.
-    """
     ...
     return user
 
@@ -141,10 +110,6 @@ async def after_password_update(
     current_user: User,
     user: User
 ) -> User:
-    """
-    Handles post-password-update actions. This function is invoked after
-    a user's password has been updated. Returns the updated user.
-    """
     ...
     return user
 
@@ -156,11 +121,6 @@ async def after_userpic_upload(
     current_user: User,
     user: User
 ) -> User:
-    """
-    Handles post-userpic-upload actions. This function is invoked after
-    a user's profile picture has been uploaded. Returns the user with
-    the updated profile picture.
-    """
     ...
     return user
 
@@ -172,11 +132,6 @@ async def after_userpic_delete(
     current_user: User,
     user: User
 ) -> User:
-    """
-    Handles post-userpic-delete actions. This function is invoked after
-    a user's profile picture has been deleted. Returns the user with
-    the profile picture removed.
-    """
     ...
     return user
 
@@ -188,10 +143,6 @@ async def after_users_list(
     current_user: User,
     users: List[Collection]
 ) -> List[Collection]:
-    """
-    Handles post-user-list actions. This function is invoked after
-    a list of users has been retrieved. Returns the list of users.
-    """
     ...
     return users
 
@@ -204,9 +155,10 @@ async def after_collection_insert(
     collection: Collection
 ) -> Collection:
     """
-    Handles post-collection-insertion actions. This function is invoked
-    after a collection has been inserted. Returns the inserted
-    collection.
+    Executes additional logic after a collection entity is created,
+    such as logging, updating the database, managing the cache, or
+    performing other actions. The function returns the collection
+    entity after processing is complete.
     """
     ...
     return collection
@@ -220,9 +172,10 @@ async def after_collection_select(
     collection: Collection
 ) -> Collection:
     """
-    Handles post-collection-selection actions. This function is invoked
-    after a collection has been selected. Returns the selected
-    collection.
+    Executes additional logic after a collection entity is selected,
+    such as logging, updating the database, managing the cache, or
+    performing other actions. The function returns the collection
+    entity after processing is complete.
     """
     ...
     return collection
@@ -236,8 +189,10 @@ async def after_collection_update(
     collection: Collection
 ) -> Collection:
     """
-    Handles post-collection-update actions. This function is invoked
-    after a collection has been updated. Returns the updated collection.
+    Executes additional logic after a collection entity is updated,
+    such as logging, updating the database, managing the cache, or
+    performing other actions. The function returns the collection
+    entity after processing is complete.
     """
     ...
     return collection
@@ -251,8 +206,10 @@ async def after_collection_delete(
     collection: Collection
 ) -> Collection:
     """
-    Handles post-collection-deletion actions. This function is invoked
-    after a collection has been deleted. Returns the deleted collection.
+    Executes additional logic after a collection entity is deleted,
+    such as logging, updating the database, managing the cache, or
+    performing other actions. The function returns the collection
+    entity after processing is complete.
     """
     ...
     return collection
@@ -266,15 +223,14 @@ async def after_collections_list(
     collections: List[Collection]
 ) -> List[Collection]:
     """
-    Handles post-collections-list actions. This function is invoked
-    after a list of collections has been retrieved. Returns the list
-    of collections.
+    Executes additional logic after a list of collection entities is
+    selected, such as logging, updating the database, managing the
+    cache, or performing other actions. The function returns the
+    list of collection entities after processing is complete.
     """
     ...
     return collections
 
-
-# =============================================================================
 
 async def after_document_insert(
     entity_manager: EntityManager,

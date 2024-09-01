@@ -1,19 +1,7 @@
-"""
-This module provides API endpoints for managing documents. It includes
-functionalities for uploading, downloading, updating, and deleting
-documents, as well as retrieving detailed information and lists of
-documents. The endpoints enforce access controls based on user roles
-and handle various aspects of document processing, including file
-storage, encryption, and metadata management. The module ensures that
-users interact with documents according to their permissions and
-maintains the integrity of document-related data throughout different
-operations.
-"""
-
 import os
 import uuid
-from fastapi import APIRouter, Depends, status, Request
-from fastapi import File, UploadFile
+from fastapi import APIRouter, Depends, status, Request, File, UploadFile
+from fastapi.responses import JSONResponse
 from app.database import get_session
 from app.cache import get_cache
 from app.models.user_models import User, UserRole
@@ -37,8 +25,6 @@ from app.errors import E
 from app.managers.entity_manager import SUBQUERY
 from app.schemas.document_schemas import DOCUMENT_NAME_LENGTH
 
-DOCUMENT_ID = "document_id"
-
 cfg = get_config()
 router = APIRouter()
 
@@ -53,15 +39,6 @@ async def document_insert(
     current_user: User = Depends(auth(UserRole.writer)),
     schema=Depends(DocumentInsertRequest)
 ) -> dict:
-    """
-    Handles the upload of a document, including validation, file
-    processing, and storage. Validates that the specified collection
-    exists and is not locked. Requires the user to have the writer role
-    or higher. Returns a 201 response with the ID of the newly created
-    document. Returns a 404 error if the collection does not exist, a
-    423 error if the collection is locked, and a 403 error if the user's
-    token is invalid or if the user lacks the required role.
-    """
     # Validate collection
     collection_repository = Repository(session, cache, Collection)
     collection = await collection_repository.select(id=schema.collection_id)
@@ -132,15 +109,15 @@ async def document_insert(
         "revisions_size", collection_id__eq=document.collection_id)
     await collection_repository.update(collection, commit=False)
 
+    # # Execute hooks
+    hook = Hook(session, cache, request, current_user=current_user)
+    await hook.execute(H.AFTER_DOCUMENT_INSERT, document)
+
     await document_repository.commit()
-
-    # # Execute post-upload hook
-    # hook = Hook(session, cache, request, current_user=current_user)
-    # await hook.execute(H.AFTER_DOCUMENT_INSERT, document)
-
-    return {
-        "document_id": document.id
-    }
+    return JSONResponse(
+        status_code=status.HTTP_201_CREATED,
+        content={"document_id": document.id}
+    )
 
 
 @router.get("/document/{document_id}", name="Retrieve a document",
@@ -152,12 +129,6 @@ async def document_select(
     current_user: User = Depends(auth(UserRole.reader)),
     schema=Depends(DocumentSelectRequest)
 ) -> dict:
-    """
-    Retrieves details of a specific document by its ID. Requires the
-    user to have at least a reader role. Returns the document details
-    if found. Raises a 403 error if the user does not have sufficient
-    permissions, or a 404 error if the document does not exist.
-    """
     document_repository = Repository(session, cache, Document)
     document = await document_repository.select(id=schema.document_id)
 
@@ -168,7 +139,10 @@ async def document_select(
     hook = Hook(session, cache, request, current_user=current_user)
     await hook.execute(H.AFTER_DOCUMENT_SELECT, document)
 
-    return document.to_dict()
+    return JSONResponse(
+        status_code=status.HTTP_200_OK,
+        content=document.to_dict()
+    )
 
 
 @router.put("/document/{document_id}", name="Update a document",
@@ -181,17 +155,6 @@ async def document_update(
     current_user: User = Depends(auth(UserRole.editor)),
     schema=Depends(DocumentUpdateRequest)
 ) -> dict:
-    """
-    Update the details of a specific document. Requires the user to have
-    at least an editor role. Checks if the document exists and ensures
-    that the collection to which the document is moved is not locked. If
-    the collection ID is changed, updates the document and collection
-    counters accordingly. Returns the document ID upon successful
-    update. Raises a 403 error if the user does not have sufficient
-    permissions, a 404 error if the document or collection does not
-    exist, and a 423 error if the document or collection is locked,
-    and a 422 error if any provided attributes are invalid.
-    """
     collection_repository = Repository(session, cache, Collection)
     collection = None
 
@@ -289,10 +252,13 @@ async def document_update(
 
     await document_repository.commit()
 
-    # hook = Hook(session, cache, request, current_user=current_user)
-    # await hook.execute(H.AFTER_COLLECTION_UPDATE, collection)
+    hook = Hook(session, cache, request, current_user=current_user)
+    await hook.execute(H.AFTER_DOCUMENT_UPDATE, document)
 
-    return {"document_id": document.id}
+    return JSONResponse(
+        status_code=status.HTTP_200_OK,
+        content={"document_id": document.id}
+    )
 
 
 @router.delete("/document/{document_id}", name="Delete a document",
@@ -304,15 +270,6 @@ async def document_delete(
     current_user: User = Depends(auth(UserRole.admin)),
     schema=Depends(DocumentDeleteRequest)
 ) -> dict:
-    """
-    Deletes a specific document by its ID. Requires the user to have an
-    admin role. Checks if the document exists and if its collection is
-    not locked. If the document is found and the collection is not
-    locked, it is removed from the repository, and the collection's
-    document counters are updated. Raises a 404 error if the document
-    is not found, a 403 error if the collection is locked, and a 422
-    error if the attributes are invalid.
-    """
     document_repository = Repository(session, cache, Document)
 
     document = await document_repository.select(id=schema.document_id)
@@ -342,10 +299,13 @@ async def document_delete(
     collection_repository = Repository(session, cache, Collection)
     await collection_repository.update(document.document_collection)
 
-    # hook = Hook(session, cache, request, current_user=current_user)
-    # await hook.execute(H.AFTER_COLLECTION_DELETE, collection)
+    hook = Hook(session, cache, request, current_user=current_user)
+    await hook.execute(H.AFTER_DOCUMENT_DELETE, document)
 
-    return {"document_id": document.id}
+    return JSONResponse(
+        status_code=status.HTTP_200_OK,
+        content={"document_id": document.id}
+    )
 
 
 @router.get("/documents", name="Retrieve documents list",
@@ -357,28 +317,23 @@ async def documents_list(
     current_user: User = Depends(auth(UserRole.reader)),
     schema=Depends(DocumentsListRequest)
 ) -> dict:
-    """
-    Retrieve a list of documents based on the provided query parameters.
-    The user must have at least a reader role. The endpoint dynamically
-    prepares query parameters, including any tag filters if specified,
-    and fetches the list of documents and their count from the
-    repository. It returns a dictionary with the documents and their
-    total count.
-    """
     document_repository = Repository(session, cache, Document)
 
     kwargs = schema.__dict__
     if schema.tag_value__eq:
         kwargs[SUBQUERY] = await document_repository.entity_manager.subquery(
-            Tag, DOCUMENT_ID, tag_value__eq=schema.tag_value__eq)
+            Tag, "document_id", tag_value__eq=schema.tag_value__eq)
 
     documents = await document_repository.select_all(**kwargs)
     documents_count = await document_repository.count_all(**kwargs)
 
-    # hook = Hook(session, cache, request, current_user=current_user)
-    # await hook.execute(H.AFTER_COLLECTIONS_LIST, collections)
+    hook = Hook(session, cache, request, current_user=current_user)
+    await hook.execute(H.AFTER_DOCUMENTS_LIST, documents)
 
-    return {
-        "documents": [document.to_dict() for document in documents],
-        "documents_count": documents_count,
-    }
+    return JSONResponse(
+        status_code=status.HTTP_200_OK,
+        content={
+            "documents": [document.to_dict() for document in documents],
+            "documents_count": documents_count,
+        }
+    )

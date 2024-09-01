@@ -4,6 +4,7 @@ creating, retrieving, deleting, and listing favorite entities.
 """
 
 from fastapi import APIRouter, Depends, Request, status
+from fastapi.responses import JSONResponse
 from app.database import get_session
 from app.cache import get_cache
 from app.models.user_models import User, UserRole
@@ -65,7 +66,10 @@ async def favorite_insert(
     await hook.execute(H.AFTER_FAVORITE_INSERT, favorite)
 
     await favorite_repository.commit()
-    return {"favorite_id": favorite.id}
+    return JSONResponse(
+        status_code=status.HTTP_201_CREATED,
+        content={"favorite_id": favorite.id}
+    )
 
 
 @router.get("/favorite/{favorite_id}", name="Retrieve a favorite",
@@ -101,7 +105,10 @@ async def favorite_select(
     hook = Hook(session, cache, request, current_user=current_user)
     await hook.execute(H.AFTER_FAVORITE_SELECT, favorite)
 
-    return favorite.to_dict()
+    return JSONResponse(
+        status_code=status.HTTP_200_OK,
+        content=favorite.to_dict()
+    )
 
 
 @router.delete("/favorite/{favorite_id}", name="Delete a favorite",
@@ -146,7 +153,10 @@ async def favorite_delete(
     await hook.execute(H.AFTER_FAVORITE_DELETE, favorite)
 
     await favorite_repository.commit()
-    return {"favorite_id": favorite.id}
+    return JSONResponse(
+        status_code=status.HTTP_200_OK,
+        content={"favorite_id": favorite.id}
+    )
 
 
 @router.get("/favorites", name="Retrieve favorites list",
@@ -177,7 +187,10 @@ async def favorites_list(
     hook = Hook(session, cache, request, current_user=current_user)
     await hook.execute(H.AFTER_FAVORITES_LIST, favorites)
 
-    return {
-        "favorites": [favorite.to_dict() for favorite in favorites],
-        "favorites_count": favorites_count,
-    }
+    return JSONResponse(
+        status_code=status.HTTP_200_OK,
+        content={
+            "favorites": [favorite.to_dict() for favorite in favorites],
+            "favorites_count": favorites_count,
+        }
+    )
