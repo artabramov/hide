@@ -70,4 +70,5 @@ class Revision(Base):
             "original_mimetype": self.original_mimetype,
             "thumbnail_url": self.thumbnail_url,
             "downloads_count": self.downloads_count,
+            "revision_user": self.revision_user.to_dict(),
         }

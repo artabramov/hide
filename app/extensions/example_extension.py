@@ -15,6 +15,7 @@ from fastapi import Request
 from app.models.user_models import User
 from app.models.collection_models import Collection
 from app.models.document_models import Document
+from app.models.revision_models import Revision
 from app.models.comment_models import Comment
 from app.models.download_models import Download
 from app.models.favorite_models import Favorite
@@ -497,3 +498,56 @@ async def after_favorites_list(
     """
     ...
     return favorites
+
+
+# =============================================================================
+
+async def after_revision_select(
+    entity_manager: EntityManager,
+    cache_manager: CacheManager,
+    request: Request,
+    current_user: User,
+    revision: Revision
+) -> Revision:
+    """
+    Executes additional logic after a revision entity is selected,
+    such as logging, updating the database, managing the cache, or
+    performing other actions. The function returns the possibly
+    modified revision entity after processing is complete.
+    """
+    ...
+    return revision
+
+
+async def after_revision_download(
+    entity_manager: EntityManager,
+    cache_manager: CacheManager,
+    request: Request,
+    current_user: User,
+    revision: Revision
+) -> Revision:
+    """
+    Executes additional logic after a revision entity is downloaded,
+    such as logging, updating the database, managing the cache, or
+    performing other actions. The function returns the possibly
+    modified revision entity after processing is complete.
+    """
+    ...
+    return revision
+
+
+async def after_revisions_list(
+    entity_manager: EntityManager,
+    cache_manager: CacheManager,
+    request: Request,
+    current_user: User,
+    revisions: List[Revision]
+) -> List[Favorite]:
+    """
+    Executes additional logic after a list of revision entities is
+    selected, such as logging, updating the database, managing the cache,
+    or performing other actions. The function returns the possibly
+    modified list of revision entities after processing is complete.
+    """
+    ...
+    return revisions
