@@ -15,6 +15,13 @@ the application.
 | Collection delete |         |         |         | +       |
 | Collections list  | +       | +       | +       | +       |
 
+| Revision select      | +         | +         | +         | +         |
+| Revision download    | +         | +         | +         | +         |
+| Revisions list       | +         | +         | +         | +         |
+
+| Download select      | +         | +         | +         | +         |
+| Downloads list       | +         | +         | +         | +         |
+
 | Comment insert       |           | +         | +         | +         |
 | Comment select       | +         | +         | +         | +         |
 | Comment update       |           |           | + (owner) | + (owner) |
