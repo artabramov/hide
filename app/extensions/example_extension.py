@@ -274,7 +274,9 @@ async def after_collections_list(
     return collections
 
 
-async def after_document_upload(
+# =============================================================================
+
+async def after_document_insert(
     entity_manager: EntityManager,
     cache_manager: CacheManager,
     request: Request,
@@ -282,24 +284,10 @@ async def after_document_upload(
     document: Document
 ) -> Document:
     """
-    Handles post-document-upload actions. This function is invoked
-    after a document has been uploaded. Returns the uploaded document.
-    """
-    ...
-    return document
-
-
-async def after_document_download(
-    entity_manager: EntityManager,
-    cache_manager: CacheManager,
-    request: Request,
-    current_user: User,
-    document: Document
-) -> Document:
-    """
-    Handles post-document-download actions. This function is invoked
-    after a document has been downloaded. Returns the downloaded
-    document.
+    Executes additional logic after a document entity is created,
+    such as logging, updating the database, managing the cache, or
+    performing other actions. The function returns the document
+    entity after processing is complete.
     """
     ...
     return document
@@ -313,14 +301,65 @@ async def after_document_select(
     document: Document
 ) -> Document:
     """
-    Handles post-document-selection actions. This function is invoked
-    after a document has been selected. Returns the selected document.
+    Executes additional logic after a document entity is selected,
+    such as logging, updating the database, managing the cache, or
+    performing other actions. The function returns the document
+    entity after processing is complete.
     """
     ...
     return document
 
 
-# =============================================================================
+async def after_document_update(
+    entity_manager: EntityManager,
+    cache_manager: CacheManager,
+    request: Request,
+    current_user: User,
+    document: Document
+) -> Document:
+    """
+    Executes additional logic after a document entity is updated,
+    such as logging, updating the database, managing the cache, or
+    performing other actions. The function returns the document
+    entity after processing is complete.
+    """
+    ...
+    return document
+
+
+async def after_document_delete(
+    entity_manager: EntityManager,
+    cache_manager: CacheManager,
+    request: Request,
+    current_user: User,
+    document: Document
+) -> Document:
+    """
+    Executes additional logic after a document entity is deleted,
+    such as logging, updating the database, managing the cache, or
+    performing other actions. The function returns the document
+    entity after processing is complete.
+    """
+    ...
+    return document
+
+
+async def after_documents_list(
+    entity_manager: EntityManager,
+    cache_manager: CacheManager,
+    request: Request,
+    current_user: User,
+    documents: List[Document]
+) -> List[Document]:
+    """
+    Executes additional logic after a list of document entities is
+    selected, such as logging, updating the database, managing the
+    cache, or performing other actions. The function returns the
+    list of document entities after processing is complete.
+    """
+    ...
+    return documents
+
 
 async def after_favorite_insert(
     entity_manager: EntityManager,

@@ -43,8 +43,7 @@ LOG_AFTER_COLLECTION_SELECT = True
 LOG_AFTER_COLLECTION_UPDATE = True
 LOG_AFTER_COLLECTION_DELETE = True
 LOG_AFTER_COLLECTIONS_LIST = False
-LOG_AFTER_DOCUMENT_UPLOAD = True
-LOG_AFTER_DOCUMENT_DOWNLOAD = True
+LOG_AFTER_DOCUMENT_INSERT = True
 LOG_AFTER_DOCUMENT_SELECT = True
 LOG_AFTER_COMMENT_INSERT = True
 LOG_AFTER_COMMENT_SELECT = True
@@ -418,7 +417,7 @@ async def after_collections_list(
     return collections
 
 
-async def after_document_upload(
+async def after_document_insert(
     entity_manager: EntityManager,
     cache_manager: CacheManager,
     request: Request,
@@ -429,25 +428,8 @@ async def after_document_upload(
     Logs a document upload event, capturing details about the document
     and the request. Returns the uploaded document.
     """
-    if LOG_AFTER_DOCUMENT_UPLOAD:
+    if LOG_AFTER_DOCUMENT_INSERT:
         log = Log(current_user, request, document, LogAction.insert)
-        await entity_manager.insert(log)
-    return document
-
-
-async def after_document_download(
-    entity_manager: EntityManager,
-    cache_manager: CacheManager,
-    request: Request,
-    current_user: User,
-    document: Document
-) -> Document:
-    """
-    Logs a document download event, capturing details about the document
-    and the request. Returns the downloaded document.
-    """
-    if LOG_AFTER_DOCUMENT_DOWNLOAD:
-        log = Log(current_user, request, document, LogAction.select)
         await entity_manager.insert(log)
     return document
 

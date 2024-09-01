@@ -136,7 +136,7 @@ async def document_insert(
 
     # # Execute post-upload hook
     # hook = Hook(session, cache, request, current_user=current_user)
-    # await hook.execute(H.AFTER_DOCUMENT_UPLOAD, document)
+    # await hook.execute(H.AFTER_DOCUMENT_INSERT, document)
 
     return {
         "document_id": document.id
