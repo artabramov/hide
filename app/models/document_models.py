@@ -20,7 +20,7 @@ class Document(Base):
     collection_id = Column(BigInteger, ForeignKey("collections.id"), index=True)  # noqa E501
     last_revision_id = Column(BigInteger, ForeignKey("documents_revisions.id"))
 
-    document_filename = Column(String(256), index=True, nullable=False)
+    document_name = Column(String(128), index=True, nullable=False)
     document_summary = Column(String(512), nullable=True)
     document_size = Column(Integer, index=True, default=0)
 
@@ -62,11 +62,11 @@ class Document(Base):
         lazy="joined", uselist=False)
 
     def __init__(self, user_id: int, collection_id: int,
-                 document_filename: str, document_summary: str = None):
+                 document_name: str, document_summary: str = None):
         self.user_id = user_id
         self.collection_id = collection_id
 
-        self.document_filename = document_filename
+        self.document_name = document_name
         self.document_summary = document_summary
         self.document_size = 0
 
@@ -96,7 +96,7 @@ class Document(Base):
             "collection_id": self.collection_id,
             "last_revision_id": self.last_revision_id,
 
-            "document_filename": self.document_filename,
+            "document_name": self.document_name,
             "document_summary": self.document_summary,
             "document_size": self.document_size,
 

@@ -37,6 +37,7 @@ from app.helpers.image_helper import thumbnail_create
 from app.libraries.tag_library import TagLibrary
 from app.errors import E
 from app.managers.entity_manager import SUBQUERY
+from app.schemas.document_schemas import DOCUMENT_NAME_LENGTH
 
 DOCUMENT_ID = "document_id"
 
@@ -89,8 +90,12 @@ async def document_upload(
     await FileManager.write(upload_path, encrypted_data)
 
     # Insert document
+    if schema.document_name:
+        document_name = schema.document_name
+    else:
+        document_name, _ = os.path.splitext(file.filename)[:DOCUMENT_NAME_LENGTH]  # noqa E501
     document_repository = Repository(session, cache, Document)
-    document = Document(current_user.id, schema.collection_id, file.filename,
+    document = Document(current_user.id, schema.collection_id, document_name,
                         document_summary=schema.document_summary)
     await document_repository.insert(document)
 
@@ -111,7 +116,7 @@ async def document_upload(
         file.content_type, thumbnail_filename=thumbnail_filename)
     await revision_repository.insert(revision)
 
-    # Update document
+    # Update document revision and counters
     await revision_repository.lock_all()
     document.last_revision_id = revision.id
     document.document_size = file.size
@@ -121,7 +126,7 @@ async def document_upload(
         "revision_size", document_id__eq=revision.document_id)
     await document_repository.update(document)
 
-    # Update collection
+    # Update collection counters
     await document_repository.lock_all()
     collection.documents_count = await document_repository.count_all(
         collection_id__eq=document.collection_id)
@@ -247,7 +252,7 @@ async def document_update(
                     status_code=status.HTTP_423_LOCKED)
 
     document.collection_id = schema.collection_id
-    document.document_filename = schema.document_filename
+    document.document_name = schema.document_name
     document.document_summary = schema.document_summary
     await document_repository.update(document)
 

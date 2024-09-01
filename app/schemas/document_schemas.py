@@ -3,12 +3,16 @@ from pydantic import BaseModel, Field
 from app.schemas.revision_schemas import RevisionSelectResponse
 from app.config import get_config
 
+DOCUMENT_NAME_LENGTH = 128
+
 cfg = get_config()
 
 
 class DocumentUploadRequest(BaseModel):
     """Pydantic schema for document uploading request."""
     collection_id: int
+    document_name: Optional[str] = Field(max_length=DOCUMENT_NAME_LENGTH,
+                                         default=None)
     document_summary: Optional[str] = Field(max_length=512, default=None)
     tags: Optional[str] = Field(max_length=256, default=None)
 
@@ -34,7 +38,7 @@ class DocumentSelectResponse(BaseModel):
     collection_id: int
     last_revision_id: int
 
-    document_filename: str
+    document_name: str
     document_summary: Optional[str] = None
     document_size: int
 
@@ -51,7 +55,7 @@ class DocumentSelectResponse(BaseModel):
 class DocumentUpdateRequest(BaseModel):
     document_id: int
     collection_id: int
-    document_filename: Optional[str] = Field(min_length=2, max_length=256)
+    document_name: Optional[str] = Field(min_length=2, max_length=256)
     document_summary: Optional[str] = Field(max_length=512, default=None)
     tags: Optional[str] = Field(max_length=256, default=None)
 
@@ -69,12 +73,12 @@ class DocumentDeleteResponse(BaseModel):
 
 
 class DocumentsListRequest(BaseModel):
-    document_filename__ilike: Optional[str] = None
+    document_name__ilike: Optional[str] = None
     tag_value__eq: Optional[str] = None
     offset: int = Field(ge=0)
     limit: int = Field(ge=1, le=200)
     order_by: Literal["id", "created_date", "updated_date", "user_id",
-                      "collection_id", "document_filename", "filesize",
+                      "collection_id", "document_name", "filesize",
                       "mimetype", "comments_count"]
     order: Literal["asc", "desc"]
 
