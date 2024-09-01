@@ -4,6 +4,9 @@
 - Added routers for managing revisions, including retrieving details of
   a specific revision, downloading the associated file, and listing
   revisions based on query parameters.
+- Added routers for managing download entities, including endpoints for
+  retrieving details of a specific download and listing downloads based
+  on query parameters.
 
 ## Version 0.0.34 (2024-08-31)
 - Added revisions for uploaded files, enhancing the capability to manage

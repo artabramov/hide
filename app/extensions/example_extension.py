@@ -408,37 +408,6 @@ async def after_comments_list(
     return comments
 
 
-async def after_download_select(
-    entity_manager: EntityManager,
-    cache_manager: CacheManager,
-    request: Request,
-    current_user: User,
-    download: Download
-) -> Download:
-    """
-    Handles post-download-selection actions. This function is invoked
-    after a download has been selected. Returns the selected download.
-    """
-    ...
-    return download
-
-
-async def after_downloads_list(
-    entity_manager: EntityManager,
-    cache_manager: CacheManager,
-    request: Request,
-    current_user: User,
-    downloads: List[Download]
-) -> List[Download]:
-    """
-    Handles post-downloads-list actions. This function is invoked
-    after a list of downloads has been retrieved. Returns the list
-    of downloads.
-    """
-    ...
-    return downloads
-
-
 async def after_favorite_insert(
     entity_manager: EntityManager,
     cache_manager: CacheManager,
@@ -551,3 +520,37 @@ async def after_revisions_list(
     """
     ...
     return revisions
+
+
+async def after_download_select(
+    entity_manager: EntityManager,
+    cache_manager: CacheManager,
+    request: Request,
+    current_user: User,
+    download: Download
+) -> Download:
+    """
+    Executes additional logic after a download entity is selected,
+    such as logging, updating the database, managing the cache, or
+    performing other actions. The function returns the possibly
+    modified download entity after processing is complete.
+    """
+    ...
+    return download
+
+
+async def after_downloads_list(
+    entity_manager: EntityManager,
+    cache_manager: CacheManager,
+    request: Request,
+    current_user: User,
+    downloads: List[Download]
+) -> List[Download]:
+    """
+    Executes additional logic after a list of download entities is
+    selected, such as logging, updating the database, managing the cache,
+    or performing other actions. The function returns the possibly
+    modified list of download entities after processing is complete.
+    """
+    ...
+    return downloads

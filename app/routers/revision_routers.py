@@ -1,5 +1,5 @@
 """
-This module defines FastAPI routers for managing revisions, including
+The module defines FastAPI routers for managing revisions, including
 retrieving details of a specific revision by its ID, downloading the
 original file associated with a revision, and listing revisions based
 on query parameters.
@@ -37,12 +37,13 @@ async def revision_select(
     schema=Depends(RevisionSelectRequest)
 ) -> dict:
     """
-    Retrieve the details of a specific revision by its ID. The router
-    fetches the revision entity from the repository using the provided
+    Retrieve the details of a specific revision entity by its ID. The
+    router fetches the revision from the repository using the provided
     ID, executes related hooks, and returns a response with the revision.
     The current user should have a reader role or higher. Returns a 200
     response on success, a 404 error if the revision is not found, a 403
-    error if authentication fails.
+    error if authentication fails or the user does not have the required
+    role.
     """
     revision_repository = Repository(session, cache, Revision)
     revision = await revision_repository.select(id=schema.revision_id)
@@ -75,7 +76,8 @@ async def revision_download(
     file, executes related hooks, and returns the file as an attachment.
     The current user should have a reader role or higher. Returns a 200
     response on success, a 404 error if the revision is not found, a 403
-    error if authentication fails.
+    error if authentication fails or the user does not have the required
+    role.
     """
     revision_repository = Repository(session, cache, Revision)
     revision = await revision_repository.select(id=schema.revision_id)
@@ -113,12 +115,13 @@ async def revisions_list(
     schema=Depends(RevisionsListRequest)
 ) -> dict:
     """
-    Retrieve a list of revisions based on the provided query parameters.
-    The router fetches the list of revision entities from the repository,
-    executes related hooks, and returns a response with the revisions
-    and the total count of revisions that match the query. The current
-    user should have a reader role or higher. Returns a 200 response on
-    success, a 403 error if authentication fails.
+    Retrieve a list of revision entities based on the provided query
+    parameters. The router fetches the list of revisions from the
+    repository, executes related hooks, and returns a response with the
+    revisions and the total count of revisions that match the query.
+    The current user should have a reader role or higher. Returns a 200
+    response on success, a 403 error if authentication fails or the user
+    does not have the required role.
     """
     revision_repository = Repository(session, cache, Revision)
 
