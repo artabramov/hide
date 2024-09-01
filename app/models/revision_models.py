@@ -14,8 +14,6 @@ class Revision(Base):
 
     id = Column(BigInteger, primary_key=True)
     created_date = Column(Integer, index=True, default=lambda: int(time()))
-    updated_date = Column(Integer, index=True, onupdate=lambda: int(time()),
-                          default=0)
     user_id = Column(BigInteger, ForeignKey("users.id"), index=True)
     document_id = Column(BigInteger, ForeignKey("documents.id"), index=True)
 
@@ -60,7 +58,6 @@ class Revision(Base):
         return {
             "id": self.id,
             "created_date": self.created_date,
-            "updated_date": self.updated_date,
             "user_id": self.user_id,
             "document_id": self.document_id,
             "revision_size": self.revision_size,
