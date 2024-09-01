@@ -32,13 +32,12 @@ async def download_select(
     schema=Depends(DownloadSelectRequest)
 ) -> dict:
     """
-    Retrieve the details of a specific download entity by its ID. The
-    router fetches the download from the repository using the provided
-    ID, executes related hooks, and returns a response with the download.
-    The current user should have a reader role or higher. Returns a 200
-    response on success, a 404 error if the download is not found, a 403
-    error if authentication fails or the user does not have the required
-    role.
+    Retrieve a download entity by its ID. The router fetches the
+    download from the repository using the provided ID, executes related
+    hooks, and returns the result in a JSON response. The current user
+    should have a reader role or higher. Returns a 200 response on
+    success, a 404 error if the download is not found, and a 403 error
+    if authentication fails or the user does not have the required role.
     """
     download_repository = Repository(session, cache, Download)
     download = await download_repository.select(id=schema.download_id)
@@ -63,13 +62,12 @@ async def downloads_list(
     schema=Depends(DownloadsListRequest)
 ) -> dict:
     """
-    Retrieve a list of download entities based on the provided query
+    Retrieve a list of download entities based on the provided
     parameters. The router fetches the list of downloads from the
-    repository, executes related hooks, and returns a response with the
-    downloads and the total count of downloads that match the query.
-    The current user should have a reader role or higher. Returns a 200
-    response on success, a 403 error if authentication fails or the user
-    does not have the required role.
+    repository, executes related hooks, and returns the results in
+    a JSON response. The current user should have a reader role or
+    higher. Returns a 200 response on success and a 403 error if
+    authentication fails or the user does not have the required role.
     """
     download_repository = Repository(session, cache, Download)
     downloads = await download_repository.select_all(**schema.__dict__)

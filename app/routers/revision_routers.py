@@ -37,13 +37,12 @@ async def revision_select(
     schema=Depends(RevisionSelectRequest)
 ) -> dict:
     """
-    Retrieve the details of a specific revision entity by its ID. The
-    router fetches the revision from the repository using the provided
-    ID, executes related hooks, and returns a response with the revision.
-    The current user should have a reader role or higher. Returns a 200
-    response on success, a 404 error if the revision is not found, a 403
-    error if authentication fails or the user does not have the required
-    role.
+    Retrieve a revision entity by its ID. The router fetches the
+    revision from the repository using the provided ID, executes related
+    hooks, and returns the result in a JSON response. The current user
+    should have a reader role or higher. Returns a 200 response on
+    success, a 404 error if the revision is not found, and a 403 error
+    if authentication fails or the user does not have the required role.
     """
     revision_repository = Repository(session, cache, Revision)
     revision = await revision_repository.select(id=schema.revision_id)
@@ -75,9 +74,9 @@ async def revision_download(
     specified revision from the repository, decrypts the associated
     file, executes related hooks, and returns the file as an attachment.
     The current user should have a reader role or higher. Returns a 200
-    response on success, a 404 error if the revision is not found, a 403
-    error if authentication fails or the user does not have the required
-    role.
+    response on success, a 404 error if the revision is not found, and
+    a 403 error if authentication fails or the user does not have the
+    required role.
     """
     revision_repository = Repository(session, cache, Revision)
     revision = await revision_repository.select(id=schema.revision_id)
@@ -90,15 +89,17 @@ async def revision_download(
     download_repository = Repository(session, cache, Download)
     download = Download(current_user.id, revision.revision_document.id,
                         revision.id)
-    await download_repository.insert(download)
+    await download_repository.insert(download, commit=False)
 
     document_repository = Repository(session, cache, Document)
     revision.revision_document.downloads_count = await download_repository.count_all(  # noqa E501
         document_id__eq=revision.revision_document.id)
-    await document_repository.update(revision.revision_document)
+    await document_repository.update(revision.revision_document, commit=False)
 
     hook = Hook(session, cache, request, current_user=current_user)
     await hook.execute(H.AFTER_REVISION_DOWNLOAD, revision.revision)
+
+    await revision_repository.commit()
 
     headers = {"Content-Disposition": f"attachment; filename={revision.original_filename}"}  # noqa E501
     return Response(content=decrypted_data, headers=headers,
@@ -115,13 +116,12 @@ async def revisions_list(
     schema=Depends(RevisionsListRequest)
 ) -> dict:
     """
-    Retrieve a list of revision entities based on the provided query
+    Retrieve a list of revision entities based on the provided
     parameters. The router fetches the list of revisions from the
-    repository, executes related hooks, and returns a response with the
-    revisions and the total count of revisions that match the query.
-    The current user should have a reader role or higher. Returns a 200
-    response on success, a 403 error if authentication fails or the user
-    does not have the required role.
+    repository, executes related hooks, and returns the results in
+    a JSON response. The current user should have a reader role or
+    higher. Returns a 200 response on success and a 403 error if
+    authentication fails or the user does not have the required role.
     """
     revision_repository = Repository(session, cache, Revision)
 

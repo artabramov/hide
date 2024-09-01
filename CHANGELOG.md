@@ -1,6 +1,7 @@
 # Changelog
 
 ## Version 0.0.35 (2024-09-01)
+- Refactored comment routers and improved validation logic.
 - Added routers for managing revisions, including retrieving details of
   a specific revision, downloading the associated file, and listing
   revisions based on query parameters.

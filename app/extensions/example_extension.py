@@ -1,15 +1,3 @@
-"""
-This module contains asynchronous extension functions that handle
-various actions related to user, document, collection, comment,
-download, favorite, and other entities in the application. These
-functions are invoked after certain operations, such as registration,
-updates, or retrievals, to perform additional tasks like logging or
-processing. Each function in this module follows the pattern of
-handling post-operation actions and returns the relevant entity
-or list of entities.
-"""
-
-
 from typing import List
 from fastapi import Request
 from app.models.user_models import User
@@ -332,82 +320,6 @@ async def after_document_select(
     return document
 
 
-async def after_comment_insert(
-    entity_manager: EntityManager,
-    cache_manager: CacheManager,
-    request: Request,
-    current_user: User,
-    comment: Comment
-) -> Comment:
-    """
-    Handles post-comment-insertion actions. This function is invoked
-    after a comment has been inserted. Returns the inserted comment.
-    """
-    ...
-    return comment
-
-
-async def after_comment_select(
-    entity_manager: EntityManager,
-    cache_manager: CacheManager,
-    request: Request,
-    current_user: User,
-    comment: Comment
-) -> Comment:
-    """
-    Handles post-comment-selection actions. This function is invoked
-    after a comment has been selected. Returns the selected comment.
-    """
-    ...
-    return comment
-
-
-async def after_comment_update(
-    entity_manager: EntityManager,
-    cache_manager: CacheManager,
-    request: Request,
-    current_user: User,
-    comment: Comment
-) -> Comment:
-    """
-    Handles post-comment-update actions. This function is invoked
-    after a comment has been updated. Returns the updated comment.
-    """
-    ...
-    return comment
-
-
-async def after_comment_delete(
-    entity_manager: EntityManager,
-    cache_manager: CacheManager,
-    request: Request,
-    current_user: User,
-    comment: Comment
-) -> Comment:
-    """
-    Handles post-comment-delete actions. This function is invoked
-    after a comment has been deleted. Returns the deleted comment.
-    """
-    ...
-    return comment
-
-
-async def after_comments_list(
-    entity_manager: EntityManager,
-    cache_manager: CacheManager,
-    request: Request,
-    current_user: User,
-    comments: List[Comment]
-) -> List[Comment]:
-    """
-    Handles post-comments-list actions. This function is invoked
-    after a list of comments has been retrieved. Returns the list
-    of comments.
-    """
-    ...
-    return comments
-
-
 async def after_favorite_insert(
     entity_manager: EntityManager,
     cache_manager: CacheManager,
@@ -554,3 +466,88 @@ async def after_downloads_list(
     """
     ...
     return downloads
+
+
+async def after_comment_insert(
+    entity_manager: EntityManager,
+    cache_manager: CacheManager,
+    request: Request,
+    current_user: User,
+    comment: Comment
+) -> Comment:
+    """
+    Executes additional logic after a comment entity is created,
+    such as logging, updating the database, managing the cache, or
+    performing other actions. The function returns the possibly
+    modified comment entity after processing is complete.
+    """
+    ...
+    return comment
+
+
+async def after_comment_select(
+    entity_manager: EntityManager,
+    cache_manager: CacheManager,
+    request: Request,
+    current_user: User,
+    comment: Comment
+) -> Comment:
+    """
+    Executes additional logic after a comment entity is selected,
+    such as logging, updating the database, managing the cache, or
+    performing other actions. The function returns the possibly
+    modified comment entity after processing is complete.
+    """
+    ...
+    return comment
+
+
+async def after_comment_update(
+    entity_manager: EntityManager,
+    cache_manager: CacheManager,
+    request: Request,
+    current_user: User,
+    comment: Comment
+) -> Comment:
+    """
+    Executes additional logic after a comment entity is updated,
+    such as logging, updating the database, managing the cache, or
+    performing other actions. The function returns the possibly
+    modified comment entity after processing is complete.
+    """
+    ...
+    return comment
+
+
+async def after_comment_delete(
+    entity_manager: EntityManager,
+    cache_manager: CacheManager,
+    request: Request,
+    current_user: User,
+    comment: Comment
+) -> Comment:
+    """
+    Executes additional logic after a comment entity is deleted,
+    such as logging, updating the database, managing the cache, or
+    performing other actions. The function returns the possibly
+    modified comment entity after processing is complete.
+    """
+    ...
+    return comment
+
+
+async def after_comments_list(
+    entity_manager: EntityManager,
+    cache_manager: CacheManager,
+    request: Request,
+    current_user: User,
+    comments: List[Comment]
+) -> List[Comment]:
+    """
+    Executes additional logic after a list of comment entities is
+    selected, such as logging, updating the database, managing the cache,
+    or performing other actions. The function returns the possibly
+    modified list of comment entities after processing is complete.
+    """
+    ...
+    return comments

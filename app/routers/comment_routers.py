@@ -1,17 +1,13 @@
 """
-This module manages comments with endpoints to create, retrieve, update,
-and delete them. It requires specific user roles for different actions:
-creating or updating comments needs a writer or higher role, and
-deleting comments requires an admin role. Responses include status codes
-for success or various errors such as forbidden actions, missing
-resources, or invalid attributes.
+The module defines API routers for managing comments, including creating,
+retrieving, updating, deleting comment entities, and listing comments
+based on query parameters.
 """
 
 from fastapi import APIRouter, Depends, Request, status
 from app.database import get_session
 from app.cache import get_cache
 from app.models.user_models import User, UserRole
-from app.models.collection_models import Collection
 from app.models.document_models import Document
 from app.models.comment_models import Comment
 from app.schemas.comment_schemas import (
@@ -39,14 +35,15 @@ async def comment_insert(
     schema=Depends(CommentInsertRequest)
 ) -> dict:
     """
-    Creates a new comment for a specified document. Validates the
-    existence and status of the document and its collection. Inserts
-    the comment into the database, updates the document's comment count,
-    and returns the ID of the created comment. The user must have a
-    writer role or higher. Returns a 201 Created status on success.
-    Raises a 404 error if the document is not found, a 403 error if
-    the collection is locked or does not exist, and a 422 error for
-    issues with comment validation.
+    Create a new comment entity. The router validates that the document
+    exists and that its collection is not locked, inserts the new
+    comment into the repository, updates the comment count for the
+    associated document, executes related hooks, and returns the created
+    comment ID in a JSON response. The current user should have a writer
+    role or higher. Returns a 201 response on success, a 404 error if
+    the document is not found, a 423 error if the collection is locked,
+    and a 403 error if authentication fails or the user does not have
+    the required role.
     """
     document_repository = Repository(session, cache, Document)
     document = await document_repository.select(id__eq=schema.document_id)
@@ -55,25 +52,22 @@ async def comment_insert(
         raise E("document_id", schema.document_id, E.RESOURCE_NOT_FOUND,
                 status_code=status.HTTP_404_NOT_FOUND)
 
-    collection_repository = Repository(session, cache, Collection)
-    collection = await collection_repository.select(
-        id__eq=document.collection_id)
-
-    if not collection or collection.is_locked:
+    elif document.document_collection.is_locked:
         raise E("document_id", schema.document_id, E.RESOURCE_LOCKED,
                 status_code=status.HTTP_423_LOCKED)
 
     comment_repository = Repository(session, cache, Comment)
     comment = Comment(current_user.id, document.id, schema.comment_content)
-    await comment_repository.insert(comment)
+    await comment_repository.insert(comment, commit=False)
 
     document.comments_count = await comment_repository.count_all(
         document_id__eq=document.id)
-    await document_repository.update(document)
+    await document_repository.update(document, commit=False)
 
     hook = Hook(session, cache, request, current_user=current_user)
     await hook.execute(H.AFTER_COMMENT_INSERT, comment)
 
+    await comment_repository.commit()
     return {"comment_id": comment.id}
 
 
@@ -87,10 +81,12 @@ async def comment_select(
     schema=Depends(CommentSelectRequest)
 ) -> dict:
     """
-    Retrieves a specific comment by its ID. Validates that the comment
-    exists and returns its details. The user must have a reader role or
-    higher to access the comment. Returns a 200 OK status with the
-    comment details. Raises a 404 error if the comment is not found.
+    Retrieve a comment entity by its ID. The router fetches the comment
+    from the repository using the provided ID, executes related hooks,
+    and returns the result in a JSON response. The current user should
+    have a reader role or higher. Returns a 200 response on success,
+    a 404 error if the comment is not found, and a 403 error if
+    authentication fails or the user does not have the required role.
     """
     comment_repository = Repository(session, cache, Comment)
     comment = await comment_repository.select(id=schema.comment_id)
@@ -115,13 +111,15 @@ async def comment_update(
     schema=Depends(CommentUpdateRequest)
 ) -> dict:
     """
-    Updates an existing comment for a specified document. Validates the
-    existence of the comment, checks that the current user is the author
-    of the comment, and ensures the associated collection is not locked.
-    Requires the user to have an editor role or higher. Returns a 200
-    status on success. Raises a 404 error if the comment is not found,
-    a 403 error if the current user does not own the comment, and a 423
-    error if the collection is locked.
+    Update a comment entity by its ID. The router fetches the comment
+    from the repository using the provided ID, verifies that the current
+    user is the creator of the comment, checks that the associated
+    collection is not locked, updates the comment content, and returns
+    the updated comment ID in a JSON response. The current user should
+    have an editor role or higher. Returns a 200 response on success,
+    a 404 error if the comment is not found, a 423 error if the
+    collection is locked, and a 403 error if authentication fails or
+    the user does not have the required role.
     """
     comment_repository = Repository(session, cache, Comment)
     comment = await comment_repository.select(id=schema.comment_id)
@@ -134,20 +132,17 @@ async def comment_update(
         raise E("comment_id", schema.comment_id, E.RESOURCE_FORBIDDEN,
                 status_code=status.HTTP_403_FORBIDDEN)
 
-    collection_repository = Repository(session, cache, Collection)
-    collection = await collection_repository.select(
-        id=comment.comment_document.collection_id)
-
-    if not collection or collection.is_locked:
+    elif comment.comment_document.document_collection.is_locked:
         raise E("comment_id", schema.comment_id, E.RESOURCE_LOCKED,
                 status_code=status.HTTP_423_LOCKED)
 
     comment.comment_content = schema.comment_content
-    await comment_repository.update(comment)
+    await comment_repository.update(comment, commit=False)
 
     hook = Hook(session, cache, request, current_user=current_user)
     await hook.execute(H.AFTER_COMMENT_UPDATE, comment)
 
+    await comment_repository.commit()
     return {"comment_id": comment.id}
 
 
@@ -157,15 +152,20 @@ async def comment_delete(
     request: Request,
     session=Depends(get_session),
     cache=Depends(get_cache),
-    current_user: User = Depends(auth(UserRole.admin)),
+    current_user: User = Depends(auth(UserRole.editor)),
     schema=Depends(CommentDeleteRequest)
 ) -> dict:
     """
-    Deletes a specified comment. Validates the existence of the comment
-    and checks that the associated collection is not locked. Requires
-    the user to have an admin role. Returns a 200 status on success.
-    Raises a 404 error if the comment is not found, and a 423 error if
-    the collection is locked or does not exist.
+    Delete a comment entity by its ID. The router fetches the comment
+    from the repository using the provided ID, verifies that the comment
+    exists, ensures the associated collection is not locked, and
+    confirms that the current user is the creator of the comment. It
+    updates the comment count for the associated document, executes
+    related hooks, and returns the ID of the deleted comment in a JSON
+    response. The current user should have an editor role or higher.
+    Returns a 200 response on success, a 404 error if the comment is
+    not found, a 423 error if the collection is locked, and a 403 error
+    if authentication fails or the user does not have the required role.
     """
     comment_repository = Repository(session, cache, Comment)
     comment = await comment_repository.select(id=schema.comment_id)
@@ -174,25 +174,26 @@ async def comment_delete(
         raise E("comment_id", schema.comment_id, E.RESOURCE_NOT_FOUND,
                 status_code=status.HTTP_404_NOT_FOUND)
 
-    collection_repository = Repository(session, cache, Collection)
-    collection = await collection_repository.select(
-        id=comment.comment_document.collection_id)
-
-    if not collection or collection.is_locked:
+    elif comment.comment_document.document_collection.is_locked:
         raise E("comment_id", schema.comment_id, E.RESOURCE_LOCKED,
                 status_code=status.HTTP_423_LOCKED)
 
+    elif comment.user_id != current_user.id:
+        raise E("comment_id", schema.comment_id, E.RESOURCE_FORBIDDEN,
+                status_code=status.HTTP_403_FORBIDDEN)
+
     await comment_repository.delete(comment, commit=False)
-    await comment_repository.commit()
 
     comment.comment_document.comments_count = await comment_repository.count_all(  # noqa E501
         document_id__eq=comment.document_id)
     document_repository = Repository(session, cache, Document)
-    await document_repository.update(comment.comment_document)
+    await document_repository.update(comment.comment_document, commit=False)
 
     hook = Hook(session, cache, request, current_user=current_user)
-    await hook.execute(H.AFTER_COLLECTION_DELETE, collection)
+    await hook.execute(H.AFTER_COLLECTION_DELETE,
+                       comment.comment_document.document_collection)
 
+    await comment_repository.commit()
     return {"comment_id": comment.id}
 
 
@@ -206,10 +207,12 @@ async def comments_list(
     schema=Depends(CommentsListRequest)
 ) -> dict:
     """
-    Retrieves a list of comments based on the provided query parameters.
-    Requires the user to have a reader role or higher. Returns a 200
-    response on success. Raises a 403 error if the user does not have
-    the required role or if the token is missing.
+    Retrieve a list of comment entities based on the provided
+    parameters. The router fetches the list of comments from the
+    repository, executes related hooks, and returns the results in
+    a JSON response. The current user should have a reader role or
+    higher. Returns a 200 response on success and a 403 error if
+    authentication fails or the user does not have the required role.
     """
     comment_repository = Repository(session, cache, Comment)
     comments = await comment_repository.select_all(**schema.__dict__)

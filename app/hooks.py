@@ -53,11 +53,6 @@ class H(enum.Enum):
     AFTER_DOCUMENT_UPLOAD = "after_document_upload"
     AFTER_DOCUMENT_DOWNLOAD = "after_document_download"
     AFTER_DOCUMENT_SELECT = "after_document_select"
-    AFTER_COMMENT_INSERT = "after_comment_insert"
-    AFTER_COMMENT_SELECT = "after_comment_select"
-    AFTER_COMMENT_UPDATE = "after_comment_update"
-    AFTER_COMMENT_DELETE = "after_comment_delete"
-    AFTER_COMMENTS_LIST = "after_comments_list"
     AFTER_FAVORITE_INSERT = "after_favorite_insert"
     AFTER_FAVORITE_SELECT = "after_favorite_select"
     AFTER_FAVORITE_DELETE = "after_favorite_delete"
@@ -71,6 +66,12 @@ class H(enum.Enum):
 
     AFTER_DOWNLOAD_SELECT = "after_download_select"
     AFTER_DOWNLOADS_LIST = "after_downloads_list"
+
+    AFTER_COMMENT_INSERT = "after_comment_insert"
+    AFTER_COMMENT_SELECT = "after_comment_select"
+    AFTER_COMMENT_UPDATE = "after_comment_update"
+    AFTER_COMMENT_DELETE = "after_comment_delete"
+    AFTER_COMMENTS_LIST = "after_comments_list"
 
 
 class Hook:

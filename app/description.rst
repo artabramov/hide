@@ -15,6 +15,12 @@ the application.
 | Collection delete |         |         |         | +       |
 | Collections list  | +       | +       | +       | +       |
 
+| Comment insert       |           | +         | +         | +         |
+| Comment select       | +         | +         | +         | +         |
+| Comment update       |           |           | + (owner) | + (owner) |
+| Comment delete       |           |           | + (owner) | + (owner) |
+| Comments list        | +         | +         | +         | +         |
+
 How to obtain a token
 ---------------------
 
