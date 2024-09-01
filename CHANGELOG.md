@@ -1,6 +1,11 @@
 # Changelog
 
-## Version 0.0.33 (2024-08-31)
+## Version 0.0.35 (2024-09-01)
+- Added routers for managing revisions, including retrieving details of
+  a specific revision, downloading the associated file, and listing
+  revisions based on query parameters.
+
+## Version 0.0.34 (2024-08-31)
 - Added revisions for uploaded files, enhancing the capability to manage
   and track different versions of files throughout their lifecycle.
 
