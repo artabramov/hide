@@ -53,12 +53,13 @@ class H(enum.Enum):
     AFTER_DOCUMENT_UPLOAD = "after_document_upload"
     AFTER_DOCUMENT_DOWNLOAD = "after_document_download"
     AFTER_DOCUMENT_SELECT = "after_document_select"
+
+    # =========================================================================
+
     AFTER_FAVORITE_INSERT = "after_favorite_insert"
     AFTER_FAVORITE_SELECT = "after_favorite_select"
     AFTER_FAVORITE_DELETE = "after_favorite_delete"
     AFTER_FAVORITES_LIST = "after_favorites_list"
-
-    # =========================================================================
 
     AFTER_REVISION_SELECT = "after_revision_select"
     AFTER_REVISION_DOWNLOAD = "after_revision_download"

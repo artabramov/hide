@@ -14,6 +14,11 @@ the application.
 | Collection update |         |         | +       | +       |
 | Collection delete |         |         |         | +       |
 | Collections list  | +       | +       | +       | +       |
+
+| Favorite insert      | +         | +         | +         | +         |
+| Favorite select      | + (owner) | + (owner) | + (owner) | + (owner) |
+| Favorite delete      | + (owner) | + (owner) | + (owner) | + (owner) |
+| Favorites list       | + (owner) | + (owner) | + (owner) | + (owner) |
 | Revision select      | +         | +         | +         | +         |
 | Revision download    | +         | +         | +         | +         |
 | Revisions list       | +         | +         | +         | +         |

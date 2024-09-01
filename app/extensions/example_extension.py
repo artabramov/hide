@@ -320,6 +320,8 @@ async def after_document_select(
     return document
 
 
+# =============================================================================
+
 async def after_favorite_insert(
     entity_manager: EntityManager,
     cache_manager: CacheManager,
@@ -328,8 +330,10 @@ async def after_favorite_insert(
     favorite: Favorite
 ) -> Favorite:
     """
-    Handles post-favorite-insert actions. This function is invoked
-    after a favorite has been inserted. Returns the inserted favorite.
+    Executes additional logic after a favorite entity is created,
+    such as logging, updating the database, managing the cache, or
+    performing other actions. The function returns the favorite
+    entity after processing is complete.
     """
     ...
     return favorite
@@ -343,8 +347,10 @@ async def after_favorite_select(
     favorite: Favorite
 ) -> Favorite:
     """
-    Handles post-favorite-select actions. This function is invoked
-    after a favorite has been selected. Returns the selected favorite.
+    Executes additional logic after a favorite entity is selected,
+    such as logging, updating the database, managing the cache, or
+    performing other actions. The function returns the favorite
+    entity after processing is complete.
     """
     ...
     return favorite
@@ -358,8 +364,10 @@ async def after_favorite_delete(
     favorite: Favorite
 ) -> Favorite:
     """
-    Handles post-favorite-delete actions. This function is invoked
-    after a favorite has been deleted. Returns the deleted favorite.
+    Executes additional logic after a favorite entity is deleted,
+    such as logging, updating the database, managing the cache, or
+    performing other actions. The function returns the favorite
+    entity after processing is complete.
     """
     ...
     return favorite
@@ -373,15 +381,14 @@ async def after_favorites_list(
     favorites: List[Favorite]
 ) -> List[Favorite]:
     """
-    Handles post-favorites-list actions. This function is invoked
-    after a list of favorites has been retrieved. Returns the list of
-    favorites.
+    Executes additional logic after a list of favorite entities is
+    selected, such as logging, updating the database, managing the
+    cache, or performing other actions. The function returns the
+    list of favorite entities after processing is complete.
     """
     ...
     return favorites
 
-
-# =============================================================================
 
 async def after_revision_select(
     entity_manager: EntityManager,
@@ -393,8 +400,8 @@ async def after_revision_select(
     """
     Executes additional logic after a revision entity is selected,
     such as logging, updating the database, managing the cache, or
-    performing other actions. The function returns the possibly
-    modified revision entity after processing is complete.
+    performing other actions. The function returns the revision
+    entity after processing is complete.
     """
     ...
     return revision
@@ -410,8 +417,8 @@ async def after_revision_download(
     """
     Executes additional logic after a revision entity is downloaded,
     such as logging, updating the database, managing the cache, or
-    performing other actions. The function returns the possibly
-    modified revision entity after processing is complete.
+    performing other actions. The function returns the revision
+    entity after processing is complete.
     """
     ...
     return revision
@@ -426,9 +433,9 @@ async def after_revisions_list(
 ) -> List[Favorite]:
     """
     Executes additional logic after a list of revision entities is
-    selected, such as logging, updating the database, managing the cache,
-    or performing other actions. The function returns the possibly
-    modified list of revision entities after processing is complete.
+    selected, such as logging, updating the database, managing the
+    cache, or performing other actions. The function returns the
+    list of revision entities after processing is complete.
     """
     ...
     return revisions
@@ -444,8 +451,8 @@ async def after_download_select(
     """
     Executes additional logic after a download entity is selected,
     such as logging, updating the database, managing the cache, or
-    performing other actions. The function returns the possibly
-    modified download entity after processing is complete.
+    performing other actions. The function returns the download
+    entity after processing is complete.
     """
     ...
     return download
@@ -460,9 +467,9 @@ async def after_downloads_list(
 ) -> List[Download]:
     """
     Executes additional logic after a list of download entities is
-    selected, such as logging, updating the database, managing the cache,
-    or performing other actions. The function returns the possibly
-    modified list of download entities after processing is complete.
+    selected, such as logging, updating the database, managing the
+    cache, or performing other actions. The function returns the
+    list of download entities after processing is complete.
     """
     ...
     return downloads
@@ -478,8 +485,8 @@ async def after_comment_insert(
     """
     Executes additional logic after a comment entity is created,
     such as logging, updating the database, managing the cache, or
-    performing other actions. The function returns the possibly
-    modified comment entity after processing is complete.
+    performing other actions. The function returns the comment entity
+    after processing is complete.
     """
     ...
     return comment
@@ -495,8 +502,8 @@ async def after_comment_select(
     """
     Executes additional logic after a comment entity is selected,
     such as logging, updating the database, managing the cache, or
-    performing other actions. The function returns the possibly
-    modified comment entity after processing is complete.
+    performing other actions. The function returns the comment
+    entity after processing is complete.
     """
     ...
     return comment
@@ -512,8 +519,8 @@ async def after_comment_update(
     """
     Executes additional logic after a comment entity is updated,
     such as logging, updating the database, managing the cache, or
-    performing other actions. The function returns the possibly
-    modified comment entity after processing is complete.
+    performing other actions. The function returns the comment
+    entity after processing is complete.
     """
     ...
     return comment
@@ -529,8 +536,8 @@ async def after_comment_delete(
     """
     Executes additional logic after a comment entity is deleted,
     such as logging, updating the database, managing the cache, or
-    performing other actions. The function returns the possibly
-    modified comment entity after processing is complete.
+    performing other actions. The function returns the comment
+    entity after processing is complete.
     """
     ...
     return comment
@@ -545,9 +552,9 @@ async def after_comments_list(
 ) -> List[Comment]:
     """
     Executes additional logic after a list of comment entities is
-    selected, such as logging, updating the database, managing the cache,
-    or performing other actions. The function returns the possibly
-    modified list of comment entities after processing is complete.
+    selected, such as logging, updating the database, managing the
+    cache, or performing other actions. The function returns the
+    list of comment entities after processing is complete.
     """
     ...
     return comments

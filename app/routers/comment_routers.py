@@ -1,7 +1,7 @@
 """
-The module defines API routers for managing comments, including creating,
-retrieving, updating, deleting comment entities, and listing comments
-based on query parameters.
+The module defines FastAPI routers for managing comments, including
+creating, retrieving, updating, deleting comment entities, and listing
+comments pased on query parameters.
 """
 
 from fastapi import APIRouter, Depends, Request, status

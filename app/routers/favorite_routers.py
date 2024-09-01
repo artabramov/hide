@@ -1,9 +1,6 @@
 """
-This module defines API routes for managing favorites in the
-application. It includes endpoints for creating, retrieving, deleting,
-and listing favorites. Each endpoint handles specific CRUD operations,
-performs necessary validations, updates related document counts, logs
-events using hooks, and returns appropriate responses.
+The module defines FastAPI routers for managing favorites, including
+creating, retrieving, deleting, and listing favorite entities.
 """
 
 from fastapi import APIRouter, Depends, Request, status
@@ -36,13 +33,14 @@ async def favorite_insert(
     schema=Depends(FavoriteInsertRequest)
 ) -> dict:
     """
-    Allows users with at least a reader role to create a favorite for
-    a specific document. It checks for the existence of the document
-    and whether the user has already favorited it. If not, it adds the
-    favorite and updates the document's favorites count. Returns a 201
-    status code upon successful creation. Raises a 404 status code if
-    the document is not found and a 403 status code if the user does
-    not have the required permissions.
+    Create a new favorite entity. The router checks if the specified
+    document exists, creates a favorite record if it does not already
+    exist for the current user and document, updates the favorites
+    count for the document, and executes related hooks. Returns the ID
+    of the created favorite in a JSON response. The current user should
+    have a reader role or higher. Returns a 201 response on success,
+    a 404 error if the document is not found, and a 403 error if
+    authentication fails or the user does not have the required role.
     """
     document_repository = Repository(session, cache, Document)
     document = await document_repository.select(id__eq=schema.document_id)
@@ -57,15 +55,16 @@ async def favorite_insert(
 
     if not favorite:
         favorite = Favorite(current_user.id, document.id)
-        await favorite_repository.insert(favorite)
+        await favorite_repository.insert(favorite, commit=False)
 
     document.favorites_count = await favorite_repository.count_all(
         document_id__eq=document.id)
-    await document_repository.update(document)
+    await document_repository.update(document, commit=False)
 
     hook = Hook(session, cache, request, current_user=current_user)
     await hook.execute(H.AFTER_FAVORITE_INSERT, favorite)
 
+    await favorite_repository.commit()
     return {"favorite_id": favorite.id}
 
 
@@ -79,11 +78,14 @@ async def favorite_select(
     schema=Depends(FavoriteSelectRequest)
 ) -> dict:
     """
-    Retrieves details of a specific favorite. Ensures the favorite
-    exists and that the requesting user has permission to view it.
-    Returns a 200 status code with the favorite details. Returns a 404
-    status code if the favorite is not found, and a 403 status code if
-    the favorite does not belong to the requesting user.
+    Retrieve a favorite entity by its ID. The router fetches the
+    favorite from the repository using the provided ID, verifies that
+    the favorite exists, and checks that the current user is the owner
+    of the favorite. It executes related hooks and returns the favorite
+    details in a JSON response. The current user should have a reader
+    role or higher. Returns a 200 response on success, a 404 error if
+    the favorite is not found, and a 403 error if authentication fails
+    or the user does not have the required role.
     """
     favorite_repository = Repository(session, cache, Favorite)
     favorite = await favorite_repository.select(id=schema.favorite_id)
@@ -112,11 +114,15 @@ async def favorite_delete(
     schema=Depends(FavoriteDeleteRequest)
 ) -> dict:
     """
-    Deletes a specific favorite. Validates that the favorite exists and
-    that it belongs to the requesting user. Returns a 200 status code
-    with the ID of the deleted favorite. Returns a 404 status code if
-    the favorite is not found, and a 403 status code if the favorite
-    does not belong to the requesting user.
+    Delete a favorite entity by its ID. The router fetches the favorite
+    from the repository using the provided ID, verifies that the favorite
+    exists and that the current user is the owner of the favorite. It
+    updates the favorites count for the associated document, executes
+    related hooks, and returns the ID of the deleted favorite in a JSON
+    response. The current user should have a reader role or higher.
+    Returns a 200 response on success, a 404 error if the favorite is
+    not found, and a 403 error if authentication fails or the user does
+    not have the required role.
     """
     favorite_repository = Repository(session, cache, Favorite)
     favorite = await favorite_repository.select(id=schema.favorite_id)
@@ -129,16 +135,17 @@ async def favorite_delete(
         raise E("favorite_id", schema.favorite_id, E.RESOURCE_FORBIDDEN,
                 status_code=status.HTTP_403_FORBIDDEN)
 
-    await favorite_repository.delete(favorite)
+    await favorite_repository.delete(favorite, commit=False)
 
     favorite.favorite_document.favorites_count = await favorite_repository.count_all(  # noqa E501
         document_id__eq=favorite.document_id)
     document_repository = Repository(session, cache, Document)
-    await document_repository.update(favorite.favorite_document)
+    await document_repository.update(favorite.favorite_document, commit=False)
 
     hook = Hook(session, cache, request, current_user=current_user)
     await hook.execute(H.AFTER_FAVORITE_DELETE, favorite)
 
+    await favorite_repository.commit()
     return {"favorite_id": favorite.id}
 
 
@@ -152,11 +159,13 @@ async def favorites_list(
     schema=Depends(FavoritesListRequest)
 ) -> dict:
     """
-    Retrieves a list of favorites for the current user based on the
-    specified query parameters. Returns the list of favorites and their
-    count. Raises a 403 status code if the user is not authenticated or
-    does not have permission to view the favorites, and a 422 status
-    code for invalid query parameters.
+    Retrieve a list of favorite entities based on the provided
+    parameters. The router fetches the list of favorites from the
+    repository for the current user, executes related hooks, and
+    returns the results in a JSON response. The current user should
+    have a reader role or higher. Returns a 200 response on success
+    and a 403 error if authentication fails or the user does not have
+    the required role.
     """
     kwargs = schema.__dict__
     kwargs["user_id__eq"] = current_user.id
