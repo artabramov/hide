@@ -50,7 +50,7 @@ class TagLibrary:
             values = list(set([value for value in values if value]))
         return values
 
-    async def delete_all(self, document_id: int):
+    async def delete_all(self, document_id: int, commit: bool = True):
         """
         Deletes all tags associated with a specific document ID. This
         function is intended for use when updating documents and should
@@ -58,9 +58,11 @@ class TagLibrary:
         handled automatically by the SQLAlchemy relationship.
         """
         tag_repository = Repository(self.session, self.cache, Tag)
-        await tag_repository.delete_all(document_id__eq=document_id)
+        await tag_repository.delete_all(document_id__eq=document_id,
+                                        commit=commit)
 
-    async def insert_all(self, document_id: int, values: List[str]):
+    async def insert_all(self, document_id: int, values: List[str],
+                         commit: bool = True):
         """
         Inserts a list of tags for a given document ID into the
         repository. Each tag is processed within an asyncio lock to
@@ -71,7 +73,7 @@ class TagLibrary:
             try:
                 async with asyncio_lock:
                     tag = Tag(document_id, value)
-                    await tag_repository.insert(tag)
+                    await tag_repository.insert(tag, commit=commit)
 
             except Exception:
                 pass

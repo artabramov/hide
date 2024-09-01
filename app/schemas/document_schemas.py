@@ -8,7 +8,7 @@ DOCUMENT_NAME_LENGTH = 128
 cfg = get_config()
 
 
-class DocumentUploadRequest(BaseModel):
+class DocumentInsertRequest(BaseModel):
     """Pydantic schema for document uploading request."""
     collection_id: int
     document_name: Optional[str] = Field(max_length=DOCUMENT_NAME_LENGTH,
@@ -17,12 +17,8 @@ class DocumentUploadRequest(BaseModel):
     tags: Optional[str] = Field(max_length=256, default=None)
 
 
-class DocumentUploadResponse(BaseModel):
+class DocumentInsertResponse(BaseModel):
     """Pydantic schema for document uploading response."""
-    document_id: int
-
-
-class DocumentDownloadRequest(BaseModel):
     document_id: int
 
 

@@ -32,6 +32,10 @@ class Revision(Base):
         "Document", back_populates="document_revisions", lazy="joined",
         foreign_keys=document_id, remote_side="Document.id")
 
+    revision_downloads = relationship(
+        "Download", back_populates="download_revision", lazy="noload",
+        cascade="all, delete-orphan")
+
     def __init__(self, user_id: int, document_id: int, revision_filename: str,
                  revision_size: int, original_filename: str, original_size: int, # noqa E501
                  original_mimetype: str, thumbnail_filename: str = None):
@@ -46,8 +50,8 @@ class Revision(Base):
         self.downloads_count = 0
 
     @property
-    def path(self):
-        return os.path.join(cfg.REVISIONS_BASE_PATH, self.encrypted_filename)
+    def revision_path(self):
+        return os.path.join(cfg.REVISIONS_BASE_PATH, self.revision_filename)
 
     @property
     def thumbnail_url(self):
