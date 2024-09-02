@@ -1,3 +1,9 @@
+"""
+The module defines FastAPI routers for managing collections, including
+creating, retrieving, updating, deleting collection entities, and
+listing collections based on query parameters.
+"""
+
 from fastapi import APIRouter, Depends, Request, status
 from fastapi.responses import JSONResponse
 from app.database import get_session
@@ -29,6 +35,15 @@ async def collection_insert(
     current_user: User = Depends(auth(UserRole.writer)),
     schema=Depends(CollectionInsertRequest)
 ) -> dict:
+    """
+    Create a new collection entity. The router checks if a collection
+    with the specified name already exists, inserts the new collection
+    into the repository, executes related hooks, and returns the created
+    collection ID in a JSON response. The current user should have a
+    writer role or higher. Returns a 201 response on success, a 422
+    error if the collection name is duplicated, and a 403 error if
+    authentication fails or the user does not have the required role.
+    """
     collection_repository = Repository(session, cache, Collection)
 
     collection_exists = await collection_repository.exists(
@@ -41,11 +56,12 @@ async def collection_insert(
     collection = Collection(
         current_user.id, schema.is_locked, schema.collection_name,
         collection_summary=schema.collection_summary)
-    await collection_repository.insert(collection)
+    await collection_repository.insert(collection, commit=False)
 
     hook = Hook(session, cache, request, current_user=current_user)
     await hook.execute(H.AFTER_COLLECTION_INSERT, collection)
 
+    await collection_repository.commit()
     return JSONResponse(
         status_code=status.HTTP_201_CREATED,
         content={"collection_id": collection.id}
@@ -61,6 +77,15 @@ async def collection_select(
     current_user: User = Depends(auth(UserRole.reader)),
     schema=Depends(CollectionSelectRequest)
 ) -> dict:
+    """
+    Retrieve a collection entity by its ID. The router fetches the
+    collection from the repository using the provided ID, executes
+    related hooks, and returns the collection details in a JSON response.
+    The current user should have a reader role or higher. Returns a 200
+    response on success, a 404 error if the collection is not found, and
+    a 403 error if authentication fails or the user does not have the
+    required role.
+    """
     collection_repository = Repository(session, cache, Collection)
     collection = await collection_repository.select(id=schema.collection_id)
 
@@ -86,6 +111,17 @@ async def collection_update(
     current_user: User = Depends(auth(UserRole.editor)),
     schema=Depends(CollectionUpdateRequest)
 ) -> dict:
+    """
+    Update a collection entity by its ID. The router retrieves the
+    collection from the repository using the provided ID, ensures that
+    the collection exists, and checks that the new collection name is
+    unique. It updates the collection's attributes, executes related
+    hooks, and returns the updated collection ID in a JSON response.
+    The current user should have an editor role or higher. Returns a 200
+    response on success, a 404 error if the collection is not found,
+    a 422 error if the collection name is duplicated, and a 403 error if
+    authentication fails or the user does not have the required role.
+    """
     collection_repository = Repository(session, cache, Collection)
 
     collection = await collection_repository.select(id=schema.collection_id)
@@ -102,11 +138,12 @@ async def collection_update(
     collection.is_locked = schema.is_locked
     collection.collection_name = schema.collection_name
     collection.collection_summary = schema.collection_summary
-    await collection_repository.update(collection)
+    await collection_repository.update(collection, commit=False)
 
     hook = Hook(session, cache, request, current_user=current_user)
     await hook.execute(H.AFTER_COLLECTION_UPDATE, collection)
 
+    await collection_repository.commit()
     return JSONResponse(
         status_code=status.HTTP_200_OK,
         content={"collection_id": collection.id}
@@ -122,6 +159,16 @@ async def collection_delete(
     current_user: User = Depends(auth(UserRole.admin)),
     schema=Depends(CollectionDeleteRequest)
 ) -> dict:
+    """
+    Delete a collection entity by its ID. The router retrieves the
+    collection from the repository using the provided ID, verifies that
+    it exists, deletes the collection and all related entities, executes
+    related hooks, and returns the deleted collection ID in a JSON
+    response. The current user should have an admin role. Returns a 200
+    response on success, a 404 error if the collection is not found, and
+    a 403 error if authentication fails or the user does not have the
+    required role.
+    """
     collection_repository = Repository(session, cache, Collection)
 
     collection = await collection_repository.select(id=schema.collection_id)
@@ -134,11 +181,11 @@ async def collection_delete(
         ...
 
     await collection_repository.delete(collection, commit=False)
-    await collection_repository.commit()
 
     hook = Hook(session, cache, request, current_user=current_user)
     await hook.execute(H.AFTER_COLLECTION_DELETE, collection)
 
+    await collection_repository.commit()
     return JSONResponse(
         status_code=status.HTTP_200_OK,
         content={"collection_id": collection.id}
@@ -154,6 +201,14 @@ async def collections_list(
     current_user: User = Depends(auth(UserRole.reader)),
     schema=Depends(CollectionsListRequest)
 ) -> dict:
+    """
+    Retrieve a list of collection entities based on the provided
+    parameters. The router fetches the list of collections from the
+    repository, executes related hooks, and returns the results in
+    a JSON response. The current user should have a reader role or
+    higher. Returns a 200 response on success and a 403 error if
+    authentication fails or the user does not have the required role.
+    """
     collection_repository = Repository(session, cache, Collection)
 
     collections = await collection_repository.select_all(**schema.__dict__)

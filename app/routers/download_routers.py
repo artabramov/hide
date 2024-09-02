@@ -35,10 +35,11 @@ async def download_select(
     """
     Retrieve a download entity by its ID. The router fetches the
     download from the repository using the provided ID, executes related
-    hooks, and returns the result in a JSON response. The current user
-    should have a reader role or higher. Returns a 200 response on
-    success, a 404 error if the download is not found, and a 403 error
-    if authentication fails or the user does not have the required role.
+    hooks, and returns the download details in a JSON response. The
+    current user should have a reader role or higher. Returns a 200
+    response on success, a 404 error if the download is not found, and
+    a 403 error if authentication fails or the user does not have the
+    required role.
     """
     download_repository = Repository(session, cache, Download)
     download = await download_repository.select(id=schema.download_id)

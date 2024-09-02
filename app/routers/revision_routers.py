@@ -39,10 +39,11 @@ async def revision_select(
     """
     Retrieve a revision entity by its ID. The router fetches the
     revision from the repository using the provided ID, executes related
-    hooks, and returns the result in a JSON response. The current user
-    should have a reader role or higher. Returns a 200 response on
-    success, a 404 error if the revision is not found, and a 403 error
-    if authentication fails or the user does not have the required role.
+    hooks, and returns the revision details in a JSON response. The
+    current user should have a reader role or higher. Returns a 200
+    response on success, a 404 error if the revision is not found, and
+    a 403 error if authentication fails or the user does not have the
+    required role.
     """
     revision_repository = Repository(session, cache, Revision)
     revision = await revision_repository.select(id=schema.revision_id)

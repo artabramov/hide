@@ -1,3 +1,9 @@
+"""
+The module defines FastAPI routers for managing documents, including
+creating, retrieving, updating, deleting document entities, and listing
+documents based on query parameters.
+"""
+
 import os
 import uuid
 from fastapi import APIRouter, Depends, status, Request, File, UploadFile
@@ -39,6 +45,18 @@ async def document_insert(
     current_user: User = Depends(auth(UserRole.writer)),
     schema=Depends(DocumentInsertRequest)
 ) -> dict:
+    """
+    Create a new document entity. The router validates that the
+    specified collection exists and is not locked, handles the file
+    upload including creating a thumbnail and encrypting the file,
+    inserts the document and its associated revisions into the
+    repository, updates document and collection counters, and executes
+    related hooks. Returns the created document ID in a JSON response.
+    The current user should have a writer role or higher. Returns a 201
+    response on success, a 404 error if the collection is not found,
+    a 423 error if the collection is locked, and a 403 error if
+    authentication fails or the user does not have the required role.
+    """
     # Validate collection
     collection_repository = Repository(session, cache, Collection)
     collection = await collection_repository.select(id=schema.collection_id)
@@ -136,6 +154,15 @@ async def document_select(
     current_user: User = Depends(auth(UserRole.reader)),
     schema=Depends(DocumentSelectRequest)
 ) -> dict:
+    """
+    Retrieve a document entity by its ID. The router fetches the
+    document from the repository using the provided ID, verifies that
+    the document exists, executes related hooks, and returns the
+    document details in a JSON response. The current user should have
+    a reader role or higher. Returns a 200 response on success, a 404
+    error if the document is not found, and a 403 error if
+    authentication fails or the user does not have the required role.
+    """
     document_repository = Repository(session, cache, Document)
     document = await document_repository.select(id=schema.document_id)
 
@@ -162,6 +189,19 @@ async def document_update(
     current_user: User = Depends(auth(UserRole.editor)),
     schema=Depends(DocumentUpdateRequest)
 ) -> dict:
+    """
+    Update an existing document by its ID. The router fetches the
+    document from the repository using the provided ID, verifies that
+    the document exists and its collection is not locked, updates the
+    document's tags, processes any uploaded file by creating a new
+    revision, and updates the document's last revision. It then updates
+    counters for both the document and its collection, executes related
+    hooks, and returns the updated document ID in a JSON response. The
+    current user should have an editor role or higher. Returns a 200
+    response on success, a 404 error if the document or collection is
+    not found, a 423 error if the collection is locked, and a 403 error
+    if authentication fails or the user does not have the required role.
+    """
     collection_repository = Repository(session, cache, Collection)
     collection = None
 
@@ -284,6 +324,17 @@ async def document_delete(
     current_user: User = Depends(auth(UserRole.admin)),
     schema=Depends(DocumentDeleteRequest)
 ) -> dict:
+    """
+    Delete a document by its ID. The router retrieves the document from
+    the repository using the provided ID, checks if the document exists
+    and its collection is not locked, deletes the document and all
+    related entities, updates the counters for the associated collection,
+    executes related hooks, and returns the deleted document ID in a
+    JSON response. The current user should have an admin role. Returns
+    a 200 response on success, a 404 error if the document is not found,
+    a 423 error if the collection is locked, and a 403 error if
+    authentication fails or the user does not have the required role.
+    """
     document_repository = Repository(session, cache, Document)
 
     document = await document_repository.select(id=schema.document_id)
@@ -326,6 +377,14 @@ async def documents_list(
     current_user: User = Depends(auth(UserRole.reader)),
     schema=Depends(DocumentsListRequest)
 ) -> dict:
+    """
+    Retrieve a list of document entities based on the provided
+    parameters. The router fetches the list of documents from the
+    repository, executes related hooks, and returns the results in
+    a JSON response. The current user should have a reader role or
+    higher. Returns a 200 response on success and a 403 error if
+    authentication fails or the user does not have the required role.
+    """
     document_repository = Repository(session, cache, Document)
 
     kwargs = schema.__dict__
