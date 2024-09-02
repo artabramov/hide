@@ -349,10 +349,10 @@ async def document_delete(
     await document_repository.delete(document, commit=False)
 
     # Update counters.
-    document.document_collection.documents_count = await document_repository.count_all(  # noqa E501
-        collection_id__eq=document.document_collection.id)
-    document.document_collection.documentes_size = await document_repository.sum_all(  # noqa E501
-        "filesize", collection_id__eq=document.document_collection.id)
+    # document.document_collection.documents_count = await document_repository.count_all(  # noqa E501
+    #     collection_id__eq=document.document_collection.id)
+    # document.document_collection.documentes_size = await document_repository.sum_all(  # noqa E501
+    #     "filesize", collection_id__eq=document.document_collection.id)
 
     collection_repository = Repository(session, cache, Collection)
     await collection_repository.update(document.document_collection,
