@@ -78,20 +78,16 @@ async def thumbnail_create(path: str, mimetype: str) -> Union[str, None]:
     if is_image or is_video:
 
         thumbnail_filename = str(uuid.uuid4()) + cfg.THUMBNAILS_EXTENSION
-        thumbnail_path = os.path.join(cfg.THUMBNAILS_BASE_PATH,
-                                      thumbnail_filename)
+        thumbnail_path = os.path.join(
+            cfg.THUMBNAILS_BASE_PATH, thumbnail_filename)
 
-        try:
-            if is_image:
-                await FileManager.copy(path, thumbnail_path)
+        if is_image:
+            await FileManager.copy(path, thumbnail_path)
 
-            elif is_video:
-                await video_freeze(path, thumbnail_path)
+        elif is_video:
+            await video_freeze(path, thumbnail_path)
 
-            await image_resize(thumbnail_path, cfg.THUMBNAIL_WIDTH,
-                               cfg.THUMBNAIL_HEIGHT, cfg.THUMBNAIL_QUALITY)
-
-        except Exception:
-            pass
+        await image_resize(thumbnail_path, cfg.THUMBNAIL_WIDTH,
+                           cfg.THUMBNAIL_HEIGHT, cfg.THUMBNAIL_QUALITY)
 
     return thumbnail_filename

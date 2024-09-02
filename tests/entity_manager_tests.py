@@ -747,7 +747,7 @@ class EntityManagerTestCase(asynctest.TestCase):
         async_result_mock.unique.return_value.scalars.return_value.one_or_none.assert_called_once() # noqa E501
 
     @patch("app.managers.entity_manager.text")
-    async def test_lock_all(self, text_mock):
+    async def test__lock_all(self, text_mock):
         """Test the lock_all method to lock all rows in a table."""
         dummy_class_mock = MagicMock(__tablename__="dummies")
         text_mock.return_value = "LOCK TABLE dummies IN ACCESS EXCLUSIVE MODE;"
@@ -763,7 +763,7 @@ class EntityManagerTestCase(asynctest.TestCase):
             "LOCK TABLE dummies IN ACCESS EXCLUSIVE MODE;")
 
     @patch("app.managers.entity_manager.select")
-    async def test_subquery(self, select_mock):
+    async def test__subquery(self, select_mock):
         """Test the subquery method in entity_manager."""
         class_mock = MagicMock(dummy_id="class_column")
         foreign_key = "dummy_id"

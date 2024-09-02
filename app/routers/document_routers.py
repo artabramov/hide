@@ -52,17 +52,24 @@ async def document_insert(
 
     # Upload file
     revision_filename = str(uuid.uuid4()) + cfg.REVISIONS_EXTENSION
-    upload_path = os.path.join(cfg.REVISIONS_BASE_PATH, revision_filename)
-    await FileManager.upload(file, upload_path)
+    revision_path = os.path.join(cfg.REVISIONS_BASE_PATH, revision_filename)
+    await FileManager.upload(file, revision_path)
 
     # Create thumbnail
-    mimetype = file.content_type
-    thumbnail_filename = await thumbnail_create(upload_path, mimetype)
+    try:
+        mimetype = file.content_type
+        thumbnail_filename = await thumbnail_create(revision_path, mimetype)
+    except Exception:
+        pass
 
     # Encrypt file
-    data = await FileManager.read(upload_path)
-    encrypted_data = await FileManager.encrypt(data)
-    await FileManager.write(upload_path, encrypted_data)
+    try:
+        data = await FileManager.read(revision_path)
+        encrypted_data = await FileManager.encrypt(data)
+        await FileManager.write(revision_path, encrypted_data)
+    except Exception as e:
+        await FileManager.delete(revision_path)
+        raise e
 
     # Insert document
     if schema.document_name:
@@ -83,11 +90,11 @@ async def document_insert(
     revision_repository = Repository(session, cache, Revision)
     revision = Revision(
         current_user.id, document.id, revision_filename,
-        os.path.getsize(upload_path), file.filename, file.size,
+        os.path.getsize(revision_path), file.filename, file.size,
         file.content_type, thumbnail_filename=thumbnail_filename)
     await revision_repository.insert(revision, commit=False)
 
-    # Update document revision and counters
+    # Update document counters and last revision
     await revision_repository.lock_all()
     document.last_revision_id = revision.id
     document.document_size = file.size
@@ -109,7 +116,7 @@ async def document_insert(
         "revisions_size", collection_id__eq=document.collection_id)
     await collection_repository.update(collection, commit=False)
 
-    # # Execute hooks
+    # Execute hooks
     hook = Hook(session, cache, request, current_user=current_user)
     await hook.execute(H.AFTER_DOCUMENT_INSERT, document)
 
@@ -194,27 +201,34 @@ async def document_update(
     if file:
         # Upload file
         revision_filename = str(uuid.uuid4()) + cfg.REVISIONS_EXTENSION
-        upload_path = os.path.join(cfg.REVISIONS_BASE_PATH, revision_filename)
-        await FileManager.upload(file, upload_path)
+        revision_path = os.path.join(cfg.REVISIONS_BASE_PATH, revision_filename)  # noqa E501
+        await FileManager.upload(file, revision_path)
 
         # Create thumbnail
-        mimetype = file.content_type
-        thumbnail_filename = await thumbnail_create(upload_path, mimetype)
+        try:
+            mimetype = file.content_type
+            thumbnail_filename = await thumbnail_create(revision_path, mimetype)  # noqa E501
+        except Exception:
+            pass
 
         # Encrypt file
-        data = await FileManager.read(upload_path)
-        encrypted_data = await FileManager.encrypt(data)
-        await FileManager.write(upload_path, encrypted_data)
+        try:
+            data = await FileManager.read(revision_path)
+            encrypted_data = await FileManager.encrypt(data)
+            await FileManager.write(revision_path, encrypted_data)
+        except Exception as e:
+            await FileManager.delete(revision_path)
+            raise e
 
         # Insert revision
         revision_repository = Repository(session, cache, Revision)
         revision = Revision(
             current_user.id, document.id, revision_filename,
-            os.path.getsize(upload_path), file.filename, file.size,
+            os.path.getsize(revision_path), file.filename, file.size,
             file.content_type, thumbnail_filename=thumbnail_filename)
         await revision_repository.insert(revision, commit=False)
 
-        # Update document revision and counters
+        # Update document counters and last revision
         await revision_repository.lock_all()
         document.last_revision_id = revision.id
         document.document_size = file.size
@@ -250,11 +264,11 @@ async def document_update(
             "revisions_size", collection_id__eq=collection.id)
         await collection_repository.update(collection, commit=False)
 
-    await document_repository.commit()
-
+    # Execute hooks
     hook = Hook(session, cache, request, current_user=current_user)
     await hook.execute(H.AFTER_DOCUMENT_UPDATE, document)
 
+    await document_repository.commit()
     return JSONResponse(
         status_code=status.HTTP_200_OK,
         content={"document_id": document.id}
@@ -281,27 +295,22 @@ async def document_delete(
         raise E("document_id", schema.document_id, E.RESOURCE_FORBIDDEN,
                 status_code=status.HTTP_403_FORBIDDEN)
 
-    if document.comments_count > 0:
-        # TODO: DO NOT DELETE COMMENTS MANUALLY! DO IT BY ALCHEMY!
-        ...
-
-    await document_repository.delete(document)
-    await document_repository.commit()
+    await document_repository.delete(document, commit=False)
 
     # Update counters.
-    documents_count = await document_repository.count_all(
+    document.document_collection.documents_count = await document_repository.count_all(  # noqa E501
         collection_id__eq=document.document_collection.id)
-    documents_size = await document_repository.sum_all(
+    document.document_collection.documentes_size = await document_repository.sum_all(  # noqa E501
         "filesize", collection_id__eq=document.document_collection.id)
-    document.document_collection.documents_count = documents_count
-    document.document_collection.documentes_size = documents_size
 
     collection_repository = Repository(session, cache, Collection)
-    await collection_repository.update(document.document_collection)
+    await collection_repository.update(document.document_collection,
+                                       commit=False)
 
     hook = Hook(session, cache, request, current_user=current_user)
     await hook.execute(H.AFTER_DOCUMENT_DELETE, document)
 
+    await document_repository.commit()
     return JSONResponse(
         status_code=status.HTTP_200_OK,
         content={"document_id": document.id}

@@ -28,7 +28,7 @@ class FileManagerTestCase(asynctest.TestCase):
         """Clean up the test case environment."""
         pass
 
-    def test_is_image_true(self):
+    def test__is_image_true(self):
         """Test that is_image method correctly identifies image."""
         mimetypes = [
             "image/jpeg", "image/png", "image/gif", "image/bmp",
@@ -42,7 +42,7 @@ class FileManagerTestCase(asynctest.TestCase):
             result = FileManager.is_image(mimetype)
             self.assertTrue(result)
 
-    def test_is_image_false(self):
+    def test__is_image_false(self):
         """Test that is_image method correctly identifies non-image."""
         mimetypes = [
             "video/mp4", "video/avi", "video/mkv", "video/webm",
@@ -52,7 +52,7 @@ class FileManagerTestCase(asynctest.TestCase):
             result = FileManager.is_image(mimetype)
             self.assertFalse(result)
 
-    def test_is_video_true(self):
+    def test__is_video_true(self):
         """Test that is_video method correctly identifies video."""
         mimetypes = [
             "video/mp4", "video/avi", "video/mkv", "video/webm",
@@ -62,7 +62,7 @@ class FileManagerTestCase(asynctest.TestCase):
             result = FileManager.is_video(mimetype)
             self.assertTrue(result)
 
-    def test_is_video_false(self):
+    def test__is_video_false(self):
         """Test that is_video method correctly identifies non-video."""
         mimetypes = [
             "image/jpeg", "image/png", "image/gif", "image/bmp",
