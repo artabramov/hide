@@ -28,12 +28,12 @@ class Comment(Base):
     updated_date = Column(Integer, index=True, onupdate=lambda: int(time()),
                           default=0)
     user_id = Column(BigInteger, ForeignKey("users.id"), index=True)
-    document_id = Column("document_id", BigInteger, ForeignKey("documents.id"),
-                         index=True)
+    document_id = Column(BigInteger, ForeignKey("documents.id"), index=True)
     comment_content = Column(String(512), nullable=False, index=True)
 
     comment_user = relationship(
         "User", back_populates="user_comments", lazy="joined")
+
     comment_document = relationship(
         "Document", back_populates="document_comments", lazy="joined")
 

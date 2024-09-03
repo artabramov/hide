@@ -104,7 +104,7 @@ async def document_insert(
     tag_values = tag_library.extract_values(schema.tags)
     await tag_library.insert_all(document.id, tag_values, commit=False)
 
-    # Insert revision
+    # Insert current revision
     revision_repository = Repository(session, cache, Revision)
     revision = Revision(
         current_user.id, document.id, revision_filename,
@@ -112,9 +112,8 @@ async def document_insert(
         file.content_type, thumbnail_filename=thumbnail_filename)
     await revision_repository.insert(revision, commit=False)
 
-    # Update document counters and last revision
+    # Update document counters
     await revision_repository.lock_all()
-    document.last_revision_id = revision.id
     document.document_size = file.size
     document.revisions_count = await revision_repository.count_all(
         document_id__eq=revision.document_id)
@@ -194,13 +193,13 @@ async def document_update(
     document from the repository using the provided ID, verifies that
     the document exists and its collection is not locked, updates the
     document's tags, processes any uploaded file by creating a new
-    revision, and updates the document's last revision. It then updates
-    counters for both the document and its collection, executes related
-    hooks, and returns the updated document ID in a JSON response. The
-    current user should have an editor role or higher. Returns a 200
-    response on success, a 404 error if the document or collection is
-    not found, a 423 error if the collection is locked, and a 403 error
-    if authentication fails or the user does not have the required role.
+    revision. It then updates counters for both the document and its
+    collection, executes related hooks, and returns the updated document
+    ID in a JSON response. The current user should have an editor role
+    or higher. Returns a 200 response on success, a 404 error if the
+    document or collection is not found, a 423 error if the collection
+    is locked, and a 403 error if authentication fails or the user does
+    not have the required role.
     """
     collection_repository = Repository(session, cache, Collection)
     collection = None
@@ -268,9 +267,8 @@ async def document_update(
             file.content_type, thumbnail_filename=thumbnail_filename)
         await revision_repository.insert(revision, commit=False)
 
-        # Update document counters and last revision
+        # Update document counters
         await revision_repository.lock_all()
-        document.last_revision_id = revision.id
         document.document_size = file.size
         document.revisions_count = await revision_repository.count_all(
             document_id__eq=revision.document_id)

@@ -17,8 +17,8 @@ class Document(Base):
     updated_date = Column(Integer, index=True, onupdate=lambda: int(time()),
                           default=0)
     user_id = Column(BigInteger, ForeignKey("users.id"), index=True)
-    collection_id = Column(BigInteger, ForeignKey("collections.id"), index=True)  # noqa E501
-    last_revision_id = Column(BigInteger, ForeignKey("documents_revisions.id"))
+    collection_id = Column(BigInteger, ForeignKey("collections.id"),
+                           index=True)
 
     document_name = Column(String(128), index=True, nullable=False)
     document_summary = Column(String(512), nullable=True)
@@ -42,11 +42,28 @@ class Document(Base):
         cascade="all, delete-orphan")
 
     document_revisions = relationship(
-        "Revision", back_populates="revision_document", lazy="noload",
-        foreign_keys="Revision.document_id")
+        "Revision", back_populates="revision_document", lazy="joined",
+        cascade="all, delete-orphan")
+
+    # document_revisions = relationship(
+    #     "Revision", back_populates="revision_document", lazy="noload",
+    #     cascade="all, delete-orphan", foreign_keys="[Revision.document_id]"
+    # )
+
+    # document_revisions = relationship(
+    #     "Revision", back_populates="revision_document", lazy="noload",
+    #     cascade="all, delete-orphan")
+
+    # document_revisions = relationship(
+    #     "Revision", back_populates="revision_document", lazy="noload",
+    #     cascade="all, delete-orphan", foreign_keys="Revision.document_id")
+
+    # document_revisions = relationship(
+    #     "Revision", back_populates="revision_document", lazy="noload",
+    #     cascade="all, delete-orphan", foreign_keys=["Revision.document_id"])
 
     document_comments = relationship(
-        "Comment", back_populates="comment_document", lazy="noload",
+        "Comment", back_populates="comment_document", lazy="joined",
         cascade="all, delete-orphan")
 
     document_downloads = relationship(
@@ -57,9 +74,9 @@ class Document(Base):
         "Favorite", back_populates="favorite_document", lazy="noload",
         cascade="all, delete-orphan")
 
-    last_revision = relationship(
-        "Revision", primaryjoin="Document.last_revision_id == Revision.id",
-        lazy="joined", uselist=False)
+    # last_revision = relationship(
+    #     "Revision", primaryjoin="Document.last_revision_id == Revision.id",
+    #     lazy="joined", uselist=False)
 
     def __init__(self, user_id: int, collection_id: int,
                  document_name: str, document_summary: str = None):
@@ -94,7 +111,6 @@ class Document(Base):
             "updated_date": self.updated_date,
             "user_id": self.user_id,
             "collection_id": self.collection_id,
-            "last_revision_id": self.last_revision_id,
 
             "document_name": self.document_name,
             "document_summary": self.document_summary,
@@ -108,5 +124,5 @@ class Document(Base):
             "favorites_count": self.favorites_count,
 
             "document_tags": self.tag_values,
-            "last_revision": self.last_revision.to_dict(),
+            # "last_revision": self.last_revision.to_dict(),
         }

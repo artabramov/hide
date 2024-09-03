@@ -13,8 +13,7 @@ class Tag(Base):
 
     id = Column(BigInteger, primary_key=True)
     created_date = Column(Integer, index=True, default=lambda: int(time()))
-    document_id = Column("document_id", BigInteger, ForeignKey("documents.id"),
-                         index=True)
+    document_id = Column(BigInteger, ForeignKey("documents.id"), index=True)
     tag_value = Column(String(256), nullable=False, index=True)
 
     tag_document = relationship("Document", back_populates="document_tags",

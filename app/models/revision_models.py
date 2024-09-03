@@ -1,6 +1,6 @@
 import os
 from time import time
-from sqlalchemy import Column, Integer, BigInteger, String, ForeignKey
+from sqlalchemy import Column, Integer, BigInteger, String, ForeignKey, event
 from sqlalchemy.orm import relationship
 from app.database import Base
 from app.config import get_config
@@ -15,6 +15,7 @@ class Revision(Base):
     id = Column(BigInteger, primary_key=True)
     created_date = Column(Integer, index=True, default=lambda: int(time()))
     user_id = Column(BigInteger, ForeignKey("users.id"), index=True)
+    # document_id = Column(BigInteger, ForeignKey("documents.id"), index=True)
     document_id = Column(BigInteger, ForeignKey("documents.id"), index=True)
 
     revision_filename = Column(String(256), nullable=False, unique=True)
@@ -29,16 +30,29 @@ class Revision(Base):
         "User", back_populates="user_revisions", lazy="joined")
 
     revision_document = relationship(
-        "Document", back_populates="document_revisions", lazy="joined",
-        foreign_keys=document_id, remote_side="Document.id")
+        "Document", back_populates="document_revisions", lazy="noload")
+
+    # revision_document = relationship(
+    #     "Document", back_populates="document_revisions", lazy="joined",
+    #     foreign_keys=[document_id], remote_side="Document.id"
+    # )
+
+    # revision_document = relationship(
+    #     "Document", back_populates="document_revisions", lazy="noload")
+
+    # revision_document = relationship(
+    #     "Document", back_populates="document_revisions", lazy="joined",
+    #     foreign_keys=[document_id], remote_side="Document.id"
+    # )
 
     revision_downloads = relationship(
         "Download", back_populates="download_revision", lazy="noload",
         cascade="all, delete-orphan")
 
     def __init__(self, user_id: int, document_id: int, revision_filename: str,
-                 revision_size: int, original_filename: str, original_size: int, # noqa E501
-                 original_mimetype: str, thumbnail_filename: str = None):
+                 revision_size: int, original_filename: str,
+                 original_size: int, original_mimetype: str,
+                 thumbnail_filename: str = None):
         self.user_id = user_id
         self.document_id = document_id
         self.revision_filename = revision_filename
@@ -72,3 +86,8 @@ class Revision(Base):
             "downloads_count": self.downloads_count,
             "revision_user": self.revision_user.to_dict(),
         }
+
+
+@event.listens_for(Revision, "after_delete")
+def after_delete_listener(mapper, connection, target):
+    print(f'Instance of {mapper.class_} deleted: {target}')
