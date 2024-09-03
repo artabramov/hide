@@ -5,6 +5,12 @@ from sqlalchemy.orm import relationship
 from app.database import Base
 from app.config import get_config
 
+from sqlalchemy import Column, Integer, ForeignKey, func, and_
+from sqlalchemy.orm import relationship, aliased, subqueryload
+from sqlalchemy.ext.declarative import declarative_base
+from sqlalchemy.sql import select
+from app.models.revision_models import Revision
+
 cfg = get_config()
 
 
@@ -42,28 +48,11 @@ class Document(Base):
         cascade="all, delete-orphan")
 
     document_revisions = relationship(
-        "Revision", back_populates="revision_document", lazy="joined",
+        "Revision", back_populates="revision_document",
         cascade="all, delete-orphan")
 
-    # document_revisions = relationship(
-    #     "Revision", back_populates="revision_document", lazy="noload",
-    #     cascade="all, delete-orphan", foreign_keys="[Revision.document_id]"
-    # )
-
-    # document_revisions = relationship(
-    #     "Revision", back_populates="revision_document", lazy="noload",
-    #     cascade="all, delete-orphan")
-
-    # document_revisions = relationship(
-    #     "Revision", back_populates="revision_document", lazy="noload",
-    #     cascade="all, delete-orphan", foreign_keys="Revision.document_id")
-
-    # document_revisions = relationship(
-    #     "Revision", back_populates="revision_document", lazy="noload",
-    #     cascade="all, delete-orphan", foreign_keys=["Revision.document_id"])
-
     document_comments = relationship(
-        "Comment", back_populates="comment_document", lazy="joined",
+        "Comment", back_populates="comment_document",
         cascade="all, delete-orphan")
 
     document_downloads = relationship(
@@ -73,6 +62,26 @@ class Document(Base):
     document_favorites = relationship(
         "Favorite", back_populates="favorite_document", lazy="noload",
         cascade="all, delete-orphan")
+
+    # # Relationship to all revisions
+    # latest_revisions = relationship(
+    #     "Revision",
+    #     primaryjoin="Document.id == Revision.document_id",
+    #     lazy="dynamic",
+    #     backref="document"
+    # )
+
+    # @property
+    # def latest_revision(self):
+    #     """
+    #     Returns the most recent Revision associated with this Document.
+    #     Assumes that 'created_at' field in Revision is used to determine recency.
+    #     """
+    #     return self.latest_revisions.order_by(Revision.created_date.desc()).first()
+
+    # document_revision = relationship(
+    #     "Revision", primaryjoin="Document.id == Revision.document_id",
+    #     lazy="joined", uselist=False)
 
     # last_revision = relationship(
     #     "Revision", primaryjoin="Document.last_revision_id == Revision.id",
@@ -124,5 +133,5 @@ class Document(Base):
             "favorites_count": self.favorites_count,
 
             "document_tags": self.tag_values,
-            # "last_revision": self.last_revision.to_dict(),
+            # "document_revision": self.latest_revision.to_dict(),
         }

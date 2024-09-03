@@ -1,6 +1,6 @@
 from typing import Optional, Literal, List
 from pydantic import BaseModel, Field
-# from app.schemas.revision_schemas import RevisionSelectResponse
+from app.schemas.revision_schemas import RevisionSelectResponse
 from app.config import get_config
 
 DOCUMENT_NAME_LENGTH = 128
@@ -44,6 +44,7 @@ class DocumentSelectResponse(BaseModel):
     downloads_count: int
     favorites_count: int
     document_tags: list
+    # document_revision: RevisionSelectResponse
 
 
 class DocumentUpdateRequest(BaseModel):
