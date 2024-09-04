@@ -112,7 +112,7 @@ async def document_insert(
         file.content_type, thumbnail_filename=thumbnail_filename)
     await revision_repository.insert(revision, commit=False)
 
-    # Update document counters
+    # Update document counters and latest revision
     await revision_repository.lock_all()
     document.document_size = file.size
     document.revisions_count = await revision_repository.count_all(
@@ -259,17 +259,23 @@ async def document_update(
             await FileManager.delete(revision_path)
             raise e
 
-        # Insert revision
+        # Unset previous revision
         revision_repository = Repository(session, cache, Revision)
+        previous_revision = await revision_repository.select(
+            document_id__eq=document.id, is_latest__eq=True)
+        previous_revision.is_latest = False
+        await revision_repository.update(previous_revision, commit=False)
+
+        # Set current revision
         revision = Revision(
             current_user.id, document.id, revision_filename,
             os.path.getsize(revision_path), file.filename, file.size,
             file.content_type, thumbnail_filename=thumbnail_filename)
         await revision_repository.insert(revision, commit=False)
 
-        # Update document counters
-        await revision_repository.lock_all()
+        # Update document counters and latest revision
         document.document_size = file.size
+        await revision_repository.lock_all()
         document.revisions_count = await revision_repository.count_all(
             document_id__eq=revision.document_id)
         document.revisions_size = await revision_repository.sum_all(

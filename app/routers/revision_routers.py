@@ -98,7 +98,7 @@ async def revision_download(
     await document_repository.update(revision.revision_document, commit=False)
 
     hook = Hook(session, cache, request, current_user=current_user)
-    await hook.execute(H.AFTER_REVISION_DOWNLOAD, revision.revision)
+    await hook.execute(H.AFTER_REVISION_DOWNLOAD, revision)
 
     await revision_repository.commit()
 

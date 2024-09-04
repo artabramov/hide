@@ -16,6 +16,7 @@ class RevisionSelectResponse(BaseModel):
     created_date: int
     user_id: int
     document_id: int
+    is_latest: bool
     revision_size: int
     original_filename: str
     original_size: int

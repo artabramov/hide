@@ -9,26 +9,10 @@ from typing import Optional, Literal, List, Union
 from pydantic import BaseModel, Field, field_validator
 from app.config import get_config
 from app.schemas.user_schemas import UserSelectResponse
+from app.validators.collection_validators import (
+    validate_collection_name, validate_collection_summary)
 
 cfg = get_config()
-
-
-def validate_collection_name(collection_name: str) -> str:
-    """
-    Ensure the collection name is at least 2 characters long after
-    stripping extra spaces.
-    """
-    if len(collection_name.strip()) < 2:
-        raise ValueError
-    return collection_name.strip()
-
-
-def validate_collection_summary(collection_summary: str = None) -> Union[str, None]:  # noqa E501
-    """
-    Strip extra spaces from the collection summary if provided or None
-    if not.
-    """
-    return collection_summary.strip() if collection_summary else None
 
 
 class CollectionInsertRequest(BaseModel):
@@ -45,12 +29,12 @@ class CollectionInsertRequest(BaseModel):
 
     @field_validator("collection_name", mode="before")
     def validate_collection_name(cls, collection_name: str) -> str:
-        """Normalize and validate the collection name."""
+        """Validate the collection name."""
         return validate_collection_name(collection_name)
 
     @field_validator("collection_summary", mode="before")
     def validate_collection_summary(cls, collection_summary: str = None) -> Union[str, None]:  # noqa E501
-        """Normalize and validate the collection."""
+        """Validate the collection summary."""
         return validate_collection_summary(collection_summary)
 
 

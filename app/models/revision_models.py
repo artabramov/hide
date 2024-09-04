@@ -1,6 +1,7 @@
 import os
 from time import time
-from sqlalchemy import Column, Integer, BigInteger, String, ForeignKey, event
+from sqlalchemy import (Column, Integer, BigInteger, String, ForeignKey,
+                        Boolean, event)
 from sqlalchemy.orm import relationship
 from app.database import Base
 from app.config import get_config
@@ -20,6 +21,7 @@ class Revision(Base):
     created_date = Column(Integer, index=True, default=lambda: int(time()))
     user_id = Column(BigInteger, ForeignKey("users.id"), index=True)
     document_id = Column(BigInteger, ForeignKey("documents.id"), index=True)
+    is_latest = Column(Boolean, nullable=False)
 
     revision_filename = Column(String(256), nullable=False, unique=True)
     revision_size = Column(BigInteger, index=False, nullable=False)
@@ -33,7 +35,8 @@ class Revision(Base):
         "User", back_populates="user_revisions", lazy="joined")
 
     revision_document = relationship(
-        "Document", back_populates="document_revisions", lazy="noload")
+        "Document", back_populates="document_revisions", lazy="joined",
+        foreign_keys=[document_id])
 
     revision_downloads = relationship(
         "Download", back_populates="download_revision", lazy="noload",
@@ -45,6 +48,7 @@ class Revision(Base):
                  thumbnail_filename: str = None):
         self.user_id = user_id
         self.document_id = document_id
+        self.is_latest = True
         self.revision_filename = revision_filename
         self.revision_size = revision_size
         self.original_filename = original_filename
@@ -72,6 +76,7 @@ class Revision(Base):
             "created_date": self.created_date,
             "user_id": self.user_id,
             "document_id": self.document_id,
+            "is_latest": self.is_latest,
             "revision_size": self.revision_size,
             "original_filename": self.original_filename,
             "original_size": self.original_size,
