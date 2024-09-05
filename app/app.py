@@ -30,33 +30,38 @@ from app.hooks import H, Hook
 from app.cache import get_cache
 from fastapi.staticfiles import StaticFiles
 from pydantic import ValidationError
+import asyncio
+from app.version import __version__
 
 cfg = get_config()
 ctx = get_context()
 log = get_log()
 
 
-async def after_startup(session=Depends(get_session),
-                        cache=Depends(get_cache)):
+async def on_schedule(session=Depends(get_session),
+                      cache=Depends(get_cache)):
     """
-    Executes actions needed after the application startup using the
-    provided session and cache.
+    Continuously executes scheduled actions at intervals specified by
+    config, using the provided database session and cache. The function
+    sleeps for the configured duration in each iteration of the loop,
+    allowing for periodic execution of tasks.
+    """
+    while True:
+        hook = Hook(session, cache)
+        await hook.execute(H.ON_SCHEDULE)
+        await asyncio.sleep(cfg.APP_SCHEDULER_FREQUENCY)
+
+
+async def on_startup(session=Depends(get_session),
+                     cache=Depends(get_cache)):
+    """
+    Executes startup hook using the provided database session and cache.
     """
     hook = Hook(session, cache)
-    await hook.execute(H.AFTER_STARTUP)
+    await hook.execute(H.ON_STARTUP)
 
 
-@asynccontextmanager
-async def lifespan(app: FastAPI):
-    """
-    Manages the application startup lifecycle by loading extension
-    modules, registering functions as hooks, initializing the database
-    schema, and performing additional startup actions. This function
-    loads specified modules, gathers functions from these modules into
-    a hook registry, and creates necessary database tables. It yields
-    control after these setup tasks are completed, ensuring that the
-    application is properly configured before serving requests.
-    """
+def load_hooks():
     ctx.hooks = {}
 
     # Load and register functions from extension modules.
@@ -86,27 +91,37 @@ async def lifespan(app: FastAPI):
             log.debug("Hook error; filename=%s; e=%s;" % (filename, str(e)))
             raise e
 
-    # Create the database schema.
+
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    """
+    Manages the application startup lifecycle by initializing the
+    database schema, creating scheduler, registering hooks, loading
+    extension modules, and performing additional startup actions.
+    """
     async with sessionmanager.async_engine.begin() as conn:
         await conn.run_sync(Base.metadata.create_all)
 
-    await after_startup()
+    load_hooks()
+
+    await on_startup()
+    app.state.scheduled_task = asyncio.create_task(on_schedule())
     yield
 
 
-def read_description():
+def load_description():
     """
     Reads and returns the content of a short application description
     file as a string. The file is opened in read mode, and its entire
     content is returned. The function assumes the file exists and is
     accessible.
     """
-    with open(cfg.APP_DESCRIPTION, "r") as fn:
+    with open(cfg.APP_DESCRIPTION_PATH, "r") as fn:
         return fn.read()
 
 
-app = FastAPI(lifespan=lifespan, title=cfg.APP_TITLE, version=cfg.APP_VERSION,
-              description=read_description())
+app = FastAPI(lifespan=lifespan, title=cfg.APP_TITLE, version=__version__,
+              description=load_description())
 app.include_router(static_routers.router)
 app.include_router(user_routers.router, prefix=cfg.APP_PREFIX)
 app.include_router(collection_routers.router, prefix=cfg.APP_PREFIX)

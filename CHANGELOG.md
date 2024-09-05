@@ -1,6 +1,7 @@
 # Changelog
 
 ## Version 0.0.36 (2024-09-05)
+- Added an app scheduler for periodic task execution.
 - Added pre-processing events to the hooks system.
 
 ## Version 0.0.35 (2024-09-01)

@@ -135,9 +135,11 @@ async def document_insert(
 
     # Execute hooks
     hook = Hook(session, cache, request, current_user=current_user)
-    await hook.execute(H.AFTER_DOCUMENT_INSERT, document)
+    await hook.execute(H.BEFORE_DOCUMENT_INSERT, document)
 
     await document_repository.commit()
+    await hook.execute(H.AFTER_DOCUMENT_INSERT, document)
+
     return JSONResponse(
         status_code=status.HTTP_201_CREATED,
         content={"document_id": document.id}
@@ -310,9 +312,11 @@ async def document_update(
 
     # Execute hooks
     hook = Hook(session, cache, request, current_user=current_user)
-    await hook.execute(H.AFTER_DOCUMENT_UPDATE, document)
+    await hook.execute(H.BEFORE_DOCUMENT_UPDATE, document)
 
     await document_repository.commit()
+    await hook.execute(H.AFTER_DOCUMENT_UPDATE, document)
+
     return JSONResponse(
         status_code=status.HTTP_200_OK,
         content={"document_id": document.id}
@@ -363,9 +367,11 @@ async def document_delete(
                                        commit=False)
 
     hook = Hook(session, cache, request, current_user=current_user)
-    await hook.execute(H.AFTER_DOCUMENT_DELETE, document)
+    await hook.execute(H.BEFORE_DOCUMENT_DELETE, document)
 
     await document_repository.commit()
+    await hook.execute(H.AFTER_DOCUMENT_DELETE, document)
+
     return JSONResponse(
         status_code=status.HTTP_200_OK,
         content={"document_id": document.id}

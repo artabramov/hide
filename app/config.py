@@ -56,9 +56,9 @@ class Config:
     EXTENSIONS_ENABLED: list
 
     APP_TITLE: str
-    APP_VERSION: str
     APP_PREFIX: str
-    APP_DESCRIPTION: str
+    APP_DESCRIPTION_PATH: str
+    APP_SCHEDULER_FREQUENCY: int
 
     HASH_SALT: str
     FERNET_KEY: str

@@ -33,7 +33,9 @@ class H(enum.Enum):
     related to user management, collections, documents, comments,
     downloads, and favorites.
     """
-    AFTER_STARTUP = "after_startup"
+    ON_STARTUP = "on_startup"
+    ON_SCHEDULE = "on_schedule"
+
     AFTER_USER_REGISTER = "after_user_register"
     AFTER_USER_LOGIN = "after_user_login"
     AFTER_TOKEN_RETRIEVE = "after_token_retrieve"
@@ -48,6 +50,7 @@ class H(enum.Enum):
 
     # =========================================================================
 
+    # Collection hooks
     BEFORE_COLLECTION_INSERT = "before_collection_insert"
     BEFORE_COLLECTION_UPDATE = "before_collection_update"
     BEFORE_COLLECTION_DELETE = "before_collection_delete"
@@ -57,6 +60,10 @@ class H(enum.Enum):
     AFTER_COLLECTION_DELETE = "after_collection_delete"
     AFTER_COLLECTIONS_LIST = "after_collections_list"
 
+    # Document hooks
+    BEFORE_DOCUMENT_INSERT = "before_document_insert"
+    BEFORE_DOCUMENT_UPDATE = "before_document_update"
+    BEFORE_DOCUMENT_DELETE = "before_document_delete"
     AFTER_DOCUMENT_INSERT = "after_document_insert"
     AFTER_DOCUMENT_SELECT = "after_document_select"
     AFTER_DOCUMENT_UPDATE = "after_document_update"
