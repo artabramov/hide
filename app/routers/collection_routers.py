@@ -59,9 +59,11 @@ async def collection_insert(
     await collection_repository.insert(collection, commit=False)
 
     hook = Hook(session, cache, request, current_user=current_user)
-    await hook.execute(H.AFTER_COLLECTION_INSERT, collection)
+    await hook.execute(H.BEFORE_COLLECTION_INSERT, collection)
 
     await collection_repository.commit()
+    await hook.execute(H.AFTER_COLLECTION_INSERT, collection)
+
     return JSONResponse(
         status_code=status.HTTP_201_CREATED,
         content={"collection_id": collection.id}
@@ -141,9 +143,11 @@ async def collection_update(
     await collection_repository.update(collection, commit=False)
 
     hook = Hook(session, cache, request, current_user=current_user)
-    await hook.execute(H.AFTER_COLLECTION_UPDATE, collection)
+    await hook.execute(H.BEFORE_COLLECTION_UPDATE, collection)
 
     await collection_repository.commit()
+    await hook.execute(H.AFTER_COLLECTION_UPDATE, collection)
+
     return JSONResponse(
         status_code=status.HTTP_200_OK,
         content={"collection_id": collection.id}
@@ -179,9 +183,11 @@ async def collection_delete(
     await collection_repository.delete(collection, commit=False)
 
     hook = Hook(session, cache, request, current_user=current_user)
-    await hook.execute(H.AFTER_COLLECTION_DELETE, collection)
+    await hook.execute(H.BEFORE_COLLECTION_DELETE, collection)
 
     await collection_repository.commit()
+    await hook.execute(H.AFTER_COLLECTION_DELETE, collection)
+
     return JSONResponse(
         status_code=status.HTTP_200_OK,
         content={"collection_id": collection.id}

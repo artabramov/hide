@@ -96,7 +96,7 @@ class Log(Base):
     the user who initiated the request and the state of the entity at
     the time of the operation.
     """
-    __tablename__ = "logs"
+    __tablename__ = "users_logs"
     _cacheable = False
 
     id = Column(BigInteger, primary_key=True)

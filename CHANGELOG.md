@@ -1,5 +1,8 @@
 # Changelog
 
+## Version 0.0.36 (2024-09-05)
+- Added pre-processing events to the hooks system.
+
 ## Version 0.0.35 (2024-09-01)
 - Refactored comment routers and improved validation logic.
 - Added routers for managing revisions, including retrieving details of

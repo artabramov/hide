@@ -45,13 +45,17 @@ class H(enum.Enum):
     AFTER_USERPIC_UPLOAD = "after_userpic_upload"
     AFTER_USERPIC_DELETE = "after_userpic_delete"
     AFTER_USERS_LIST = "after_users_list"
+
+    # =========================================================================
+
+    BEFORE_COLLECTION_INSERT = "before_collection_insert"
+    BEFORE_COLLECTION_UPDATE = "before_collection_update"
+    BEFORE_COLLECTION_DELETE = "before_collection_delete"
     AFTER_COLLECTION_INSERT = "after_collection_insert"
     AFTER_COLLECTION_SELECT = "after_collection_select"
     AFTER_COLLECTION_UPDATE = "after_collection_update"
     AFTER_COLLECTION_DELETE = "after_collection_delete"
     AFTER_COLLECTIONS_LIST = "after_collections_list"
-
-    # =========================================================================
 
     AFTER_DOCUMENT_INSERT = "after_document_insert"
     AFTER_DOCUMENT_SELECT = "after_document_select"
