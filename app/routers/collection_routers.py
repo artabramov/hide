@@ -176,10 +176,6 @@ async def collection_delete(
         raise E("collection_id", schema.collection_id, E.RESOURCE_NOT_FOUND,
                 status_code=status.HTTP_404_NOT_FOUND)
 
-    if collection.documents_count > 0:
-        # TODO: delete related documents
-        ...
-
     await collection_repository.delete(collection, commit=False)
 
     hook = Hook(session, cache, request, current_user=current_user)

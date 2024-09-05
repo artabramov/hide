@@ -46,8 +46,10 @@ class Collection(Base):
 
     collection_user = relationship(
         "User", back_populates="user_collections", lazy="joined")
+
     collection_documents = relationship(
-        "Document", back_populates="document_collection", lazy="noload")
+        "Document", back_populates="document_collection",
+        cascade="all, delete-orphan")
 
     def __init__(self, user_id: int, is_locked: bool, collection_name: str,
                  collection_summary: str = None):

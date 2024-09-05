@@ -60,40 +60,8 @@ class Document(Base):
 
     latest_revision = relationship(
         "Revision", primaryjoin=and_(
-            id == Revision.document_id,
-            Revision.is_latest == True
-        ),
+            id == Revision.document_id, Revision.is_latest == True),  # noqa E712
         lazy="joined", uselist=False)
-
-    # # Relationship to all revisions
-    # latest_revision = relationship(
-    #     "Revision",
-    #     primaryjoin="Document.id == Revision.document_id",
-    #     lazy="dynamic",
-    #     backref="document"
-    # )
-
-    # @property
-    # def latest_revision(self):
-    #     return (
-    #         select(Revision)
-    #         .where(Revision.document_id == self.id)
-    #         .order_by(Revision.created_date.desc())
-    #         .limit(1)
-    #         .as_scalar()
-    #     )
-
-    # @property
-    # def latest_revision(self):
-    #     return self.document_revisions.order_by(Revision.created_date.desc()).first()
-
-    # document_revision = relationship(
-    #     "Revision", primaryjoin="Document.id == Revision.document_id",
-    #     lazy="joined", uselist=False)
-
-    # latest_revision = relationship(
-    #     "Revision", primaryjoin="Document.last_revision_id == Revision.id",
-    #     lazy="joined", uselist=False)
 
     def __init__(self, user_id: int, collection_id: int,
                  document_name: str, document_summary: str = None):
