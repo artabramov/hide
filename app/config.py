@@ -15,9 +15,9 @@ DOTENV_FILE = "/hide/.env"
 
 @dataclass
 class Config:
-    COPYRIGHT: str
-    PROJECT: str
-    AUTHOR: str
+    SPHINX_COPYRIGHT: str
+    SPHINX_PROJECT: str
+    SPHINX_AUTHOR: str
 
     UVICORN_HOST: str
     UVICORN_PORT: int

@@ -23,9 +23,9 @@ config = get_config()
 # -- Project information -----------------------------------------------------
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#project-information
 
-project = config.PROJECT
-copyright = config.COPYRIGHT
-author = config.AUTHOR
+copyright = config.SPHINX_COPYRIGHT
+project = config.SPHINX_PROJECT
+author = config.SPHINX_AUTHOR
 
 # -- General configuration ---------------------------------------------------
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#general-configuration
