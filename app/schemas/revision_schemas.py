@@ -48,5 +48,5 @@ class RevisionsListRequest(BaseModel):
 
 
 class RevisionsListResponse(BaseModel):
-    collections: List[RevisionSelectResponse]
-    collections_count: int
+    revisions: List[RevisionSelectResponse]
+    revisions_count: int

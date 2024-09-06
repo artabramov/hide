@@ -500,6 +500,13 @@ async def after_revision_select(
     current_user: User,
     revision: Revision
 ) -> Revision:
+    """
+    Executes additional logic after a revision entity is retrieved,
+    such as event logging, updating the database, managing the cache,
+    performing file or network operations, or other actions. It takes
+    the entity as input, applies the required post-processing, and
+    returns the possibly modified entity.
+    """
     ...
     return revision
 
@@ -511,17 +518,32 @@ async def after_revision_download(
     current_user: User,
     revision: Revision
 ) -> Revision:
+    """
+    Executes additional logic after a revision entity is downloaded,
+    such as event logging, updating the database, managing the cache,
+    performing file or network operations, or other actions. It takes
+    the entity as input, applies the required post-processing, and
+    returns the possibly modified entity.
+    """
     ...
     return revision
 
 
-async def after_revisions_list(
+async def after_revision_list(
     entity_manager: EntityManager,
     cache_manager: CacheManager,
     request: Request,
     current_user: User,
     revisions: List[Revision]
 ) -> List[Favorite]:
+    """
+    Executes additional logic after a list of revision entities is
+    retrieved, such as event logging, updating the database, managing
+    the cache, performing file or network operations, or other actions.
+    It takes the list of entities as input, applies the required
+    post-processing, and returns the list of possibly modified
+    entities.
+    """
     ...
     return revisions
 
