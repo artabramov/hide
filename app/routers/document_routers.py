@@ -1,9 +1,3 @@
-"""
-The module defines FastAPI routers for managing documents, including
-creating, retrieving, updating, deleting document entities, and listing
-documents based on query parameters.
-"""
-
 import os
 import uuid
 from fastapi import APIRouter, Depends, status, Request, File, UploadFile
@@ -35,8 +29,9 @@ cfg = get_config()
 router = APIRouter()
 
 
-@router.post("/document", response_model=DocumentInsertResponse,
-             tags=["documents"], name="Upload document")
+@router.post("/document", summary="Create document",
+             response_class=JSONResponse, status_code=status.HTTP_201_CREATED,
+             response_model=DocumentInsertResponse, tags=["documents"])
 async def document_insert(
     request: Request,
     file: UploadFile = File(...),
@@ -44,11 +39,11 @@ async def document_insert(
     cache=Depends(get_cache),
     current_user: User = Depends(auth(UserRole.writer)),
     schema=Depends(DocumentInsertRequest)
-) -> dict:
+) -> DocumentInsertResponse:
     """
-    Create a new document entity. The router validates that the
-    specified collection exists and is not locked, handles the file
-    upload including creating a thumbnail and encrypting the file,
+    FastAPI router for creating a document entity. The router validates
+    that the specified collection exists and is not locked, handles the
+    file upload including creating a thumbnail and encrypting the file,
     inserts the document and its associated revisions into the
     repository, updates document and collection counters, and executes
     related hooks. Returns the created document ID in a JSON response.
@@ -140,25 +135,23 @@ async def document_insert(
     await document_repository.commit()
     await hook.execute(H.AFTER_DOCUMENT_INSERT, document)
 
-    return JSONResponse(
-        status_code=status.HTTP_201_CREATED,
-        content={"document_id": document.id}
-    )
+    return {"document_id": document.id}
 
 
-@router.get("/document/{document_id}", name="Retrieve a document",
-            tags=["documents"], response_model=DocumentSelectResponse)
+@router.get("/document/{document_id}", summary="Retrieve document",
+            response_class=JSONResponse, status_code=status.HTTP_200_OK,
+            response_model=DocumentSelectResponse, tags=["documents"])
 async def document_select(
     request: Request,
     session=Depends(get_session),
     cache=Depends(get_cache),
     current_user: User = Depends(auth(UserRole.reader)),
     schema=Depends(DocumentSelectRequest)
-) -> dict:
+) -> DocumentSelectResponse:
     """
-    Retrieve a document entity by its ID. The router fetches the
-    document from the repository using the provided ID, verifies that
-    the document exists, executes related hooks, and returns the
+    FastAPI router for retrieving a document entity. The router fetches
+    the document from the repository using the provided ID, verifies
+    that the document exists, executes related hooks, and returns the
     document details in a JSON response. The current user should have
     a reader role or higher. Returns a 200 response on success, a 404
     error if the document is not found, and a 403 error if
@@ -174,14 +167,12 @@ async def document_select(
     hook = Hook(session, cache, request, current_user=current_user)
     await hook.execute(H.AFTER_DOCUMENT_SELECT, document)
 
-    return JSONResponse(
-        status_code=status.HTTP_200_OK,
-        content=document.to_dict()
-    )
+    return document.to_dict()
 
 
-@router.put("/document/{document_id}", name="Update a document",
-            tags=["documents"], response_model=DocumentUpdateResponse)
+@router.put("/document/{document_id}", summary="Update document",
+            response_class=JSONResponse, status_code=status.HTTP_200_OK,
+            response_model=DocumentUpdateResponse, tags=["documents"])
 async def document_update(
     request: Request,
     file: UploadFile = File(None),
@@ -189,12 +180,12 @@ async def document_update(
     cache=Depends(get_cache),
     current_user: User = Depends(auth(UserRole.editor)),
     schema=Depends(DocumentUpdateRequest)
-) -> dict:
+) -> DocumentUpdateResponse:
     """
-    Update an existing document by its ID. The router fetches the
-    document from the repository using the provided ID, verifies that
-    the document exists and its collection is not locked, updates the
-    document's tags, processes any uploaded file by creating a new
+    FastAPI router for updating a document entity. The router fetches
+    the document from the repository using the provided ID, verifies
+    that the document exists and its collection is not locked, updates
+    the document's tags, processes any uploaded file by creating a new
     revision. It then updates counters for both the document and its
     collection, executes related hooks, and returns the updated document
     ID in a JSON response. The current user should have an editor role
@@ -317,31 +308,30 @@ async def document_update(
     await document_repository.commit()
     await hook.execute(H.AFTER_DOCUMENT_UPDATE, document)
 
-    return JSONResponse(
-        status_code=status.HTTP_200_OK,
-        content={"document_id": document.id}
-    )
+    return {"document_id": document.id}
 
 
-@router.delete("/document/{document_id}", name="Delete a document",
-               tags=["documents"], response_model=DocumentDeleteResponse)
+@router.delete("/document/{document_id}", summary="Delete document",
+               response_class=JSONResponse, status_code=status.HTTP_200_OK,
+               response_model=DocumentDeleteResponse, tags=["documents"])
 async def document_delete(
     request: Request,
     session=Depends(get_session),
     cache=Depends(get_cache),
     current_user: User = Depends(auth(UserRole.admin)),
     schema=Depends(DocumentDeleteRequest)
-) -> dict:
+) -> DocumentDeleteResponse:
     """
-    Delete a document by its ID. The router retrieves the document from
-    the repository using the provided ID, checks if the document exists
-    and its collection is not locked, deletes the document and all
-    related entities, updates the counters for the associated collection,
-    executes related hooks, and returns the deleted document ID in a
-    JSON response. The current user should have an admin role. Returns
-    a 200 response on success, a 404 error if the document is not found,
-    a 423 error if the collection is locked, and a 403 error if
-    authentication fails or the user does not have the required role.
+    FastAPI router for deleting a document entity. The router retrieves
+    the document from the repository using the provided ID, checks if
+    the document exists and its collection is not locked, deletes the
+    document and all related entities, updates the counters for the
+    associated collection, executes related hooks, and returns the
+    deleted document ID in a JSON response. The current user should
+    have an admin role. Returns a 200 response on success, a 404 error
+    if the document is not found, a 423 error if the collection is
+    locked, and a 403 error if authentication fails or the user does
+    not have the required role.
     """
     document_repository = Repository(session, cache, Document)
 
@@ -372,28 +362,26 @@ async def document_delete(
     await document_repository.commit()
     await hook.execute(H.AFTER_DOCUMENT_DELETE, document)
 
-    return JSONResponse(
-        status_code=status.HTTP_200_OK,
-        content={"document_id": document.id}
-    )
+    return {"document_id": document.id}
 
 
-@router.get("/documents", name="Retrieve documents list",
-            tags=["documents"], response_model=DocumentsListResponse)
-async def documents_list(
+@router.get("/documents", summary="Retrieve document list",
+            response_class=JSONResponse, status_code=status.HTTP_200_OK,
+            response_model=DocumentsListResponse, tags=["documents"])
+async def document_list(
     request: Request,
     session=Depends(get_session),
     cache=Depends(get_cache),
     current_user: User = Depends(auth(UserRole.reader)),
     schema=Depends(DocumentsListRequest)
-) -> dict:
+) -> DocumentsListResponse:
     """
-    Retrieve a list of document entities based on the provided
-    parameters. The router fetches the list of documents from the
-    repository, executes related hooks, and returns the results in
-    a JSON response. The current user should have a reader role or
-    higher. Returns a 200 response on success and a 403 error if
-    authentication fails or the user does not have the required role.
+    FastAPI router for retrieving a list of document entities. The
+    router fetches the list of documents from the repository, executes
+    related hooks, and returns the results in a JSON response. The
+    current user should have a reader role or higher. Returns a 200
+    response on success and a 403 error if authentication fails or
+    the user does not have the required role.
     """
     document_repository = Repository(session, cache, Document)
 
@@ -406,12 +394,9 @@ async def documents_list(
     documents_count = await document_repository.count_all(**kwargs)
 
     hook = Hook(session, cache, request, current_user=current_user)
-    await hook.execute(H.AFTER_DOCUMENTS_LIST, documents)
+    await hook.execute(H.AFTER_DOCUMENT_LIST, documents)
 
-    return JSONResponse(
-        status_code=status.HTTP_200_OK,
-        content={
-            "documents": [document.to_dict() for document in documents],
-            "documents_count": documents_count,
-        }
-    )
+    return {
+        "documents": [document.to_dict() for document in documents],
+        "documents_count": documents_count,
+    }

@@ -58,7 +58,7 @@ class H(enum.Enum):
     AFTER_COLLECTION_SELECT = "after_collection_select"
     AFTER_COLLECTION_UPDATE = "after_collection_update"
     AFTER_COLLECTION_DELETE = "after_collection_delete"
-    AFTER_COLLECTIONS_LIST = "after_collections_list"
+    AFTER_COLLECTION_LIST = "after_collection_list"
 
     # Document hooks
     BEFORE_DOCUMENT_INSERT = "before_document_insert"
@@ -68,9 +68,9 @@ class H(enum.Enum):
     AFTER_DOCUMENT_SELECT = "after_document_select"
     AFTER_DOCUMENT_UPDATE = "after_document_update"
     AFTER_DOCUMENT_DELETE = "after_document_delete"
-    AFTER_DOCUMENTS_LIST = "after_documents_list"
+    AFTER_DOCUMENT_LIST = "after_document_list"
 
-    # Favorites hooks
+    # Favorite hooks
     BEFORE_FAVORITE_INSERT = "before_favorite_insert"
     BEFORE_FAVORITE_DELETE = "before_favorite_delete"
     AFTER_FAVORITE_INSERT = "after_favorite_insert"

@@ -18,7 +18,7 @@ from app.auth import auth
 router = APIRouter()
 
 
-@router.get("/favorite/{favorite_id}", name="Retrieve favorite",
+@router.get("/favorite/{favorite_id}", summary="Retrieve favorite",
             response_class=JSONResponse, status_code=status.HTTP_200_OK,
             response_model=FavoriteSelectResponse, tags=["favorites"])
 async def favorite_select(

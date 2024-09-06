@@ -19,7 +19,7 @@ from app.auth import auth
 router = APIRouter()
 
 
-@router.delete("/comment/{comment_id}", name="Delete comment",
+@router.delete("/comment/{comment_id}", summary="Delete comment",
                response_class=JSONResponse, status_code=status.HTTP_200_OK,
                response_model=CommentDeleteResponse, tags=["comments"])
 async def comment_delete(

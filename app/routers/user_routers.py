@@ -43,7 +43,7 @@ router = APIRouter()
 cfg = get_config()
 
 
-@router.get("/auth/login", name="Authenticate user",
+@router.get("/auth/login", summary="Authenticate user",
             tags=["auth"], response_model=UserLoginResponse)
 async def user_login(
     request: Request,
@@ -113,7 +113,7 @@ async def user_login(
                 status_code=status.HTTP_422_UNPROCESSABLE_ENTITY)
 
 
-@router.get("/auth/token", name="Retrieve token",
+@router.get("/auth/token", summary="Retrieve token",
             tags=["auth"], response_model=TokenRetrieveResponse)
 async def token_retrieve(
     request: Request,
@@ -179,7 +179,7 @@ async def token_retrieve(
                 status_code=status.HTTP_422_UNPROCESSABLE_ENTITY)
 
 
-@router.delete("/auth/token", name="Invalidate token",
+@router.delete("/auth/token", summary="Invalidate token",
                tags=["auth"], response_model=TokenInvalidateResponse)
 async def token_invalidate(
     request: Request,
@@ -208,7 +208,7 @@ async def token_invalidate(
     )
 
 
-@router.post("/user", name="Register user",
+@router.post("/user", summary="Register user",
              tags=["users"], response_model=UserRegisterResponse)
 async def user_register(
     request: Request,
@@ -251,7 +251,7 @@ async def user_register(
     )
 
 
-@router.get("/user/{user_id}", name="Retrieve user",
+@router.get("/user/{user_id}", summary="Retrieve user",
             tags=["users"], response_model=UserSelectResponse)
 async def user_select(
     request: Request,
@@ -283,7 +283,7 @@ async def user_select(
     )
 
 
-@router.put("/user/{user_id}", name="Update user",
+@router.put("/user/{user_id}", summary="Update user",
             tags=["users"], response_model=UserUpdateResponse)
 async def user_update(
     request: Request,
@@ -320,7 +320,7 @@ async def user_update(
     )
 
 
-@router.put("/user/{user_id}/role", name="Change role",
+@router.put("/user/{user_id}/role", summary="Change role",
             tags=["users"], response_model=RoleUpdateResponse)
 async def role_update(
     request: Request,
@@ -362,7 +362,7 @@ async def role_update(
     )
 
 
-@router.put("/user/{user_id}/password", name="Change password",
+@router.put("/user/{user_id}/password", summary="Change password",
             tags=["users"], response_model=PasswordUpdateResponse)
 async def password_update(
     request: Request,
@@ -402,7 +402,7 @@ async def password_update(
     )
 
 
-@router.post("/user/{user_id}/userpic", name="Upload userpic",
+@router.post("/user/{user_id}/userpic", summary="Upload userpic",
              tags=["users"], response_model=UserpicUploadResponse)
 async def userpic_upload(
     request: Request,
@@ -451,7 +451,7 @@ async def userpic_upload(
     )
 
 
-@router.delete("/user/{user_id}/userpic", name="Delete userpic",
+@router.delete("/user/{user_id}/userpic", summary="Delete userpic",
                tags=["users"], response_model=UserpicDeleteResponse)
 async def userpic_delete(
     request: Request,
@@ -487,7 +487,7 @@ async def userpic_delete(
     )
 
 
-@router.get("/users", name="Users list",
+@router.get("/users", summary="Users list",
             tags=["users"], response_model=UsersListResponse)
 async def users_list(
     request: Request,

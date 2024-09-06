@@ -17,7 +17,7 @@ from app.auth import auth
 router = APIRouter()
 
 
-@router.get("/comments", name="Retrieve comment list",
+@router.get("/comments", summary="Retrieve comment list",
             response_class=JSONResponse, status_code=status.HTTP_200_OK,
             response_model=CommentsListResponse, tags=["comments"])
 async def comment_list(

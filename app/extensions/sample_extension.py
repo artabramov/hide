@@ -236,7 +236,7 @@ async def after_collection_delete(
     return collection
 
 
-async def after_collections_list(
+async def after_collection_list(
     entity_manager: EntityManager,
     cache_manager: CacheManager,
     request: Request,
@@ -324,7 +324,7 @@ async def after_document_delete(
     return document
 
 
-async def after_documents_list(
+async def after_document_list(
     entity_manager: EntityManager,
     cache_manager: CacheManager,
     request: Request,

@@ -42,7 +42,7 @@ LOG_AFTER_COLLECTION_INSERT = True
 LOG_AFTER_COLLECTION_SELECT = True
 LOG_AFTER_COLLECTION_UPDATE = True
 LOG_AFTER_COLLECTION_DELETE = True
-LOG_AFTER_COLLECTIONS_LIST = False
+LOG_AFTER_COLLECTION_LIST = False
 LOG_AFTER_DOCUMENT_INSERT = True
 LOG_AFTER_DOCUMENT_SELECT = True
 LOG_AFTER_COMMENT_INSERT = True
@@ -398,7 +398,7 @@ async def after_collection_delete(
     return collection
 
 
-async def after_collections_list(
+async def after_collection_list(
     entity_manager: EntityManager,
     cache_manager: CacheManager,
     request: Request,
@@ -410,7 +410,7 @@ async def after_collections_list(
     list, capturing details about each collection and the request.
     Returns the list of collections.
     """
-    if LOG_AFTER_COLLECTIONS_LIST:
+    if LOG_AFTER_COLLECTION_LIST:
         for collection in collections:
             log = Log(current_user, request, collection, LogAction.select)
             await entity_manager.insert(log)

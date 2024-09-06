@@ -15,7 +15,7 @@ cfg = get_config()
 MFA_MASK = "otpauth://totp/%s?secret=%s&issuer=%s"
 
 
-@router.get("/user/{user_id}/mfa/{mfa_secret}", name="Retrieve MFA QR-code",
+@router.get("/user/{user_id}/mfa/{mfa_secret}", summary="Retrieve MFA QR-code",
             include_in_schema=False)
 async def user_mfa(
     session=Depends(get_session),

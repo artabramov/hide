@@ -18,7 +18,7 @@ from app.errors import E
 router = APIRouter()
 
 
-@router.get("/revision/{revision_id}", name="Retrieve revision",
+@router.get("/revision/{revision_id}", summary="Retrieve revision",
             response_class=JSONResponse, status_code=status.HTTP_200_OK,
             response_model=RevisionSelectResponse, tags=["revisions"])
 async def revision_select(

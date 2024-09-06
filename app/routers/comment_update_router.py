@@ -18,7 +18,7 @@ from app.auth import auth
 router = APIRouter()
 
 
-@router.put("/comment/{comment_id}", name="Update comment",
+@router.put("/comment/{comment_id}", summary="Update comment",
             response_class=JSONResponse, status_code=status.HTTP_200_OK,
             response_model=CommentUpdateResponse, tags=["comments"])
 async def comment_update(

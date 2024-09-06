@@ -18,7 +18,7 @@ from app.auth import auth
 router = APIRouter()
 
 
-@router.get("/download/{download_id}", name="Retrieve download",
+@router.get("/download/{download_id}", summary="Retrieve download",
             response_class=JSONResponse, status_code=status.HTTP_200_OK,
             response_model=DownloadSelectResponse, tags=["downloads"])
 async def download_select(

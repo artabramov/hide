@@ -19,7 +19,7 @@ from app.auth import auth
 router = APIRouter()
 
 
-@router.post("/favorite", name="Create favorite",
+@router.post("/favorite", summary="Create favorite",
              response_class=JSONResponse, status_code=status.HTTP_201_CREATED,
              response_model=FavoriteInsertResponse, tags=["favorites"])
 async def favorite_insert(

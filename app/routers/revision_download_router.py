@@ -19,7 +19,7 @@ from app.managers.file_manager import FileManager
 router = APIRouter()
 
 
-@router.get("/revision/{revision_id}/download", name="Download revision",
+@router.get("/revision/{revision_id}/download", summary="Download revision",
             response_class=Response, status_code=status.HTTP_200_OK,
             tags=["revisions"])
 async def revision_download(

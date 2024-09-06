@@ -17,7 +17,7 @@ from app.repository import Repository
 router = APIRouter()
 
 
-@router.get("/revisions", name="Revision list",
+@router.get("/revisions", summary="Revision list",
             response_class=JSONResponse, status_code=status.HTTP_200_OK,
             response_model=RevisionsListResponse, tags=["revisions"])
 async def revision_list(

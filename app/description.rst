@@ -22,28 +22,28 @@ including inserting, reading, updating, and deleting data. Use this
 table to understand the access levels granted to each role within
 the application.
 
-| Action            | Reader  | Writer  | Editor  | Admin   |
-|-------------------|---------|---------|---------|---------|
-| Collection insert |         | +       | +       | +       |
-| Collection select | +       | +       | +       | +       |
-| Collection update |         |         | +       | +       |
-| Collection delete |         |         |         | +       |
-| Collections list  | +       | +       | +       | +       |
-| Favorite insert      | +         | +         | +         | +         |
-| Favorite select      | + (owner) | + (owner) | + (owner) | + (owner) |
-| Favorite delete      | + (owner) | + (owner) | + (owner) | + (owner) |
-| Favorites list       | + (owner) | + (owner) | + (owner) | + (owner) |
-| Revision select      | +         | +         | +         | +         |
-| Revision download    | +         | +         | +         | +         |
-| Revisions list       | +         | +         | +         | +         |
-| Download select      | +         | +         | +         | +         |
-| Downloads list       | +         | +         | +         | +         |
-| Comment insert       |           | +         | +         | +         |
-| Comment select       | +         | +         | +         | +         |
-| Comment update       |           |           | + (owner) | + (owner) |
-| Comment delete       |           |           | + (owner) | + (owner) |
-| Comments list        | +         | +         | +         | +         |
-| Option select        |           |           |           | +         |
-| Option insert/update |           |           |           | +         |
-| Option delete        |           |           |           | +         |
-| Option list          |           |           |           | +         |
+| Action                   | Reader   | Writer   | Editor   | Admin    |
+|--------------------------|----------|----------|----------|----------|
+| Collection insert        |          | +        | +        | +        |
+| Collection select        | +        | +        | +        | +        |
+| Collection update        |          |          | +        | +        |
+| Collection delete        |          |          |          | +        |
+| Collections list         | +        | +        | +        | +        |
+| Favorite insert          | +        | +        | +        | +        |
+| Favorite select          | + (own)  | + (own)  | + (own)  | + (own)  |
+| Favorite delete          | + (own)  | + (own)  | + (own)  | + (own)  |
+| Favorites list           | + (own)  | + (own)  | + (own)  | + (own)  |
+| Revision select          | +        | +        | +        | +        |
+| Revision download        | +        | +        | +        | +        |
+| Revisions list           | +        | +        | +        | +        |
+| Download select          | +        | +        | +        | +        |
+| Downloads list           | +        | +        | +        | +        |
+| Comment insert           |          | +        | +        | +        |
+| Comment select           | +        | +        | +        | +        |
+| Comment update           |          |          | + (own)  | + (own)  |
+| Comment delete           |          |          | + (own)  | + (own)  |
+| Comments list            | +        | +        | +        | +        |
+| Option select            |          |          |          | +        |
+| Option insert or update  |          |          |          | +        |
+| Option delete            |          |          |          | +        |
+| Option list              |          |          |          | +        |

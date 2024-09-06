@@ -19,7 +19,7 @@ from app.auth import auth
 router = APIRouter()
 
 
-@router.post("/comment", name="Create comment",
+@router.post("/comment", summary="Create comment",
              response_class=JSONResponse, status_code=status.HTTP_201_CREATED,
              response_model=CommentInsertResponse, tags=["comments"])
 async def comment_insert(
