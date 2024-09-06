@@ -82,16 +82,19 @@ class H(enum.Enum):
     AFTER_DOWNLOAD_SELECT = "after_download_select"
     AFTER_DOWNLOADS_LIST = "after_downloads_list"
 
+    # Comment hooks
+    BEFORE_COMMENT_INSERT = "before_comment_insert"
+    BEFORE_COMMENT_UPDATE = "before_comment_update"
+    BEFORE_COMMENT_DELETE = "before_comment_delete"
     AFTER_COMMENT_INSERT = "after_comment_insert"
     AFTER_COMMENT_SELECT = "after_comment_select"
     AFTER_COMMENT_UPDATE = "after_comment_update"
     AFTER_COMMENT_DELETE = "after_comment_delete"
-    AFTER_COMMENTS_LIST = "after_comments_list"
+    AFTER_COMMENT_LIST = "after_comment_list"
 
     # Option hooks
     BEFORE_OPTION_UPDATE = "before_option_update"
     BEFORE_OPTION_DELETE = "before_option_delete"
-
     AFTER_OPTION_UPDATE = "after_option_update"
     AFTER_OPTION_DELETE = "after_option_delete"
     AFTER_OPTION_SELECT = "after_option_select"

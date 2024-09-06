@@ -1,6 +1,5 @@
 """
-The module defines a FastAPI router for retrieving option entities by
-their keys.
+The module defines a FastAPI router for retrieving option entities.
 """
 
 from fastapi import APIRouter, Depends, Request, status
@@ -30,9 +29,12 @@ async def option_select(
     schema=Depends(OptionSelectRequest)
 ) -> OptionSelectResponse:
     """
-    FastAPI router for fetching an option entity by its key. Includes
-    validation and execution of relevant hooks. Returns the details of
-    the retrieved option.
+    FastAPI router for fetching an option entity. The router retrieves
+    the option from the repository using the provided option key and
+    executes related hooks. The current user should have an admin role.
+    Returns a 200 response on success, a 404 error if the option is not
+    found, and a 403 error if authentication fails or the user does
+    not have the required role.
     """
     option_repository = Repository(session, cache, Option)
     option = await option_repository.select(option_key__eq=schema.option_key)

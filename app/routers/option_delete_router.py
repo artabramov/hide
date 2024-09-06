@@ -1,6 +1,5 @@
 """
-The module defines a FastAPI router for deleting option entities by
-their keys.
+The module defines a FastAPI router for deleting option entities.
 """
 
 from fastapi import APIRouter, Depends, Request, status
@@ -29,9 +28,15 @@ async def option_unset(
     schema=Depends(OptionDeleteRequest)
 ) -> OptionDeleteResponse:
     """
-    FastAPI router for deleting an option entity by its key. Includes
-    validation and execution of relevant hooks. Returns the key of the
-    deleted option or None if the option was not found.
+    FastAPI router for deleting an option entity. The router retrieves
+    the option from the repository using the provided option key. If
+    the option exists, it deletes it from the repository and executes
+    related hooks. The router returns the option key of the deleted
+    option in a JSON response. If the option does not exist, no deletion
+    occurs. The current user should have an admin role. Returns a 200
+    response on success, a 404 error if the option is not found, and
+    a 403 error if authentication fails or the user does not have
+    the required role.
     """
     option_repository = Repository(session, cache, Option)
     option = await option_repository.select(option_key__eq=schema.option_key)
@@ -45,7 +50,4 @@ async def option_unset(
     await option_repository.commit()
     await hook.execute(H.AFTER_OPTION_DELETE, option)
 
-    return JSONResponse(
-        status_code=status.HTTP_200_OK,
-        content={"option_key": option.option_key if option else None}
-    )
+    return {"option_key": option.option_key if option else None}

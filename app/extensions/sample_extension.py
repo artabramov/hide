@@ -203,7 +203,7 @@ async def after_collection_select(
     collection: Collection
 ) -> Collection:
     """
-    Executes additional logic after a collection entity is selected,
+    Executes additional logic after a collection entity is retrieved,
     such as event logging, updating the database, managing the cache,
     performing file or network operations, or other actions. It takes
     the entity as input, applies the required post-processing, and
@@ -348,7 +348,7 @@ async def after_document_select(
     document: Document
 ) -> Document:
     """
-    Executes additional logic after a document entity is selected,
+    Executes additional logic after a document entity is retrieved,
     such as event logging, updating the database, managing the cache,
     performing file or network operations, or other actions. It takes
     the entity as input, applies the required post-processing, and
@@ -548,6 +548,24 @@ async def after_downloads_list(
     return downloads
 
 
+async def before_comment_insert(
+    entity_manager: EntityManager,
+    cache_manager: CacheManager,
+    request: Request,
+    current_user: User,
+    comment: Comment
+) -> Comment:
+    """
+    Executes additional logic before a comment entity is created,
+    such as event logging, updating the database, managing the cache,
+    performing file or network operations, or other actions. It takes
+    the entity as input, applies the required pre-processing, and
+    returns the possibly modified entity.
+    """
+    ...
+    return comment
+
+
 async def after_comment_insert(
     entity_manager: EntityManager,
     cache_manager: CacheManager,
@@ -555,6 +573,13 @@ async def after_comment_insert(
     current_user: User,
     comment: Comment
 ) -> Comment:
+    """
+    Executes additional logic after a comment entity is created,
+    such as event logging, updating the database, managing the cache,
+    performing file or network operations, or other actions. It takes
+    the entity as input, applies the required post-processing, and
+    returns the possibly modified entity.
+    """
     ...
     return comment
 
@@ -566,6 +591,31 @@ async def after_comment_select(
     current_user: User,
     comment: Comment
 ) -> Comment:
+    """
+    Executes additional logic after a comment entity is retrieved,
+    such as event logging, updating the database, managing the cache,
+    performing file or network operations, or other actions. It takes
+    the entity as input, applies the required post-processing, and
+    returns the possibly modified entity.
+    """
+    ...
+    return comment
+
+
+async def before_comment_update(
+    entity_manager: EntityManager,
+    cache_manager: CacheManager,
+    request: Request,
+    current_user: User,
+    comment: Comment
+) -> Comment:
+    """
+    Executes additional logic before a comment entity is updated,
+    such as event logging, updating the database, managing the cache,
+    performing file or network operations, or other actions. It takes
+    the entity as input, applies the required pre-processing, and
+    returns the possibly modified entity.
+    """
     ...
     return comment
 
@@ -577,6 +627,31 @@ async def after_comment_update(
     current_user: User,
     comment: Comment
 ) -> Comment:
+    """
+    Executes additional logic after a comment entity is updated,
+    such as event logging, updating the database, managing the cache,
+    performing file or network operations, or other actions. It takes
+    the entity as input, applies the required post-processing, and
+    returns the possibly modified entity.
+    """
+    ...
+    return comment
+
+
+async def before_comment_delete(
+    entity_manager: EntityManager,
+    cache_manager: CacheManager,
+    request: Request,
+    current_user: User,
+    comment: Comment
+) -> Comment:
+    """
+    Executes additional logic before a comment entity is deleted,
+    such as event logging, updating the database, managing the cache,
+    performing file or network operations, or other actions. It takes
+    the entity as input, applies the required pre-processing, and
+    returns the possibly modified entity.
+    """
     ...
     return comment
 
@@ -588,17 +663,32 @@ async def after_comment_delete(
     current_user: User,
     comment: Comment
 ) -> Comment:
+    """
+    Executes additional logic after a comment entity is deleted,
+    such as event logging, updating the database, managing the cache,
+    performing file or network operations, or other actions. It takes
+    the entity as input, applies the required post-processing, and
+    returns the possibly modified entity.
+    """
     ...
     return comment
 
 
-async def after_comments_list(
+async def after_comment_list(
     entity_manager: EntityManager,
     cache_manager: CacheManager,
     request: Request,
     current_user: User,
     comments: List[Comment]
 ) -> List[Comment]:
+    """
+    Executes additional logic after a list of comment entities is
+    retrieved, such as event logging, updating the database, managing
+    the cache, performing file or network operations, or other actions.
+    It takes the list of entities as input, applies the required
+    post-processing, and returns the list of possibly modified
+    entities.
+    """
     ...
     return comments
 
@@ -611,7 +701,7 @@ async def after_option_select(
     option: Option
 ) -> Option:
     """
-    Executes additional logic after an option entity is selected,
+    Executes additional logic after an option entity is retrieved,
     such as event logging, updating the database, managing the cache,
     performing file or network operations, or other actions. It takes
     the entity as input, applies the required post-processing, and

@@ -43,3 +43,7 @@ the application.
 | Comment update       |           |           | + (owner) | + (owner) |
 | Comment delete       |           |           | + (owner) | + (owner) |
 | Comments list        | +         | +         | +         | +         |
+| Option select        |           |           |           | +         |
+| Option insert/update |           |           |           | +         |
+| Option delete        |           |           |           | +         |
+| Option list          |           |           |           | +         |

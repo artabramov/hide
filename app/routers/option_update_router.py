@@ -29,15 +29,22 @@ async def option_set(
     schema=Depends(OptionUpdateRequest)
 ) -> OptionUpdateResponse:
     """
-    FastAPI router for creating or updating an option entity, including
-    validation and execution of relevant hooks. Returns the key of the
-    created or updated option.
+    FastAPI router for inserting or updating an option value. The router
+    fetches the option from the repository using the provided option key,
+    and if the option does not exist, creates a new one with the
+    specified value. If the option does exist, it updates its value.
+    The router then executes related hooks and returns the updated
+    option key in a JSON response. The current user should have an admin
+    role. Returns a 200 response on success, a 400 error if the request
+    data is invalid, and a 403 error if authentication fails or the user
+    does not have the required role.
     """
     option_repository = Repository(session, cache, Option)
 
     option = await option_repository.select(option_key__eq=schema.option_key)
     if not option:
-        option = Option(current_user.id, schema.option_key, schema.option_value)
+        option = Option(
+            current_user.id, schema.option_key, schema.option_value)
     else:
         option.option_value = schema.option_value
 

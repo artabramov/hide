@@ -16,8 +16,10 @@ from app.context import get_context
 from app.log import get_log
 from app.routers import (
     static_routers, user_routers, collection_routers, document_routers,
-    favorite_routers, revision_routers, download_routers, comment_routers,
+    favorite_routers, revision_routers, download_routers,
     service_routers,
+    comment_insert_router, comment_select_router, comment_update_router,
+    comment_delete_router, comment_list_router,
     option_update_router, option_select_router, option_delete_router,
     option_list_router)
 from app.database import Base, sessionmanager, get_session
@@ -131,7 +133,11 @@ app.include_router(document_routers.router, prefix=cfg.APP_PREFIX)
 app.include_router(favorite_routers.router, prefix=cfg.APP_PREFIX)
 app.include_router(revision_routers.router, prefix=cfg.APP_PREFIX)
 app.include_router(download_routers.router, prefix=cfg.APP_PREFIX)
-app.include_router(comment_routers.router, prefix=cfg.APP_PREFIX)
+app.include_router(comment_insert_router.router, prefix=cfg.APP_PREFIX)
+app.include_router(comment_select_router.router, prefix=cfg.APP_PREFIX)
+app.include_router(comment_update_router.router, prefix=cfg.APP_PREFIX)
+app.include_router(comment_delete_router.router, prefix=cfg.APP_PREFIX)
+app.include_router(comment_list_router.router, prefix=cfg.APP_PREFIX)
 app.include_router(option_update_router.router, prefix=cfg.APP_PREFIX)
 app.include_router(option_select_router.router, prefix=cfg.APP_PREFIX)
 app.include_router(option_delete_router.router, prefix=cfg.APP_PREFIX)

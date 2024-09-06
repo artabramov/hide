@@ -49,7 +49,7 @@ LOG_AFTER_COMMENT_INSERT = True
 LOG_AFTER_COMMENT_SELECT = True
 LOG_AFTER_COMMENT_UPDATE = True
 LOG_AFTER_COMMENT_DELETE = True
-LOG_AFTER_COMMENTS_LIST = False
+LOG_AFTER_COMMENT_LIST = False
 LOG_AFTER_DOWNLOAD_SELECT = True
 LOG_AFTER_DOWNLOADS_LIST = True
 LOG_AFTER_FAVORITE_INSERT = True
@@ -519,7 +519,7 @@ async def after_comment_delete(
     return comment
 
 
-async def after_comments_list(
+async def after_comment_list(
     entity_manager: EntityManager,
     cache_manager: CacheManager,
     request: Request,
@@ -530,7 +530,7 @@ async def after_comments_list(
     Logs the retrieval of a list of comments, capturing details about
     each comment and the request. Returns the list of comments.
     """
-    if LOG_AFTER_COMMENTS_LIST:
+    if LOG_AFTER_COMMENT_LIST:
         for comment in comments:
             log = Log(current_user, request, comment, LogAction.select)
             await entity_manager.insert(log)
