@@ -166,13 +166,6 @@ async def before_collection_insert(
     current_user: User,
     collection: Collection
 ) -> Collection:
-    """
-    Executes additional logic before a collection entity is created,
-    such as event logging, updating the database, managing the cache,
-    performing file or network operations, or other actions. It takes
-    the entity as input, applies the required pre-processing, and
-    returns the possibly modified entity.
-    """
     ...
     return collection
 
@@ -184,13 +177,6 @@ async def after_collection_insert(
     current_user: User,
     collection: Collection
 ) -> Collection:
-    """
-    Executes additional logic after a collection entity is created,
-    such as event logging, updating the database, managing the cache,
-    performing file or network operations, or other actions. It takes
-    the entity as input, applies the required post-processing, and
-    returns the possibly modified entity.
-    """
     ...
     return collection
 
@@ -202,13 +188,6 @@ async def after_collection_select(
     current_user: User,
     collection: Collection
 ) -> Collection:
-    """
-    Executes additional logic after a collection entity is retrieved,
-    such as event logging, updating the database, managing the cache,
-    performing file or network operations, or other actions. It takes
-    the entity as input, applies the required post-processing, and
-    returns the possibly modified entity.
-    """
     ...
     return collection
 
@@ -220,13 +199,6 @@ async def before_collection_update(
     current_user: User,
     collection: Collection
 ) -> Collection:
-    """
-    Executes additional logic before a collection entity is updated,
-    such as event logging, updating the database, managing the cache,
-    performing file or network operations, or other actions. It takes
-    the entity as input, applies the required pre-processing, and
-    returns the possibly modified entity.
-    """
     ...
     return collection
 
@@ -238,13 +210,6 @@ async def after_collection_update(
     current_user: User,
     collection: Collection
 ) -> Collection:
-    """
-    Executes additional logic after a collection entity is updated,
-    such as event logging, updating the database, managing the cache,
-    performing file or network operations, or other actions. It takes
-    the entity as input, applies the required post-processing, and
-    returns the possibly modified entity.
-    """
     ...
     return collection
 
@@ -256,13 +221,6 @@ async def before_collection_delete(
     current_user: User,
     collection: Collection
 ) -> Collection:
-    """
-    Executes additional logic before a collection entity is deleted,
-    such as event logging, updating the database, managing the cache,
-    performing file or network operations, or other actions. It takes
-    the entity as input, applies the required pre-processing, and
-    returns the possibly modified entity.
-    """
     ...
     return collection
 
@@ -274,13 +232,6 @@ async def after_collection_delete(
     current_user: User,
     collection: Collection
 ) -> Collection:
-    """
-    Executes additional logic after a collection entity is deleted,
-    such as event logging, updating the database, managing the cache,
-    performing file or network operations, or other actions. It takes
-    the entity as input, applies the required post-processing, and
-    returns the possibly modified entity.
-    """
     ...
     return collection
 
@@ -292,14 +243,6 @@ async def after_collections_list(
     current_user: User,
     collections: List[Collection]
 ) -> List[Collection]:
-    """
-    Executes additional logic after a list of collection entities is
-    selected, such as event logging, updating the database, managing
-    the cache, performing file or network operations, or other actions.
-    It takes the list of entities as input, applies the required
-    post-processing, and returns the list of possibly modified
-    entities.
-    """
     ...
     return collections
 
@@ -311,13 +254,6 @@ async def before_document_insert(
     current_user: User,
     document: Document
 ) -> Document:
-    """
-    Executes additional logic before a document entity is created,
-    such as event logging, updating the database, managing the cache,
-    performing file or network operations, or other actions. It takes
-    the entity as input, applies the required pre-processing, and
-    returns the possibly modified entity.
-    """
     ...
     return document
 
@@ -329,13 +265,6 @@ async def after_document_insert(
     current_user: User,
     document: Document
 ) -> Document:
-    """
-    Executes additional logic after a document entity is created,
-    such as event logging, updating the database, managing the cache,
-    performing file or network operations, or other actions. It takes
-    the entity as input, applies the required post-processing, and
-    returns the possibly modified entity.
-    """
     ...
     return document
 
@@ -347,13 +276,6 @@ async def after_document_select(
     current_user: User,
     document: Document
 ) -> Document:
-    """
-    Executes additional logic after a document entity is retrieved,
-    such as event logging, updating the database, managing the cache,
-    performing file or network operations, or other actions. It takes
-    the entity as input, applies the required post-processing, and
-    returns the possibly modified entity.
-    """
     ...
     return document
 
@@ -365,13 +287,6 @@ async def before_document_update(
     current_user: User,
     document: Document
 ) -> Document:
-    """
-    Executes additional logic before a document entity is updated,
-    such as event logging, updating the database, managing the cache,
-    performing file or network operations, or other actions. It takes
-    the entity as input, applies the required pre-processing, and
-    returns the possibly modified entity.
-    """
     ...
     return document
 
@@ -383,13 +298,6 @@ async def after_document_update(
     current_user: User,
     document: Document
 ) -> Document:
-    """
-    Executes additional logic after a document entity is updated,
-    such as event logging, updating the database, managing the cache,
-    performing file or network operations, or other actions. It takes
-    the entity as input, applies the required post-processing, and
-    returns the possibly modified entity.
-    """
     ...
     return document
 
@@ -401,13 +309,6 @@ async def before_document_delete(
     current_user: User,
     document: Document
 ) -> Document:
-    """
-    Executes additional logic before a document entity is deleted,
-    such as event logging, updating the database, managing the cache,
-    performing file or network operations, or other actions. It takes
-    the entity as input, applies the required pre-processing, and
-    returns the possibly modified entity.
-    """
     ...
     return document
 
@@ -419,13 +320,6 @@ async def after_document_delete(
     current_user: User,
     document: Document
 ) -> Document:
-    """
-    Executes additional logic after a document entity is deleted,
-    such as event logging, updating the database, managing the cache,
-    performing file or network operations, or other actions. It takes
-    the entity as input, applies the required post-processing, and
-    returns the possibly modified entity.
-    """
     ...
     return document
 
@@ -437,16 +331,26 @@ async def after_documents_list(
     current_user: User,
     documents: List[Document]
 ) -> List[Document]:
-    """
-    Executes additional logic after a list of document entities is
-    selected, such as event logging, updating the database, managing
-    the cache, performing file or network operations, or other actions.
-    It takes the list of entities as input, applies the required
-    post-processing, and returns the list of possibly modified
-    entities.
-    """
     ...
     return documents
+
+
+async def before_favorite_insert(
+    entity_manager: EntityManager,
+    cache_manager: CacheManager,
+    request: Request,
+    current_user: User,
+    favorite: Favorite
+) -> Favorite:
+    """
+    Executes additional logic before a favorite entity is created,
+    such as event logging, updating the database, managing the cache,
+    performing file or network operations, or other actions. It takes
+    the entity as input, applies the required pre-processing, and
+    returns the possibly modified entity.
+    """
+    ...
+    return favorite
 
 
 async def after_favorite_insert(
@@ -456,6 +360,13 @@ async def after_favorite_insert(
     current_user: User,
     favorite: Favorite
 ) -> Favorite:
+    """
+    Executes additional logic after a favorite entity is created,
+    such as event logging, updating the database, managing the cache,
+    performing file or network operations, or other actions. It takes
+    the entity as input, applies the required post-processing, and
+    returns the possibly modified entity.
+    """
     ...
     return favorite
 
@@ -467,6 +378,31 @@ async def after_favorite_select(
     current_user: User,
     favorite: Favorite
 ) -> Favorite:
+    """
+    Executes additional logic after a favorite entity is retrieved,
+    such as event logging, updating the database, managing the cache,
+    performing file or network operations, or other actions. It takes
+    the entity as input, applies the required post-processing, and
+    returns the possibly modified entity.
+    """
+    ...
+    return favorite
+
+
+async def before_favorite_delete(
+    entity_manager: EntityManager,
+    cache_manager: CacheManager,
+    request: Request,
+    current_user: User,
+    favorite: Favorite
+) -> Favorite:
+    """
+    Executes additional logic before a favorite entity is deleted,
+    such as event logging, updating the database, managing the cache,
+    performing file or network operations, or other actions. It takes
+    the entity as input, applies the required pre-processing, and
+    returns the possibly modified entity.
+    """
     ...
     return favorite
 
@@ -478,17 +414,32 @@ async def after_favorite_delete(
     current_user: User,
     favorite: Favorite
 ) -> Favorite:
+    """
+    Executes additional logic after a favorite entity is deleted,
+    such as event logging, updating the database, managing the cache,
+    performing file or network operations, or other actions. It takes
+    the entity as input, applies the required post-processing, and
+    returns the possibly modified entity.
+    """
     ...
     return favorite
 
 
-async def after_favorites_list(
+async def after_favorite_list(
     entity_manager: EntityManager,
     cache_manager: CacheManager,
     request: Request,
     current_user: User,
     favorites: List[Favorite]
 ) -> List[Favorite]:
+    """
+    Executes additional logic after a list of favorite entities is
+    retrieved, such as event logging, updating the database, managing
+    the cache, performing file or network operations, or other actions.
+    It takes the list of entities as input, applies the required
+    post-processing, and returns the list of possibly modified
+    entities.
+    """
     ...
     return favorites
 

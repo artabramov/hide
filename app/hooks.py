@@ -70,10 +70,13 @@ class H(enum.Enum):
     AFTER_DOCUMENT_DELETE = "after_document_delete"
     AFTER_DOCUMENTS_LIST = "after_documents_list"
 
+    # Favorites hooks
+    BEFORE_FAVORITE_INSERT = "before_favorite_insert"
+    BEFORE_FAVORITE_DELETE = "before_favorite_delete"
     AFTER_FAVORITE_INSERT = "after_favorite_insert"
     AFTER_FAVORITE_SELECT = "after_favorite_select"
     AFTER_FAVORITE_DELETE = "after_favorite_delete"
-    AFTER_FAVORITES_LIST = "after_favorites_list"
+    AFTER_FAVORITE_LIST = "after_favorite_list"
 
     # Revision hooks
     AFTER_REVISION_SELECT = "after_revision_select"

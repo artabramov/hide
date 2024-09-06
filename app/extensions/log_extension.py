@@ -55,7 +55,7 @@ LOG_AFTER_DOWNLOAD_LIST = True
 LOG_AFTER_FAVORITE_INSERT = True
 LOG_AFTER_FAVORITE_SELECT = True
 LOG_AFTER_FAVORITE_DELETE = True
-LOG_AFTER_FAVORITES_LIST = False
+LOG_AFTER_FAVORITE_LIST = False
 
 OBSCURED_KEYS = ["user_password", "current_password", "updated_password",
                  "user_totp", "password_hash", "mfa_secret_encrypted",
@@ -623,7 +623,7 @@ async def after_favorite_delete(
     return favorite
 
 
-async def after_favorites_list(
+async def after_favorite_list(
     entity_manager: EntityManager,
     cache_manager: CacheManager,
     request: Request,
@@ -635,7 +635,7 @@ async def after_favorites_list(
     each favorite and the request. Returns the list of retrieved
     favorites.
     """
-    if LOG_AFTER_FAVORITES_LIST:
+    if LOG_AFTER_FAVORITE_LIST:
         for favorite in favorites:
             log = Log(current_user, request, favorite, LogAction.select)
             await entity_manager.insert(log)

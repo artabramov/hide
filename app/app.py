@@ -15,15 +15,16 @@ from app.config import get_config
 from app.context import get_context
 from app.log import get_log
 from app.routers import (
-    static_routers, user_routers, collection_routers, document_routers,
-    favorite_routers,
-    service_routers,
+    user_routers, collection_routers, document_routers,
+    favorite_insert_router, favorite_select_router, favorite_delete_router,
+    favorite_list_router,
     revision_select_router, revision_download_router, revision_list_router,
     download_select_router, download_list_router,
     comment_insert_router, comment_select_router, comment_update_router,
     comment_delete_router, comment_list_router,
     option_update_router, option_select_router, option_delete_router,
-    option_list_router)
+    option_list_router,
+    service_routers, static_routers)
 from app.database import Base, sessionmanager, get_session
 from app.errors import SERVER_ERROR
 from contextlib import asynccontextmanager
@@ -133,7 +134,10 @@ app.include_router(static_routers.router)
 app.include_router(user_routers.router, prefix=cfg.APP_PREFIX)
 app.include_router(collection_routers.router, prefix=cfg.APP_PREFIX)
 app.include_router(document_routers.router, prefix=cfg.APP_PREFIX)
-app.include_router(favorite_routers.router, prefix=cfg.APP_PREFIX)
+app.include_router(favorite_insert_router.router, prefix=cfg.APP_PREFIX)
+app.include_router(favorite_select_router.router, prefix=cfg.APP_PREFIX)
+app.include_router(favorite_delete_router.router, prefix=cfg.APP_PREFIX)
+app.include_router(favorite_list_router.router, prefix=cfg.APP_PREFIX)
 app.include_router(revision_select_router.router, prefix=cfg.APP_PREFIX)
 app.include_router(revision_download_router.router, prefix=cfg.APP_PREFIX)
 app.include_router(revision_list_router.router, prefix=cfg.APP_PREFIX)
