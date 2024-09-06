@@ -88,6 +88,15 @@ class H(enum.Enum):
     AFTER_COMMENT_DELETE = "after_comment_delete"
     AFTER_COMMENTS_LIST = "after_comments_list"
 
+    # Option hooks
+    BEFORE_OPTION_UPDATE = "before_option_update"
+    BEFORE_OPTION_DELETE = "before_option_delete"
+
+    AFTER_OPTION_UPDATE = "after_option_update"
+    AFTER_OPTION_DELETE = "after_option_delete"
+    AFTER_OPTION_SELECT = "after_option_select"
+    AFTER_OPTION_LIST = "after_option_list"
+
 
 class Hook:
     """

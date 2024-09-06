@@ -17,7 +17,9 @@ from app.log import get_log
 from app.routers import (
     static_routers, user_routers, collection_routers, document_routers,
     favorite_routers, revision_routers, download_routers, comment_routers,
-    service_routers)
+    service_routers,
+    option_update_router, option_select_router, option_delete_router,
+    option_list_router)
 from app.database import Base, sessionmanager, get_session
 from app.errors import SERVER_ERROR
 from contextlib import asynccontextmanager
@@ -130,6 +132,10 @@ app.include_router(favorite_routers.router, prefix=cfg.APP_PREFIX)
 app.include_router(revision_routers.router, prefix=cfg.APP_PREFIX)
 app.include_router(download_routers.router, prefix=cfg.APP_PREFIX)
 app.include_router(comment_routers.router, prefix=cfg.APP_PREFIX)
+app.include_router(option_update_router.router, prefix=cfg.APP_PREFIX)
+app.include_router(option_select_router.router, prefix=cfg.APP_PREFIX)
+app.include_router(option_delete_router.router, prefix=cfg.APP_PREFIX)
+app.include_router(option_list_router.router, prefix=cfg.APP_PREFIX)
 app.include_router(service_routers.router, prefix=cfg.APP_PREFIX)
 app.mount(cfg.USERPIC_PREFIX,
           StaticFiles(directory=cfg.USERPIC_BASE_PATH, html=False),

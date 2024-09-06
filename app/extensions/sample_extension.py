@@ -1,4 +1,4 @@
-from typing import List
+from typing import List, Union
 from fastapi import Request
 from app.models.user_models import User
 from app.models.collection_models import Collection
@@ -7,6 +7,7 @@ from app.models.revision_models import Revision
 from app.models.comment_models import Comment
 from app.models.download_models import Download
 from app.models.favorite_models import Favorite
+from app.models.option_models import Option
 from app.managers.entity_manager import EntityManager
 from app.managers.cache_manager import CacheManager
 
@@ -600,3 +601,112 @@ async def after_comments_list(
 ) -> List[Comment]:
     ...
     return comments
+
+
+async def after_option_select(
+    entity_manager: EntityManager,
+    cache_manager: CacheManager,
+    request: Request,
+    current_user: User,
+    option: Option
+) -> Option:
+    """
+    Executes additional logic after an option entity is selected,
+    such as event logging, updating the database, managing the cache,
+    performing file or network operations, or other actions. It takes
+    the entity as input, applies the required post-processing, and
+    returns the possibly modified entity.
+    """
+    ...
+    return option
+
+
+async def before_option_update(
+    entity_manager: EntityManager,
+    cache_manager: CacheManager,
+    request: Request,
+    current_user: User,
+    option: Option
+) -> Option:
+    """
+    Executes additional logic before an option entity is updated,
+    such as event logging, updating the database, managing the cache,
+    performing file or network operations, or other actions. It takes
+    the entity as input, applies the required pre-processing, and
+    returns the possibly modified entity.
+    """
+    ...
+    return option
+
+
+async def after_option_update(
+    entity_manager: EntityManager,
+    cache_manager: CacheManager,
+    request: Request,
+    current_user: User,
+    option: Option
+) -> Option:
+    """
+    Executes additional logic after an option entity is updated,
+    such as event logging, updating the database, managing the cache,
+    performing file or network operations, or other actions. It takes
+    the entity as input, applies the required post-processing, and
+    returns the possibly modified entity.
+    """
+    ...
+    return option
+
+
+async def before_option_delete(
+    entity_manager: EntityManager,
+    cache_manager: CacheManager,
+    request: Request,
+    current_user: User,
+    option: Option = None
+) -> Union[Option, None]:
+    """
+    Executes additional logic before an option entity is deleted,
+    such as event logging, updating the database, managing the cache,
+    performing file or network operations, or other actions. It takes
+    the entity as input, applies the required pre-processing, and
+    returns the possibly modified entity.
+    """
+    ...
+    return option
+
+
+async def after_option_delete(
+    entity_manager: EntityManager,
+    cache_manager: CacheManager,
+    request: Request,
+    current_user: User,
+    option: Option = None
+) -> Union[Option, None]:
+    """
+    Executes additional logic after an option entity is deleted,
+    such as event logging, updating the database, managing the cache,
+    performing file or network operations, or other actions. It takes
+    the entity as input, applies the required post-processing, and
+    returns the possibly modified entity.
+    """
+    ...
+    return option
+
+
+async def after_option_list(
+    entity_manager: EntityManager,
+    cache_manager: CacheManager,
+    request: Request,
+    current_user: User,
+    options: List[Option]
+) -> List[Option]:
+    """
+    Executes additional logic after a list of option entities is
+    retrieved, such as event logging, updating the database, managing
+    the cache, performing file or network operations, or other actions.
+    It takes the list of entities as input, applies the required
+    post-processing, and returns the list of possibly modified
+    entities.
+    """
+    ...
+    return options

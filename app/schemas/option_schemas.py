@@ -1,16 +1,48 @@
+"""
+The module defines Pydantic schemas for managing option entities in the
+application, including schemas for selecting, updating, deleting, and
+listing options. It provides validation rules for each operation.
+"""
+
 from typing import Literal, List, Optional
 from pydantic import BaseModel, Field, field_validator
-from app.config import get_config
-from app.schemas.user_schemas import UserSelectResponse
 from app.validators.option_validators import (
     validate_option_key, validate_option_value)
 
-cfg = get_config()
+
+class OptionSelectRequest(BaseModel):
+    """
+    Pydantic schema for retrieving an option entity by its key. The
+    schema validates that the option key corresponds to the required
+    pattern.
+    """
+    option_key: str = Field(..., pattern=r"^[a-z0-9_-]{2,40}$")
+
+    @field_validator("option_key", mode="before")
+    def validate_option_key(cls, option_key: str) -> str:
+        return validate_option_key(option_key)
+
+class OptionSelectResponse(BaseModel):
+    """
+    Pydantic schema for the response when retrieving an option entity.
+    The schema includes the ID, creation and last update dates, the
+    option key, and value.
+    """
+    id: int
+    created_date: int
+    updated_date: int
+    option_key: str
+    option_value: str
 
 
-class OptionInsertRequest(BaseModel):
-    option_key: str = Field(..., min_length=2, max_length=40)
-    option_value: Optional[str] = Field(max_length=512, default=None)
+class OptionUpdateRequest(BaseModel):
+    """
+    Pydantic schema for updating an option entity by its key. The schema
+    validates the option key to ensure it matches the required pattern
+    and the option value to ensure it does not exceed the maximum length.
+    """
+    option_key: str = Field(..., pattern=r"^[a-z0-9_-]{2,40}$")
+    option_value: str = Field(..., max_length=512)
 
     @field_validator("option_key", mode="before")
     def validate_option_key(cls, option_key: str) -> str:
@@ -21,91 +53,54 @@ class OptionInsertRequest(BaseModel):
         return validate_option_value(option_value)
 
 
-class OptionInsertResponse(BaseModel):
-    option_id: int
+class OptionUpdateResponse(BaseModel):
+    """
+    Pydantic schema for the response after updating an option entity.
+    The schema includes the option key to confirm which option was
+    updated.
+    """
+    option_key: str
 
 
-# class CommentSelectRequest(BaseModel):
-#     """
-#     Pydantic model for the request to select a specific comment
-#     by its ID.
-#     """
-#     comment_id: int
+class OptionDeleteRequest(BaseModel):
+    """
+    Pydantic schema for requesting the deletion of an option entity by
+    its key. The schema validates the option key to ensure it matches
+    the required pattern.
+    """
+    option_key: str = Field(..., pattern=r"^[a-z0-9_-]{2,40}$")
+
+    @field_validator("option_key", mode="before")
+    def validate_option_key(cls, option_key: str) -> str:
+        return validate_option_key(option_key)
 
 
-# class CommentSelectResponse(BaseModel):
-#     """
-#     Pydantic model for the response when retrieving a comment, including
-#     its ID, timestamps, user ID, document ID, and content.
-#     """
-#     id: int
-#     created_date: int
-#     updated_date: int
-#     user_id: int
-#     document_id: int
-#     comment_content: str
-#     comment_user: UserSelectResponse
+class OptionDeleteResponse(BaseModel):
+    """
+    Pydantic schema for the response after requesting the deletion of
+    an option entity. The schema includes the option key, which is None
+    if the option was not found, and contains the key of the deleted
+    option if the deletion was successful.
+    """
+    option_key: Optional[str] = None
 
 
-# class CommentUpdateRequest(BaseModel):
-#     """
-#     Pydantic model for the request to update an existing comment,
-#     including the new comment content. Ensures that the content meets
-#     length requirements.
-#     """
-#     comment_id: int
-#     comment_content: str = Field(..., min_length=2, max_length=512)
-
-#     @field_validator("comment_content", mode="before")
-#     def validate_comment_content(cls, comment_content: str) -> str:
-#         """
-#         Pydantic field validator that trims and validates the comment
-#         content, ensuring it meets length requirements before further
-#         processing.
-#         """
-#         return validate_comment_content(comment_content)
+class OptionsListRequest(BaseModel):
+    """
+    Pydantic schema for requesting a list of option entities with
+    pagination and sorting. The schema allows specifying the starting
+    offset, the limit, the field to sort by, and the sort order.
+    """
+    offset: int = Field(ge=0)
+    limit: int = Field(ge=1, le=200)
+    order_by: Literal["id", "created_date", "updated_date", "option_key"]
+    order: Literal["asc", "desc"]
 
 
-# class CommentUpdateResponse(BaseModel):
-#     """
-#     Pydantic model for the response after updating a comment, containing
-#     the ID of the updated comment.
-#     """
-#     comment_id: int
-
-
-# class CommentDeleteRequest(BaseModel):
-#     """
-#     Pydantic model for the request to delete a comment by its ID.
-#     """
-#     comment_id: int
-
-
-# class CommentDeleteResponse(BaseModel):
-#     """
-#     Pydantic model for the response after deleting a comment, containing
-#     the ID of the deleted comment.
-#     """
-#     comment_id: int
-
-
-# class CommentsListRequest(BaseModel):
-#     """
-#     Pydantic model for the request to list comments, including filtering
-#     by document ID, pagination options (offset and limit), and sorting
-#     criteria.
-#     """
-#     document_id__eq: int
-#     offset: int = Field(ge=0)
-#     limit: int = Field(ge=1, le=200)
-#     order_by: Literal["id", "created_date"]
-#     order: Literal["asc", "desc"]
-
-
-# class CommentsListResponse(BaseModel):
-#     """
-#     Pydantic model for the response when listing comments, containing a
-#     list of comments and the total count of comments.
-#     """
-#     comments: List[CommentSelectResponse]
-#     comments_count: int
+class OptionsListResponse(BaseModel):
+    """
+    Pydantic schema for the response containing a list of option
+    entities and a count of the total number of options available.
+    """
+    options: List[OptionSelectResponse]
+    options_count: int

@@ -26,8 +26,9 @@ router = APIRouter()
 cfg = get_config()
 
 
-@router.post("/collection", name="Create collection",
-             tags=["collections"], response_model=CollectionInsertResponse)
+@router.post("/collection", summary="Create a new collection",
+             response_class=JSONResponse, status_code=status.HTTP_201_CREATED,
+             response_model=CollectionInsertResponse, tags=["collections"])
 async def collection_insert(
     request: Request,
     session=Depends(get_session),
@@ -64,10 +65,7 @@ async def collection_insert(
     await collection_repository.commit()
     await hook.execute(H.AFTER_COLLECTION_INSERT, collection)
 
-    return JSONResponse(
-        status_code=status.HTTP_201_CREATED,
-        content={"collection_id": collection.id}
-    )
+    return {"collection_id": collection.id}
 
 
 @router.get("/collection/{collection_id}", name="Retrieve collection",

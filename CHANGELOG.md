@@ -1,5 +1,9 @@
 # Changelog
 
+## Version 0.0.37 (2024-09-06)
+- Added management functionality for options, including creation,
+  retrieval, updating, and deletion.
+
 ## Version 0.0.36 (2024-09-05)
 - Added an app scheduler for periodic task execution.
 - Added pre-processing events to the hooks system.
