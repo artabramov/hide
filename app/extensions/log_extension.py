@@ -51,7 +51,7 @@ LOG_AFTER_COMMENT_UPDATE = True
 LOG_AFTER_COMMENT_DELETE = True
 LOG_AFTER_COMMENT_LIST = False
 LOG_AFTER_DOWNLOAD_SELECT = True
-LOG_AFTER_DOWNLOADS_LIST = True
+LOG_AFTER_DOWNLOAD_LIST = True
 LOG_AFTER_FAVORITE_INSERT = True
 LOG_AFTER_FAVORITE_SELECT = True
 LOG_AFTER_FAVORITE_DELETE = True
@@ -554,7 +554,7 @@ async def after_download_select(
     return download
 
 
-async def after_downloads_list(
+async def after_download_list(
     entity_manager: EntityManager,
     cache_manager: CacheManager,
     request: Request,
@@ -565,7 +565,7 @@ async def after_downloads_list(
     Logs the retrieval of a list of downloads, capturing details about
     each download and the request. Returns the list of downloads.
     """
-    if LOG_AFTER_DOWNLOADS_LIST:
+    if LOG_AFTER_DOWNLOAD_LIST:
         for download in downloads:
             log = Log(current_user, request, download, LogAction.select)
             await entity_manager.insert(log)

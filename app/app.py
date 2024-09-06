@@ -16,8 +16,9 @@ from app.context import get_context
 from app.log import get_log
 from app.routers import (
     static_routers, user_routers, collection_routers, document_routers,
-    favorite_routers, revision_routers, download_routers,
+    favorite_routers, revision_routers,
     service_routers,
+    download_select_router, download_list_router,
     comment_insert_router, comment_select_router, comment_update_router,
     comment_delete_router, comment_list_router,
     option_update_router, option_select_router, option_delete_router,
@@ -126,13 +127,15 @@ def load_description():
 
 app = FastAPI(lifespan=lifespan, title=cfg.APP_TITLE, version=__version__,
               description=load_description())
+
 app.include_router(static_routers.router)
 app.include_router(user_routers.router, prefix=cfg.APP_PREFIX)
 app.include_router(collection_routers.router, prefix=cfg.APP_PREFIX)
 app.include_router(document_routers.router, prefix=cfg.APP_PREFIX)
 app.include_router(favorite_routers.router, prefix=cfg.APP_PREFIX)
 app.include_router(revision_routers.router, prefix=cfg.APP_PREFIX)
-app.include_router(download_routers.router, prefix=cfg.APP_PREFIX)
+app.include_router(download_select_router.router, prefix=cfg.APP_PREFIX)
+app.include_router(download_list_router.router, prefix=cfg.APP_PREFIX)
 app.include_router(comment_insert_router.router, prefix=cfg.APP_PREFIX)
 app.include_router(comment_select_router.router, prefix=cfg.APP_PREFIX)
 app.include_router(comment_update_router.router, prefix=cfg.APP_PREFIX)
@@ -143,6 +146,7 @@ app.include_router(option_select_router.router, prefix=cfg.APP_PREFIX)
 app.include_router(option_delete_router.router, prefix=cfg.APP_PREFIX)
 app.include_router(option_list_router.router, prefix=cfg.APP_PREFIX)
 app.include_router(service_routers.router, prefix=cfg.APP_PREFIX)
+
 app.mount(cfg.USERPIC_PREFIX,
           StaticFiles(directory=cfg.USERPIC_BASE_PATH, html=False),
           name=cfg.USERPIC_BASE_PATH)

@@ -533,17 +533,32 @@ async def after_download_select(
     current_user: User,
     download: Download
 ) -> Download:
+    """
+    Executes additional logic after a download entity is retrieved,
+    such as event logging, updating the database, managing the cache,
+    performing file or network operations, or other actions. It takes
+    the entity as input, applies the required post-processing, and
+    returns the possibly modified entity.
+    """
     ...
     return download
 
 
-async def after_downloads_list(
+async def after_download_list(
     entity_manager: EntityManager,
     cache_manager: CacheManager,
     request: Request,
     current_user: User,
     downloads: List[Download]
 ) -> List[Download]:
+    """
+    Executes additional logic after a list of download entities is
+    retrieved, such as event logging, updating the database, managing
+    the cache, performing file or network operations, or other actions.
+    It takes the list of entities as input, applies the required
+    post-processing, and returns the list of possibly modified
+    entities.
+    """
     ...
     return downloads
 

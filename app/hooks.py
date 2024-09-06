@@ -79,8 +79,9 @@ class H(enum.Enum):
     AFTER_REVISION_DOWNLOAD = "after_revision_download"
     AFTER_REVISIONS_LIST = "after_revisions_list"
 
+    # Download hooks
     AFTER_DOWNLOAD_SELECT = "after_download_select"
-    AFTER_DOWNLOADS_LIST = "after_downloads_list"
+    AFTER_DOWNLOAD_LIST = "after_download_list"
 
     # Comment hooks
     BEFORE_COMMENT_INSERT = "before_comment_insert"
