@@ -5,6 +5,7 @@ One-Time Password), and token expiration time. These validators are
 used within Pydantic schemas.
 """
 
+from typing import Union
 from pydantic import SecretStr
 
 
@@ -44,6 +45,32 @@ def validate_last_name(last_name: str) -> str:
     if len(last_name.strip()) < 2:
         raise ValueError
     return last_name
+
+
+def validate_user_signature(user_signature: str = None) -> Union[str, None]:
+    """
+    Validates and normalizes a user signature. If there is no input, or
+    if the input is an empty string or consists only of whitespace, it
+    returns None. Otherwise, it returns the trimmed user signature.
+    """
+    if user_signature is None:
+        return None
+
+    user_signature = user_signature.strip()
+    return None if user_signature == "" else user_signature
+
+
+def validate_user_contacts(user_contacts: str = None) -> Union[str, None]:
+    """
+    Validates and normalizes a user contacts. If there is no input, or
+    if the input is an empty string or consists only of whitespace, it
+    returns None. Otherwise, it returns the trimmed user contacts.
+    """
+    if user_contacts is None:
+        return None
+
+    user_contacts = user_contacts.strip()
+    return None if user_contacts == "" else user_contacts
 
 
 def validate_user_totp(user_totp: str) -> str:

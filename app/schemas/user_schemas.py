@@ -5,13 +5,14 @@ and invalidation, role and profile updating, userpic management,
 password changes, and user listing.
 """
 
-from typing import Optional, Literal, List
+from typing import Optional, Literal, List, Union
 from pydantic import BaseModel, SecretStr, Field, field_validator
 from fastapi import File, UploadFile
 from app.models.user_model import UserRole
 from app.validators.user_validators import (
     validate_user_login, validate_user_password, validate_first_name,
-    validate_last_name, validate_user_totp, validate_token_exp)
+    validate_last_name, validate_user_totp, validate_token_exp,
+    validate_user_signature, validate_user_contacts)
 
 
 class UserRegisterRequest(BaseModel):
@@ -42,6 +43,14 @@ class UserRegisterRequest(BaseModel):
     @field_validator("last_name", mode="before")
     def validate_last_name(cls, last_name: str) -> str:
         return validate_last_name(last_name)
+
+    @field_validator("user_signature", mode="before")
+    def validate_user_signature(cls, user_signature: str = None) -> Union[str, None]:  # noqa E501
+        return validate_user_signature(user_signature)
+
+    @field_validator("user_contacts", mode="before")
+    def validate_user_contacts(cls, user_contacts: str = None) -> Union[str, None]:  # noqa E501
+        return validate_user_contacts(user_contacts)
 
 
 class UserRegisterResponse(BaseModel):
@@ -169,6 +178,14 @@ class UserUpdateRequest(BaseModel):
     @field_validator("last_name", mode="before")
     def validate_last_name(cls, last_name: str) -> str:
         return validate_last_name(last_name)
+
+    @field_validator("user_signature", mode="before")
+    def validate_user_signature(cls, user_signature: str = None) -> Union[str, None]:  # noqa E501
+        return validate_user_signature(user_signature)
+
+    @field_validator("user_contacts", mode="before")
+    def validate_user_contacts(cls, user_contacts: str = None) -> Union[str, None]:  # noqa E501
+        return validate_user_contacts(user_contacts)
 
 
 class UserUpdateResponse(BaseModel):
