@@ -69,9 +69,9 @@ class CollectionSelectResponse(BaseModel):
     collection_name: str
     collection_summary: Optional[str] = None
     documents_count: int
+    documents_size: int
     revisions_count: int
     revisions_size: int
-    originals_count: int
     collection_user: UserSelectResponse
 
 

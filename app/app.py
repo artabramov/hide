@@ -15,7 +15,10 @@ from app.config import get_config
 from app.context import get_context
 from app.log import get_log
 from app.routers import (
-    user_routers, collection_routers, document_routers,
+    user_routers,
+    collection_insert_router, collection_select_router,
+    collection_update_router, collection_delete_router, collection_list_router,
+    document_routers,
     favorite_insert_router, favorite_select_router, favorite_delete_router,
     favorite_list_router,
     revision_select_router, revision_download_router, revision_list_router,
@@ -132,7 +135,11 @@ app = FastAPI(lifespan=lifespan, title=cfg.APP_TITLE, version=__version__,
 
 app.include_router(static_routers.router)
 app.include_router(user_routers.router, prefix=cfg.APP_PREFIX)
-app.include_router(collection_routers.router, prefix=cfg.APP_PREFIX)
+app.include_router(collection_insert_router.router, prefix=cfg.APP_PREFIX)
+app.include_router(collection_select_router.router, prefix=cfg.APP_PREFIX)
+app.include_router(collection_update_router.router, prefix=cfg.APP_PREFIX)
+app.include_router(collection_delete_router.router, prefix=cfg.APP_PREFIX)
+app.include_router(collection_list_router.router, prefix=cfg.APP_PREFIX)
 app.include_router(document_routers.router, prefix=cfg.APP_PREFIX)
 app.include_router(favorite_insert_router.router, prefix=cfg.APP_PREFIX)
 app.include_router(favorite_select_router.router, prefix=cfg.APP_PREFIX)
