@@ -13,7 +13,7 @@ from redis import Redis
 from fastapi import Depends, status
 from fastapi.security import HTTPBearer
 from jwt.exceptions import ExpiredSignatureError, PyJWTError
-from app.models.user_models import User, UserRole
+from app.models.user_model import User, UserRole
 from app.database import get_session
 from app.cache import get_cache
 from app.repository import Repository

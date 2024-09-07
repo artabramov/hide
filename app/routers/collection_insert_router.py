@@ -2,8 +2,8 @@ from fastapi import APIRouter, Depends, Request, status
 from fastapi.responses import JSONResponse
 from app.database import get_session
 from app.cache import get_cache
-from app.models.user_models import User, UserRole
-from app.models.collection_models import Collection
+from app.models.user_model import User, UserRole
+from app.models.collection_model import Collection
 from app.schemas.collection_schemas import (
     CollectionInsertRequest, CollectionInsertResponse)
 from app.repository import Repository

@@ -2,9 +2,9 @@ from fastapi import APIRouter, Depends, status, Request
 from fastapi.responses import JSONResponse
 from app.database import get_session
 from app.cache import get_cache
-from app.models.user_models import User, UserRole
-from app.models.document_models import Document
-from app.models.tag_models import Tag
+from app.models.user_model import User, UserRole
+from app.models.document_model import Document
+from app.models.tag_model import Tag
 from app.schemas.document_schemas import (
     DocumentListRequest, DocumentListResponse)
 from app.hooks import H, Hook

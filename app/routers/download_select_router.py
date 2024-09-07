@@ -6,8 +6,8 @@ from fastapi import APIRouter, Depends, Request, status
 from fastapi.responses import JSONResponse
 from app.database import get_session
 from app.cache import get_cache
-from app.models.user_models import User, UserRole
-from app.models.download_models import Download
+from app.models.user_model import User, UserRole
+from app.models.download_model import Download
 from app.schemas.download_schemas import (
     DownloadSelectRequest, DownloadSelectResponse)
 from app.repository import Repository

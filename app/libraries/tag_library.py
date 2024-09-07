@@ -12,7 +12,7 @@ concurrency control.
 import asyncio
 from typing import List
 from app.repository import Repository
-from app.models.tag_models import Tag
+from app.models.tag_model import Tag
 
 asyncio_lock = asyncio.Lock()
 

@@ -7,7 +7,7 @@ from app.repository import Repository
 import qrcode
 from io import BytesIO
 from app.config import get_config
-from app.models.user_models import User
+from app.models.user_model import User
 
 router = APIRouter()
 cfg = get_config()

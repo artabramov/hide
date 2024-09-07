@@ -30,7 +30,7 @@ class User(Base, MFAMixin, FernetMixin):
     created_date = Column(Integer, index=True, default=lambda: int(time()))
     updated_date = Column(Integer, index=True, default=0,
                           onupdate=lambda: int(time()))
-    logged_date = Column(Integer, nullable=False, default=0)
+    last_login_date = Column(Integer, nullable=False, default=0)
     suspended_date = Column(Integer, nullable=False, default=0)
     user_role = Column(Enum(UserRole), nullable=False, index=True,
                        default=UserRole.reader)
@@ -67,7 +67,7 @@ class User(Base, MFAMixin, FernetMixin):
                  user_password: str, first_name: str, last_name: str,
                  is_active: bool = False, user_signature: str = "",
                  user_contacts: str = ""):
-        self.logged_date = 0
+        self.last_login_date = 0
         self.suspended_date = 0
         self.user_role = user_role
         self.is_active = is_active
@@ -141,7 +141,7 @@ class User(Base, MFAMixin, FernetMixin):
             "id": self.id,
             "created_date": self.created_date,
             "updated_date": self.updated_date,
-            "logged_date": self.logged_date,
+            "last_login_date": self.last_login_date,
             "user_role": self.user_role.value,
             "is_active": self.is_active,
             "user_login": self.user_login,

@@ -2,7 +2,7 @@ import os
 from time import time
 from sqlalchemy import Column, Integer, BigInteger, String, ForeignKey, and_
 from sqlalchemy.orm import relationship
-from app.models.revision_models import Revision
+from app.models.revision_model import Revision
 from app.database import Base
 from app.config import get_config
 

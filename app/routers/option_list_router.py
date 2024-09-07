@@ -6,8 +6,8 @@ from fastapi import APIRouter, Depends, Request, status
 from fastapi.responses import JSONResponse
 from app.database import get_session
 from app.cache import get_cache
-from app.models.user_models import User, UserRole
-from app.models.option_models import Option
+from app.models.user_model import User, UserRole
+from app.models.option_model import Option
 from app.schemas.option_schemas import OptionListRequest, OptionListResponse
 from app.repository import Repository
 from app.hooks import H, Hook

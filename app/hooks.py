@@ -17,7 +17,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from fastapi import Request
 from app.managers.entity_manager import EntityManager
 from app.managers.cache_manager import CacheManager
-from app.models.user_models import User
+from app.models.user_model import User
 from app.context import get_context
 
 ctx = get_context()

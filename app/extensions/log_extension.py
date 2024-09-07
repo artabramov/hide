@@ -18,12 +18,12 @@ from sqlalchemy import (Column, BigInteger, Integer, ForeignKey, Enum,
                         JSON, String)
 from fastapi import Request
 from app.database import Base
-from app.models.user_models import User
-from app.models.collection_models import Collection
-from app.models.document_models import Document
-from app.models.comment_models import Comment
-from app.models.download_models import Download
-from app.models.favorite_models import Favorite
+from app.models.user_model import User
+from app.models.collection_model import Collection
+from app.models.document_model import Document
+from app.models.comment_model import Comment
+from app.models.download_model import Download
+from app.models.favorite_model import Favorite
 from app.managers.entity_manager import EntityManager
 from app.managers.cache_manager import CacheManager
 

@@ -4,7 +4,7 @@ from fastapi import APIRouter, Depends, status, Request
 from fastapi.responses import JSONResponse
 from app.database import get_session
 from app.cache import get_cache
-from app.models.user_models import User, UserRole
+from app.models.user_model import User, UserRole
 from app.schemas.user_schemas import (
     UserpicUploadRequest, UserpicUploadResponse)
 from app.errors import E

@@ -6,10 +6,10 @@ from fastapi import APIRouter, Depends, HTTPException, Request, status
 from fastapi.responses import Response
 from app.database import get_session
 from app.cache import get_cache
-from app.models.user_models import User, UserRole
-from app.models.document_models import Document
-from app.models.revision_models import Revision
-from app.models.download_models import Download
+from app.models.user_model import User, UserRole
+from app.models.document_model import Document
+from app.models.revision_model import Revision
+from app.models.download_model import Download
 from app.schemas.revision_schemas import RevisionDownloadRequest
 from app.hooks import H, Hook
 from app.auth import auth

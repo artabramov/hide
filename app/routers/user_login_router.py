@@ -3,7 +3,7 @@ from fastapi import APIRouter, Depends, status, Request
 from fastapi.responses import JSONResponse
 from app.database import get_session
 from app.cache import get_cache
-from app.models.user_models import User, UserRole
+from app.models.user_model import User, UserRole
 from app.helpers.hash_helper import get_hash
 from app.schemas.user_schemas import UserLoginRequest, UserLoginResponse
 from app.errors import E
@@ -56,7 +56,7 @@ async def user_login(
     password_hash = get_hash(user_password)
 
     if user.password_hash == password_hash:
-        user.logged_date = time.time()
+        user.last_login_date = time.time()
         user.password_accepted = True
         user.password_attempts = 0
 

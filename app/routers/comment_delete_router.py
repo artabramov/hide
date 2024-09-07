@@ -6,9 +6,9 @@ from fastapi import APIRouter, Depends, Request, status
 from fastapi.responses import JSONResponse
 from app.database import get_session
 from app.cache import get_cache
-from app.models.user_models import User, UserRole
-from app.models.document_models import Document
-from app.models.comment_models import Comment
+from app.models.user_model import User, UserRole
+from app.models.document_model import Document
+from app.models.comment_model import Comment
 from app.schemas.comment_schemas import (
     CommentDeleteRequest, CommentDeleteResponse)
 from app.repository import Repository
