@@ -22,6 +22,7 @@ class OptionSelectRequest(BaseModel):
     def validate_option_key(cls, option_key: str) -> str:
         return validate_option_key(option_key)
 
+
 class OptionSelectResponse(BaseModel):
     """
     Pydantic schema for the response when retrieving an option entity.
@@ -85,7 +86,7 @@ class OptionDeleteResponse(BaseModel):
     option_key: Optional[str] = None
 
 
-class OptionsListRequest(BaseModel):
+class OptionListRequest(BaseModel):
     """
     Pydantic schema for requesting a list of option entities with
     pagination and sorting. The schema allows specifying the starting
@@ -97,7 +98,7 @@ class OptionsListRequest(BaseModel):
     order: Literal["asc", "desc"]
 
 
-class OptionsListResponse(BaseModel):
+class OptionListResponse(BaseModel):
     """
     Pydantic schema for the response containing a list of option
     entities and a count of the total number of options available.

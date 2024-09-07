@@ -8,8 +8,7 @@ from app.database import get_session
 from app.cache import get_cache
 from app.models.user_models import User, UserRole
 from app.models.option_models import Option
-from app.schemas.option_schemas import (
-    OptionsListRequest, OptionsListResponse)
+from app.schemas.option_schemas import OptionListRequest, OptionListResponse
 from app.repository import Repository
 from app.hooks import H, Hook
 from app.auth import auth
@@ -19,14 +18,14 @@ router = APIRouter()
 
 @router.get("/options", summary="Fetch option list",
             response_class=JSONResponse, status_code=status.HTTP_200_OK,
-            response_model=OptionsListResponse, tags=["options"])
+            response_model=OptionListResponse, tags=["options"])
 async def options_list(
     request: Request,
     session=Depends(get_session),
     cache=Depends(get_cache),
     current_user: User = Depends(auth(UserRole.admin)),
-    schema=Depends(OptionsListRequest)
-) -> OptionsListResponse:
+    schema=Depends(OptionListRequest)
+) -> OptionListResponse:
     """
     FastAPI router for retrieving a list of option entities. The router
     retrieves all options from the repository based on the provided

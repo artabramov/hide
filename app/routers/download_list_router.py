@@ -9,7 +9,7 @@ from app.cache import get_cache
 from app.models.user_models import User, UserRole
 from app.models.download_models import Download
 from app.schemas.download_schemas import (
-    DownloadsListRequest, DownloadsListResponse)
+    DownloadListRequest, DownloadListResponse)
 from app.repository import Repository
 from app.hooks import H, Hook
 from app.auth import auth
@@ -19,14 +19,14 @@ router = APIRouter()
 
 @router.get("/downloads", summary="Retrieve download list",
             response_class=JSONResponse, status_code=status.HTTP_200_OK,
-            response_model=DownloadsListResponse, tags=["downloads"])
+            response_model=DownloadListResponse, tags=["downloads"])
 async def download_list(
     request: Request,
     session=Depends(get_session),
     cache=Depends(get_cache),
     current_user: User = Depends(auth(UserRole.reader)),
-    schema=Depends(DownloadsListRequest)
-) -> DownloadsListResponse:
+    schema=Depends(DownloadListRequest)
+) -> DownloadListResponse:
     """
     FastAPI router for retrieving a list of download entities. The
     router fetches the list of downloads from the repository, executes

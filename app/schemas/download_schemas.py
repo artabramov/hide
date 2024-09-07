@@ -35,7 +35,7 @@ class DownloadSelectResponse(BaseModel):
     download_user: UserSelectResponse
 
 
-class DownloadsListRequest(BaseModel):
+class DownloadListRequest(BaseModel):
     """
     Pydantic schema for listing downloads with query parameters,
     including filtering by document ID, pagination through offset and
@@ -49,7 +49,7 @@ class DownloadsListRequest(BaseModel):
     order: Literal["asc", "desc"]
 
 
-class DownloadsListResponse(BaseModel):
+class DownloadListResponse(BaseModel):
     """
     Pydantic schema for the response of listing downloads, containing a
     list of download details and the total count of downloads.

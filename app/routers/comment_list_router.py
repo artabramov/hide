@@ -9,7 +9,7 @@ from app.cache import get_cache
 from app.models.user_models import User, UserRole
 from app.models.comment_models import Comment
 from app.schemas.comment_schemas import (
-    CommentsListRequest, CommentsListResponse)
+    CommentListRequest, CommentListResponse)
 from app.repository import Repository
 from app.hooks import H, Hook
 from app.auth import auth
@@ -19,14 +19,14 @@ router = APIRouter()
 
 @router.get("/comments", summary="Retrieve comment list",
             response_class=JSONResponse, status_code=status.HTTP_200_OK,
-            response_model=CommentsListResponse, tags=["comments"])
+            response_model=CommentListResponse, tags=["comments"])
 async def comment_list(
     request: Request,
     session=Depends(get_session),
     cache=Depends(get_cache),
     current_user: User = Depends(auth(UserRole.reader)),
-    schema=Depends(CommentsListRequest)
-) -> CommentsListResponse:
+    schema=Depends(CommentListRequest)
+) -> CommentListResponse:
     """
     FastAPI router for retrieving a list of comment entities. The router
     fetches the list of comments from the repository, executes related

@@ -67,7 +67,7 @@ class DocumentDeleteResponse(BaseModel):
     document_id: int
 
 
-class DocumentsListRequest(BaseModel):
+class DocumentListRequest(BaseModel):
     document_name__ilike: Optional[str] = None
     tag_value__eq: Optional[str] = None
     offset: int = Field(ge=0)
@@ -78,6 +78,6 @@ class DocumentsListRequest(BaseModel):
     order: Literal["asc", "desc"]
 
 
-class DocumentsListResponse(BaseModel):
+class DocumentListResponse(BaseModel):
     documents: List[DocumentSelectResponse]
     documents_count: int

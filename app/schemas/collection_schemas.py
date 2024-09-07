@@ -122,7 +122,7 @@ class CollectionDeleteResponse(BaseModel):
     collection_id: int
 
 
-class CollectionsListRequest(BaseModel):
+class CollectionListRequest(BaseModel):
     """
     Pydantic schema for requesting a list of collections with optional
     filters for name, pagination through offset and limit, and sorting
@@ -142,7 +142,7 @@ class CollectionsListRequest(BaseModel):
     order: Literal["asc", "desc"]
 
 
-class CollectionsListResponse(BaseModel):
+class CollectionListResponse(BaseModel):
     """
     Pydantic schema for the response containing a list of collections
     and the total count of collections that match the request criteria.

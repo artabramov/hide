@@ -9,7 +9,7 @@ from app.cache import get_cache
 from app.models.user_models import User, UserRole
 from app.models.revision_models import Revision
 from app.schemas.revision_schemas import (
-    RevisionsListRequest, RevisionsListResponse)
+    RevisionListRequest, RevisionListResponse)
 from app.hooks import H, Hook
 from app.auth import auth
 from app.repository import Repository
@@ -19,14 +19,14 @@ router = APIRouter()
 
 @router.get("/revisions", summary="Revision list",
             response_class=JSONResponse, status_code=status.HTTP_200_OK,
-            response_model=RevisionsListResponse, tags=["revisions"])
+            response_model=RevisionListResponse, tags=["revisions"])
 async def revision_list(
     request: Request,
     session=Depends(get_session),
     cache=Depends(get_cache),
     current_user: User = Depends(auth(UserRole.reader)),
-    schema=Depends(RevisionsListRequest)
-) -> RevisionsListResponse:
+    schema=Depends(RevisionListRequest)
+) -> RevisionListResponse:
     """
     FastAPI router for retrieving a list of revision entities. The
     router fetches the list of revisions from the repository, executes

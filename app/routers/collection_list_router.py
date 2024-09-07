@@ -5,7 +5,7 @@ from app.cache import get_cache
 from app.models.user_models import User, UserRole
 from app.models.collection_models import Collection
 from app.schemas.collection_schemas import (
-    CollectionsListRequest, CollectionsListResponse)
+    CollectionListRequest, CollectionListResponse)
 from app.repository import Repository
 from app.hooks import H, Hook
 from app.auth import auth
@@ -15,14 +15,14 @@ router = APIRouter()
 
 @router.get("/collections", summary="Retrieve collection list",
             response_class=JSONResponse, status_code=status.HTTP_200_OK,
-            response_model=CollectionsListResponse, tags=["collections"])
+            response_model=CollectionListResponse, tags=["collections"])
 async def collection_list(
     request: Request,
     session=Depends(get_session),
     cache=Depends(get_cache),
     current_user: User = Depends(auth(UserRole.reader)),
-    schema=Depends(CollectionsListRequest)
-) -> CollectionsListResponse:
+    schema=Depends(CollectionListRequest)
+) -> CollectionListResponse:
     """
     FastAPI router for retrieving a list of collection entities. The
     router fetches the list of collections from the repository, executes

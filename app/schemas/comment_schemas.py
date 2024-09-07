@@ -116,7 +116,7 @@ class CommentDeleteResponse(BaseModel):
     comment_id: int
 
 
-class CommentsListRequest(BaseModel):
+class CommentListRequest(BaseModel):
     """
     Pydantic model for the request to list comments, including filtering
     by document ID, pagination options (offset and limit), and sorting
@@ -129,7 +129,7 @@ class CommentsListRequest(BaseModel):
     order: Literal["asc", "desc"]
 
 
-class CommentsListResponse(BaseModel):
+class CommentListResponse(BaseModel):
     """
     Pydantic model for the response when listing comments, containing a
     list of comments and the total count of comments.

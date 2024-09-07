@@ -9,7 +9,7 @@ from app.cache import get_cache
 from app.models.user_models import User, UserRole
 from app.models.favorite_models import Favorite
 from app.schemas.favorite_schemas import (
-    FavoritesListRequest, FavoritesListResponse)
+    FavoriteListRequest, FavoriteListResponse)
 from app.repository import Repository
 from app.hooks import H, Hook
 from app.auth import auth
@@ -19,14 +19,14 @@ router = APIRouter()
 
 @router.get("/favorites", summary="Retrieve favorite list",
             response_class=JSONResponse, status_code=status.HTTP_200_OK,
-            response_model=FavoritesListResponse, tags=["favorites"])
+            response_model=FavoriteListResponse, tags=["favorites"])
 async def favorite_list(
     request: Request,
     session=Depends(get_session),
     cache=Depends(get_cache),
     current_user: User = Depends(auth(UserRole.reader)),
-    schema=Depends(FavoritesListRequest)
-) -> FavoritesListResponse:
+    schema=Depends(FavoriteListRequest)
+) -> FavoriteListResponse:
     """
     FastAPI router for retrieving a list of favorite entities. The
     router fetches the list of favorites from the repository for the

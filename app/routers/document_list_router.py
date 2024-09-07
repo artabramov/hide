@@ -6,7 +6,7 @@ from app.models.user_models import User, UserRole
 from app.models.document_models import Document
 from app.models.tag_models import Tag
 from app.schemas.document_schemas import (
-    DocumentsListRequest, DocumentsListResponse)
+    DocumentListRequest, DocumentListResponse)
 from app.hooks import H, Hook
 from app.auth import auth
 from app.repository import Repository
@@ -17,14 +17,14 @@ router = APIRouter()
 
 @router.get("/documents", summary="Retrieve document list",
             response_class=JSONResponse, status_code=status.HTTP_200_OK,
-            response_model=DocumentsListResponse, tags=["documents"])
+            response_model=DocumentListResponse, tags=["documents"])
 async def document_list(
     request: Request,
     session=Depends(get_session),
     cache=Depends(get_cache),
     current_user: User = Depends(auth(UserRole.reader)),
-    schema=Depends(DocumentsListRequest)
-) -> DocumentsListResponse:
+    schema=Depends(DocumentListRequest)
+) -> DocumentListResponse:
     """
     FastAPI router for retrieving a list of document entities. The
     router fetches the list of documents from the repository, executes

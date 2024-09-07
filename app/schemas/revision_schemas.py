@@ -26,7 +26,7 @@ class RevisionSelectResponse(BaseModel):
     revision_user: UserSelectResponse
 
 
-class RevisionsListRequest(BaseModel):
+class RevisionListRequest(BaseModel):
     created_date__ge: Optional[int] = None
     created_date__le: Optional[int] = None
     user_id__eq: Optional[int] = None
@@ -47,6 +47,6 @@ class RevisionsListRequest(BaseModel):
     order: Literal["asc", "desc"]
 
 
-class RevisionsListResponse(BaseModel):
+class RevisionListResponse(BaseModel):
     revisions: List[RevisionSelectResponse]
     revisions_count: int

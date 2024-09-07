@@ -65,7 +65,7 @@ class FavoriteDeleteResponse(BaseModel):
     favorite_id: int
 
 
-class FavoritesListRequest(BaseModel):
+class FavoriteListRequest(BaseModel):
     """
     Pydantic schema for listing favorites with pagination and sorting
     options.
@@ -76,7 +76,7 @@ class FavoritesListRequest(BaseModel):
     order: Literal["asc", "desc"]
 
 
-class FavoritesListResponse(BaseModel):
+class FavoriteListResponse(BaseModel):
     """
     Pydantic schema for the response containing a list of favorites and
     the total count.
