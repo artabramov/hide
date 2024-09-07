@@ -41,6 +41,6 @@ async def collection_list(
     await hook.execute(H.AFTER_COLLECTION_LIST, collections)
 
     return {
-        "collections": [collection.to_dict() for collection in collections],  # noqa E501
+        "collections": [collection.to_dict() for collection in collections],
         "collections_count": collections_count,
     }
