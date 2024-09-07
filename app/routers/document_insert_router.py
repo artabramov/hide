@@ -18,7 +18,8 @@ from app.config import get_config
 from app.helpers.image_helper import thumbnail_create
 from app.libraries.tag_library import TagLibrary
 from app.errors import E
-from app.schemas.document_schemas import DOCUMENT_NAME_LENGTH
+
+DOCUMENT_NAME_LENGTH = 128
 
 cfg = get_config()
 router = APIRouter()

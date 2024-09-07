@@ -1,3 +1,10 @@
+"""
+The module defines Pydantic schemas for managing users. Includes schemas
+for registration, login, multi-factor authentication, token retrieval
+and invalidation, role and profile updating, userpic management,
+password changes, and user listing.
+"""
+
 from typing import Optional, Literal, List
 from pydantic import BaseModel, SecretStr, Field, field_validator
 from fastapi import File, UploadFile
@@ -9,9 +16,9 @@ from app.validators.user_validators import (
 
 class UserRegisterRequest(BaseModel):
     """
-    Pydantic schema for user registration request, including validation
-    for user login, password, first name, last name, and optional fields
-    for user signature and contacts.
+    Pydantic schema for request to register a new user. Requires the
+    user login, password, first name, and last name to be specified.
+    Optionally includes a user signature and user contacts.
     """
     user_login: str = Field(..., pattern=r"^[a-z0-9]{2,40}$")
     user_password: SecretStr = Field(..., min_length=6)
@@ -39,8 +46,9 @@ class UserRegisterRequest(BaseModel):
 
 class UserRegisterResponse(BaseModel):
     """
-    Pydantic schema for the user registration response, including the
-    user's ID, MFA secret, and a URL linking to the MFA QR code.
+    Pydantic schema for the response after registering a new user.
+    Includes the user ID, MFA secret, and an URL for the MFA QR code
+    image.
     """
     user_id: int
     mfa_secret: str = Field(..., min_length=32, max_length=32)
@@ -49,8 +57,8 @@ class UserRegisterResponse(BaseModel):
 
 class MFARequest(BaseModel):
     """
-    Pydantic schema for MFA (Multi-Factor Authentication) request,
-    including the user's ID and the MFA secret.
+    Pydantic schema for request the MFA QR code image. Requires the user
+    ID and MFA secret to be specified.
     """
     user_id: int
     mfa_secret: str = Field(..., min_length=32, max_length=32,
@@ -59,8 +67,8 @@ class MFARequest(BaseModel):
 
 class UserLoginRequest(BaseModel):
     """
-    Pydantic schema for user login request, including validation for
-    user login and password.
+    Pydantic schema for request to authenticate a user. Requires the
+    user login and password to be specified.
     """
     user_login: str = Field(..., pattern=r"^[a-z0-9]{2,40}$")
     user_password: SecretStr = Field(..., min_length=6)
@@ -76,17 +84,17 @@ class UserLoginRequest(BaseModel):
 
 class UserLoginResponse(BaseModel):
     """
-    Pydantic schema for the user login response, indicating whether
-    the password was accepted.
+    Pydantic schema for response after attempting user login. Includes
+    a boolean indicating whether the password was accepted.
     """
     password_accepted: bool
 
 
 class TokenRetrieveRequest(BaseModel):
     """
-    Pydantic schema for token retrieval request, including validation
-    for the user login, TOTP (Time-based One-Time Password), and
-    optional token expiration time.
+    Pydantic schema for request to retrieve a token. Requires the user
+    login and TOTP code to be specified, with an optional token
+    expiration parameter.
     """
     user_login: str = Field(..., pattern=r"^[a-z0-9]{2,40}$")
     user_totp: str = Field(..., min_length=6, max_length=6)
@@ -107,42 +115,25 @@ class TokenRetrieveRequest(BaseModel):
 
 class TokenRetrieveResponse(BaseModel):
     """
-    Pydantic schema for the token retrieval response, providing the
-    JWT (JSON Web Token) upon successful token selection.
+    Pydantic schema for the response after retrieving a JWT token.
+    Includes the JWT token assigned to the user.
     """
     user_token: str
 
 
-class TokenInvalidateRequest(BaseModel):
-    """
-    Pydantic schema for token invalidation request. It does not require
-    any additional fields.
-    """
-    pass
-
-
-class TokenInvalidateResponse(BaseModel):
-    """
-    Pydantic schema for the token invalidation response. It does not
-    include any additional fields.
-    """
-    pass
-
-
 class UserSelectRequest(BaseModel):
     """
-    Pydantic schema for the user selection request, including the
-    user ID.
+    Pydantic schema for request to retrieve a user entity. Requires
+    the user ID to be specified.
     """
     user_id: int
 
 
 class UserSelectResponse(BaseModel):
     """
-    Pydantic schema for the user selection response, providing details
-    of the user. Includes fields for the user ID, creation date, last
-    update date, last log in date, user role, activation status, user
-    login, first and last name, and optional fields for user signature,
+    Pydantic schema for the response after retrieving a user entity.
+    Includes the user ID, creation and update dates, last log in date,
+    user role, active status, user login, first and last name, signature,
     contacts, and userpic URL.
     """
     id: int
@@ -161,8 +152,9 @@ class UserSelectResponse(BaseModel):
 
 class UserUpdateRequest(BaseModel):
     """
-    Pydantic schema for user update requests. Includes the user ID,
-    first name, last name, user  signature, and user contacts.
+    Pydantic schema for request to update a user entity. Requires the
+    user ID, first and last name, and optionally user signature and
+    user contacts.
     """
     user_id: int
     first_name: str = Field(..., min_length=2, max_length=40)
@@ -181,16 +173,16 @@ class UserUpdateRequest(BaseModel):
 
 class UserUpdateResponse(BaseModel):
     """
-    Pydantic schema for the response of a user update request. Includes
-    the user ID of the updated user.
+    Pydantic schema for the response after updating a user entity.
+    Includes the ID assigned to the updated user.
     """
     user_id: int
 
 
 class UserpicUploadRequest(BaseModel):
     """
-    Pydantic schema for the request to upload a userpic. Includes
-    the user ID and the file to be uploaded.
+    Pydantic schema for request to upload a user profile picture.
+    Requires the user ID and the image file to be uploaded.
     """
     user_id: int
     file: UploadFile = File(...)
@@ -198,33 +190,34 @@ class UserpicUploadRequest(BaseModel):
 
 class UserpicUploadResponse(BaseModel):
     """
-    Pydantic schema for the response of a userpic upload request.
-    Includes the user ID of the user whose userpic was uploaded.
+    Pydantic schema for the response after uploading a user profile
+    picture. Includes the user ID associated with the uploaded picture.
     """
     user_id: int
 
 
 class UserpicDeleteRequest(BaseModel):
     """
-    Pydantic schema for the request to delete a userpic. Includes
-    the user ID of the user whose userpic is to be deleted.
+    Pydantic schema for request to delete a user profile picture.
+    Requires the user ID to be specified.
     """
     user_id: int
 
 
 class UserpicDeleteResponse(BaseModel):
     """
-    Pydantic schema for the response to a userpic deletion request.
-    Includes the user ID of the user whose userpic was deleted.
+    Pydantic schema for the response after deleting a user profile
+    picture. Includes the user ID of the profile picture that was
+    deleted.
     """
     user_id: int
 
 
 class RoleUpdateRequest(BaseModel):
     """
-    Pydantic schema for requesting an update to a user's role and
-    activation status. Includes the user ID, the new role for the user,
-    and the user's activation status.
+    Pydantic schema for request to update a user's role and active
+    status. Requires the user ID, new user role, and active status
+    to be specified.
     """
     user_id: int
     user_role: UserRole
@@ -233,16 +226,17 @@ class RoleUpdateRequest(BaseModel):
 
 class RoleUpdateResponse(BaseModel):
     """
-    Pydantic schema for the response after updating a user's role.
-    Includes the user ID of the updated user.
+    Pydantic schema for the response after updating a user's role and
+    active status. Includes the user ID of the updated user.
     """
     user_id: int
 
 
 class PasswordUpdateRequest(BaseModel):
     """
-    Pydantic schema for a request to update a user's password. Includes
-    the user ID, current password, and the new password.
+    Pydantic schema for requesting a password update for a user.
+    Requires the user ID, current password, and the new updated
+    password to be specified.
     """
     user_id: int
     current_password: SecretStr = Field(..., min_length=6)
@@ -259,17 +253,17 @@ class PasswordUpdateRequest(BaseModel):
 
 class PasswordUpdateResponse(BaseModel):
     """
-    Pydantic schema for the response to a user password update request.
-    Includes the ID of the user whose password has been updated.
+    Pydantic schema for the response after updating a user's password.
+    Includes the user ID of the user whose password was updated.
     """
     user_id: int
 
 
 class UserListRequest(BaseModel):
     """
-    Pydantic schema for requesting a list of users. Includes optional
-    filters for user login, first name, and last name, pagination and
-    ordering parameters.
+    Pydantic schema for requesting a list of user entities. Requires
+    pagination options with offset and limit, ordering criteria, and
+    optional filters for user login, first name, and last name.
     """
     user_login__ilike: Optional[str] = None
     first_name__ilike: Optional[str] = None
@@ -283,8 +277,9 @@ class UserListRequest(BaseModel):
 
 class UserListResponse(BaseModel):
     """
-    Pydantic schema for the response of a user list selection request.
-    Contains a list of user details and the total count of users.
+    Pydantic schema for the response when listing user entities.
+    Includes a list of user entities and the total count of users that
+    match the request criteria.
     """
     users: List[UserSelectResponse]
     users_count: int

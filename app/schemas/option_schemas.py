@@ -1,7 +1,7 @@
 """
-The module defines Pydantic schemas for managing option entities in the
-application, including schemas for selecting, updating, deleting, and
-listing options. It provides validation rules for each operation.
+The module defines Pydantic schemas for managing options. Includes
+schemas for inserting or updating, selecting, deleting, and listing
+options.
 """
 
 from typing import Literal, List, Optional
@@ -12,9 +12,8 @@ from app.validators.option_validators import (
 
 class OptionSelectRequest(BaseModel):
     """
-    Pydantic schema for retrieving an option entity by its key. The
-    schema validates that the option key corresponds to the required
-    pattern.
+    Pydantic schema for request to select an option entity. Requires
+    the option key to be specified.
     """
     option_key: str = Field(..., pattern=r"^[a-z0-9_-]{2,40}$")
 
@@ -25,9 +24,9 @@ class OptionSelectRequest(BaseModel):
 
 class OptionSelectResponse(BaseModel):
     """
-    Pydantic schema for the response when retrieving an option entity.
-    The schema includes the ID, creation and last update dates, the
-    option key, and value.
+    Pydantic schema for the response after selecting an option entity.
+    Includes the option ID, creation and update dates, option key, and
+    option value.
     """
     id: int
     created_date: int
@@ -38,9 +37,8 @@ class OptionSelectResponse(BaseModel):
 
 class OptionUpdateRequest(BaseModel):
     """
-    Pydantic schema for updating an option entity by its key. The schema
-    validates the option key to ensure it matches the required pattern
-    and the option value to ensure it does not exceed the maximum length.
+    Pydantic schema for request to update an option entity. Requires
+    the option key and option value to be specified.
     """
     option_key: str = Field(..., pattern=r"^[a-z0-9_-]{2,40}$")
     option_value: str = Field(..., max_length=512)
@@ -57,17 +55,15 @@ class OptionUpdateRequest(BaseModel):
 class OptionUpdateResponse(BaseModel):
     """
     Pydantic schema for the response after updating an option entity.
-    The schema includes the option key to confirm which option was
-    updated.
+    Includes the key of the updated option.
     """
     option_key: str
 
 
 class OptionDeleteRequest(BaseModel):
     """
-    Pydantic schema for requesting the deletion of an option entity by
-    its key. The schema validates the option key to ensure it matches
-    the required pattern.
+    Pydantic schema for request to delete an option entity. Requires
+    the option key to be specified.
     """
     option_key: str = Field(..., pattern=r"^[a-z0-9_-]{2,40}$")
 
@@ -78,19 +74,16 @@ class OptionDeleteRequest(BaseModel):
 
 class OptionDeleteResponse(BaseModel):
     """
-    Pydantic schema for the response after requesting the deletion of
-    an option entity. The schema includes the option key, which is None
-    if the option was not found, and contains the key of the deleted
-    option if the deletion was successful.
+    Pydantic schema for the response after deleting an option entity.
+    Includes the key of the deleted option, if available.
     """
     option_key: Optional[str] = None
 
 
 class OptionListRequest(BaseModel):
     """
-    Pydantic schema for requesting a list of option entities with
-    pagination and sorting. The schema allows specifying the starting
-    offset, the limit, the field to sort by, and the sort order.
+    Pydantic schema for requesting a list of option entities. Requires
+    pagination options with offset and limit, and ordering criteria.
     """
     offset: int = Field(ge=0)
     limit: int = Field(ge=1, le=200)
@@ -100,8 +93,9 @@ class OptionListRequest(BaseModel):
 
 class OptionListResponse(BaseModel):
     """
-    Pydantic schema for the response containing a list of option
-    entities and a count of the total number of options available.
+    Pydantic schema for the response when listing option entities.
+    Includes a list of option entities and the total count of options
+    that match the request criteria.
     """
     options: List[OptionSelectResponse]
     options_count: int
