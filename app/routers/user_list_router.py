@@ -3,7 +3,7 @@ from fastapi.responses import JSONResponse
 from app.database import get_session
 from app.cache import get_cache
 from app.models.user_models import User, UserRole
-from app.schemas.user_schemas import UsersListRequest, UsersListResponse
+from app.schemas.user_schemas import UserListRequest, UserListResponse
 from app.hooks import H, Hook
 from app.auth import auth
 from app.repository import Repository
@@ -13,14 +13,14 @@ router = APIRouter()
 
 @router.get("/users", summary="Retrieve user list",
             response_class=JSONResponse, status_code=status.HTTP_200_OK,
-            response_model=UsersListResponse, tags=["users"])
+            response_model=UserListResponse, tags=["users"])
 async def users_list(
     request: Request,
     session=Depends(get_session),
     cache=Depends(get_cache),
     current_user: User = Depends(auth(UserRole.reader)),
-    schema=Depends(UsersListRequest)
-) -> UsersListResponse:
+    schema=Depends(UserListRequest)
+) -> UserListResponse:
     """
     FastAPI router for retrieving a list of user entities. Requires the
     user to have a reader role or higher. Returns a 200 response with

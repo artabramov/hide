@@ -2,73 +2,17 @@ from typing import Optional, Literal, List
 from pydantic import BaseModel, SecretStr, Field, field_validator
 from fastapi import File, UploadFile
 from app.models.user_models import UserRole
-from app.config import get_config
-
-cfg = get_config()
-
-
-def validate_user_login(user_login: str) -> str:
-    """
-    Normalize the user login by stripping leading/trailing whitespace
-    and converting  it to lowercase.
-    """
-    return user_login.strip().lower()
-
-
-def validate_user_password(user_password: SecretStr) -> SecretStr:
-    """
-    Validate the user password. The password must be at least
-    6 characters long.
-    """
-    user_password = user_password.get_secret_value().strip()
-    if len(user_password) < 6:
-        raise ValueError
-    return user_password
-
-
-def validate_first_name(first_name: str) -> str:
-    """
-    Validate the first name. The first name must be at least
-    2 characters long.
-    """
-    if len(first_name.strip()) < 2:
-        raise ValueError
-    return first_name
-
-
-def validate_last_name(last_name: str) -> str:
-    """
-    Validate the last name. The last name must be at least
-    2 characters long.
-    """
-    if len(last_name.strip()) < 2:
-        raise ValueError
-    return last_name
-
-
-def validate_user_totp(user_totp: str) -> str:
-    """
-    Validate that the user TOTP (Time-based One-Time Password) is
-    numeric. Raises a ValueError if the TOTP is not numeric.
-    """
-    if not user_totp.isnumeric():
-        raise ValueError
-    return user_totp
-
-
-def validate_token_exp(token_exp: int) -> int:
-    """
-    Validate that the token expiration time is numeric and positive.
-    Raises a ValueError if it is not numeric or is less than or equal
-    to zero.
-    """
-    if token_exp is not None and int(token_exp) <= 0:
-        raise ValueError
-    return token_exp
+from app.validators.user_validators import (
+    validate_user_login, validate_user_password, validate_first_name,
+    validate_last_name, validate_user_totp, validate_token_exp)
 
 
 class UserRegisterRequest(BaseModel):
-    """Pydantic schema for user registration request."""
+    """
+    Pydantic schema for user registration request, including validation
+    for user login, password, first name, last name, and optional fields
+    for user signature and contacts.
+    """
     user_login: str = Field(..., pattern=r"^[a-z0-9]{2,40}$")
     user_password: SecretStr = Field(..., min_length=6)
     first_name: str = Field(..., min_length=2, max_length=40)
@@ -78,104 +22,129 @@ class UserRegisterRequest(BaseModel):
 
     @field_validator("user_login", mode="before")
     def validate_user_login(cls, user_login: str) -> str:
-        """Normalize and validate the user login."""
         return validate_user_login(user_login)
 
     @field_validator("user_password", mode="before")
     def validate_user_password(cls, user_password: SecretStr) -> SecretStr:
-        """Validate the user password."""
         return validate_user_password(user_password)
 
     @field_validator("first_name", mode="before")
     def validate_first_name(cls, first_name: str) -> str:
-        """Validate the first name."""
         return validate_first_name(first_name)
 
     @field_validator("last_name", mode="before")
     def validate_last_name(cls, last_name: str) -> str:
-        """Validate the last name."""
         return validate_last_name(last_name)
 
 
 class UserRegisterResponse(BaseModel):
-    """Pydantic schema for user registration response."""
+    """
+    Pydantic schema for the user registration response, including the
+    user's ID, MFA secret, and a URL linking to the MFA QR code.
+    """
     user_id: int
     mfa_secret: str = Field(..., min_length=32, max_length=32)
     mfa_url: str
 
 
 class MFARequest(BaseModel):
-    """Pydantic schema for MFA (Multi-Factor Authentication) request."""
+    """
+    Pydantic schema for MFA (Multi-Factor Authentication) request,
+    including the user's ID and the MFA secret.
+    """
     user_id: int
     mfa_secret: str = Field(..., min_length=32, max_length=32,
                             pattern=r"^[A-Za-z0-9]+$")
 
 
 class UserLoginRequest(BaseModel):
-    """Pydantic schema for user login request."""
+    """
+    Pydantic schema for user login request, including validation for
+    user login and password.
+    """
     user_login: str = Field(..., pattern=r"^[a-z0-9]{2,40}$")
     user_password: SecretStr = Field(..., min_length=6)
 
     @field_validator("user_login", mode="before")
     def validate_user_login(cls, user_login: str) -> str:
-        """Normalize and validate the user login."""
         return validate_user_login(user_login)
 
     @field_validator("user_password", mode="before")
     def validate_user_password(cls, user_password: SecretStr) -> SecretStr:
-        """Validate the user password."""
         return validate_user_password(user_password)
 
 
 class UserLoginResponse(BaseModel):
-    """Pydantic schema for user login response."""
+    """
+    Pydantic schema for the user login response, indicating whether
+    the password was accepted.
+    """
     password_accepted: bool
 
 
 class TokenRetrieveRequest(BaseModel):
-    """Pydantic schema for token selection request."""
+    """
+    Pydantic schema for token retrieval request, including validation
+    for the user login, TOTP (Time-based One-Time Password), and
+    optional token expiration time.
+    """
     user_login: str = Field(..., pattern=r"^[a-z0-9]{2,40}$")
     user_totp: str = Field(..., min_length=6, max_length=6)
     token_exp: Optional[int] = None
 
     @field_validator("user_login", mode="before")
     def validate_user_login(cls, user_login: str) -> str:
-        """Normalize and validate the user login."""
         return validate_user_login(user_login)
 
     @field_validator("user_totp", mode="before")
     def validate_user_totp(cls, user_login: str) -> str:
-        """Validate that the user TOTP is correct."""
         return validate_user_totp(user_login)
 
     @field_validator("token_exp", mode="before")
     def validate_token_exp(cls, token_exp: str = None) -> str:
-        """Validate that the token expiration time is correct."""
         return validate_token_exp(token_exp)
 
 
 class TokenRetrieveResponse(BaseModel):
-    """Pydantic schema for token selection response."""
+    """
+    Pydantic schema for the token retrieval response, providing the
+    JWT (JSON Web Token) upon successful token selection.
+    """
     user_token: str
 
 
 class TokenInvalidateRequest(BaseModel):
-    """Pydantic schema for token deletion request."""
+    """
+    Pydantic schema for token invalidation request. It does not require
+    any additional fields.
+    """
     pass
 
 
 class TokenInvalidateResponse(BaseModel):
-    """Pydantic schema for token deletion response."""
+    """
+    Pydantic schema for the token invalidation response. It does not
+    include any additional fields.
+    """
     pass
 
 
 class UserSelectRequest(BaseModel):
-    """Pydantic schema for user selection request."""
+    """
+    Pydantic schema for the user selection request, including the
+    user ID.
+    """
     user_id: int
 
 
 class UserSelectResponse(BaseModel):
-    """Pydantic schema for user selection response."""
+    """
+    Pydantic schema for the user selection response, providing details
+    of the user. Includes fields for the user ID, creation date, last
+    update date, last log in date, user role, activation status, user
+    login, first and last name, and optional fields for user signature,
+    contacts, and userpic URL.
+    """
     id: int
     created_date: int
     updated_date: int
@@ -191,7 +160,10 @@ class UserSelectResponse(BaseModel):
 
 
 class UserUpdateRequest(BaseModel):
-    """Pydantic schema for user updation request."""
+    """
+    Pydantic schema for user update requests. Includes the user ID,
+    first name, last name, user  signature, and user contacts.
+    """
     user_id: int
     first_name: str = Field(..., min_length=2, max_length=40)
     last_name: str = Field(..., min_length=2, max_length=40)
@@ -200,77 +172,105 @@ class UserUpdateRequest(BaseModel):
 
     @field_validator("first_name", mode="before")
     def validate_first_name(cls, first_name: str) -> str:
-        """Validate the first name."""
         return validate_first_name(first_name)
 
     @field_validator("last_name", mode="before")
     def validate_last_name(cls, last_name: str) -> str:
-        """Validate the last name."""
         return validate_last_name(last_name)
 
 
 class UserUpdateResponse(BaseModel):
-    """Pydantic schema for user updation response."""
+    """
+    Pydantic schema for the response of a user update request. Includes
+    the user ID of the updated user.
+    """
     user_id: int
 
 
 class UserpicUploadRequest(BaseModel):
-    """Pydantic schema for userpic uploading request."""
+    """
+    Pydantic schema for the request to upload a userpic. Includes
+    the user ID and the file to be uploaded.
+    """
     user_id: int
     file: UploadFile = File(...)
 
 
 class UserpicUploadResponse(BaseModel):
-    """Pydantic schema for userpic uploading response."""
+    """
+    Pydantic schema for the response of a userpic upload request.
+    Includes the user ID of the user whose userpic was uploaded.
+    """
     user_id: int
 
 
 class UserpicDeleteRequest(BaseModel):
-    """Pydantic schema for userpic deletion request."""
+    """
+    Pydantic schema for the request to delete a userpic. Includes
+    the user ID of the user whose userpic is to be deleted.
+    """
     user_id: int
 
 
 class UserpicDeleteResponse(BaseModel):
-    """Pydantic schema for userpic deletion response."""
+    """
+    Pydantic schema for the response to a userpic deletion request.
+    Includes the user ID of the user whose userpic was deleted.
+    """
     user_id: int
 
 
 class RoleUpdateRequest(BaseModel):
-    """Pydantic schema for user role updation request."""
+    """
+    Pydantic schema for requesting an update to a user's role and
+    activation status. Includes the user ID, the new role for the user,
+    and the user's activation status.
+    """
     user_id: int
     user_role: UserRole
     is_active: bool
 
 
 class RoleUpdateResponse(BaseModel):
-    """Pydantic schema for user role updation response."""
+    """
+    Pydantic schema for the response after updating a user's role.
+    Includes the user ID of the updated user.
+    """
     user_id: int
 
 
 class PasswordUpdateRequest(BaseModel):
-    """Pydantic schema for user password updation request."""
+    """
+    Pydantic schema for a request to update a user's password. Includes
+    the user ID, current password, and the new password.
+    """
     user_id: int
     current_password: SecretStr = Field(..., min_length=6)
     updated_password: SecretStr = Field(..., min_length=6)
 
     @field_validator("current_password", mode="before")
     def validate_current_password(cls, current_password: SecretStr) -> SecretStr:  # noqa E501
-        """Validate current password."""
         return validate_user_password(current_password)
 
     @field_validator("updated_password", mode="before")
     def validate_updated_password(cls, updated_password: SecretStr) -> SecretStr:  # noqa E501
-        """Validate updated password."""
         return validate_user_password(updated_password)
 
 
 class PasswordUpdateResponse(BaseModel):
-    """Pydantic schema for user password updation response."""
+    """
+    Pydantic schema for the response to a user password update request.
+    Includes the ID of the user whose password has been updated.
+    """
     user_id: int
 
 
-class UsersListRequest(BaseModel):
-    """Pydantic schema for users list selection request."""
+class UserListRequest(BaseModel):
+    """
+    Pydantic schema for requesting a list of users. Includes optional
+    filters for user login, first name, and last name, pagination and
+    ordering parameters.
+    """
     user_login__ilike: Optional[str] = None
     first_name__ilike: Optional[str] = None
     last_name__ilike: Optional[str] = None
@@ -281,7 +281,10 @@ class UsersListRequest(BaseModel):
     order: Literal["asc", "desc"]
 
 
-class UsersListResponse(BaseModel):
-    """Pydantic schema for users list selection response."""
+class UserListResponse(BaseModel):
+    """
+    Pydantic schema for the response of a user list selection request.
+    Contains a list of user details and the total count of users.
+    """
     users: List[UserSelectResponse]
     users_count: int
