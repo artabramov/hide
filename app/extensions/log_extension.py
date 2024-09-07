@@ -37,7 +37,7 @@ LOG_AFTER_ROLE_UPDATE = True
 LOG_AFTER_PASSWORD_UPDATE = True
 LOG_AFTER_USERPIC_UPLOAD = True
 LOG_AFTER_USERPIC_DELETE = True
-LOG_AFTER_USERS_LIST = False
+LOG_AFTER_USER_LIST = False
 LOG_AFTER_COLLECTION_INSERT = True
 LOG_AFTER_COLLECTION_SELECT = True
 LOG_AFTER_COLLECTION_UPDATE = True
@@ -311,7 +311,7 @@ async def after_userpic_delete(
     return user
 
 
-async def after_users_list(
+async def after_user_list(
     entity_manager: EntityManager,
     cache_manager: CacheManager,
     request: Request,
@@ -323,7 +323,7 @@ async def after_users_list(
     capturing details about each user and the request. Returns the
     list of users.
     """
-    if LOG_AFTER_USERS_LIST:
+    if LOG_AFTER_USER_LIST:
         for user in users:
             log = Log(current_user, request, user, LogAction.select)
             await entity_manager.insert(log)

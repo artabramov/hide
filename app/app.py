@@ -15,10 +15,14 @@ from app.config import get_config
 from app.context import get_context
 from app.log import get_log
 from app.routers import (
-    user_routers,
-    collection_insert_router, collection_select_router,
-    collection_update_router, collection_delete_router, collection_list_router,
-    document_routers,
+    token_select_router, token_delete_router, user_register_router,
+    user_login_router, user_select_router, user_update_router,
+    role_update_router, password_update_router, userpic_upload_router,
+    userpic_delete_router, user_list_router, collection_insert_router,
+    collection_select_router, collection_update_router,
+    collection_delete_router, collection_list_router, document_insert_router,
+    document_select_router, document_update_router, document_delete_router,
+    document_list_router,
     favorite_insert_router, favorite_select_router, favorite_delete_router,
     favorite_list_router,
     revision_select_router, revision_download_router, revision_list_router,
@@ -40,26 +44,11 @@ from app.hooks import H, Hook
 from app.cache import get_cache
 from fastapi.staticfiles import StaticFiles
 from pydantic import ValidationError
-import asyncio
 from app.version import __version__
 
 cfg = get_config()
 ctx = get_context()
 log = get_log()
-
-
-async def on_schedule(session=Depends(get_session),
-                      cache=Depends(get_cache)):
-    """
-    Continuously executes scheduled actions at intervals specified by
-    config, using the provided database session and cache. The function
-    sleeps for the configured duration in each iteration of the loop,
-    allowing for periodic execution of tasks.
-    """
-    while True:
-        hook = Hook(session, cache)
-        await hook.execute(H.ON_SCHEDULE)
-        await asyncio.sleep(cfg.APP_SCHEDULER_FREQUENCY)
 
 
 async def on_startup(session=Depends(get_session),
@@ -113,9 +102,7 @@ async def lifespan(app: FastAPI):
         await conn.run_sync(Base.metadata.create_all)
 
     load_hooks()
-
     await on_startup()
-    app.state.scheduled_task = asyncio.create_task(on_schedule())
     yield
 
 
@@ -134,13 +121,27 @@ app = FastAPI(lifespan=lifespan, title=cfg.APP_TITLE, version=__version__,
               description=load_description())
 
 app.include_router(static_routers.router)
-app.include_router(user_routers.router, prefix=cfg.APP_PREFIX)
+app.include_router(token_select_router.router, prefix=cfg.APP_PREFIX)
+app.include_router(token_delete_router.router, prefix=cfg.APP_PREFIX)
+app.include_router(user_register_router.router, prefix=cfg.APP_PREFIX)
+app.include_router(user_login_router.router, prefix=cfg.APP_PREFIX)
+app.include_router(user_select_router.router, prefix=cfg.APP_PREFIX)
+app.include_router(user_update_router.router, prefix=cfg.APP_PREFIX)
+app.include_router(role_update_router.router, prefix=cfg.APP_PREFIX)
+app.include_router(password_update_router.router, prefix=cfg.APP_PREFIX)
+app.include_router(userpic_upload_router.router, prefix=cfg.APP_PREFIX)
+app.include_router(userpic_delete_router.router, prefix=cfg.APP_PREFIX)
+app.include_router(user_list_router.router, prefix=cfg.APP_PREFIX)
 app.include_router(collection_insert_router.router, prefix=cfg.APP_PREFIX)
 app.include_router(collection_select_router.router, prefix=cfg.APP_PREFIX)
 app.include_router(collection_update_router.router, prefix=cfg.APP_PREFIX)
 app.include_router(collection_delete_router.router, prefix=cfg.APP_PREFIX)
 app.include_router(collection_list_router.router, prefix=cfg.APP_PREFIX)
-app.include_router(document_routers.router, prefix=cfg.APP_PREFIX)
+app.include_router(document_insert_router.router, prefix=cfg.APP_PREFIX)
+app.include_router(document_select_router.router, prefix=cfg.APP_PREFIX)
+app.include_router(document_update_router.router, prefix=cfg.APP_PREFIX)
+app.include_router(document_delete_router.router, prefix=cfg.APP_PREFIX)
+app.include_router(document_list_router.router, prefix=cfg.APP_PREFIX)
 app.include_router(favorite_insert_router.router, prefix=cfg.APP_PREFIX)
 app.include_router(favorite_select_router.router, prefix=cfg.APP_PREFIX)
 app.include_router(favorite_delete_router.router, prefix=cfg.APP_PREFIX)

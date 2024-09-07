@@ -1,3 +1,13 @@
+"""
+Sample extension module for handling event hook functions triggered
+by corresponding events within the application. Each function is
+associated with a specific event and is designed to be executed when
+that event occurs. Functions may include additional logic such as
+event logging, updating the database, managing the cache, performing
+file or network operations, interacting with third-party applications,
+and other related actions.
+"""
+
 from typing import List, Union
 from fastapi import Request
 from app.models.user_models import User
@@ -19,24 +29,41 @@ async def on_startup(
     entity: None
 ):
     """
-    Handles post-startup actions, such as initializing or configuring
-    components related to the entity manager and cache manager. This
-    function is invoked after the application starts and does not
-    return anything.
+    Executes when the application starts. It does not take any input
+    entities and should return nothing. May apply any required actions
+    such as initialization or setup.
     """
     ...
 
 
-async def on_schedule(
+async def before_user_register(
     entity_manager: EntityManager,
-    cache_manager: CacheManager, request: None,
-    current_user: None,
-    entity: None
-):
+    cache_manager: CacheManager,
+    request: Request,
+    current_user: User,
+    user: User
+) -> User:
+    """
+    Executes before a user entity is created. Takes the user entity
+    as input, may apply the required pre-processing, and should return
+    the possibly modified user entity.
+    """
     ...
+    return user
 
 
 async def after_user_register(
+    entity_manager: EntityManager,
+    cache_manager: CacheManager,
+    request: Request,
+    current_user: User,
+    user: User
+) -> User:
+    ...
+    return user
+
+
+async def before_user_login(
     entity_manager: EntityManager,
     cache_manager: CacheManager,
     request: Request,
@@ -58,7 +85,29 @@ async def after_user_login(
     return user
 
 
+async def before_token_retrieve(
+    entity_manager: EntityManager,
+    cache_manager: CacheManager,
+    request: Request,
+    current_user: User,
+    user: User
+) -> User:
+    ...
+    return user
+
+
 async def after_token_retrieve(
+    entity_manager: EntityManager,
+    cache_manager: CacheManager,
+    request: Request,
+    current_user: User,
+    user: User
+) -> User:
+    ...
+    return user
+
+
+async def before_token_invalidate(
     entity_manager: EntityManager,
     cache_manager: CacheManager,
     request: Request,
@@ -91,7 +140,29 @@ async def after_user_select(
     return user
 
 
+async def before_user_update(
+    entity_manager: EntityManager,
+    cache_manager: CacheManager,
+    request: Request,
+    current_user: User,
+    user: User
+) -> User:
+    ...
+    return user
+
+
 async def after_user_update(
+    entity_manager: EntityManager,
+    cache_manager: CacheManager,
+    request: Request,
+    current_user: User,
+    user: User
+) -> User:
+    ...
+    return user
+
+
+async def before_role_update(
     entity_manager: EntityManager,
     cache_manager: CacheManager,
     request: Request,
@@ -113,7 +184,29 @@ async def after_role_update(
     return user
 
 
+async def before_password_update(
+    entity_manager: EntityManager,
+    cache_manager: CacheManager,
+    request: Request,
+    current_user: User,
+    user: User
+) -> User:
+    ...
+    return user
+
+
 async def after_password_update(
+    entity_manager: EntityManager,
+    cache_manager: CacheManager,
+    request: Request,
+    current_user: User,
+    user: User
+) -> User:
+    ...
+    return user
+
+
+async def before_userpic_upload(
     entity_manager: EntityManager,
     cache_manager: CacheManager,
     request: Request,
@@ -135,6 +228,17 @@ async def after_userpic_upload(
     return user
 
 
+async def before_userpic_delete(
+    entity_manager: EntityManager,
+    cache_manager: CacheManager,
+    request: Request,
+    current_user: User,
+    user: User
+) -> User:
+    ...
+    return user
+
+
 async def after_userpic_delete(
     entity_manager: EntityManager,
     cache_manager: CacheManager,
@@ -146,7 +250,7 @@ async def after_userpic_delete(
     return user
 
 
-async def after_users_list(
+async def after_user_list(
     entity_manager: EntityManager,
     cache_manager: CacheManager,
     request: Request,
@@ -156,8 +260,6 @@ async def after_users_list(
     ...
     return users
 
-# =============================================================================
-
 
 async def before_collection_insert(
     entity_manager: EntityManager,
@@ -166,13 +268,6 @@ async def before_collection_insert(
     current_user: User,
     collection: Collection
 ) -> Collection:
-    """
-    Executes additional logic before a collection entity is created,
-    such as event logging, updating the database, managing the cache,
-    performing file or network operations, or other actions. It takes
-    the entity as input, applies the required pre-processing, and
-    returns the possibly modified entity.
-    """
     ...
     return collection
 
@@ -184,13 +279,6 @@ async def after_collection_insert(
     current_user: User,
     collection: Collection
 ) -> Collection:
-    """
-    Executes additional logic after a collection entity is created,
-    such as event logging, updating the database, managing the cache,
-    performing file or network operations, or other actions. It takes
-    the entity as input, applies the required post-processing, and
-    returns the possibly modified entity.
-    """
     ...
     return collection
 
@@ -202,13 +290,6 @@ async def after_collection_select(
     current_user: User,
     collection: Collection
 ) -> Collection:
-    """
-    Executes additional logic after a collection entity is retrieved,
-    such as event logging, updating the database, managing the cache,
-    performing file or network operations, or other actions. It takes
-    the entity as input, applies the required post-processing, and
-    returns the possibly modified entity.
-    """
     ...
     return collection
 
@@ -220,13 +301,6 @@ async def before_collection_update(
     current_user: User,
     collection: Collection
 ) -> Collection:
-    """
-    Executes additional logic before a collection entity is updated,
-    such as event logging, updating the database, managing the cache,
-    performing file or network operations, or other actions. It takes
-    the entity as input, applies the required pre-processing, and
-    returns the possibly modified entity.
-    """
     ...
     return collection
 
@@ -238,13 +312,6 @@ async def after_collection_update(
     current_user: User,
     collection: Collection
 ) -> Collection:
-    """
-    Executes additional logic after a collection entity is updated,
-    such as event logging, updating the database, managing the cache,
-    performing file or network operations, or other actions. It takes
-    the entity as input, applies the required post-processing, and
-    returns the possibly modified entity.
-    """
     ...
     return collection
 
@@ -256,13 +323,6 @@ async def before_collection_delete(
     current_user: User,
     collection: Collection
 ) -> Collection:
-    """
-    Executes additional logic before a collection entity is deleted,
-    such as event logging, updating the database, managing the cache,
-    performing file or network operations, or other actions. It takes
-    the entity as input, applies the required pre-processing, and
-    returns the possibly modified entity.
-    """
     ...
     return collection
 
@@ -274,13 +334,6 @@ async def after_collection_delete(
     current_user: User,
     collection: Collection
 ) -> Collection:
-    """
-    Executes additional logic after a collection entity is deleted,
-    such as event logging, updating the database, managing the cache,
-    performing file or network operations, or other actions. It takes
-    the entity as input, applies the required post-processing, and
-    returns the possibly modified entity.
-    """
     ...
     return collection
 
@@ -292,14 +345,6 @@ async def after_collection_list(
     current_user: User,
     collections: List[Collection]
 ) -> List[Collection]:
-    """
-    Executes additional logic after a list of collection entities is
-    retrieved, such as event logging, updating the database, managing
-    the cache, performing file or network operations, or other actions.
-    It takes the list of entities as input, applies the required
-    post-processing, and returns the list of possibly modified
-    entities.
-    """
     ...
     return collections
 
@@ -399,13 +444,6 @@ async def before_favorite_insert(
     current_user: User,
     favorite: Favorite
 ) -> Favorite:
-    """
-    Executes additional logic before a favorite entity is created,
-    such as event logging, updating the database, managing the cache,
-    performing file or network operations, or other actions. It takes
-    the entity as input, applies the required pre-processing, and
-    returns the possibly modified entity.
-    """
     ...
     return favorite
 
@@ -417,13 +455,6 @@ async def after_favorite_insert(
     current_user: User,
     favorite: Favorite
 ) -> Favorite:
-    """
-    Executes additional logic after a favorite entity is created,
-    such as event logging, updating the database, managing the cache,
-    performing file or network operations, or other actions. It takes
-    the entity as input, applies the required post-processing, and
-    returns the possibly modified entity.
-    """
     ...
     return favorite
 
@@ -435,13 +466,6 @@ async def after_favorite_select(
     current_user: User,
     favorite: Favorite
 ) -> Favorite:
-    """
-    Executes additional logic after a favorite entity is retrieved,
-    such as event logging, updating the database, managing the cache,
-    performing file or network operations, or other actions. It takes
-    the entity as input, applies the required post-processing, and
-    returns the possibly modified entity.
-    """
     ...
     return favorite
 
@@ -453,13 +477,6 @@ async def before_favorite_delete(
     current_user: User,
     favorite: Favorite
 ) -> Favorite:
-    """
-    Executes additional logic before a favorite entity is deleted,
-    such as event logging, updating the database, managing the cache,
-    performing file or network operations, or other actions. It takes
-    the entity as input, applies the required pre-processing, and
-    returns the possibly modified entity.
-    """
     ...
     return favorite
 
@@ -471,13 +488,6 @@ async def after_favorite_delete(
     current_user: User,
     favorite: Favorite
 ) -> Favorite:
-    """
-    Executes additional logic after a favorite entity is deleted,
-    such as event logging, updating the database, managing the cache,
-    performing file or network operations, or other actions. It takes
-    the entity as input, applies the required post-processing, and
-    returns the possibly modified entity.
-    """
     ...
     return favorite
 
@@ -489,14 +499,6 @@ async def after_favorite_list(
     current_user: User,
     favorites: List[Favorite]
 ) -> List[Favorite]:
-    """
-    Executes additional logic after a list of favorite entities is
-    retrieved, such as event logging, updating the database, managing
-    the cache, performing file or network operations, or other actions.
-    It takes the list of entities as input, applies the required
-    post-processing, and returns the list of possibly modified
-    entities.
-    """
     ...
     return favorites
 
@@ -508,13 +510,6 @@ async def after_revision_select(
     current_user: User,
     revision: Revision
 ) -> Revision:
-    """
-    Executes additional logic after a revision entity is retrieved,
-    such as event logging, updating the database, managing the cache,
-    performing file or network operations, or other actions. It takes
-    the entity as input, applies the required post-processing, and
-    returns the possibly modified entity.
-    """
     ...
     return revision
 
@@ -526,13 +521,6 @@ async def after_revision_download(
     current_user: User,
     revision: Revision
 ) -> Revision:
-    """
-    Executes additional logic after a revision entity is downloaded,
-    such as event logging, updating the database, managing the cache,
-    performing file or network operations, or other actions. It takes
-    the entity as input, applies the required post-processing, and
-    returns the possibly modified entity.
-    """
     ...
     return revision
 
@@ -544,14 +532,6 @@ async def after_revision_list(
     current_user: User,
     revisions: List[Revision]
 ) -> List[Favorite]:
-    """
-    Executes additional logic after a list of revision entities is
-    retrieved, such as event logging, updating the database, managing
-    the cache, performing file or network operations, or other actions.
-    It takes the list of entities as input, applies the required
-    post-processing, and returns the list of possibly modified
-    entities.
-    """
     ...
     return revisions
 
@@ -563,13 +543,6 @@ async def after_download_select(
     current_user: User,
     download: Download
 ) -> Download:
-    """
-    Executes additional logic after a download entity is retrieved,
-    such as event logging, updating the database, managing the cache,
-    performing file or network operations, or other actions. It takes
-    the entity as input, applies the required post-processing, and
-    returns the possibly modified entity.
-    """
     ...
     return download
 
@@ -581,14 +554,6 @@ async def after_download_list(
     current_user: User,
     downloads: List[Download]
 ) -> List[Download]:
-    """
-    Executes additional logic after a list of download entities is
-    retrieved, such as event logging, updating the database, managing
-    the cache, performing file or network operations, or other actions.
-    It takes the list of entities as input, applies the required
-    post-processing, and returns the list of possibly modified
-    entities.
-    """
     ...
     return downloads
 
@@ -600,13 +565,6 @@ async def before_comment_insert(
     current_user: User,
     comment: Comment
 ) -> Comment:
-    """
-    Executes additional logic before a comment entity is created,
-    such as event logging, updating the database, managing the cache,
-    performing file or network operations, or other actions. It takes
-    the entity as input, applies the required pre-processing, and
-    returns the possibly modified entity.
-    """
     ...
     return comment
 
@@ -618,13 +576,6 @@ async def after_comment_insert(
     current_user: User,
     comment: Comment
 ) -> Comment:
-    """
-    Executes additional logic after a comment entity is created,
-    such as event logging, updating the database, managing the cache,
-    performing file or network operations, or other actions. It takes
-    the entity as input, applies the required post-processing, and
-    returns the possibly modified entity.
-    """
     ...
     return comment
 
@@ -636,13 +587,6 @@ async def after_comment_select(
     current_user: User,
     comment: Comment
 ) -> Comment:
-    """
-    Executes additional logic after a comment entity is retrieved,
-    such as event logging, updating the database, managing the cache,
-    performing file or network operations, or other actions. It takes
-    the entity as input, applies the required post-processing, and
-    returns the possibly modified entity.
-    """
     ...
     return comment
 
@@ -654,13 +598,6 @@ async def before_comment_update(
     current_user: User,
     comment: Comment
 ) -> Comment:
-    """
-    Executes additional logic before a comment entity is updated,
-    such as event logging, updating the database, managing the cache,
-    performing file or network operations, or other actions. It takes
-    the entity as input, applies the required pre-processing, and
-    returns the possibly modified entity.
-    """
     ...
     return comment
 
@@ -672,13 +609,6 @@ async def after_comment_update(
     current_user: User,
     comment: Comment
 ) -> Comment:
-    """
-    Executes additional logic after a comment entity is updated,
-    such as event logging, updating the database, managing the cache,
-    performing file or network operations, or other actions. It takes
-    the entity as input, applies the required post-processing, and
-    returns the possibly modified entity.
-    """
     ...
     return comment
 
@@ -690,13 +620,6 @@ async def before_comment_delete(
     current_user: User,
     comment: Comment
 ) -> Comment:
-    """
-    Executes additional logic before a comment entity is deleted,
-    such as event logging, updating the database, managing the cache,
-    performing file or network operations, or other actions. It takes
-    the entity as input, applies the required pre-processing, and
-    returns the possibly modified entity.
-    """
     ...
     return comment
 
@@ -708,13 +631,6 @@ async def after_comment_delete(
     current_user: User,
     comment: Comment
 ) -> Comment:
-    """
-    Executes additional logic after a comment entity is deleted,
-    such as event logging, updating the database, managing the cache,
-    performing file or network operations, or other actions. It takes
-    the entity as input, applies the required post-processing, and
-    returns the possibly modified entity.
-    """
     ...
     return comment
 
@@ -726,14 +642,6 @@ async def after_comment_list(
     current_user: User,
     comments: List[Comment]
 ) -> List[Comment]:
-    """
-    Executes additional logic after a list of comment entities is
-    retrieved, such as event logging, updating the database, managing
-    the cache, performing file or network operations, or other actions.
-    It takes the list of entities as input, applies the required
-    post-processing, and returns the list of possibly modified
-    entities.
-    """
     ...
     return comments
 
@@ -745,13 +653,6 @@ async def after_option_select(
     current_user: User,
     option: Option
 ) -> Option:
-    """
-    Executes additional logic after an option entity is retrieved,
-    such as event logging, updating the database, managing the cache,
-    performing file or network operations, or other actions. It takes
-    the entity as input, applies the required post-processing, and
-    returns the possibly modified entity.
-    """
     ...
     return option
 
@@ -763,13 +664,6 @@ async def before_option_update(
     current_user: User,
     option: Option
 ) -> Option:
-    """
-    Executes additional logic before an option entity is updated,
-    such as event logging, updating the database, managing the cache,
-    performing file or network operations, or other actions. It takes
-    the entity as input, applies the required pre-processing, and
-    returns the possibly modified entity.
-    """
     ...
     return option
 
@@ -781,13 +675,6 @@ async def after_option_update(
     current_user: User,
     option: Option
 ) -> Option:
-    """
-    Executes additional logic after an option entity is updated,
-    such as event logging, updating the database, managing the cache,
-    performing file or network operations, or other actions. It takes
-    the entity as input, applies the required post-processing, and
-    returns the possibly modified entity.
-    """
     ...
     return option
 
@@ -799,13 +686,6 @@ async def before_option_delete(
     current_user: User,
     option: Option = None
 ) -> Union[Option, None]:
-    """
-    Executes additional logic before an option entity is deleted,
-    such as event logging, updating the database, managing the cache,
-    performing file or network operations, or other actions. It takes
-    the entity as input, applies the required pre-processing, and
-    returns the possibly modified entity.
-    """
     ...
     return option
 
@@ -817,13 +697,6 @@ async def after_option_delete(
     current_user: User,
     option: Option = None
 ) -> Union[Option, None]:
-    """
-    Executes additional logic after an option entity is deleted,
-    such as event logging, updating the database, managing the cache,
-    performing file or network operations, or other actions. It takes
-    the entity as input, applies the required post-processing, and
-    returns the possibly modified entity.
-    """
     ...
     return option
 
@@ -835,13 +708,5 @@ async def after_option_list(
     current_user: User,
     options: List[Option]
 ) -> List[Option]:
-    """
-    Executes additional logic after a list of option entities is
-    retrieved, such as event logging, updating the database, managing
-    the cache, performing file or network operations, or other actions.
-    It takes the list of entities as input, applies the required
-    post-processing, and returns the list of possibly modified
-    entities.
-    """
     ...
     return options

@@ -34,8 +34,16 @@ class H(enum.Enum):
     downloads, and favorites.
     """
     ON_STARTUP = "on_startup"
-    ON_SCHEDULE = "on_schedule"
 
+    BEFORE_USER_REGISTER = "before_user_register"
+    BEFORE_USER_LOGIN = "before_user_login"
+    BEFORE_TOKEN_RETRIEVE = "before_token_retrieve"
+    BEFORE_TOKEN_INVALIDATE = "before_token_invalidate"
+    BEFORE_USER_UPDATE = "before_user_update"
+    BEFORE_ROLE_UPDATE = "before_role_update"
+    BEFORE_PASSWORD_UPDATE = "before_password_update"
+    BEFORE_USERPIC_UPLOAD = "before_userpic_upload"
+    BEFORE_USERPIC_DELETE = "before_userpic_delete"
     AFTER_USER_REGISTER = "after_user_register"
     AFTER_USER_LOGIN = "after_user_login"
     AFTER_TOKEN_RETRIEVE = "after_token_retrieve"
@@ -46,9 +54,7 @@ class H(enum.Enum):
     AFTER_PASSWORD_UPDATE = "after_password_update"
     AFTER_USERPIC_UPLOAD = "after_userpic_upload"
     AFTER_USERPIC_DELETE = "after_userpic_delete"
-    AFTER_USERS_LIST = "after_users_list"
-
-    # =========================================================================
+    AFTER_USER_LIST = "after_user_list"
 
     # Collection hooks
     BEFORE_COLLECTION_INSERT = "before_collection_insert"
