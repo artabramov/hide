@@ -166,6 +166,13 @@ async def before_collection_insert(
     current_user: User,
     collection: Collection
 ) -> Collection:
+    """
+    Executes additional logic before a collection entity is created,
+    such as event logging, updating the database, managing the cache,
+    performing file or network operations, or other actions. It takes
+    the entity as input, applies the required pre-processing, and
+    returns the possibly modified entity.
+    """
     ...
     return collection
 
@@ -177,6 +184,13 @@ async def after_collection_insert(
     current_user: User,
     collection: Collection
 ) -> Collection:
+    """
+    Executes additional logic after a collection entity is created,
+    such as event logging, updating the database, managing the cache,
+    performing file or network operations, or other actions. It takes
+    the entity as input, applies the required post-processing, and
+    returns the possibly modified entity.
+    """
     ...
     return collection
 
@@ -188,6 +202,13 @@ async def after_collection_select(
     current_user: User,
     collection: Collection
 ) -> Collection:
+    """
+    Executes additional logic after a collection entity is retrieved,
+    such as event logging, updating the database, managing the cache,
+    performing file or network operations, or other actions. It takes
+    the entity as input, applies the required post-processing, and
+    returns the possibly modified entity.
+    """
     ...
     return collection
 
@@ -199,6 +220,13 @@ async def before_collection_update(
     current_user: User,
     collection: Collection
 ) -> Collection:
+    """
+    Executes additional logic before a collection entity is updated,
+    such as event logging, updating the database, managing the cache,
+    performing file or network operations, or other actions. It takes
+    the entity as input, applies the required pre-processing, and
+    returns the possibly modified entity.
+    """
     ...
     return collection
 
@@ -210,6 +238,13 @@ async def after_collection_update(
     current_user: User,
     collection: Collection
 ) -> Collection:
+    """
+    Executes additional logic after a collection entity is updated,
+    such as event logging, updating the database, managing the cache,
+    performing file or network operations, or other actions. It takes
+    the entity as input, applies the required post-processing, and
+    returns the possibly modified entity.
+    """
     ...
     return collection
 
@@ -221,6 +256,13 @@ async def before_collection_delete(
     current_user: User,
     collection: Collection
 ) -> Collection:
+    """
+    Executes additional logic before a collection entity is deleted,
+    such as event logging, updating the database, managing the cache,
+    performing file or network operations, or other actions. It takes
+    the entity as input, applies the required pre-processing, and
+    returns the possibly modified entity.
+    """
     ...
     return collection
 
@@ -232,6 +274,13 @@ async def after_collection_delete(
     current_user: User,
     collection: Collection
 ) -> Collection:
+    """
+    Executes additional logic after a collection entity is deleted,
+    such as event logging, updating the database, managing the cache,
+    performing file or network operations, or other actions. It takes
+    the entity as input, applies the required post-processing, and
+    returns the possibly modified entity.
+    """
     ...
     return collection
 
@@ -243,6 +292,14 @@ async def after_collection_list(
     current_user: User,
     collections: List[Collection]
 ) -> List[Collection]:
+    """
+    Executes additional logic after a list of collection entities is
+    retrieved, such as event logging, updating the database, managing
+    the cache, performing file or network operations, or other actions.
+    It takes the list of entities as input, applies the required
+    post-processing, and returns the list of possibly modified
+    entities.
+    """
     ...
     return collections
 

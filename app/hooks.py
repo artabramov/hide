@@ -60,7 +60,6 @@ class H(enum.Enum):
     AFTER_COLLECTION_DELETE = "after_collection_delete"
     AFTER_COLLECTION_LIST = "after_collection_list"
 
-    # Document hooks
     BEFORE_DOCUMENT_INSERT = "before_document_insert"
     BEFORE_DOCUMENT_UPDATE = "before_document_update"
     BEFORE_DOCUMENT_DELETE = "before_document_delete"
