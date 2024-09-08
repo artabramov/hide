@@ -32,7 +32,7 @@ async def role_update(
     updated is not found.
     """
     if schema.user_id == current_user.id:
-        raise E("user_id", schema.user_id, E.ENTITY_FORBIDDEN,
+        raise E("user_id", schema.user_id, E.RESOURCE_FORBIDDEN,
                 status_code=status.HTTP_403_FORBIDDEN)
 
     user_repository = Repository(session, cache, User)
