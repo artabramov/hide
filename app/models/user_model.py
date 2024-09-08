@@ -1,4 +1,6 @@
+import os
 import enum
+import time
 from sqlalchemy import (Boolean, Column, BigInteger, Integer, SmallInteger,
                         String, Enum)
 from sqlalchemy.ext.hybrid import hybrid_property
@@ -8,9 +10,7 @@ from app.helpers.hash_helper import get_hash
 from sqlalchemy.orm import relationship
 from app.config import get_config
 from app.database import Base
-from time import time
 from app.helpers.jwt_helper import jti_create
-import os
 
 cfg = get_config()
 
@@ -27,9 +27,10 @@ class User(Base, MFAMixin, FernetMixin):
     _cacheable = True
 
     id = Column(BigInteger, primary_key=True)
-    created_date = Column(Integer, index=True, default=lambda: int(time()))
+    created_date = Column(Integer, index=True,
+                          default=lambda: int(time.time()))
     updated_date = Column(Integer, index=True, default=0,
-                          onupdate=lambda: int(time()))
+                          onupdate=lambda: int(time.time()))
     last_login_date = Column(Integer, nullable=False, index=True, default=0)
     suspended_date = Column(Integer, nullable=False, default=0)
     user_role = Column(Enum(UserRole), nullable=False, index=True,

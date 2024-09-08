@@ -7,11 +7,11 @@ relationships with User and Document models and provides methods
 to initialize instances and convert them to dictionaries.
 """
 
+import time
 from sqlalchemy import Column, BigInteger, Integer, ForeignKey
 from sqlalchemy.orm import relationship
 from app.config import get_config
 from app.database import Base
-from time import time
 
 cfg = get_config()
 
@@ -25,7 +25,8 @@ class Favorite(Base):
     _cacheable = False
 
     id = Column(BigInteger, primary_key=True)
-    created_date = Column(Integer, index=True, default=lambda: int(time()))
+    created_date = Column(Integer, index=True,
+                          default=lambda: int(time.time()))
     user_id = Column(BigInteger, ForeignKey("users.id"), index=True)
     document_id = Column(BigInteger, ForeignKey("documents.id"), index=True)
 

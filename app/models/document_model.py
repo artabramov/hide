@@ -1,5 +1,5 @@
 import os
-from time import time
+import time
 from sqlalchemy import Column, Integer, BigInteger, String, ForeignKey, and_
 from sqlalchemy.orm import relationship
 from app.models.revision_model import Revision
@@ -14,9 +14,10 @@ class Document(Base):
     _cacheable = True
 
     id = Column(BigInteger, primary_key=True)
-    created_date = Column(Integer, index=True, default=lambda: int(time()))
-    updated_date = Column(Integer, index=True, onupdate=lambda: int(time()),
-                          default=0)
+    created_date = Column(Integer, index=True,
+                          default=lambda: int(time.time()))
+    updated_date = Column(Integer, index=True,
+                          onupdate=lambda: int(time.time()), default=0)
     user_id = Column(BigInteger, ForeignKey("users.id"), index=True)
     collection_id = Column(BigInteger, ForeignKey("collections.id"),
                            index=True)

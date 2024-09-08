@@ -4,10 +4,10 @@ used to store and manage configuration values for both the application
 and its extensions within the database.
 """
 
+import time
 from sqlalchemy import Column, BigInteger, Integer, String, ForeignKey
 from sqlalchemy.orm import relationship
 from app.database import Base
-from time import time
 
 
 class Option(Base):
@@ -20,9 +20,10 @@ class Option(Base):
     _cacheable = False
 
     id = Column(BigInteger, primary_key=True)
-    created_date = Column(Integer, index=True, default=lambda: int(time()))
-    updated_date = Column(Integer, index=True, onupdate=lambda: int(time()),
-                          default=0)
+    created_date = Column(Integer, index=True,
+                          default=lambda: int(time.time()))
+    updated_date = Column(Integer, index=True,
+                          onupdate=lambda: int(time.time()), default=0)
     user_id = Column(BigInteger, ForeignKey("users.id"), index=True)
     option_key = Column(String(40), nullable=False, index=True, unique=True)
     option_value = Column(String(512), nullable=False, index=True)

@@ -23,7 +23,7 @@ class DocumentInsertRequest(BaseModel):
     tags: Optional[str] = Field(max_length=256, default=None)
 
     @field_validator("document_name", mode="before")
-    def validate_document_name(cls, document_name: str) -> str:
+    def validate_document_name(cls, document_name: str = None) -> Union[str, None]:  # noqa E501
         return validate_document_name(document_name)
 
     @field_validator("document_summary", mode="before")
@@ -83,9 +83,13 @@ class DocumentUpdateRequest(BaseModel):
     """
     document_id: int
     collection_id: int
-    document_name: Optional[str] = Field(max_length=256, default=None)
+    document_name: str = Field(..., min_length=1, max_length=256)
     document_summary: Optional[str] = Field(max_length=512, default=None)
     tags: Optional[str] = Field(max_length=256, default=None)
+
+    @field_validator("document_name", mode="before")
+    def validate_document_name(cls, document_name: str = None) -> str:
+        return validate_document_name(document_name)
 
     @field_validator("document_summary", mode="before")
     def validate_document_summary(cls, document_summary: str = None) -> Union[str, None]:  # noqa E501

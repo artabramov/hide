@@ -1,5 +1,5 @@
 import os
-from time import time
+import time
 from sqlalchemy import (Column, Integer, BigInteger, String, ForeignKey,
                         Boolean, event)
 from sqlalchemy.orm import relationship
@@ -18,7 +18,8 @@ class Revision(Base):
     _cacheable = True
 
     id = Column(BigInteger, primary_key=True)
-    created_date = Column(Integer, index=True, default=lambda: int(time()))
+    created_date = Column(Integer, index=True,
+                          default=lambda: int(time.time()))
     user_id = Column(BigInteger, ForeignKey("users.id"), index=True)
     document_id = Column(BigInteger, ForeignKey("documents.id"), index=True)
     is_latest = Column(Boolean, nullable=False)

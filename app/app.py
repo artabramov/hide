@@ -32,7 +32,7 @@ from app.routers import (
 from app.database import Base, sessionmanager, get_session
 from app.errors import SERVER_ERROR
 from contextlib import asynccontextmanager
-from time import time
+import time
 from uuid import uuid4
 import os
 import importlib.util
@@ -177,7 +177,7 @@ async def middleware_handler(request: Request, call_next):
     the elapsed time, logs the response status and headers, and returns
     the response to the client.
     """
-    ctx.request_start_time = time()
+    ctx.request_start_time = time.time()
     ctx.trace_request_uuid = str(uuid4())
 
     log.debug("Request received; module=app; function=middleware_handler; "
@@ -186,7 +186,7 @@ async def middleware_handler(request: Request, call_next):
 
     response = await call_next(request)
 
-    elapsed_time = time() - ctx.request_start_time
+    elapsed_time = time.time() - ctx.request_start_time
     log.debug("Response sent; module=app; function=middleware_handler; "
               "elapsed_time=%s; status=%s; headers=%s;" % (
                   "{0:.10f}".format(elapsed_time), response.status_code,
@@ -206,7 +206,7 @@ async def exception_handler(request: Request, e: Exception):
     exceptions, it logs an error message and responds with 500 status
     code and a generic error message.
     """
-    elapsed_time = time() - ctx.request_start_time
+    elapsed_time = time.time() - ctx.request_start_time
 
     # Handle validation errors raised by Pydantic schema validators.
     if isinstance(e, ValidationError):
