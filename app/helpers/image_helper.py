@@ -28,8 +28,11 @@ def _image_resize_sync(path: str, width: int, height: int, quality: int):
     with the specified quality.
     """
     im = Image.open(path)
+    if im.mode in ["P", "RGBA"]:
+        im = im.convert("RGB")
+
     im.thumbnail((width, height))
-    im.save(path, quality=quality)
+    im.save(path, quality=quality, format="JPEG")
 
 
 async def image_resize(path: str, width: int, height: int, quality: int):
