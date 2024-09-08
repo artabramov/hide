@@ -282,13 +282,16 @@ class UserListRequest(BaseModel):
     pagination options with offset and limit, ordering criteria, and
     optional filters for user login, first name, and last name.
     """
+    is_active__eq: Optional[bool] = None
+    user_role__eq: Optional[UserRole] = None
     user_login__ilike: Optional[str] = None
     first_name__ilike: Optional[str] = None
     last_name__ilike: Optional[str] = None
     offset: int = Field(ge=0)
     limit: int = Field(ge=1, le=200)
-    order_by: Literal["id", "created_date", "updated_date", "user_id",
-                      "user_login", "first_name", "last_name"]
+    order_by: Literal["id", "created_date", "updated_date", "last_login_date",
+                      "user_role", "is_active", "user_login", "first_name",
+                      "last_name"]
     order: Literal["asc", "desc"]
 
 

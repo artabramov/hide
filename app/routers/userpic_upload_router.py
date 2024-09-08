@@ -44,7 +44,7 @@ async def userpic_upload(
                 status_code=status.HTTP_403_FORBIDDEN)
 
     elif schema.file.content_type not in cfg.USERPIC_MIMES:
-        raise E("file", schema.user_id, E.MIMETYPE_REJECTED,
+        raise E("file", schema.user_id, E.MIMETYPE_UNSUPPORTED,
                 status_code=status.HTTP_422_UNPROCESSABLE_ENTITY)
 
     if current_user.userpic_filename:

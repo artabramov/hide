@@ -30,11 +30,11 @@ class User(Base, MFAMixin, FernetMixin):
     created_date = Column(Integer, index=True, default=lambda: int(time()))
     updated_date = Column(Integer, index=True, default=0,
                           onupdate=lambda: int(time()))
-    last_login_date = Column(Integer, nullable=False, default=0)
+    last_login_date = Column(Integer, nullable=False, index=True, default=0)
     suspended_date = Column(Integer, nullable=False, default=0)
     user_role = Column(Enum(UserRole), nullable=False, index=True,
                        default=UserRole.reader)
-    is_active = Column(Boolean, nullable=False)
+    is_active = Column(Boolean, nullable=False, index=True)
     user_login = Column(String(40), nullable=False, index=True, unique=True)
     password_hash = Column(String(128), nullable=False, index=True)
     password_attempts = Column(SmallInteger, nullable=False, default=0)

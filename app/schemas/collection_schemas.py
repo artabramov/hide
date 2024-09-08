@@ -125,6 +125,10 @@ class CollectionListRequest(BaseModel):
     documents_count__le: Optional[int] = None
     documents_size__ge: Optional[int] = None
     documents_size__le: Optional[int] = None
+    revisions_count__ge: Optional[int] = None
+    revisions_count__le: Optional[int] = None
+    revisions_size__ge: Optional[int] = None
+    revisions_size__le: Optional[int] = None
     offset: int = Field(ge=0)
     limit: int = Field(ge=1, le=200)
     order_by: Literal["id", "created_date", "updated_date", "user_id",

@@ -34,7 +34,7 @@ class Collection(Base):
     updated_date = Column(Integer, index=True,
                           onupdate=lambda: int(time.time()), default=0)
     user_id = Column(BigInteger, ForeignKey("users.id"), index=True)
-    is_locked = Column(Boolean)
+    is_locked = Column(Boolean, index=True)
     collection_name = Column(String(128), index=True, unique=True)
     collection_summary = Column(String(512), nullable=True)
 

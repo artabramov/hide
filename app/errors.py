@@ -69,7 +69,7 @@ class E(HTTPException):
     VALUE_DUPLICATED = "value_duplicated"
 
     # The file MIME type is not supported for the operation (422).
-    MIMETYPE_REJECTED = "mimetype_rejected"
+    MIMETYPE_UNSUPPORTED = "mimetype_unsupported"
 
     # The value provided was rejected due to constraints (422).
     # VALUE_REJECTED = "value_rejected"
