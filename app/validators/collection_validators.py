@@ -9,11 +9,8 @@ from typing import Union
 
 def validate_collection_name(collection_name: str) -> str:
     """
-    Validates that the collection name is at least 2 characters long
-    after stripping leading and trailing whitespace.
+    Strips leading and trailing whitespace.
     """
-    if len(collection_name.strip()) < 2:
-        raise ValueError
     return collection_name.strip()
 
 
