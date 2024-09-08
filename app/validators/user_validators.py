@@ -51,7 +51,7 @@ def validate_user_signature(user_signature: str = None) -> Union[str, None]:
     """
     Validates and normalizes a user signature. If there is no input, or
     if the input is an empty string or consists only of whitespace, it
-    returns None. Otherwise, it returns the trimmed user signature.
+    returns none. Otherwise, it returns the trimmed user signature.
     """
     if user_signature is None:
         return None
@@ -64,7 +64,7 @@ def validate_user_contacts(user_contacts: str = None) -> Union[str, None]:
     """
     Validates and normalizes a user contacts. If there is no input, or
     if the input is an empty string or consists only of whitespace, it
-    returns None. Otherwise, it returns the trimmed user contacts.
+    returns none. Otherwise, it returns the trimmed user contacts.
     """
     if user_contacts is None:
         return None

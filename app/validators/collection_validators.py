@@ -19,7 +19,12 @@ def validate_collection_name(collection_name: str) -> str:
 
 def validate_collection_summary(collection_summary: str = None) -> Union[str, None]:  # noqa E501
     """
-    Strips leading and trailing whitespace from the collection summary
-    if it provided.
+    Validates and normalizes a collection summary. If there is no input,
+    or if the input is an empty string or consists only of whitespace,
+    it returns none. Otherwise, it returns the trimmed user signature.
     """
-    return collection_summary.strip() if collection_summary else None
+    if collection_summary is None:
+        return None
+
+    collection_summary = collection_summary.strip()
+    return None if collection_summary == "" else collection_summary
