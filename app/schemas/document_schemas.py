@@ -7,7 +7,8 @@ documents.
 from typing import Optional, Literal, List, Union
 from pydantic import BaseModel, Field, field_validator
 from app.schemas.revision_schemas import RevisionSelectResponse
-from app.validators.document_validators import validate_document_summary
+from app.validators.document_validators import (
+    validate_document_name, validate_document_summary)
 
 
 class DocumentInsertRequest(BaseModel):
@@ -17,9 +18,13 @@ class DocumentInsertRequest(BaseModel):
     document name, document summary, and tags.
     """
     collection_id: int
-    document_name: Optional[str] = Field(max_length=128, default=None)
+    document_name: Optional[str] = Field(max_length=256, default=None)
     document_summary: Optional[str] = Field(max_length=512, default=None)
     tags: Optional[str] = Field(max_length=256, default=None)
+
+    @field_validator("document_name", mode="before")
+    def validate_document_name(cls, document_name: str) -> str:
+        return validate_document_name(document_name)
 
     @field_validator("document_summary", mode="before")
     def validate_document_summary(cls, document_summary: str = None) -> Union[str, None]:  # noqa E501
@@ -78,7 +83,7 @@ class DocumentUpdateRequest(BaseModel):
     """
     document_id: int
     collection_id: int
-    document_name: Optional[str] = Field(min_length=2, max_length=256)
+    document_name: Optional[str] = Field(max_length=256, default=None)
     document_summary: Optional[str] = Field(max_length=512, default=None)
     tags: Optional[str] = Field(max_length=256, default=None)
 

@@ -52,10 +52,10 @@ class Repository:
         """
         entity_id, entity = kwargs.get(ID), None
 
-        if self.entity_class._cacheable and entity_id:
+        if self.entity_class._cacheable and isinstance(entity_id, int):
             entity = await self.cache_manager.get(self.entity_class, entity_id)
 
-        if not entity and entity_id:
+        if not entity and isinstance(entity_id, int):
             entity = await self.entity_manager.select(
                 self.entity_class, entity_id)
 

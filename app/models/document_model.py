@@ -21,7 +21,7 @@ class Document(Base):
     collection_id = Column(BigInteger, ForeignKey("collections.id"),
                            index=True)
 
-    document_name = Column(String(128), index=True, nullable=False)
+    document_name = Column(String(256), index=True, nullable=False)
     document_summary = Column(String(512), nullable=True)
     document_size = Column(Integer, index=True, default=0)
 

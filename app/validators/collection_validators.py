@@ -7,11 +7,13 @@ used within Pydantic schemas.
 from typing import Union
 
 
-def validate_collection_name(collection_name: str) -> str:
+def validate_collection_name(collection_name: str = None) -> Union[str, None]:
     """
-    Strips leading and trailing whitespace.
+    Validates and normalizes a collection name by stripping leading and
+    trailing whitespace. If the input is empty, it returns none.
+    Otherwise, it returns the trimmed collection name.
     """
-    return collection_name.strip()
+    return collection_name.strip() if collection_name else None
 
 
 def validate_collection_summary(collection_summary: str = None) -> Union[str, None]:  # noqa E501
