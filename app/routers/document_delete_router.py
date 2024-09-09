@@ -45,8 +45,8 @@ async def document_delete(
                 status_code=status.HTTP_404_NOT_FOUND)
 
     elif document.document_collection.is_locked:
-        raise E("document_id", schema.document_id, E.RESOURCE_FORBIDDEN,
-                status_code=status.HTTP_403_FORBIDDEN)
+        raise E("document_id", schema.document_id, E.RESOURCE_LOCKED,
+                status_code=status.HTTP_423_LOCKED)
 
     await document_repository.delete(document, commit=False)
 
