@@ -4,7 +4,7 @@ schemas for inserting, selecting, updating, deleting, and listing
 comments.
 """
 
-from typing import Literal, List
+from typing import Literal, List, Optional
 from pydantic import BaseModel, Field, field_validator
 from app.schemas.user_schemas import UserSelectResponse
 from app.validators.comment_validators import validate_comment_content
@@ -16,7 +16,7 @@ class CommentInsertRequest(BaseModel):
     the document ID and comment content to be specified.
     """
     document_id: int
-    comment_content: str = Field(..., min_length=2, max_length=512)
+    comment_content: str = Field(..., min_length=1, max_length=512)
 
     @field_validator("comment_content", mode="before")
     def validate_comment_content(cls, comment_content: str) -> str:
@@ -97,7 +97,7 @@ class CommentListRequest(BaseModel):
     document ID, pagination options with offset and limit, and ordering
     criteria.
     """
-    document_id__eq: int
+    document_id__eq: Optional[int] = None
     offset: int = Field(ge=0)
     limit: int = Field(ge=1, le=200)
     order_by: Literal["id", "created_date"]

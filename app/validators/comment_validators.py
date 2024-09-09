@@ -6,9 +6,8 @@ such as comment content. The validator is used within Pydantic schemas.
 
 def validate_comment_content(comment_content: str) -> str:
     """
-    Validates and trims the comment content, ensuring it is at least 2
-    characters long after removing leading and trailing whitespace.
+    Validates and normalizes a comment content by stripping leading and
+    trailing whitespace. If the input is empty, it returns none.
+    Otherwise, it returns the trimmed comment content.
     """
-    if len(comment_content.strip()) < 2:
-        raise ValueError
-    return comment_content.strip()
+    return comment_content.strip() if comment_content else None
