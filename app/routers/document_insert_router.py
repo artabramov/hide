@@ -103,9 +103,10 @@ async def document_insert(
         file.content_type, thumbnail_filename=thumbnail_filename)
     await revision_repository.insert(revision, commit=False)
 
-    # Update document counters and latest revision
+    # Update document counters, size, mimetype and latest revision
     await revision_repository.lock_all()
     document.document_size = file.size
+    document.document_mimetype = file.content_type
     document.revisions_count = await revision_repository.count_all(
         document_id__eq=revision.document_id)
     document.revisions_size = await revision_repository.sum_all(

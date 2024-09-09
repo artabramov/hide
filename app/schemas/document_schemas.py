@@ -64,6 +64,7 @@ class DocumentSelectResponse(BaseModel):
     document_name: str
     document_summary: Optional[str] = None
     document_size: int
+    document_mimetype: str
 
     revisions_count: int
     revisions_size: int
@@ -126,13 +127,28 @@ class DocumentListRequest(BaseModel):
     pagination options with offset and limit, ordering criteria, and
     optional filters for document name and tag value.
     """
+    collection_id__eq: Optional[int] = None
     document_name__ilike: Optional[str] = None
+    document_size__ge: Optional[int] = None
+    document_size__le: Optional[int] = None
+    document_mimetype__ilike: Optional[str] = None
+    revisions_count__ge: Optional[int] = None
+    revisions_count__le: Optional[int] = None
+    revisions_size__ge: Optional[int] = None
+    revisions_size__le: Optional[int] = None
+    comments_count__ge: Optional[int] = None
+    comments_count__le: Optional[int] = None
+    downloads_count__ge: Optional[int] = None
+    downloads_count__le: Optional[int] = None
+    favorites_count__ge: Optional[int] = None
+    favorites_count__le: Optional[int] = None
     tag_value__eq: Optional[str] = None
     offset: int = Field(ge=0)
     limit: int = Field(ge=1, le=200)
     order_by: Literal["id", "created_date", "updated_date", "user_id",
-                      "collection_id", "document_name", "filesize",
-                      "mimetype", "comments_count"]
+                      "collection_id", "document_name", "document_size",
+                      "document_mimetype", "revisions_count", "revisions_size",
+                      "comments_count", "downloads_count", "favorites_count"]
     order: Literal["asc", "desc"]
 
 

@@ -25,6 +25,7 @@ class Document(Base):
     document_name = Column(String(256), index=True, nullable=False)
     document_summary = Column(String(512), nullable=True)
     document_size = Column(Integer, index=True, default=0)
+    document_mimetype = Column(String(256), index=True, nullable=True)
 
     revisions_count = Column(Integer, index=True, default=0)
     revisions_size = Column(Integer, index=True, default=0)
@@ -64,14 +65,15 @@ class Document(Base):
             id == Revision.document_id, Revision.is_latest == True),  # noqa E712
         lazy="joined", uselist=False)
 
-    def __init__(self, user_id: int, collection_id: int,
-                 document_name: str, document_summary: str = None):
+    def __init__(self, user_id: int, collection_id: int, document_name: str,
+                 document_summary: str = None):
         self.user_id = user_id
         self.collection_id = collection_id
 
         self.document_name = document_name
         self.document_summary = document_summary
         self.document_size = 0
+        self.document_mimetype = None
 
         self.revisions_count = 0
         self.revisions_size = 0
@@ -101,6 +103,7 @@ class Document(Base):
             "document_name": self.document_name,
             "document_summary": self.document_summary,
             "document_size": self.document_size,
+            "document_mimetype": self.document_mimetype,
 
             "revisions_count": self.revisions_count,
             "revisions_size": self.revisions_size,
