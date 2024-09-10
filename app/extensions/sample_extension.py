@@ -162,6 +162,28 @@ async def after_user_update(
     return user
 
 
+async def before_user_delete(
+    entity_manager: EntityManager,
+    cache_manager: CacheManager,
+    request: Request,
+    current_user: User,
+    user: User
+) -> User:
+    ...
+    return user
+
+
+async def after_user_delete(
+    entity_manager: EntityManager,
+    cache_manager: CacheManager,
+    request: Request,
+    current_user: User,
+    user: User
+) -> User:
+    ...
+    return user
+
+
 async def before_role_update(
     entity_manager: EntityManager,
     cache_manager: CacheManager,

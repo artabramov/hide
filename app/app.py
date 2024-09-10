@@ -17,18 +17,19 @@ from app.log import get_log
 from app.routers import (
     token_select_router, token_delete_router, user_register_router,
     user_login_router, user_select_router, user_update_router,
-    role_update_router, password_update_router, userpic_upload_router,
-    userpic_delete_router, user_list_router, collection_insert_router,
-    collection_select_router, collection_update_router,
-    collection_delete_router, collection_list_router, document_insert_router,
-    document_select_router, document_update_router, document_delete_router,
-    document_list_router, favorite_insert_router, favorite_select_router,
-    favorite_delete_router, favorite_list_router, revision_select_router,
-    revision_download_router, revision_list_router, download_select_router,
-    download_list_router, comment_insert_router, comment_select_router,
-    comment_update_router, comment_delete_router, comment_list_router,
-    option_update_router, option_select_router, option_delete_router,
-    option_list_router, service_routers, static_routers)
+    user_delete_router, role_update_router, password_update_router,
+    userpic_upload_router, userpic_delete_router, user_list_router,
+    collection_insert_router, collection_select_router,
+    collection_update_router, collection_delete_router,
+    collection_list_router, document_insert_router, document_select_router,
+    document_update_router, document_delete_router, document_list_router,
+    favorite_insert_router, favorite_select_router, favorite_delete_router,
+    favorite_list_router, revision_select_router, revision_download_router,
+    revision_list_router, download_select_router, download_list_router,
+    comment_insert_router, comment_select_router, comment_update_router,
+    comment_delete_router, comment_list_router, option_update_router,
+    option_select_router, option_delete_router, option_list_router,
+    service_routers, static_routers)
 from app.database import Base, sessionmanager, get_session
 from app.errors import SERVER_ERROR
 from contextlib import asynccontextmanager
@@ -118,12 +119,13 @@ app = FastAPI(lifespan=lifespan, title=cfg.APP_TITLE, version=__version__,
               description=load_description())
 
 app.include_router(static_routers.router)
+app.include_router(user_login_router.router, prefix=cfg.APP_PREFIX)
 app.include_router(token_select_router.router, prefix=cfg.APP_PREFIX)
 app.include_router(token_delete_router.router, prefix=cfg.APP_PREFIX)
 app.include_router(user_register_router.router, prefix=cfg.APP_PREFIX)
-app.include_router(user_login_router.router, prefix=cfg.APP_PREFIX)
 app.include_router(user_select_router.router, prefix=cfg.APP_PREFIX)
 app.include_router(user_update_router.router, prefix=cfg.APP_PREFIX)
+app.include_router(user_delete_router.router, prefix=cfg.APP_PREFIX)
 app.include_router(role_update_router.router, prefix=cfg.APP_PREFIX)
 app.include_router(password_update_router.router, prefix=cfg.APP_PREFIX)
 app.include_router(userpic_upload_router.router, prefix=cfg.APP_PREFIX)

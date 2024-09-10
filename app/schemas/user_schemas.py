@@ -196,6 +196,22 @@ class UserUpdateResponse(BaseModel):
     user_id: int
 
 
+class UserDeleteRequest(BaseModel):
+    """
+    Pydantic schema for request to delete a user entity. Requires
+    the user ID to be specified.
+    """
+    user_id: int
+
+
+class UserDeleteResponse(BaseModel):
+    """
+    Pydantic schema for the response after deleting a user entity.
+    Includes the ID assigned to the deleted user.
+    """
+    user_id: int
+
+
 class UserpicUploadRequest(BaseModel):
     """
     Pydantic schema for request to upload a user profile picture.

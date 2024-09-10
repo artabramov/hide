@@ -1,5 +1,10 @@
 # Changelog
 
+## Version 0.0.38 (2024-09-010)
+- Added user deletion functionality, allowing administrators to delete
+  user accounts with checks to prevent self-deletion and robust error
+  handling for various failure scenarios.
+
 ## Version 0.0.37 (2024-09-06)
 - Added management functionality for options, including creation,
   retrieval, updating, and deletion.
