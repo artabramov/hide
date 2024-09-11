@@ -2,7 +2,7 @@
 The module defines a FastAPI router for downloading revision entities.
 """
 
-from fastapi import APIRouter, Depends, HTTPException, Request, status
+from fastapi import APIRouter, Depends, Request, status
 from fastapi.responses import Response
 from app.database import get_session
 from app.cache import get_cache
@@ -12,6 +12,7 @@ from app.models.revision_model import Revision
 from app.models.download_model import Download
 from app.schemas.revision_schemas import RevisionDownloadRequest
 from app.hooks import H, Hook
+from app.errors import E
 from app.auth import auth
 from app.repository import Repository
 from app.managers.file_manager import FileManager
@@ -41,7 +42,8 @@ async def revision_download(
     revision_repository = Repository(session, cache, Revision)
     revision = await revision_repository.select(id=schema.revision_id)
     if not revision:
-        raise HTTPException(status_code=404)
+        raise E("revision_id", schema.revision_id, E.RESOURCE_NOT_FOUND,
+                status_code=status.HTTP_404_NOT_FOUND)
 
     data = await FileManager.read(revision.revision_path)
     decrypted_data = await FileManager.decrypt(data)
