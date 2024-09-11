@@ -50,28 +50,13 @@ class RevisionSelectResponse(BaseModel):
 class RevisionListRequest(BaseModel):
     """
     Pydantic schema for requesting a list of revision entities. Includes
-    optional filters for creation date, user ID, document ID, revision
-    size, original file size, original filename, original MIME type,
-    downloads count, pagination options with offset and limit, and
-    ordering criteria.
+    optional filter for document ID and pagination options with offset
+    and limit, and ordering criteria.
     """
-    created_date__ge: Optional[int] = None
-    created_date__le: Optional[int] = None
-    user_id__eq: Optional[int] = None
     document_id__eq: Optional[int] = None
-    revision_size__ge: Optional[int] = None
-    revision_size__le: Optional[int] = None
-    original_size__ge: Optional[int] = None
-    original_size__le: Optional[int] = None
-    original_filename__ilike: Optional[str] = None
-    original_mimetype__eq: Optional[str] = None
-    downloads_count__ge: Optional[int] = None
-    downloads_count__le: Optional[int] = None
     offset: int = Field(ge=0)
     limit: int = Field(ge=1, le=200)
-    order_by: Literal["id", "created_date", "user_id", "document_id",
-                      "revision_size", "original_size", "original_filename",
-                      "original_mimetype", "downloads_count"]
+    order_by: Literal["id", "created_date"]
     order: Literal["asc", "desc"]
 
 
