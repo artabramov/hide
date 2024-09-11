@@ -24,16 +24,16 @@ async def download_list(
     request: Request,
     session=Depends(get_session),
     cache=Depends(get_cache),
-    current_user: User = Depends(auth(UserRole.reader)),
+    current_user: User = Depends(auth(UserRole.admin)),
     schema=Depends(DownloadListRequest)
 ) -> DownloadListResponse:
     """
     FastAPI router for retrieving a list of download entities. The
     router fetches the list of downloads from the repository, executes
     related hooks, and returns the results in a JSON response. The
-    current user should have a reader role or higher. Returns a 200
-    response on success and a 403 error if authentication fails or
-    the user does not have the required role.
+    current user should have an admin role. Returns a 200 response on
+    success and a 403 error if authentication fails or the user does
+    not have the required role.
     """
     download_repository = Repository(session, cache, Download)
     downloads = await download_repository.select_all(**schema.__dict__)

@@ -25,16 +25,16 @@ async def download_select(
     request: Request,
     session=Depends(get_session),
     cache=Depends(get_cache),
-    current_user: User = Depends(auth(UserRole.reader)),
+    current_user: User = Depends(auth(UserRole.admin)),
     schema=Depends(DownloadSelectRequest)
 ) -> DownloadSelectResponse:
     """
     FastAPI router for retrieving a download entity. The router fetches
     the download from the repository using the provided ID, executes
     related hooks, and returns the download details in a JSON response.
-    The current user should have a reader role or higher. Returns a 200
-    response on success, a 404 error if the download is not found, and
-    a 403 error if authentication fails or the user does not have the
+    The current user should have an admin role. Returns a 200 response
+    on success, a 404 error if the download is not found, and a 403
+    error if authentication fails or the user does not have the
     required role.
     """
     download_repository = Repository(session, cache, Download)
