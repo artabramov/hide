@@ -162,4 +162,7 @@ async def document_update(
     await document_repository.commit()
     await hook.execute(H.AFTER_DOCUMENT_UPDATE, document)
 
-    return {"document_id": document.id}
+    return {
+        "document_id": document.id,
+        "revision_id": document.latest_revision.id,
+    }

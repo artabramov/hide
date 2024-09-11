@@ -132,4 +132,7 @@ async def document_insert(
     await document_repository.commit()
     await hook.execute(H.AFTER_DOCUMENT_INSERT, document)
 
-    return {"document_id": document.id}
+    return {
+        "document_id": document.id,
+        "revision_id": revision.id,
+    }

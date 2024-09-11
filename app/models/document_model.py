@@ -113,6 +113,8 @@ class Document(Base):
             "favorites_count": self.favorites_count,
 
             "document_tags": self.tag_values,
+
+            "latest_revision_id": self.latest_revision.id,
             "latest_revision": self.latest_revision.to_dict(),
         }
 

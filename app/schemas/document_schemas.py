@@ -37,6 +37,7 @@ class DocumentInsertResponse(BaseModel):
     entity. Includes the ID assigned to the newly created document.
     """
     document_id: int
+    revision_id: int
 
 
 class DocumentSelectRequest(BaseModel):
@@ -73,6 +74,8 @@ class DocumentSelectResponse(BaseModel):
     downloads_count: int
     favorites_count: int
     document_tags: list
+
+    latest_revision_id: int
     latest_revision: RevisionSelectResponse
 
 
@@ -103,6 +106,7 @@ class DocumentUpdateResponse(BaseModel):
     Includes the ID assigned to the updated document.
     """
     document_id: int
+    revision_id: int
 
 
 class DocumentDeleteRequest(BaseModel):
