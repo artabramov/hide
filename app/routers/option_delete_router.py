@@ -12,15 +12,16 @@ from app.schemas.option_schemas import (
     OptionDeleteRequest, OptionDeleteResponse)
 from app.repository import Repository
 from app.hooks import H, Hook
+from app.errors import E
 from app.auth import auth
 
 router = APIRouter()
 
 
-@router.delete("/option/{option_key}", summary="Unset option",
+@router.delete("/option/{option_key}", summary="Delete option",
                response_class=JSONResponse, status_code=status.HTTP_200_OK,
                response_model=OptionDeleteResponse, tags=["options"])
-async def option_unset(
+async def option_delete(
     request: Request,
     session=Depends(get_session),
     cache=Depends(get_cache),
@@ -32,17 +33,19 @@ async def option_unset(
     the option from the repository using the provided option key. If
     the option exists, it deletes it from the repository and executes
     related hooks. The router returns the option key of the deleted
-    option in a JSON response. If the option does not exist, no deletion
-    occurs. The current user should have an admin role. Returns a 200
-    response on success, a 404 error if the option is not found, and
-    a 403 error if authentication fails or the user does not have
-    the required role.
+    option in a JSON response. The current user should have an admin
+    role. Returns a 200 response on success, a 404 error if the option
+    is not found, and a 403 error if authentication fails or the user
+    does not have the required role.
     """
     option_repository = Repository(session, cache, Option)
     option = await option_repository.select(option_key__eq=schema.option_key)
 
-    if option:
-        await option_repository.delete(option, commit=False)
+    if not option:
+        raise E("option_key", schema.option_key, E.RESOURCE_NOT_FOUND,
+                status_code=status.HTTP_404_NOT_FOUND)
+
+    await option_repository.delete(option, commit=False)
 
     hook = Hook(session, cache, request, current_user=current_user)
     await hook.execute(H.BEFORE_OPTION_DELETE, option)

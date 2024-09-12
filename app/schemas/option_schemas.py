@@ -15,7 +15,7 @@ class OptionSelectRequest(BaseModel):
     Pydantic schema for request to select an option entity. Requires
     the option key to be specified.
     """
-    option_key: str = Field(..., pattern=r"^[a-z0-9_-]{2,40}$")
+    option_key: str = Field(..., pattern=r"^[a-zA-Z_0-9]{2,40}$")
 
     @field_validator("option_key", mode="before")
     def validate_option_key(cls, option_key: str) -> str:
@@ -65,7 +65,7 @@ class OptionDeleteRequest(BaseModel):
     Pydantic schema for request to delete an option entity. Requires
     the option key to be specified.
     """
-    option_key: str = Field(..., pattern=r"^[a-z0-9_-]{2,40}$")
+    option_key: str = Field(..., pattern=r"^[a-zA-Z_0-9]{2,40}$")
 
     @field_validator("option_key", mode="before")
     def validate_option_key(cls, option_key: str) -> str:

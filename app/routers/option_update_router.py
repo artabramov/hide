@@ -18,10 +18,10 @@ from app.auth import auth
 router = APIRouter()
 
 
-@router.put("/option/{option_key}", summary="Set option",
+@router.put("/option/{option_key}", summary="Update option",
             response_class=JSONResponse, status_code=status.HTTP_200_OK,
             response_model=OptionUpdateResponse, tags=["options"])
-async def option_set(
+async def option_update(
     request: Request,
     session=Depends(get_session),
     cache=Depends(get_cache),
