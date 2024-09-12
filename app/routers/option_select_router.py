@@ -18,10 +18,10 @@ from app.auth import auth
 router = APIRouter()
 
 
-@router.get("/option/{option_key}", summary="Fetch option by key",
+@router.get("/option/{option_key}", summary="Get option",
             response_class=JSONResponse, status_code=status.HTTP_200_OK,
             response_model=OptionSelectResponse, tags=["options"])
-async def option_select(
+async def option_get(
     request: Request,
     session=Depends(get_session),
     cache=Depends(get_cache),

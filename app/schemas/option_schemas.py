@@ -40,7 +40,7 @@ class OptionUpdateRequest(BaseModel):
     Pydantic schema for request to update an option entity. Requires
     the option key and option value to be specified.
     """
-    option_key: str = Field(..., pattern=r"^[a-z0-9_-]{2,40}$")
+    option_key: str = Field(..., pattern=r"^[a-zA-Z_0-9]{2,40}$")
     option_value: str = Field(..., max_length=512)
 
     @field_validator("option_key", mode="before")

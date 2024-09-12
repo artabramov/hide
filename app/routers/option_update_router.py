@@ -18,7 +18,7 @@ from app.auth import auth
 router = APIRouter()
 
 
-@router.put("/option/{option_key}", summary="Insert or update option value",
+@router.put("/option/{option_key}", summary="Set option",
             response_class=JSONResponse, status_code=status.HTTP_200_OK,
             response_model=OptionUpdateResponse, tags=["options"])
 async def option_set(

@@ -17,7 +17,7 @@ from app.auth import auth
 router = APIRouter()
 
 
-@router.delete("/option/{option_key}", summary="Delete option",
+@router.delete("/option/{option_key}", summary="Unset option",
                response_class=JSONResponse, status_code=status.HTTP_200_OK,
                response_model=OptionDeleteResponse, tags=["options"])
 async def option_unset(

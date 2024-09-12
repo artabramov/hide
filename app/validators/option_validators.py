@@ -9,13 +9,9 @@ from typing import Union
 def validate_option_key(option_key: str) -> str:
     """
     Validates and normalizes an option key by stripping leading and
-    trailing whitespace, converting it to lowercase, and ensuring
-    it is at least 2 characters long.
+    trailing whitespace, and converting it to lowercase.
     """
-    option_key = option_key.strip().lower()
-    if len(option_key) < 2:
-        raise ValueError
-    return option_key
+    return option_key.strip().lower()
 
 
 def validate_option_value(option_value: str = None) -> Union[str, None]:

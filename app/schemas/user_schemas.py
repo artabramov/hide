@@ -21,7 +21,7 @@ class UserRegisterRequest(BaseModel):
     user login, password, first name, and last name to be specified.
     Optionally includes a user signature and user contacts.
     """
-    user_login: str = Field(..., pattern=r"^[a-z0-9]{2,40}$")
+    user_login: str = Field(..., pattern=r"^[a-zA-Z0-9]{2,40}$")
     user_password: SecretStr = Field(..., min_length=6)
     first_name: str = Field(..., min_length=2, max_length=40)
     last_name: str = Field(..., min_length=2, max_length=40)
