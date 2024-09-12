@@ -153,7 +153,7 @@ class DocumentListRequest(BaseModel):
                       "collection_id", "document_name", "document_size",
                       "document_mimetype", "revisions_count", "revisions_size",
                       "comments_count", "downloads_count", "favorites_count"]
-    order: Literal["asc", "desc"]
+    order: Literal["asc", "desc", "rand"]
 
 
 class DocumentListResponse(BaseModel):

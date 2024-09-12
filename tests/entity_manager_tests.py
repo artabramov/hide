@@ -888,6 +888,16 @@ class EntityManagerTestCase(asynctest.TestCase):
         desc_mock.assert_called_once()
         desc_mock.assert_called_with(column_mock)
 
+    @patch("app.managers.entity_manager.func")
+    async def test__order_by_rand(self, func_mock):
+        """Test _order_by with random order."""
+        column_mock = MagicMock()
+        dummy_class_mock = MagicMock(column=column_mock)
+        kwargs = {"order_by": "column", "order": "rand"}
+
+        result = self.entity_manager._order_by(dummy_class_mock, **kwargs)
+        self.assertEqual(result, func_mock.random.return_value)
+
     async def test__offset(self):
         """Test _offset method returns the offset value."""
         kwargs = {"offset": 123}

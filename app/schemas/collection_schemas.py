@@ -134,7 +134,7 @@ class CollectionListRequest(BaseModel):
     order_by: Literal["id", "created_date", "updated_date", "user_id",
                       "collection_name", "documents_count", "documents_size",
                       "revisions_count", "revisions_size"]
-    order: Literal["asc", "desc"]
+    order: Literal["asc", "desc", "rand"]
 
 
 class CollectionListResponse(BaseModel):

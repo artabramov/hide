@@ -72,7 +72,7 @@ class FavoriteListRequest(BaseModel):
     offset: int = Field(ge=0)
     limit: int = Field(ge=1, le=200)
     order_by: Literal["id", "created_date"]
-    order: Literal["asc", "desc"]
+    order: Literal["asc", "desc", "rand"]
 
 
 class FavoriteListResponse(BaseModel):

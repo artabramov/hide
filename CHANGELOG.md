@@ -1,6 +1,10 @@
 # Changelog
 
-## Version 0.0.38 (2024-09-010)
+## Version 0.0.39 (2024-09-12)
+
+- Added random sorting in the EntityManager for improved query results.
+
+## Version 0.0.38 (2024-09-10)
 - Added user deletion functionality, allowing administrators to delete
   user accounts with checks to prevent self-deletion and robust error
   handling for various failure scenarios.

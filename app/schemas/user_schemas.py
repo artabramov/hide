@@ -308,7 +308,7 @@ class UserListRequest(BaseModel):
     order_by: Literal["id", "created_date", "updated_date", "last_login_date",
                       "user_role", "is_active", "user_login", "first_name",
                       "last_name"]
-    order: Literal["asc", "desc"]
+    order: Literal["asc", "desc", "rand"]
 
 
 class UserListResponse(BaseModel):

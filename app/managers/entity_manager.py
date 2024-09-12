@@ -21,7 +21,7 @@ from app.decorators.timed_deco import timed
 ID = "id"
 SUBQUERY = "subquery"
 ORDER_BY, ORDER = "order_by", "order"
-ASC, DESC = "asc", "desc"
+ASC, DESC, RAND = "asc", "desc", "rand"
 OFFSET, LIMIT = "offset", "limit"
 RESERVED_KEYS = [SUBQUERY, ORDER_BY, ORDER, OFFSET, LIMIT]
 RESERVED_OPERATORS = {
@@ -310,6 +310,9 @@ class EntityManager:
 
         elif kwargs.get(ORDER) == DESC:
             return desc(order_by)
+
+        elif kwargs.get(ORDER) == RAND:
+            return func.random()
 
     def _offset(self, **kwargs) -> Optional[int]:
         """
