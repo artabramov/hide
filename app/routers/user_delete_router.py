@@ -16,7 +16,7 @@ from app.auth import auth
 router = APIRouter()
 
 
-@router.delete("/user/{user_id}", summary="Delete user",
+@router.delete("/user/{user_id}", summary="Delete user (deprecated)",
                response_class=JSONResponse, status_code=status.HTTP_200_OK,
                response_model=UserDeleteResponse, tags=["users"])
 async def user_delete(
