@@ -13,7 +13,7 @@ security for file management tasks.
 
 import aiofiles
 import aiofiles.os
-from app.decorators.timed_deco import timed
+from app.decorators.timed_decorator import timed
 from app.config import get_config
 from cryptography.fernet import Fernet
 

@@ -16,7 +16,7 @@ from sqlalchemy import select, text, asc, desc
 from sqlalchemy.orm import DeclarativeBase
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.sql import func
-from app.decorators.timed_deco import timed
+from app.decorators.timed_decorator import timed
 
 ID = "id"
 SUBQUERY = "subquery"

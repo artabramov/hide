@@ -10,7 +10,7 @@ from typing import Type, Optional, Union
 from sqlalchemy.ext.serializer import dumps, loads
 from sqlalchemy.orm import DeclarativeBase
 from redis import Redis
-from app.decorators.timed_deco import timed
+from app.decorators.timed_decorator import timed
 from app.config import get_config
 from app.log import get_log
 

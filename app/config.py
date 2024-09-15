@@ -61,6 +61,7 @@ class Config:
 
     HASH_SALT: str
     FERNET_KEY: str
+    LOCK_FILE_PATH: str
 
     JWT_SECRET: str
     JWT_EXPIRES: int

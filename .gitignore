@@ -11,6 +11,9 @@ files/revisions/*
 files/thumbnails/*
 !files/thumbnails/.gitkeep
 
+locks/*
+!locks/.gitkeep
+
 docs/_build/*
 !docs/_build/.gitignore
 

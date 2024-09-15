@@ -1,8 +1,10 @@
 # Changelog
 
-## Version 0.0.39 (2024-09-12)
+## Version 0.0.40 (2024-09-15)
+- **Added lock mechanism**: Implemented a decorator to enforce execution locks based on a lock file’s presence, raising HTTP 503 errors if the file exists. This helps manage service availability and prevent concurrent access during maintenance or restricted states.
 
-- Added random sorting in the EntityManager for improved query results.
+## Version 0.0.39 (2024-09-12)
+- **Added random sorting**: Implemented a new random sorting option in the EntityManager to enhance the diversity of query results. This feature improves the randomness and variability of data retrieval, making query outcomes less predictable and more robust.
 
 ## Version 0.0.38 (2024-09-10)
 - Added user deletion functionality, allowing administrators to delete
