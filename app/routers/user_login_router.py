@@ -3,6 +3,7 @@ from fastapi import APIRouter, Depends, status, Request
 from fastapi.responses import JSONResponse
 from app.database import get_session
 from app.cache import get_cache
+from app.decorators.locked_decorator import locked
 from app.models.user_model import User, UserRole
 from app.helpers.hash_helper import get_hash
 from app.schemas.user_schemas import UserLoginRequest, UserLoginResponse
@@ -18,6 +19,7 @@ cfg = get_config()
 @router.get("/auth/login", summary="Authenticate user",
             response_class=JSONResponse, status_code=status.HTTP_200_OK,
             response_model=UserLoginResponse, tags=["auth"])
+@locked
 async def user_login(
     request: Request,
     session=Depends(get_session),

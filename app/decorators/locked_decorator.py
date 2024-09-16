@@ -1,9 +1,8 @@
 """
-This module defines a decorator that enforces a lock on asynchronous
-functions by checking for the presence of a lock file. The decorator
-raises an 503 error if the lock file is detected, preventing the
-execution of functions when the service is in a restricted state or
-under maintenance.
+The module provides functionality for managing a lock file to control
+access to system resources. It includes utilities for checking if the
+system is locked, creating or removing a lock file asynchronously, and
+a decorator to enforce locking on FastAPI routers.
 """
 
 import functools
@@ -26,11 +25,23 @@ def is_locked():
 
 
 async def lock():
+    """
+    Creates a lock file if the system is not already locked. The lock
+    file is used to prevent concurrent access or indicate a restricted
+    state. The function only writes the lock file if it does not
+    already exist.
+    """
     if not is_locked():
         await FileManager.write(cfg.LOCK_FILE_PATH, bytes())
 
 
 async def unlock():
+    """
+    Removes the lock file if it exists, thereby unlocking the system.
+    The function only deletes the lock file if the system is currently
+    locked. This is typically used to signal the end of a restricted
+    state or maintenance period.
+    """
     if is_locked():
         await FileManager.delete(cfg.LOCK_FILE_PATH)
 

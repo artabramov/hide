@@ -4,6 +4,7 @@ from fastapi import APIRouter, Depends, status, Request, File, UploadFile
 from fastapi.responses import JSONResponse
 from app.database import get_session
 from app.cache import get_cache
+from app.decorators.locked_decorator import locked
 from app.models.user_model import User, UserRole
 from app.models.collection_model import Collection
 from app.models.document_model import Document
@@ -28,6 +29,7 @@ router = APIRouter()
 @router.post("/document", summary="Create document",
              response_class=JSONResponse, status_code=status.HTTP_201_CREATED,
              response_model=DocumentInsertResponse, tags=["documents"])
+@locked
 async def document_insert(
     request: Request,
     file: UploadFile = File(...),

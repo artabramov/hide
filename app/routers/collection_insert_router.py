@@ -2,6 +2,7 @@ from fastapi import APIRouter, Depends, Request, status
 from fastapi.responses import JSONResponse
 from app.database import get_session
 from app.cache import get_cache
+from app.decorators.locked_decorator import locked
 from app.models.user_model import User, UserRole
 from app.models.collection_model import Collection
 from app.schemas.collection_schemas import (
@@ -17,6 +18,7 @@ router = APIRouter()
 @router.post("/collection", summary="Create collection",
              response_class=JSONResponse, status_code=status.HTTP_201_CREATED,
              response_model=CollectionInsertResponse, tags=["collections"])
+@locked
 async def collection_insert(
     request: Request,
     session=Depends(get_session),

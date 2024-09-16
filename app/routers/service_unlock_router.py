@@ -8,7 +8,7 @@ from app.auth import auth
 router = APIRouter()
 
 
-@router.get("/unlock", summary="Unlock app",
+@router.get("/service/unlock", summary="Unlock app",
             response_class=JSONResponse, status_code=status.HTTP_200_OK,
             response_model=UnlockResponse, tags=["services"])
 async def service_unlock(current_user: User = Depends(auth(UserRole.admin)),):

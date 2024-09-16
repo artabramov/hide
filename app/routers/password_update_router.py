@@ -2,6 +2,7 @@ from fastapi import APIRouter, Depends, status, Request
 from fastapi.responses import JSONResponse
 from app.database import get_session
 from app.cache import get_cache
+from app.decorators.locked_decorator import locked
 from app.models.user_model import User, UserRole
 from app.helpers.hash_helper import get_hash
 from app.schemas.user_schemas import (
@@ -17,6 +18,7 @@ router = APIRouter()
 @router.put("/user/{user_id}/password", summary="Change user password",
             response_class=JSONResponse, status_code=status.HTTP_200_OK,
             response_model=PasswordUpdateResponse, tags=["users"])
+@locked
 async def password_update(
     request: Request,
     session=Depends(get_session),

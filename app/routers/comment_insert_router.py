@@ -6,6 +6,7 @@ from fastapi import APIRouter, Depends, Request, status
 from fastapi.responses import JSONResponse
 from app.database import get_session
 from app.cache import get_cache
+from app.decorators.locked_decorator import locked
 from app.models.user_model import User, UserRole
 from app.models.document_model import Document
 from app.models.comment_model import Comment
@@ -22,6 +23,7 @@ router = APIRouter()
 @router.post("/comment", summary="Create comment",
              response_class=JSONResponse, status_code=status.HTTP_201_CREATED,
              response_model=CommentInsertResponse, tags=["comments"])
+@locked
 async def comment_insert(
     request: Request,
     session=Depends(get_session),

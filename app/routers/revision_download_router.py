@@ -6,6 +6,7 @@ from fastapi import APIRouter, Depends, Request, status
 from fastapi.responses import Response
 from app.database import get_session
 from app.cache import get_cache
+from app.decorators.locked_decorator import locked
 from app.models.user_model import User, UserRole
 from app.models.document_model import Document
 from app.models.revision_model import Revision
@@ -23,6 +24,7 @@ router = APIRouter()
 @router.get("/revision/{revision_id}/download", summary="Download revision",
             response_class=Response, status_code=status.HTTP_200_OK,
             tags=["revisions"])
+@locked
 async def revision_download(
     request: Request,
     session=Depends(get_session),

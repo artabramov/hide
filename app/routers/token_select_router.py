@@ -2,6 +2,7 @@ from fastapi import APIRouter, Depends, status, Request
 from fastapi.responses import JSONResponse
 from app.database import get_session
 from app.cache import get_cache
+from app.decorators.locked_decorator import locked
 from app.models.user_model import User, UserRole
 from app.helpers.jwt_helper import jwt_encode
 from app.schemas.user_schemas import (
@@ -18,6 +19,7 @@ cfg = get_config()
 @router.get("/auth/token", summary="Retrieve token",
             response_class=JSONResponse, status_code=status.HTTP_200_OK,
             response_model=TokenRetrieveResponse, tags=["auth"])
+@locked
 async def token_retrieve(
     request: Request,
     session=Depends(get_session),

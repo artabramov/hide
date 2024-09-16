@@ -6,6 +6,7 @@ from fastapi import APIRouter, Depends, Request, status
 from fastapi.responses import JSONResponse
 from app.database import get_session
 from app.cache import get_cache
+from app.decorators.locked_decorator import locked
 from app.models.user_model import User, UserRole
 from app.models.option_model import Option
 from app.schemas.option_schemas import (
@@ -21,6 +22,7 @@ router = APIRouter()
 @router.get("/option/{option_key}", summary="Select option",
             response_class=JSONResponse, status_code=status.HTTP_200_OK,
             response_model=OptionSelectResponse, tags=["options"])
+@locked
 async def option_select(
     request: Request,
     session=Depends(get_session),

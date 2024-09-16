@@ -2,6 +2,7 @@ from fastapi import APIRouter, Depends, status, Request
 from fastapi.responses import JSONResponse
 from app.database import get_session
 from app.cache import get_cache
+from app.decorators.locked_decorator import locked
 from app.models.user_model import User, UserRole
 from app.models.collection_model import Collection
 from app.models.document_model import Document
@@ -18,6 +19,7 @@ router = APIRouter()
 @router.delete("/document/{document_id}", summary="Delete document",
                response_class=JSONResponse, status_code=status.HTTP_200_OK,
                response_model=DocumentDeleteResponse, tags=["documents"])
+@locked
 async def document_delete(
     request: Request,
     session=Depends(get_session),

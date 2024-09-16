@@ -2,6 +2,7 @@ from fastapi import APIRouter, Depends, status, Request
 from fastapi.responses import JSONResponse
 from app.database import get_session
 from app.cache import get_cache
+from app.decorators.locked_decorator import locked
 from app.models.user_model import User, UserRole
 from app.schemas.user_schemas import UserListRequest, UserListResponse
 from app.hooks import H, Hook
@@ -14,6 +15,7 @@ router = APIRouter()
 @router.get("/users", summary="Retrieve user list",
             response_class=JSONResponse, status_code=status.HTTP_200_OK,
             response_model=UserListResponse, tags=["users"])
+@locked
 async def users_list(
     request: Request,
     session=Depends(get_session),

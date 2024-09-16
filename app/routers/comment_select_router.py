@@ -6,6 +6,7 @@ from fastapi import APIRouter, Depends, Request, status
 from fastapi.responses import JSONResponse
 from app.database import get_session
 from app.cache import get_cache
+from app.decorators.locked_decorator import locked
 from app.models.user_model import User, UserRole
 from app.models.comment_model import Comment
 from app.schemas.comment_schemas import (
@@ -21,6 +22,7 @@ router = APIRouter()
 @router.get("/comment/{comment_id}", summary="Retrieve comment",
             response_class=JSONResponse, status_code=status.HTTP_200_OK,
             response_model=CommentSelectResponse, tags=["comments"])
+@locked
 async def comment_select(
     request: Request,
     session=Depends(get_session),

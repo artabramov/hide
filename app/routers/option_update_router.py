@@ -7,6 +7,7 @@ from fastapi import APIRouter, Depends, Request, status
 from fastapi.responses import JSONResponse
 from app.database import get_session
 from app.cache import get_cache
+from app.decorators.locked_decorator import locked
 from app.models.user_model import User, UserRole
 from app.models.option_model import Option
 from app.schemas.option_schemas import (
@@ -21,6 +22,7 @@ router = APIRouter()
 @router.put("/option/{option_key}", summary="Update option",
             response_class=JSONResponse, status_code=status.HTTP_200_OK,
             response_model=OptionUpdateResponse, tags=["options"])
+@locked
 async def option_update(
     request: Request,
     session=Depends(get_session),

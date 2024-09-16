@@ -4,6 +4,7 @@ from fastapi import APIRouter, Depends, status, Request
 from fastapi.responses import JSONResponse
 from app.database import get_session
 from app.cache import get_cache
+from app.decorators.locked_decorator import locked
 from app.models.user_model import User, UserRole
 from app.schemas.user_schemas import (
     UserpicUploadRequest, UserpicUploadResponse)
@@ -22,6 +23,7 @@ cfg = get_config()
 @router.post("/user/{user_id}/userpic", summary="Upload userpic",
              response_class=JSONResponse, status_code=status.HTTP_200_OK,
              response_model=UserpicUploadResponse, tags=["users"])
+@locked
 async def userpic_upload(
     request: Request,
     session=Depends(get_session),

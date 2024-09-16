@@ -6,6 +6,7 @@ from fastapi import APIRouter, Depends, Request, status
 from fastapi.responses import JSONResponse
 from app.database import get_session
 from app.cache import get_cache
+from app.decorators.locked_decorator import locked
 from app.models.user_model import User, UserRole
 from app.models.favorite_model import Favorite
 from app.schemas.favorite_schemas import (
@@ -20,6 +21,7 @@ router = APIRouter()
 @router.get("/favorites", summary="Retrieve favorite list",
             response_class=JSONResponse, status_code=status.HTTP_200_OK,
             response_model=FavoriteListResponse, tags=["favorites"])
+@locked
 async def favorite_list(
     request: Request,
     session=Depends(get_session),

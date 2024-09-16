@@ -7,6 +7,7 @@ from app.repository import Repository
 import qrcode
 from io import BytesIO
 from app.config import get_config
+from app.decorators.locked_decorator import locked
 from app.models.user_model import User
 
 router = APIRouter()
@@ -17,6 +18,7 @@ MFA_MASK = "otpauth://totp/%s?secret=%s&issuer=%s"
 
 @router.get("/user/{user_id}/mfa/{mfa_secret}", summary="Retrieve MFA QR-code",
             include_in_schema=False)
+@locked
 async def user_mfa(
     session=Depends(get_session),
     cache=Depends(get_cache),

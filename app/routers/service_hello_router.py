@@ -7,10 +7,9 @@ from app.schemas.service_schemas import HelloResponse
 router = APIRouter()
 
 
-@router.get("/hello", summary="Say hello",
+@router.get("/service/hello", summary="Say hello",
             response_class=JSONResponse, status_code=status.HTTP_200_OK,
             response_model=HelloResponse, tags=["services"])
-# @locked
 async def service_hello():
     return {
         "unix_timestamp": int(time.time()),

@@ -2,6 +2,7 @@ from fastapi import APIRouter, Depends, status, Request
 from fastapi.responses import JSONResponse
 from app.database import get_session
 from app.cache import get_cache
+from app.decorators.locked_decorator import locked
 from app.models.user_model import User, UserRole
 from app.schemas.user_schemas import UserUpdateRequest, UserUpdateResponse
 from app.errors import E
@@ -15,6 +16,7 @@ router = APIRouter()
 @router.put("/user/{user_id}", summary="Update user",
             response_class=JSONResponse, status_code=status.HTTP_200_OK,
             response_model=UserUpdateResponse, tags=["users"])
+@locked
 async def user_update(
     request: Request,
     session=Depends(get_session),
