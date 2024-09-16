@@ -15,6 +15,7 @@ from app.config import get_config
 from app.context import get_context
 from app.log import get_log
 from app.routers import (
+    system_hello_router, system_lock_router, system_unlock_router,
     token_select_router, token_delete_router, user_register_router,
     user_login_router, user_select_router, user_update_router,
     user_delete_router, role_update_router, password_update_router,
@@ -29,7 +30,6 @@ from app.routers import (
     comment_insert_router, comment_select_router, comment_update_router,
     comment_delete_router, comment_list_router, option_update_router,
     option_select_router, option_delete_router, option_list_router,
-    service_hello_router, service_lock_router, service_unlock_router,
     static_routers)
 from app.database import Base, sessionmanager, get_session
 from app.errors import SERVER_ERROR
@@ -160,9 +160,9 @@ app.include_router(option_update_router.router, prefix=cfg.APP_PREFIX)
 app.include_router(option_select_router.router, prefix=cfg.APP_PREFIX)
 app.include_router(option_delete_router.router, prefix=cfg.APP_PREFIX)
 app.include_router(option_list_router.router, prefix=cfg.APP_PREFIX)
-app.include_router(service_hello_router.router, prefix=cfg.APP_PREFIX)
-app.include_router(service_lock_router.router, prefix=cfg.APP_PREFIX)
-app.include_router(service_unlock_router.router, prefix=cfg.APP_PREFIX)
+app.include_router(system_hello_router.router, prefix=cfg.APP_PREFIX)
+app.include_router(system_lock_router.router, prefix=cfg.APP_PREFIX)
+app.include_router(system_unlock_router.router, prefix=cfg.APP_PREFIX)
 
 app.mount(cfg.USERPIC_PREFIX,
           StaticFiles(directory=cfg.USERPIC_BASE_PATH, html=False),
