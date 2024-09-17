@@ -1,5 +1,4 @@
-from fastapi import APIRouter, Depends, Response
-from fastapi import HTTPException
+from fastapi import APIRouter, Depends, Response, status, HTTPException
 from app.database import get_session
 from app.cache import get_cache
 from app.schemas.user_schemas import MFARequest
@@ -16,14 +15,12 @@ cfg = get_config()
 MFA_MASK = "otpauth://totp/%s?secret=%s&issuer=%s"
 
 
-@router.get("/user/{user_id}/mfa/{mfa_secret}", summary="Retrieve MFA QR-code",
-            include_in_schema=False)
+@router.get("/user/{user_id}/mfa/{mfa_secret}", summary="Retrieve MFA",
+            status_code=status.HTTP_200_OK, include_in_schema=True,
+            tags=["users"])
 @locked
-async def user_mfa(
-    session=Depends(get_session),
-    cache=Depends(get_cache),
-    schema=Depends(MFARequest)
-):
+async def user_mfa(session=Depends(get_session), cache=Depends(get_cache),
+                   schema=Depends(MFARequest)):
     """
     Retrieve a QR code for MFA setup for a user. This endpoint validates
     the user's MFA secret and generates a QR code that can be scanned by
@@ -32,8 +29,12 @@ async def user_mfa(
     """
     user_repository = Repository(session, cache, User)
     user = await user_repository.select(id=schema.user_id)
+
     if not user or user.mfa_secret != schema.mfa_secret:
         raise HTTPException(status_code=404)
+
+    elif user.is_active:
+        raise HTTPException(status_code=423)
 
     qr = qrcode.QRCode(
         version=cfg.MFA_VERSION, box_size=cfg.MFA_BOX_SIZE,

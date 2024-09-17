@@ -15,9 +15,8 @@ from app.config import get_config
 from app.context import get_context
 from app.log import get_log
 from app.routers import (
-    system_hello_router, system_lock_router, system_unlock_router,
     token_select_router, token_delete_router, user_register_router,
-    user_login_router, user_select_router, user_update_router,
+    user_mfa_router, user_login_router, user_select_router, user_update_router,
     user_delete_router, role_update_router, password_update_router,
     userpic_upload_router, userpic_delete_router, user_list_router,
     collection_insert_router, collection_select_router,
@@ -30,7 +29,7 @@ from app.routers import (
     comment_insert_router, comment_select_router, comment_update_router,
     comment_delete_router, comment_list_router, option_update_router,
     option_select_router, option_delete_router, option_list_router,
-    user_mfa_router)
+    system_hello_router, system_lock_router, system_unlock_router,)
 from app.database import Base, sessionmanager, get_session
 from app.errors import SERVER_ERROR
 from contextlib import asynccontextmanager
@@ -119,11 +118,11 @@ def load_description():
 app = FastAPI(lifespan=lifespan, title=cfg.APP_TITLE, version=__version__,
               description=load_description())
 
-app.include_router(user_mfa_router.router)
 app.include_router(user_login_router.router, prefix=cfg.APP_PREFIX)
 app.include_router(token_select_router.router, prefix=cfg.APP_PREFIX)
 app.include_router(token_delete_router.router, prefix=cfg.APP_PREFIX)
 app.include_router(user_register_router.router, prefix=cfg.APP_PREFIX)
+app.include_router(user_mfa_router.router, prefix=cfg.APP_PREFIX)
 app.include_router(user_select_router.router, prefix=cfg.APP_PREFIX)
 app.include_router(user_update_router.router, prefix=cfg.APP_PREFIX)
 app.include_router(user_delete_router.router, prefix=cfg.APP_PREFIX)

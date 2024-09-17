@@ -56,6 +56,7 @@ class Config:
     EXTENSIONS_ENABLED: list
 
     APP_TITLE: str
+    APP_BASE_URL: str
     APP_PREFIX: str
     APP_DESCRIPTION_PATH: str
 

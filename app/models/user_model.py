@@ -95,7 +95,8 @@ class User(Base, MFAMixin, FernetMixin):
 
     @property
     def mfa_url(self):
-        return "http://localhost/user/%s/mfa/%s" % (self.id, self.mfa_secret)
+        return cfg.APP_BASE_URL + cfg.APP_PREFIX + "/user/%s/mfa/%s" % (
+            self.id, self.mfa_secret)
 
     @property
     def jti(self) -> str:
