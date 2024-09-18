@@ -29,7 +29,8 @@ from app.routers import (
     comment_insert_router, comment_select_router, comment_update_router,
     comment_delete_router, comment_list_router, option_update_router,
     option_select_router, option_delete_router, option_list_router,
-    system_hello_router, system_lock_router, system_unlock_router,)
+    system_hello_router, system_lock_router, system_unlock_router,
+    system_telemetry_router)
 from app.database import Base, sessionmanager, get_session
 from app.errors import SERVER_ERROR
 from contextlib import asynccontextmanager
@@ -162,6 +163,7 @@ app.include_router(option_list_router.router, prefix=cfg.APP_PREFIX)
 app.include_router(system_hello_router.router, prefix=cfg.APP_PREFIX)
 app.include_router(system_lock_router.router, prefix=cfg.APP_PREFIX)
 app.include_router(system_unlock_router.router, prefix=cfg.APP_PREFIX)
+app.include_router(system_telemetry_router.router, prefix=cfg.APP_PREFIX)
 
 app.mount(cfg.USERPIC_PREFIX,
           StaticFiles(directory=cfg.USERPIC_BASE_PATH, html=False),

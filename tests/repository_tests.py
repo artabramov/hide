@@ -38,10 +38,8 @@ class RepositoryTestCase(asynctest.TestCase):
 
         self.assertTrue(isinstance(repository.entity_manager, EntityManager))
         self.assertEqual(repository.entity_manager.session, session_mock)
-
         self.assertTrue(isinstance(repository.cache_manager, CacheManager))
         self.assertEqual(repository.cache_manager.cache, cache_mock)
-
         self.assertEqual(repository.entity_class, dummy_class_mock)
 
     async def test__insert_cacheable_commit_true(self):
@@ -56,8 +54,7 @@ class RepositoryTestCase(asynctest.TestCase):
         result = await repository.insert(dummy_mock, commit=True)
         self.assertIsNone(result)
 
-        repository.entity_manager.insert.assert_called_once()
-        repository.entity_manager.insert.assert_called_with(
+        repository.entity_manager.insert.assert_called_once_with(
             dummy_mock, commit=True)
 
     async def test__insert_cacheable_commit_false(self):
@@ -72,10 +69,8 @@ class RepositoryTestCase(asynctest.TestCase):
         result = await repository.insert(dummy_mock, commit=False)
         self.assertIsNone(result)
 
-        repository.entity_manager.insert.assert_called_once()
-        repository.entity_manager.insert.assert_called_with(
+        repository.entity_manager.insert.assert_called_once_with(
             dummy_mock, commit=False)
-
         repository.cache_manager.set.assert_not_called()
 
     async def test__insert_uncacheable_commit_true(self):
@@ -90,10 +85,8 @@ class RepositoryTestCase(asynctest.TestCase):
         result = await repository.insert(dummy_mock, commit=True)
         self.assertIsNone(result)
 
-        repository.entity_manager.insert.assert_called_once()
-        repository.entity_manager.insert.assert_called_with(
+        repository.entity_manager.insert.assert_called_once_with(
             dummy_mock, commit=True)
-
         repository.cache_manager.set.assert_not_called()
 
     async def test__insert_uncacheable_commit_false(self):
@@ -108,10 +101,8 @@ class RepositoryTestCase(asynctest.TestCase):
         result = await repository.insert(dummy_mock, commit=False)
         self.assertIsNone(result)
 
-        repository.entity_manager.insert.assert_called_once()
-        repository.entity_manager.insert.assert_called_with(
+        repository.entity_manager.insert.assert_called_once_with(
             dummy_mock, commit=False)
-
         repository.cache_manager.set.assert_not_called()
 
     async def test__select_id_cacheable_cached(self):
@@ -129,13 +120,9 @@ class RepositoryTestCase(asynctest.TestCase):
 
         repository.entity_manager.select.assert_not_called()
         repository.entity_manager.select_by.assert_not_called()
-
-        repository.cache_manager.get.assert_called_once()
-        repository.cache_manager.get.assert_called_with(
+        repository.cache_manager.get.assert_called_once_with(
             dummy_class_mock, dummy_mock.id)
-
-        repository.cache_manager.set.assert_called_once()
-        repository.cache_manager.set.assert_called_with(dummy_mock)
+        repository.cache_manager.set.assert_called_once_with(dummy_mock)
 
     async def test__select_id_cacheable_uncached(self):
         """Test select by id with cacheable entity when not cached."""
@@ -151,17 +138,12 @@ class RepositoryTestCase(asynctest.TestCase):
         result = await repository.select(id=dummy_mock.id)
         self.assertEqual(result, dummy_mock)
 
-        repository.entity_manager.select.assert_called_once()
-        repository.entity_manager.select.assert_called_with(
+        repository.entity_manager.select.assert_called_once_with(
             dummy_class_mock, dummy_mock.id)
         repository.entity_manager.select_by.assert_not_called()
-
-        repository.cache_manager.get.assert_called_once()
-        repository.cache_manager.get.assert_called_with(
+        repository.cache_manager.get.assert_called_once_with(
             dummy_class_mock, dummy_mock.id)
-
-        repository.cache_manager.set.assert_called_once()
-        repository.cache_manager.set.assert_called_with(dummy_mock)
+        repository.cache_manager.set.assert_called_once_with(dummy_mock)
 
     async def test__select_id_uncacheable(self):
         """Test select by id with uncacheable entity."""
@@ -176,11 +158,9 @@ class RepositoryTestCase(asynctest.TestCase):
         result = await repository.select(id=dummy_mock.id)
         self.assertEqual(result, dummy_mock)
 
-        repository.entity_manager.select.assert_called_once()
-        repository.entity_manager.select.assert_called_with(
+        repository.entity_manager.select.assert_called_once_with(
             dummy_class_mock, dummy_mock.id)
         repository.entity_manager.select_by.assert_not_called()
-
         repository.cache_manager.get.assert_not_called()
         repository.cache_manager.set.assert_not_called()
 
@@ -198,14 +178,11 @@ class RepositoryTestCase(asynctest.TestCase):
         self.assertEqual(result, dummy_mock)
 
         repository.entity_manager.select.assert_not_called()
-        repository.entity_manager.select_by.assert_called_once()
-        repository.entity_manager.select_by.assert_called_with(
+        repository.entity_manager.select_by.assert_called_once_with(
             dummy_class_mock, key__eq=dummy_mock.key
         )
-
         repository.cache_manager.get.assert_not_called()
-        repository.cache_manager.set.assert_called_once()
-        repository.cache_manager.set.assert_called_with(dummy_mock)
+        repository.cache_manager.set.assert_called_once_with(dummy_mock)
 
     async def test__select_by_uncacheable(self):
         """Test select by criteria with uncacheable entity."""
@@ -221,11 +198,9 @@ class RepositoryTestCase(asynctest.TestCase):
         self.assertEqual(result, dummy_mock)
 
         repository.entity_manager.select.assert_not_called()
-        repository.entity_manager.select_by.assert_called_once()
-        repository.entity_manager.select_by.assert_called_with(
+        repository.entity_manager.select_by.assert_called_once_with(
             dummy_class_mock, key__eq=dummy_mock.key
         )
-
         repository.cache_manager.get.assert_not_called()
         repository.cache_manager.set.assert_not_called()
 
@@ -242,10 +217,8 @@ class RepositoryTestCase(asynctest.TestCase):
         result = await repository.select_all(key__eq=dummy_mocks[0].key)
         self.assertListEqual(result, dummy_mocks)
 
-        repository.entity_manager.select_all.assert_called_once()
-        repository.entity_manager.select_all.assert_called_with(
+        repository.entity_manager.select_all.assert_called_once_with(
             dummy_class_mock, key__eq=dummy_mocks[0].key)
-
         self.assertEqual(repository.cache_manager.set.call_count, 2)
         self.assertListEqual(
             repository.cache_manager.set.call_args_list,
@@ -264,10 +237,8 @@ class RepositoryTestCase(asynctest.TestCase):
         result = await repository.select_all(key__eq=dummy_mocks[0].key)
         self.assertListEqual(result, dummy_mocks)
 
-        repository.entity_manager.select_all.assert_called_once()
-        repository.entity_manager.select_all.assert_called_with(
+        repository.entity_manager.select_all.assert_called_once_with(
             dummy_class_mock, key__eq=dummy_mocks[0].key)
-
         repository.cache_manager.set.assert_not_called()
 
     async def test__update_cacheable_commit_true(self):
@@ -282,12 +253,9 @@ class RepositoryTestCase(asynctest.TestCase):
         result = await repository.update(dummy_mock, commit=True)
         self.assertIsNone(result)
 
-        repository.entity_manager.update.assert_called_once()
-        repository.entity_manager.update.assert_called_with(
+        repository.entity_manager.update.assert_called_once_with(
             dummy_mock, commit=True)
-
-        repository.cache_manager.delete.assert_called_once()
-        repository.cache_manager.delete.assert_called_with(dummy_mock)
+        repository.cache_manager.delete.assert_called_once_with(dummy_mock)
 
     async def test__update_cacheable_commit_false(self):
         """Test update with cacheable entity and commit False."""
@@ -301,12 +269,9 @@ class RepositoryTestCase(asynctest.TestCase):
         result = await repository.update(dummy_mock, commit=False)
         self.assertIsNone(result)
 
-        repository.entity_manager.update.assert_called_once()
-        repository.entity_manager.update.assert_called_with(
+        repository.entity_manager.update.assert_called_once_with(
             dummy_mock, commit=False)
-
-        repository.cache_manager.delete.assert_called_once()
-        repository.cache_manager.delete.assert_called_with(dummy_mock)
+        repository.cache_manager.delete.assert_called_once_with(dummy_mock)
 
     async def test__update_uncacheable_commit_true(self):
         """Test update with uncacheable entity and commit True."""
@@ -320,10 +285,8 @@ class RepositoryTestCase(asynctest.TestCase):
         result = await repository.update(dummy_mock, commit=True)
         self.assertIsNone(result)
 
-        repository.entity_manager.update.assert_called_once()
-        repository.entity_manager.update.assert_called_with(
+        repository.entity_manager.update.assert_called_once_with(
             dummy_mock, commit=True)
-
         repository.cache_manager.set.assert_not_called()
         repository.cache_manager.delete.assert_not_called()
 
@@ -339,10 +302,8 @@ class RepositoryTestCase(asynctest.TestCase):
         result = await repository.update(dummy_mock, commit=False)
         self.assertIsNone(result)
 
-        repository.entity_manager.update.assert_called_once()
-        repository.entity_manager.update.assert_called_with(
+        repository.entity_manager.update.assert_called_once_with(
             dummy_mock, commit=False)
-
         repository.cache_manager.set.assert_not_called()
         repository.cache_manager.delete.assert_not_called()
 
@@ -358,12 +319,9 @@ class RepositoryTestCase(asynctest.TestCase):
         result = await repository.delete(dummy_mock, commit=True)
         self.assertIsNone(result)
 
-        repository.entity_manager.delete.assert_called_once()
-        repository.entity_manager.delete.assert_called_with(
+        repository.entity_manager.delete.assert_called_once_with(
             dummy_mock, commit=True)
-
-        repository.cache_manager.delete.assert_called_once()
-        repository.cache_manager.delete.assert_called_with(dummy_mock)
+        repository.cache_manager.delete.assert_called_once_with(dummy_mock)
 
     async def test__delete_cacheable_commit_false(self):
         """Test delete with cacheable entity and commit False."""
@@ -377,12 +335,9 @@ class RepositoryTestCase(asynctest.TestCase):
         result = await repository.delete(dummy_mock, commit=False)
         self.assertIsNone(result)
 
-        repository.entity_manager.delete.assert_called_once()
-        repository.entity_manager.delete.assert_called_with(
+        repository.entity_manager.delete.assert_called_once_with(
             dummy_mock, commit=False)
-
-        repository.cache_manager.delete.assert_called_once()
-        repository.cache_manager.delete.assert_called_with(dummy_mock)
+        repository.cache_manager.delete.assert_called_once_with(dummy_mock)
 
     async def test__delete_uncacheable_commit_true(self):
         """Test delete with uncacheable entity and commit True."""
@@ -396,10 +351,8 @@ class RepositoryTestCase(asynctest.TestCase):
         result = await repository.delete(dummy_mock, commit=True)
         self.assertIsNone(result)
 
-        repository.entity_manager.delete.assert_called_once()
-        repository.entity_manager.delete.assert_called_with(
+        repository.entity_manager.delete.assert_called_once_with(
             dummy_mock, commit=True)
-
         repository.cache_manager.delete.assert_not_called()
 
     async def test__delete_uncacheable_commit_false(self):
@@ -414,10 +367,8 @@ class RepositoryTestCase(asynctest.TestCase):
         result = await repository.delete(dummy_mock, commit=False)
         self.assertIsNone(result)
 
-        repository.entity_manager.delete.assert_called_once()
-        repository.entity_manager.delete.assert_called_with(
+        repository.entity_manager.delete.assert_called_once_with(
             dummy_mock, commit=False)
-
         repository.cache_manager.delete.assert_not_called()
 
     async def test__count_all(self):
@@ -432,8 +383,7 @@ class RepositoryTestCase(asynctest.TestCase):
         result = await repository.count_all(key__eq="value")
         self.assertEqual(result, dummies_count)
 
-        repository.entity_manager.count_all.assert_called_once()
-        repository.entity_manager.count_all.assert_called_with(
+        repository.entity_manager.count_all.assert_called_once_with(
             dummy_class_mock, key__eq="value")
 
     async def test__sum_all(self):
@@ -448,8 +398,7 @@ class RepositoryTestCase(asynctest.TestCase):
         result = await repository.sum_all("key", key__eq="value")
         self.assertEqual(result, dummies_sum)
 
-        repository.entity_manager.sum_all.assert_called_once()
-        repository.entity_manager.sum_all.assert_called_with(
+        repository.entity_manager.sum_all.assert_called_once_with(
             dummy_class_mock, "key", key__eq="value")
 
     async def test__lock_all(self):
@@ -461,8 +410,8 @@ class RepositoryTestCase(asynctest.TestCase):
         result = await repository.lock_all()
         self.assertIsNone(result)
 
-        repository.entity_manager.lock_all.assert_called_once()
-        repository.entity_manager.lock_all.assert_called_with(dummy_class_mock)
+        repository.entity_manager.lock_all.assert_called_once_with(
+            dummy_class_mock)
 
     async def test__commit(self):
         """Test commit method."""
@@ -473,7 +422,6 @@ class RepositoryTestCase(asynctest.TestCase):
         self.assertIsNone(result)
 
         repository.entity_manager.commit.assert_called_once()
-        repository.entity_manager.commit.assert_called_with()
 
     async def test__rollback(self):
         """Test rollback method."""
@@ -484,7 +432,6 @@ class RepositoryTestCase(asynctest.TestCase):
         self.assertIsNone(result)
 
         repository.entity_manager.rollback.assert_called_once()
-        repository.entity_manager.rollback.assert_called_with()
 
 
 if __name__ == "__main__":

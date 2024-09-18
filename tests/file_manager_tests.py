@@ -83,16 +83,13 @@ class FileManagerTestCase(asynctest.TestCase):
         result = await FileManager.upload(file_mock, path)
         self.assertIsNone(result)
 
-        aiofiles_mock.open.assert_called_once()
-        aiofiles_mock.open.assert_called_with(path, mode="wb")
-
+        aiofiles_mock.open.assert_called_once_with(path, mode="wb")
         self.assertEqual(file_mock.read.call_count, 3)
         self.assertListEqual(file_mock.mock_calls, [
             call.read(FILE_UPLOAD_CHUNK_SIZE),
             call.read(FILE_UPLOAD_CHUNK_SIZE),
             call.read(FILE_UPLOAD_CHUNK_SIZE),
         ])
-
         self.assertEqual(len(aiofiles_mock.mock_calls), 5)
         self.assertEqual(aiofiles_mock.mock_calls[0],
                          call.open(path, mode="wb"))
@@ -116,11 +113,8 @@ class FileManagerTestCase(asynctest.TestCase):
         result = await FileManager.delete(path)
         self.assertIsNone(result)
 
-        os_mock.path.isfile.assert_called_once()
-        os_mock.path.isfile.assert_called_with(path)
-
-        os_mock.unlink.assert_called_once()
-        os_mock.unlink.assert_called_with(path)
+        os_mock.path.isfile.assert_called_once_with(path)
+        os_mock.unlink.assert_called_once_with(path)
 
     @patch("app.managers.file_manager.aiofiles")
     async def test__delete_file_not_exists(self, aiofiles_mock):
@@ -133,9 +127,7 @@ class FileManagerTestCase(asynctest.TestCase):
         result = await FileManager.delete(path)
         self.assertIsNone(result)
 
-        os_mock.path.isfile.assert_called_once()
-        os_mock.path.isfile.assert_called_with(path)
-
+        os_mock.path.isfile.assert_called_once_with(path)
         os_mock.unlink.assert_not_called()
 
     @patch("app.managers.file_manager.aiofiles")
@@ -147,9 +139,7 @@ class FileManagerTestCase(asynctest.TestCase):
         result = await FileManager.write(path, data)
         self.assertIsNone(result)
 
-        aiofiles_mock.open.assert_called_once()
-        aiofiles_mock.open.assert_called_with(path, mode="wb")
-
+        aiofiles_mock.open.assert_called_once_with(path, mode="wb")
         self.assertEqual(len(aiofiles_mock.mock_calls), 4)
         self.assertEqual(aiofiles_mock.mock_calls[0],
                          call.open(path, mode="wb"))
@@ -169,9 +159,7 @@ class FileManagerTestCase(asynctest.TestCase):
         self.assertTrue(isinstance(result, AsyncMock))
         self.assertEqual(len(result.mock_calls), 1)
 
-        aiofiles_mock.open.assert_called_once()
-        aiofiles_mock.open.assert_called_with(path, mode="rb")
-
+        aiofiles_mock.open.assert_called_once_with(path, mode="rb")
         self.assertEqual(len(aiofiles_mock.mock_calls), 5)
         self.assertEqual(aiofiles_mock.mock_calls[0],
                          call.open(path, mode="rb"))
@@ -192,8 +180,7 @@ class FileManagerTestCase(asynctest.TestCase):
         result = await FileManager.encrypt(data)
         self.assertEqual(result, cipher_suite_mock.encrypt.return_value)
 
-        cipher_suite_mock.encrypt.assert_called_once()
-        cipher_suite_mock.encrypt.assert_called_with(data)
+        cipher_suite_mock.encrypt.assert_called_once_with(data)
 
     @patch("app.managers.file_manager.cipher_suite")
     async def test__decrypt(self, cipher_suite_mock):
@@ -203,8 +190,7 @@ class FileManagerTestCase(asynctest.TestCase):
         result = await FileManager.decrypt(data)
         self.assertEqual(result, cipher_suite_mock.decrypt.return_value)
 
-        cipher_suite_mock.decrypt.assert_called_once()
-        cipher_suite_mock.decrypt.assert_called_with(data)
+        cipher_suite_mock.decrypt.assert_called_once_with(data)
 
     @patch("app.managers.file_manager.aiofiles")
     async def test__copy(self, aiofiles_mock):
@@ -227,7 +213,6 @@ class FileManagerTestCase(asynctest.TestCase):
         self.assertEqual(aiofiles_mock.open.call_count, 2)
         self.assertListEqual(aiofiles_mock.open.call_args_list, [
             call(src_path, mode="rb"), call(dst_path, mode="wb")])
-
         self.assertListEqual(src_context_mock.mock_calls, [
             call.__aenter__(),
             call.__aenter__().read(FILE_COPY_CHUNK_SIZE),
@@ -235,7 +220,6 @@ class FileManagerTestCase(asynctest.TestCase):
             call.__aenter__().read(FILE_COPY_CHUNK_SIZE),
             call.__aexit__(None, None, None)
         ])
-
         self.assertListEqual(dst_context_mock.mock_calls, [
             call.__aenter__(),
             call.__aenter__().write(chunk1),

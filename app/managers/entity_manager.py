@@ -241,6 +241,15 @@ class EntityManager:
         return subquery
 
     @timed
+    async def execute(self, sql: str) -> list:
+        """
+        Asynchronously executes the given SQL query and returns all
+        result rows as a list.
+        """
+        async_result = await self.session.execute(text(sql))
+        return async_result.fetchall()
+
+    @timed
     async def flush(self):
         """
         Flush the session to synchronize with the database. Sends all

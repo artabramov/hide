@@ -1,5 +1,10 @@
 # Changelog
 
+## Version 0.0.41 (2024-09-18)
+- **Added telemetry**: Introduced a new endpoint for system telemetry, providing insights into application metrics and status.
+- **Added raw query execution**: Enabled raw SQL query execution in the entity manager for more flexible database interactions.
+- **Updated unit tests**: Revised unit tests to align with the new changes and ensure better coverage.
+
 ## Version 0.0.40 (2024-09-15)
 - **Added lock mechanism**: Implemented a decorator to enforce execution locks based on a lock file’s presence, raising HTTP 503 errors if the file exists. This helps manage service availability and prevent concurrent access during maintenance or restricted states.
 
