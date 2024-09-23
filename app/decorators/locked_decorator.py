@@ -15,7 +15,7 @@ from app.config import get_config
 cfg = get_config()
 
 
-def is_locked():
+def lock_exists():
     """
     Checks if the lock file exists at the configured path and returns
     True if it does, indicating that the system is in a locked state;
@@ -31,7 +31,7 @@ async def lock():
     state. The function only writes the lock file if it does not
     already exist.
     """
-    if not is_locked():
+    if not lock_exists():
         await FileManager.write(cfg.LOCK_FILE_PATH, bytes())
 
 
@@ -42,7 +42,7 @@ async def unlock():
     locked. This is typically used to signal the end of a restricted
     state or maintenance period.
     """
-    if is_locked():
+    if lock_exists():
         await FileManager.delete(cfg.LOCK_FILE_PATH)
 
 
@@ -54,7 +54,7 @@ def locked(func: Callable):
     """
     @functools.wraps(func)
     async def wrapped(*args, **kwargs) -> Any:
-        if is_locked():
-            raise HTTPException(status_code=503)
+        if lock_exists():
+            raise HTTPException(status_code=423)
         return await func(*args, **kwargs)
     return wrapped

@@ -1,19 +1,17 @@
 from fastapi import APIRouter, status
 import time
-from app.decorators.locked_decorator import is_locked
 from fastapi.responses import JSONResponse
-from app.schemas.system_schemas import SystemHelloResponse
+from app.schemas.time_schemas import TimeRetrieveResponse
 
 router = APIRouter()
 
 
-@router.get("/hello", summary="Hello!",
+@router.get("/time", summary="Retrieve current time",
             response_class=JSONResponse, status_code=status.HTTP_200_OK,
-            response_model=SystemHelloResponse, tags=["system"])
-async def hello_select():
+            response_model=TimeRetrieveResponse, tags=["system"])
+async def time_retrieve() -> TimeRetrieveResponse:
     return {
         "unix_timestamp": int(time.time()),
         "timezone_name": time.tzname[0],
         "timezone_offset": time.timezone,
-        "is_locked": is_locked(),
     }

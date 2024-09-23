@@ -17,8 +17,10 @@ router = APIRouter()
             # response_model=SystemHelloResponse,
             tags=["system"])
 @locked
-async def telemetry_select(request: Request, session=Depends(get_session),
-                           current_user: User = Depends(auth(UserRole.admin))):
+async def telemetry_retrieve(
+    request: Request, session=Depends(get_session),
+    current_user: User = Depends(auth(UserRole.admin))
+):
     entity_manager = EntityManager(session)
 
     postgres_version = await entity_manager.execute("SELECT version();")

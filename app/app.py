@@ -38,8 +38,8 @@ from app.routers import (
     option_insert_router, option_select_router, option_update_router,
     option_delete_router, option_list_router,
 
-    system_hello_router, system_telemetry_router, system_lock_router,
-    system_unlock_router)
+    time_retrieve_router, telemetry_retrieve_router, lock_create_router,
+    lock_retrieve_router, lock_delete_router)
 from app.database import Base, sessionmanager, get_session
 from app.errors import SERVER_ERROR
 from contextlib import asynccontextmanager
@@ -188,10 +188,11 @@ app.include_router(option_delete_router.router, prefix=cfg.APP_PREFIX)
 app.include_router(option_list_router.router, prefix=cfg.APP_PREFIX)
 
 # system routers
-app.include_router(system_hello_router.router, prefix=cfg.APP_PREFIX)
-app.include_router(system_telemetry_router.router, prefix=cfg.APP_PREFIX)
-app.include_router(system_lock_router.router, prefix=cfg.APP_PREFIX)
-app.include_router(system_unlock_router.router, prefix=cfg.APP_PREFIX)
+app.include_router(time_retrieve_router.router, prefix=cfg.APP_PREFIX)
+app.include_router(telemetry_retrieve_router.router, prefix=cfg.APP_PREFIX)
+app.include_router(lock_retrieve_router.router, prefix=cfg.APP_PREFIX)
+app.include_router(lock_create_router.router, prefix=cfg.APP_PREFIX)
+app.include_router(lock_delete_router.router, prefix=cfg.APP_PREFIX)
 
 
 app.mount(cfg.USERPIC_PREFIX,
