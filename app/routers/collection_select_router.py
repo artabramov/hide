@@ -1,12 +1,11 @@
-from fastapi import APIRouter, Depends, Request, status
+from fastapi import APIRouter, Depends, status
 from fastapi.responses import JSONResponse
 from app.database import get_session
 from app.cache import get_cache
 from app.decorators.locked_decorator import locked
 from app.models.user_model import User, UserRole
 from app.models.collection_model import Collection
-from app.schemas.collection_schemas import (
-    CollectionSelectRequest, CollectionSelectResponse)
+from app.schemas.collection_schemas import CollectionSelectResponse
 from app.repository import Repository
 from app.errors import E
 from app.hooks import H, Hook
@@ -20,11 +19,9 @@ router = APIRouter()
             response_model=CollectionSelectResponse, tags=["collections"])
 @locked
 async def collection_select(
-    request: Request,
-    session=Depends(get_session),
-    cache=Depends(get_cache),
+    collection_id: int,
+    session=Depends(get_session), cache=Depends(get_cache),
     current_user: User = Depends(auth(UserRole.reader)),
-    schema=Depends(CollectionSelectRequest)
 ) -> CollectionSelectResponse:
     """
     FastAPI router for retrieving a collection entity. The router
@@ -36,13 +33,13 @@ async def collection_select(
     not have the required role.
     """
     collection_repository = Repository(session, cache, Collection)
-    collection = await collection_repository.select(id=schema.collection_id)
+    collection = await collection_repository.select(id=collection_id)
 
     if not collection:
-        raise E("collection_id", schema.collection_id, E.RESOURCE_NOT_FOUND,
-                status_code=status.HTTP_404_NOT_FOUND)
+        raise E([E.LOC_PATH, "collection_id"], collection_id,
+                E.ERR_RESOURCE_NOT_FOUND, status.HTTP_404_NOT_FOUND)
 
-    hook = Hook(session, cache, request, current_user=current_user)
+    hook = Hook(session, cache, current_user=current_user)
     await hook.execute(H.AFTER_COLLECTION_SELECT, collection)
 
     return collection.to_dict()

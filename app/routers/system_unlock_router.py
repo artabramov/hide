@@ -8,9 +8,9 @@ from app.auth import auth
 router = APIRouter()
 
 
-@router.get("/system/unlock", summary="Unlock app",
-            response_class=JSONResponse, status_code=status.HTTP_200_OK,
-            response_model=SystemUnlockResponse, tags=["system"])
-async def system_unlock(current_user: User = Depends(auth(UserRole.admin)),):
+@router.delete("/lock", summary="Unlock the app",
+               response_class=JSONResponse, status_code=status.HTTP_200_OK,
+               response_model=SystemUnlockResponse, tags=["system"])
+async def lock_delete(current_user: User = Depends(auth(UserRole.admin)),):
     await unlock()
     return {"is_locked": False}

@@ -14,7 +14,6 @@ import enum
 from typing import Any
 from redis import Redis
 from sqlalchemy.ext.asyncio import AsyncSession
-from fastapi import Request
 from app.managers.entity_manager import EntityManager
 from app.managers.cache_manager import CacheManager
 from app.models.user_model import User
@@ -33,83 +32,93 @@ class H(enum.Enum):
     related to user management, collections, documents, comments,
     downloads, and favorites.
     """
+    # system hooks
     ON_STARTUP = "on_startup"
 
+    # user hooks
     BEFORE_USER_REGISTER = "before_user_register"
-    BEFORE_USER_LOGIN = "before_user_login"
-    BEFORE_TOKEN_RETRIEVE = "before_token_retrieve"
-    BEFORE_TOKEN_INVALIDATE = "before_token_invalidate"
-    BEFORE_USER_UPDATE = "before_user_update"
-    BEFORE_USER_DELETE = "before_user_delete"
-    BEFORE_ROLE_UPDATE = "before_role_update"
-    BEFORE_PASSWORD_UPDATE = "before_password_update"
-    BEFORE_USERPIC_UPLOAD = "before_userpic_upload"
-    BEFORE_USERPIC_DELETE = "before_userpic_delete"
     AFTER_USER_REGISTER = "after_user_register"
     AFTER_USER_LOGIN = "after_user_login"
-    AFTER_TOKEN_RETRIEVE = "after_token_retrieve"
-    AFTER_TOKEN_INVALIDATE = "after_token_invalidate"
-    AFTER_USER_SELECT = "after_user_select"
-    AFTER_USER_UPDATE = "after_user_update"
+    BEFORE_USER_LOGIN = "before_user_login"
+    BEFORE_USER_DELETE = "before_user_delete"
     AFTER_USER_DELETE = "after_user_delete"
+    BEFORE_TOKEN_SELECT = "before_token_select"
+    AFTER_TOKEN_SELECT = "after_token_select"
+    BEFORE_TOKEN_INVALIDATE = "before_token_invalidate"
+    AFTER_TOKEN_INVALIDATE = "after_token_invalidate"
+    BEFORE_MFA_SELECT = "before_mfa_select"
+    AFTER_MFA_SELECT = "after_mfa_select"
+    AFTER_USER_SELECT = "after_user_select"
+    BEFORE_USER_UPDATE = "before_user_update"
+    AFTER_USER_UPDATE = "after_user_update"
+    BEFORE_ROLE_UPDATE = "before_role_update"
     AFTER_ROLE_UPDATE = "after_role_update"
+    BEFORE_PASSWORD_UPDATE = "before_password_update"
     AFTER_PASSWORD_UPDATE = "after_password_update"
+    BEFORE_USERPIC_UPLOAD = "before_userpic_upload"
     AFTER_USERPIC_UPLOAD = "after_userpic_upload"
+    BEFORE_USERPIC_DELETE = "before_userpic_delete"
     AFTER_USERPIC_DELETE = "after_userpic_delete"
     AFTER_USER_LIST = "after_user_list"
 
-    # Collection hooks
+    # collection hooks
     BEFORE_COLLECTION_INSERT = "before_collection_insert"
-    BEFORE_COLLECTION_UPDATE = "before_collection_update"
-    BEFORE_COLLECTION_DELETE = "before_collection_delete"
     AFTER_COLLECTION_INSERT = "after_collection_insert"
     AFTER_COLLECTION_SELECT = "after_collection_select"
-    AFTER_COLLECTION_UPDATE = "after_collection_update"
+    BEFORE_COLLECTION_DELETE = "before_collection_delete"
     AFTER_COLLECTION_DELETE = "after_collection_delete"
+    BEFORE_COLLECTION_UPDATE = "before_collection_update"
+    AFTER_COLLECTION_UPDATE = "after_collection_update"
     AFTER_COLLECTION_LIST = "after_collection_list"
 
-    BEFORE_DOCUMENT_INSERT = "before_document_insert"
-    BEFORE_DOCUMENT_UPDATE = "before_document_update"
-    BEFORE_DOCUMENT_DELETE = "before_document_delete"
-    AFTER_DOCUMENT_INSERT = "after_document_insert"
+    # document hooks
+    BEFORE_DOCUMENT_UPLOAD = "before_document_upload"
+    AFTER_DOCUMENT_UPLOAD = "after_document_upload"
+    BEFORE_DOCUMENT_REPLACE = "before_document_replace"
+    AFTER_DOCUMENT_REPLACE = "after_document_replace"
     AFTER_DOCUMENT_SELECT = "after_document_select"
+    BEFORE_DOCUMENT_UPDATE = "before_document_update"
     AFTER_DOCUMENT_UPDATE = "after_document_update"
+    BEFORE_DOCUMENT_DELETE = "before_document_delete"
     AFTER_DOCUMENT_DELETE = "after_document_delete"
     AFTER_DOCUMENT_LIST = "after_document_list"
 
-    # Favorite hooks
-    BEFORE_FAVORITE_INSERT = "before_favorite_insert"
-    BEFORE_FAVORITE_DELETE = "before_favorite_delete"
-    AFTER_FAVORITE_INSERT = "after_favorite_insert"
-    AFTER_FAVORITE_SELECT = "after_favorite_select"
-    AFTER_FAVORITE_DELETE = "after_favorite_delete"
-    AFTER_FAVORITE_LIST = "after_favorite_list"
-
-    # Revision hooks
-    AFTER_REVISION_SELECT = "after_revision_select"
-    AFTER_REVISION_DOWNLOAD = "after_revision_download"
-    AFTER_REVISION_LIST = "after_revision_list"
-
-    # Download hooks
-    AFTER_DOWNLOAD_SELECT = "after_download_select"
-    AFTER_DOWNLOAD_LIST = "after_download_list"
-
-    # Comment hooks
+    # comment hooks
     BEFORE_COMMENT_INSERT = "before_comment_insert"
-    BEFORE_COMMENT_UPDATE = "before_comment_update"
-    BEFORE_COMMENT_DELETE = "before_comment_delete"
     AFTER_COMMENT_INSERT = "after_comment_insert"
     AFTER_COMMENT_SELECT = "after_comment_select"
+    BEFORE_COMMENT_UPDATE = "before_comment_update"
     AFTER_COMMENT_UPDATE = "after_comment_update"
+    BEFORE_COMMENT_DELETE = "before_comment_delete"
     AFTER_COMMENT_DELETE = "after_comment_delete"
     AFTER_COMMENT_LIST = "after_comment_list"
 
+    # upload hooks
+    AFTER_UPLOAD_SELECT = "after_upload_select"
+    BEFORE_UPLOAD_DOWNLOAD = "before_upload_download"
+    AFTER_UPLOAD_DOWNLOAD = "after_upload_download"
+    AFTER_UPLOAD_LIST = "after_upload_list"
+
+    # download hooks
+    AFTER_DOWNLOAD_SELECT = "after_download_select"
+    AFTER_DOWNLOAD_LIST = "after_download_list"
+
+    # favorite hooks
+    BEFORE_FAVORITE_INSERT = "before_favorite_insert"
+    AFTER_FAVORITE_INSERT = "after_favorite_insert"
+    AFTER_FAVORITE_SELECT = "after_favorite_select"
+    BEFORE_FAVORITE_DELETE = "before_favorite_delete"
+    AFTER_FAVORITE_DELETE = "after_favorite_delete"
+    AFTER_FAVORITE_LIST = "after_favorite_list"
+
     # Option hooks
-    BEFORE_OPTION_UPDATE = "before_option_update"
-    BEFORE_OPTION_DELETE = "before_option_delete"
-    AFTER_OPTION_UPDATE = "after_option_update"
-    AFTER_OPTION_DELETE = "after_option_delete"
+    BEFORE_OPTION_INSERT = "before_option_insert"
+    AFTER_OPTION_INSERT = "after_option_insert"
     AFTER_OPTION_SELECT = "after_option_select"
+    BEFORE_OPTION_UPDATE = "before_option_update"
+    AFTER_OPTION_UPDATE = "after_option_update"
+    BEFORE_OPTION_DELETE = "before_option_delete"
+    AFTER_OPTION_DELETE = "after_option_delete"
     AFTER_OPTION_LIST = "after_option_list"
 
 
@@ -124,18 +133,17 @@ class Hook:
     """
 
     def __init__(self, session: AsyncSession, cache: Redis,
-                 request: Request = None, current_user: User = None):
+                 current_user: User = None):
         """
         Initializes the Hook class with an entity manager,
         cache manager, request, and current user. The entity manager
         is created from the provided session, and the cache manager is
-        created from the provided Redis instance. The request and
-        current user are optional and can be used to provide context
-        for the hook execution.
+        created from the provided Redis instance. The current user is
+        optional and can be used to provide context for the hook
+        execution.
         """
         self.entity_manager = EntityManager(session)
         self.cache_manager = CacheManager(cache)
-        self.request = request
         self.current_user = current_user
 
     async def execute(self, hook_action: H, data: Any = None) -> Any:
@@ -151,5 +159,5 @@ class Hook:
             hook_functions = ctx.hooks[hook_action.value]
             for func in hook_functions:
                 data = await func(self.entity_manager, self.cache_manager,
-                                  self.request, self.current_user, data)
+                                  self.current_user, data)
         return data

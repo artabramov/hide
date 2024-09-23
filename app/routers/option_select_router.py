@@ -2,15 +2,14 @@
 The module defines a FastAPI router for retrieving option entities.
 """
 
-from fastapi import APIRouter, Depends, Request, status
+from fastapi import APIRouter, Depends, status
 from fastapi.responses import JSONResponse
 from app.database import get_session
 from app.cache import get_cache
 from app.decorators.locked_decorator import locked
 from app.models.user_model import User, UserRole
 from app.models.option_model import Option
-from app.schemas.option_schemas import (
-    OptionSelectRequest, OptionSelectResponse)
+from app.schemas.option_schemas import OptionSelectResponse
 from app.repository import Repository
 from app.errors import E
 from app.hooks import H, Hook
@@ -19,16 +18,14 @@ from app.auth import auth
 router = APIRouter()
 
 
-@router.get("/option/{option_key}", summary="Select option",
+@router.get("/option/{option_key}", summary="Get option",
             response_class=JSONResponse, status_code=status.HTTP_200_OK,
             response_model=OptionSelectResponse, tags=["options"])
 @locked
 async def option_select(
-    request: Request,
-    session=Depends(get_session),
-    cache=Depends(get_cache),
-    current_user: User = Depends(auth(UserRole.admin)),
-    schema=Depends(OptionSelectRequest)
+    option_key: str,
+    session=Depends(get_session), cache=Depends(get_cache),
+    current_user: User = Depends(auth(UserRole.admin))
 ) -> OptionSelectResponse:
     """
     FastAPI router for fetching an option entity. The router retrieves
@@ -39,13 +36,13 @@ async def option_select(
     not have the required role.
     """
     option_repository = Repository(session, cache, Option)
-    option = await option_repository.select(option_key__eq=schema.option_key)
+    option = await option_repository.select(option_key__eq=option_key)
 
     if not option:
-        raise E("option_key", schema.option_key, E.RESOURCE_NOT_FOUND,
-                status_code=status.HTTP_404_NOT_FOUND)
+        raise E([E.LOC_PATH, "option_key"], option_key,
+                E.ERR_RESOURCE_NOT_FOUND, status.HTTP_404_NOT_FOUND)
 
-    hook = Hook(session, cache, request, current_user=current_user)
+    hook = Hook(session, cache, current_user=current_user)
     await hook.execute(H.AFTER_OPTION_SELECT, option)
 
     return option.to_dict()

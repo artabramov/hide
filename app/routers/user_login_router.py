@@ -1,5 +1,5 @@
 import time
-from fastapi import APIRouter, Depends, status, Request
+from fastapi import APIRouter, Depends, status
 from fastapi.responses import JSONResponse
 from app.database import get_session
 from app.cache import get_cache
@@ -16,15 +16,13 @@ router = APIRouter()
 cfg = get_config()
 
 
-@router.get("/auth/login", summary="Authenticate user",
-            response_class=JSONResponse, status_code=status.HTTP_200_OK,
-            response_model=UserLoginResponse, tags=["auth"])
+@router.post("/auth/login", summary="Authenticate user",
+             response_class=JSONResponse, status_code=status.HTTP_200_OK,
+             response_model=UserLoginResponse, tags=["auth"])
 @locked
 async def user_login(
-    request: Request,
-    session=Depends(get_session),
-    cache=Depends(get_cache),
-    schema=Depends(UserLoginRequest)
+    schema: UserLoginRequest,
+    session=Depends(get_session), cache=Depends(get_cache)
 ) -> UserLoginResponse:
     """
     FastAPI router for the first step of multi-factor authentication.
@@ -40,24 +38,21 @@ async def user_login(
     user = await user_repository.select(user_login__eq=schema.user_login)
 
     if not user:
-        raise E("user_login", schema.user_login, E.RESOURCE_NOT_FOUND,
-                status_code=status.HTTP_404_NOT_FOUND)
+        raise E(["body", "user_login"], schema.user_login,
+                E.ERR_RESOURCE_NOT_FOUND, status.HTTP_404_NOT_FOUND)
 
     elif user.suspended_date > int(time.time()):
-        raise E("user_login", schema.user_login, E.USER_SUSPENDED,
-                status_code=status.HTTP_403_FORBIDDEN)
+        raise E(["body", "user_login"], schema.user_login,
+                E.ERR_USER_SUSPENDED, status.HTTP_403_FORBIDDEN)
 
     admin_exists = await user_repository.exists(
         user_role__eq=UserRole.admin, is_active__eq=True)
 
     if not user.is_active and admin_exists:
-        raise E("user_login", schema.user_login, E.USER_INACTIVE,
-                status_code=status.HTTP_403_FORBIDDEN)
+        raise E(["body", "user_login"], schema.user_login,
+                E.ERR_USER_INACTIVE, status.HTTP_403_FORBIDDEN)
 
-    user_password = schema.user_password.get_secret_value()
-    password_hash = get_hash(user_password)
-
-    if user.password_hash == password_hash:
+    if user.password_hash == get_hash(schema.user_password):
         user.last_login_date = time.time()
         user.password_accepted = True
         user.password_attempts = 0
@@ -75,7 +70,7 @@ async def user_login(
 
     await user_repository.update(user, commit=False)
 
-    hook = Hook(session, cache, request, current_user=user)
+    hook = Hook(session, cache)
     await hook.execute(H.BEFORE_USER_LOGIN, user)
 
     await user_repository.commit()
@@ -85,5 +80,5 @@ async def user_login(
         return {"password_accepted": True}
 
     else:
-        raise E("user_password", schema.user_login, E.VALUE_INVALID,
-                status_code=status.HTTP_422_UNPROCESSABLE_ENTITY)
+        raise E(["body", "user_password"], schema.user_password,
+                E.ERR_VALUE_INVALID, status.HTTP_422_UNPROCESSABLE_ENTITY)

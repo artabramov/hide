@@ -2,7 +2,7 @@
 The module defines a FastAPI router for retrieving the option list.
 """
 
-from fastapi import APIRouter, Depends, Request, status
+from fastapi import APIRouter, Depends, status
 from fastapi.responses import JSONResponse
 from app.database import get_session
 from app.cache import get_cache
@@ -22,11 +22,9 @@ router = APIRouter()
             response_model=OptionListResponse, tags=["options"])
 @locked
 async def options_list(
-    request: Request,
-    session=Depends(get_session),
-    cache=Depends(get_cache),
-    current_user: User = Depends(auth(UserRole.admin)),
-    schema=Depends(OptionListRequest)
+    schema=Depends(OptionListRequest),
+    session=Depends(get_session), cache=Depends(get_cache),
+    current_user: User = Depends(auth(UserRole.admin))
 ) -> OptionListResponse:
     """
     FastAPI router for retrieving a list of option entities. The router
@@ -42,7 +40,7 @@ async def options_list(
     options = await option_repository.select_all(**schema.__dict__)
     options_count = await option_repository.count_all(**schema.__dict__)
 
-    hook = Hook(session, cache, request, current_user=current_user)
+    hook = Hook(session, cache, current_user=current_user)
     await hook.execute(H.AFTER_OPTION_LIST, options)
 
     return {

@@ -6,46 +6,20 @@ documents.
 
 from typing import Optional, Literal, List, Union
 from pydantic import BaseModel, Field, field_validator
-from app.schemas.revision_schemas import RevisionSelectResponse
+from app.schemas.user_schemas import UserSelectResponse
+from app.schemas.upload_schemas import UploadSelectResponse
 from app.validators.document_validators import (
-    validate_document_name, validate_document_summary)
+    validate_document_summary, validate_document_name, validate_tags)
 
 
-class DocumentInsertRequest(BaseModel):
-    """
-    Pydantic schema for request to create a new document entity.
-    Requires the collection ID to be specified, and optionally the
-    document name, document summary, and tags.
-    """
-    collection_id: int
-    document_name: Optional[str] = Field(max_length=256, default=None)
-    document_summary: Optional[str] = Field(max_length=512, default=None)
-    tags: Optional[str] = Field(max_length=256, default=None)
-
-    @field_validator("document_name", mode="before")
-    def validate_document_name(cls, document_name: str = None) -> Union[str, None]:  # noqa E501
-        return validate_document_name(document_name)
-
-    @field_validator("document_summary", mode="before")
-    def validate_document_summary(cls, document_summary: str = None) -> Union[str, None]:  # noqa E501
-        return validate_document_summary(document_summary)
-
-
-class DocumentInsertResponse(BaseModel):
-    """
-    Pydantic schema for the response after creating a new document
-    entity. Includes the ID assigned to the newly created document.
-    """
+class DocumentUploadResponse(BaseModel):
     document_id: int
-    revision_id: int
+    upload_id: int
 
 
-class DocumentSelectRequest(BaseModel):
-    """
-    Pydantic schema for request to retrieve a document entity. Requires
-    the document ID to be specified.
-    """
+class DocumentReplaceResponse(BaseModel):
     document_id: int
+    upload_id: int
 
 
 class DocumentSelectResponse(BaseModel):
@@ -60,23 +34,19 @@ class DocumentSelectResponse(BaseModel):
     created_date: int
     updated_date: int
     user_id: int
-    collection_id: int
+    collection_id: Optional[int]
 
     document_name: str
     document_summary: Optional[str] = None
-    document_size: int
-    document_mimetype: str
-
-    revisions_count: int
-    revisions_size: int
-
     comments_count: int
+    uploads_count: int
+    uploads_size: int
     downloads_count: int
-    favorites_count: int
-    document_tags: list
+    downloads_size: int
 
-    latest_revision_id: int
-    latest_revision: RevisionSelectResponse
+    document_tags: list
+    document_user: UserSelectResponse
+    latest_upload: UploadSelectResponse
 
 
 class DocumentUpdateRequest(BaseModel):
@@ -85,19 +55,22 @@ class DocumentUpdateRequest(BaseModel):
     Requires the document ID and collection ID to be specified, and
     optionally the document name, summary, and tags.
     """
-    document_id: int
-    collection_id: int
+    collection_id: Optional[int] = None
     document_name: str = Field(..., min_length=1, max_length=256)
     document_summary: Optional[str] = Field(max_length=512, default=None)
     tags: Optional[str] = Field(max_length=256, default=None)
 
-    @field_validator("document_name", mode="before")
-    def validate_document_name(cls, document_name: str = None) -> str:
-        return validate_document_name(document_name)
-
     @field_validator("document_summary", mode="before")
     def validate_document_summary(cls, document_summary: str = None) -> Union[str, None]:  # noqa E501
         return validate_document_summary(document_summary)
+
+    @field_validator("document_name", mode="before")
+    def validate_document_name(cls, document_name: str) -> str:
+        return validate_document_name(document_name)
+
+    @field_validator("tags", mode="before")
+    def validate_tags(cls, tags: str = None) -> Union[str, None]:
+        return validate_tags(tags)
 
 
 class DocumentUpdateResponse(BaseModel):
@@ -106,15 +79,7 @@ class DocumentUpdateResponse(BaseModel):
     Includes the ID assigned to the updated document.
     """
     document_id: int
-    revision_id: int
-
-
-class DocumentDeleteRequest(BaseModel):
-    """
-    Pydantic schema for request to delete a document entity. Requires
-    the document ID to be specified.
-    """
-    document_id: int
+    upload_id: int
 
 
 class DocumentDeleteResponse(BaseModel):
@@ -133,26 +98,22 @@ class DocumentListRequest(BaseModel):
     """
     collection_id__eq: Optional[int] = None
     document_name__ilike: Optional[str] = None
-    document_size__ge: Optional[int] = None
-    document_size__le: Optional[int] = None
-    document_mimetype__ilike: Optional[str] = None
-    revisions_count__ge: Optional[int] = None
-    revisions_count__le: Optional[int] = None
-    revisions_size__ge: Optional[int] = None
-    revisions_size__le: Optional[int] = None
     comments_count__ge: Optional[int] = None
     comments_count__le: Optional[int] = None
+    uploads_count__ge: Optional[int] = None
+    uploads_count__le: Optional[int] = None
+    uploads_size__ge: Optional[int] = None
+    uploads_size__le: Optional[int] = None
     downloads_count__ge: Optional[int] = None
     downloads_count__le: Optional[int] = None
-    favorites_count__ge: Optional[int] = None
-    favorites_count__le: Optional[int] = None
+    downloads_size__ge: Optional[int] = None
+    downloads_size__le: Optional[int] = None
     tag_value__eq: Optional[str] = None
     offset: int = Field(ge=0)
     limit: int = Field(ge=1, le=200)
     order_by: Literal["id", "created_date", "updated_date", "user_id",
-                      "collection_id", "document_name", "document_size",
-                      "document_mimetype", "revisions_count", "revisions_size",
-                      "comments_count", "downloads_count", "favorites_count"]
+                      "collection_id", "comments_count", "uploads_count",
+                      "uploads_size", "downloads_count", "downloads_size"]
     order: Literal["asc", "desc", "rand"]
 
 

@@ -2,15 +2,14 @@
 The module defines a FastAPI router for retrieving comment entities.
 """
 
-from fastapi import APIRouter, Depends, Request, status
+from fastapi import APIRouter, Depends, status
 from fastapi.responses import JSONResponse
 from app.database import get_session
 from app.cache import get_cache
 from app.decorators.locked_decorator import locked
 from app.models.user_model import User, UserRole
 from app.models.comment_model import Comment
-from app.schemas.comment_schemas import (
-    CommentSelectRequest, CommentSelectResponse)
+from app.schemas.comment_schemas import CommentSelectResponse
 from app.repository import Repository
 from app.errors import E
 from app.hooks import H, Hook
@@ -19,16 +18,14 @@ from app.auth import auth
 router = APIRouter()
 
 
-@router.get("/comment/{comment_id}", summary="Retrieve comment",
+@router.get("/comment/{comment_id}", summary="Retrieve a comment",
             response_class=JSONResponse, status_code=status.HTTP_200_OK,
             response_model=CommentSelectResponse, tags=["comments"])
 @locked
 async def comment_select(
-    request: Request,
-    session=Depends(get_session),
-    cache=Depends(get_cache),
-    current_user: User = Depends(auth(UserRole.reader)),
-    schema=Depends(CommentSelectRequest)
+    comment_id: int,
+    session=Depends(get_session), cache=Depends(get_cache),
+    current_user: User = Depends(auth(UserRole.reader))
 ) -> CommentSelectResponse:
     """
     FastAPI router for retrieving a comment entity. The router fetches
@@ -40,13 +37,13 @@ async def comment_select(
     required role.
     """
     comment_repository = Repository(session, cache, Comment)
-    comment = await comment_repository.select(id=schema.comment_id)
+    comment = await comment_repository.select(id=comment_id)
 
     if not comment:
-        raise E("comment_id", schema.comment_id, E.RESOURCE_NOT_FOUND,
-                status_code=status.HTTP_404_NOT_FOUND)
+        raise E(["path", "comment_id"], comment_id,
+                E.ERR_RESOURCE_NOT_FOUND, status.HTTP_404_NOT_FOUND)
 
-    hook = Hook(session, cache, request, current_user=current_user)
+    hook = Hook(session, cache, current_user=current_user)
     await hook.execute(H.AFTER_COMMENT_SELECT, comment)
 
     return comment.to_dict()

@@ -1,12 +1,11 @@
-from fastapi import APIRouter, Depends, Request, status
+from fastapi import APIRouter, Depends, status
 from fastapi.responses import JSONResponse
 from app.database import get_session
 from app.cache import get_cache
 from app.decorators.locked_decorator import locked
 from app.models.user_model import User, UserRole
 from app.models.collection_model import Collection
-from app.schemas.collection_schemas import (
-    CollectionDeleteRequest, CollectionDeleteResponse)
+from app.schemas.collection_schemas import CollectionDeleteResponse
 from app.repository import Repository
 from app.errors import E
 from app.hooks import H, Hook
@@ -15,16 +14,14 @@ from app.auth import auth
 router = APIRouter()
 
 
-@router.delete("/collection/{collection_id}", summary="Delete collection",
+@router.delete("/collection/{collection_id}", summary="Delete a collection",
                response_class=JSONResponse, status_code=status.HTTP_200_OK,
                response_model=CollectionDeleteResponse, tags=["collections"])
 @locked
 async def collection_delete(
-    request: Request,
-    session=Depends(get_session),
-    cache=Depends(get_cache),
-    current_user: User = Depends(auth(UserRole.admin)),
-    schema=Depends(CollectionDeleteRequest)
+    collection_id: int,
+    session=Depends(get_session), cache=Depends(get_cache),
+    current_user: User = Depends(auth(UserRole.admin))
 ) -> CollectionDeleteResponse:
     """
     FastAPI router for deleting a collection entity. The router
@@ -38,14 +35,14 @@ async def collection_delete(
     """
     collection_repository = Repository(session, cache, Collection)
 
-    collection = await collection_repository.select(id=schema.collection_id)
+    collection = await collection_repository.select(id=collection_id)
     if not collection:
-        raise E("collection_id", schema.collection_id, E.RESOURCE_NOT_FOUND,
-                status_code=status.HTTP_404_NOT_FOUND)
+        raise E([E.LOC_PATH, "collection_id"], collection_id,
+                E.ERR_RESOURCE_NOT_FOUND, status.HTTP_404_NOT_FOUND)
 
     await collection_repository.delete(collection, commit=False)
 
-    hook = Hook(session, cache, request, current_user=current_user)
+    hook = Hook(session, cache, current_user=current_user)
     await hook.execute(H.BEFORE_COLLECTION_DELETE, collection)
 
     await collection_repository.commit()

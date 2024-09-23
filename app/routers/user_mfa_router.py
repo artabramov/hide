@@ -1,13 +1,14 @@
-from fastapi import APIRouter, Depends, Response, status, HTTPException
+from fastapi import APIRouter, Depends, Response, status
 from app.database import get_session
 from app.cache import get_cache
-from app.schemas.user_schemas import MFARequest
 from app.repository import Repository
 import qrcode
 from io import BytesIO
 from app.config import get_config
 from app.decorators.locked_decorator import locked
 from app.models.user_model import User
+from app.errors import E
+from app.hooks import H, Hook
 
 router = APIRouter()
 cfg = get_config()
@@ -19,8 +20,10 @@ MFA_MASK = "otpauth://totp/%s?secret=%s&issuer=%s"
             status_code=status.HTTP_200_OK, include_in_schema=True,
             tags=["users"])
 @locked
-async def user_mfa(session=Depends(get_session), cache=Depends(get_cache),
-                   schema=Depends(MFARequest)):
+async def user_mfa(
+    user_id: int, mfa_secret: str,
+    session=Depends(get_session), cache=Depends(get_cache)
+):
     """
     Retrieve a QR code for MFA setup for a user. This endpoint validates
     the user's MFA secret and generates a QR code that can be scanned by
@@ -28,13 +31,22 @@ async def user_mfa(session=Depends(get_session), cache=Depends(get_cache),
     information.
     """
     user_repository = Repository(session, cache, User)
-    user = await user_repository.select(id=schema.user_id)
+    user = await user_repository.select(id=user_id)
 
-    if not user or user.mfa_secret != schema.mfa_secret:
-        raise HTTPException(status_code=404)
+    if not user:
+        raise E(["query", "user_id"], user_id,
+                E.ERR_RESOURCE_NOT_FOUND, status.HTTP_404_NOT_FOUND)
 
     elif user.is_active:
-        raise HTTPException(status_code=423)
+        raise E(["query", "user_id"], user_id,
+                E.ERR_RESOURCE_FORBIDDEN, status.HTTP_403_FORBIDDEN)
+
+    elif user.mfa_secret != mfa_secret:
+        raise E(["query", "mfa_secret"], mfa_secret,
+                E.ERR_VALUE_INVALID, status.HTTP_422_UNPROCESSABLE_ENTITY)
+
+    hook = Hook(session, cache)
+    await hook.execute(H.BEFORE_MFA_SELECT, user)
 
     qr = qrcode.QRCode(
         version=cfg.MFA_VERSION, box_size=cfg.MFA_BOX_SIZE,
@@ -52,5 +64,7 @@ async def user_mfa(session=Depends(get_session), cache=Depends(get_cache),
     img.save(img_bytes)
     img_bytes.seek(0)
     img_data = img_bytes.getvalue()
+
+    await hook.execute(H.AFTER_MFA_SELECT, user)
 
     return Response(content=img_data, media_type=cfg.MFA_MIMETYPE)

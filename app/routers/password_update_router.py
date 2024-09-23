@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends, status, Request
+from fastapi import APIRouter, Depends, status
 from fastapi.responses import JSONResponse
 from app.database import get_session
 from app.cache import get_cache
@@ -20,11 +20,9 @@ router = APIRouter()
             response_model=PasswordUpdateResponse, tags=["users"])
 @locked
 async def password_update(
-    request: Request,
-    session=Depends(get_session),
-    cache=Depends(get_cache),
-    current_user: User = Depends(auth(UserRole.reader)),
-    schema=Depends(PasswordUpdateRequest)
+    user_id: int, schema: PasswordUpdateRequest,
+    session=Depends(get_session), cache=Depends(get_cache),
+    current_user: User = Depends(auth(UserRole.reader))
 ) -> PasswordUpdateResponse:
     """
     FastAPI router for updating a user password. Requires the current
@@ -34,21 +32,26 @@ async def password_update(
     invalid or if the user does not have the required role. Raises
     a 422 error if the current password is incorrect.
     """
-    if schema.user_id != current_user.id:
-        raise E("user_id", schema.user_id, E.RESOURCE_FORBIDDEN,
-                status_code=status.HTTP_403_FORBIDDEN)
+    user_repository = Repository(session, cache, User)
+    user = await user_repository.select(id=user_id)
 
-    current_password = schema.current_password.get_secret_value()
-    current_hash = get_hash(current_password)
-    if current_hash != current_user.password_hash:
-        raise E("current_password", current_password, E.VALUE_INVALID,
-                status_code=status.HTTP_422_UNPROCESSABLE_ENTITY)
+    if not user:
+        raise E([E.LOC_PATH, "user_id"], user_id,
+                E.ERR_RESOURCE_NOT_FOUND, status.HTTP_404_NOT_FOUND)
+
+    elif user_id != current_user.id:
+        raise E([E.LOC_PATH, "user_id"], user_id,
+                E.ERR_RESOURCE_FORBIDDEN, status.HTTP_403_FORBIDDEN)
+
+    if get_hash(schema.current_password) != current_user.password_hash:
+        raise E([E.LOC_BODY, "current_password"], schema.current_password,
+                E.ERR_VALUE_INVALID, status.HTTP_422_UNPROCESSABLE_ENTITY)
 
     user_repository = Repository(session, cache, User)
     current_user.user_password = schema.updated_password
     await user_repository.update(current_user, commit=False)
 
-    hook = Hook(session, cache, request, current_user=current_user)
+    hook = Hook(session, cache, current_user=current_user)
     await hook.execute(H.BEFORE_PASSWORD_UPDATE, current_user)
 
     await user_repository.commit()

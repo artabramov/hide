@@ -7,10 +7,10 @@ from app.schemas.system_schemas import SystemHelloResponse
 router = APIRouter()
 
 
-@router.get("/system/hello", summary="Say hello",
+@router.get("/hello", summary="Hello!",
             response_class=JSONResponse, status_code=status.HTTP_200_OK,
             response_model=SystemHelloResponse, tags=["system"])
-async def system_hello():
+async def hello_select():
     return {
         "unix_timestamp": int(time.time()),
         "timezone_name": time.tzname[0],

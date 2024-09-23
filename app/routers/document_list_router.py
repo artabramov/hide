@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends, status, Request
+from fastapi import APIRouter, Depends, status
 from fastapi.responses import JSONResponse
 from app.database import get_session
 from app.cache import get_cache
@@ -21,11 +21,9 @@ router = APIRouter()
             response_model=DocumentListResponse, tags=["documents"])
 @locked
 async def document_list(
-    request: Request,
-    session=Depends(get_session),
-    cache=Depends(get_cache),
-    current_user: User = Depends(auth(UserRole.reader)),
-    schema=Depends(DocumentListRequest)
+    schema=Depends(DocumentListRequest),
+    session=Depends(get_session), cache=Depends(get_cache),
+    current_user: User = Depends(auth(UserRole.reader))
 ) -> DocumentListResponse:
     """
     FastAPI router for retrieving a list of document entities. The
@@ -45,7 +43,7 @@ async def document_list(
     documents = await document_repository.select_all(**kwargs)
     documents_count = await document_repository.count_all(**kwargs)
 
-    hook = Hook(session, cache, request, current_user=current_user)
+    hook = Hook(session, cache, current_user=current_user)
     await hook.execute(H.AFTER_DOCUMENT_LIST, documents)
 
     return {

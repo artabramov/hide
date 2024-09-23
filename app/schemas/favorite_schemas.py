@@ -27,14 +27,6 @@ class FavoriteInsertResponse(BaseModel):
     favorite_id: int
 
 
-class FavoriteSelectRequest(BaseModel):
-    """
-    Pydantic schema for request to retrieve a favorite entity. Requires
-    the favorite ID to be specified.
-    """
-    favorite_id: int
-
-
 class FavoriteSelectResponse(BaseModel):
     """
     Pydantic schema for the response after retrieving a favorite entity.
@@ -46,14 +38,6 @@ class FavoriteSelectResponse(BaseModel):
     user_id: int
     document_id: int
     favorite_document: DocumentSelectResponse
-
-
-class FavoriteDeleteRequest(BaseModel):
-    """
-    Pydantic schema for request to delete a favorite entity. Requires
-    the document ID to be specified.
-    """
-    favorite_id: int
 
 
 class FavoriteDeleteResponse(BaseModel):

@@ -1,11 +1,10 @@
-from fastapi import APIRouter, Depends, status, Request
+from fastapi import APIRouter, Depends, status
 from fastapi.responses import JSONResponse
 from app.database import get_session
 from app.cache import get_cache
 from app.decorators.locked_decorator import locked
 from app.models.user_model import User, UserRole
-from app.schemas.user_schemas import (
-    UserpicDeleteRequest, UserpicDeleteResponse)
+from app.schemas.user_schemas import UserpicDeleteResponse
 from app.errors import E
 from app.hooks import H, Hook
 from app.auth import auth
@@ -20,11 +19,9 @@ router = APIRouter()
                response_model=UserpicDeleteResponse, tags=["users"])
 @locked
 async def userpic_delete(
-    request: Request,
-    session=Depends(get_session),
-    cache=Depends(get_cache),
-    current_user: User = Depends(auth(UserRole.reader)),
-    schema=Depends(UserpicDeleteRequest)
+    user_id: int,
+    session=Depends(get_session), cache=Depends(get_cache),
+    current_user: User = Depends(auth(UserRole.reader))
 ) -> UserpicDeleteResponse:
     """
     FastAPI router for deleting a userpic. Deletes the userpic if it
@@ -34,9 +31,19 @@ async def userpic_delete(
     error if the user attempts to delete a userpic for a different user
     or if the user's token is invalid.
     """
-    if schema.user_id != current_user.id:
-        raise E("user_id", schema.user_id, E.RESOURCE_FORBIDDEN,
-                status_code=status.HTTP_403_FORBIDDEN)
+    user_repository = Repository(session, cache, User)
+    user = await user_repository.select(id=user_id)
+
+    if not user:
+        raise E([E.LOC_PATH, "user_id"], user_id,
+                E.ERR_RESOURCE_NOT_FOUND, status.HTTP_404_NOT_FOUND)
+
+    elif user_id != current_user.id:
+        raise E([E.LOC_PATH, "user_id"], user_id,
+                E.ERR_RESOURCE_FORBIDDEN, status.HTTP_403_FORBIDDEN)
+
+    hook = Hook(session, cache, current_user=current_user)
+    await hook.execute(H.BEFORE_USERPIC_DELETE, current_user)
 
     if current_user.userpic_filename:
         await FileManager.delete(current_user.userpic_path)
@@ -44,9 +51,6 @@ async def userpic_delete(
     user_repository = Repository(session, cache, User)
     current_user.userpic_filename = None
     await user_repository.update(current_user, commit=False)
-
-    hook = Hook(session, cache, request, current_user=current_user)
-    await hook.execute(H.BEFORE_USERPIC_DELETE, current_user)
 
     await user_repository.commit()
     await hook.execute(H.AFTER_USERPIC_DELETE, current_user)

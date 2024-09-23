@@ -2,16 +2,14 @@
 The module defines a FastAPI router for deleting favorite entities.
 """
 
-from fastapi import APIRouter, Depends, Request, status
+from fastapi import APIRouter, Depends, status
 from fastapi.responses import JSONResponse
 from app.database import get_session
 from app.cache import get_cache
 from app.decorators.locked_decorator import locked
 from app.models.user_model import User, UserRole
-from app.models.document_model import Document
 from app.models.favorite_model import Favorite
-from app.schemas.favorite_schemas import (
-    FavoriteDeleteRequest, FavoriteDeleteResponse)
+from app.schemas.favorite_schemas import FavoriteDeleteResponse
 from app.repository import Repository
 from app.errors import E
 from app.hooks import H, Hook
@@ -25,11 +23,9 @@ router = APIRouter()
                response_model=FavoriteDeleteResponse, tags=["favorites"])
 @locked
 async def favorite_delete(
-    request: Request,
-    session=Depends(get_session),
-    cache=Depends(get_cache),
+    favorite_id: int,
+    session=Depends(get_session), cache=Depends(get_cache),
     current_user: User = Depends(auth(UserRole.reader)),
-    schema=Depends(FavoriteDeleteRequest)
 ) -> FavoriteDeleteResponse:
     """
     FastAPI router for deleting a favorite entity. The router fetches
@@ -43,24 +39,19 @@ async def favorite_delete(
     or the user does not have the required role.
     """
     favorite_repository = Repository(session, cache, Favorite)
-    favorite = await favorite_repository.select(id=schema.favorite_id)
+    favorite = await favorite_repository.select(id=favorite_id)
 
     if not favorite:
-        raise E("favorite_id", schema.favorite_id, E.RESOURCE_NOT_FOUND,
-                status_code=status.HTTP_404_NOT_FOUND)
+        raise E([E.LOC_PATH, "favorite_id"], favorite_id,
+                E.ERR_RESOURCE_NOT_FOUND, status.HTTP_404_NOT_FOUND)
 
     elif favorite.user_id != current_user.id:
-        raise E("favorite_id", schema.favorite_id, E.RESOURCE_FORBIDDEN,
-                status_code=status.HTTP_403_FORBIDDEN)
+        raise E([E.LOC_PATH, "favorite_id"], favorite_id,
+                E.ERR_RESOURCE_FORBIDDEN, status.HTTP_403_FORBIDDEN)
 
     await favorite_repository.delete(favorite, commit=False)
 
-    favorite.favorite_document.favorites_count = await favorite_repository.count_all(  # noqa E501
-        document_id__eq=favorite.document_id)
-    document_repository = Repository(session, cache, Document)
-    await document_repository.update(favorite.favorite_document, commit=False)
-
-    hook = Hook(session, cache, request, current_user=current_user)
+    hook = Hook(session, cache, current_user=current_user)
     await hook.execute(H.BEFORE_FAVORITE_DELETE, favorite)
 
     await favorite_repository.commit()

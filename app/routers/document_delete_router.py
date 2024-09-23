@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends, status, Request
+from fastapi import APIRouter, Depends, status
 from fastapi.responses import JSONResponse
 from app.database import get_session
 from app.cache import get_cache
@@ -6,8 +6,7 @@ from app.decorators.locked_decorator import locked
 from app.models.user_model import User, UserRole
 from app.models.collection_model import Collection
 from app.models.document_model import Document
-from app.schemas.document_schemas import (
-    DocumentDeleteRequest, DocumentDeleteResponse)
+from app.schemas.document_schemas import DocumentDeleteResponse
 from app.hooks import H, Hook
 from app.auth import auth
 from app.repository import Repository
@@ -16,16 +15,14 @@ from app.errors import E
 router = APIRouter()
 
 
-@router.delete("/document/{document_id}", summary="Delete document",
+@router.delete("/document/{document_id}", summary="Delete a document",
                response_class=JSONResponse, status_code=status.HTTP_200_OK,
                response_model=DocumentDeleteResponse, tags=["documents"])
 @locked
 async def document_delete(
-    request: Request,
-    session=Depends(get_session),
-    cache=Depends(get_cache),
-    current_user: User = Depends(auth(UserRole.admin)),
-    schema=Depends(DocumentDeleteRequest)
+    document_id: int,
+    session=Depends(get_session), cache=Depends(get_cache),
+    current_user: User = Depends(auth(UserRole.admin))
 ) -> DocumentDeleteResponse:
     """
     FastAPI router for deleting a document entity. The router retrieves
@@ -40,29 +37,38 @@ async def document_delete(
     not have the required role.
     """
     document_repository = Repository(session, cache, Document)
+    document = await document_repository.select(id=document_id)
 
-    document = await document_repository.select(id=schema.document_id)
     if not document:
-        raise E("document_id", schema.document_id, E.RESOURCE_NOT_FOUND,
-                status_code=status.HTTP_404_NOT_FOUND)
+        raise E(["path", "document_id"], document_id,
+                E.ERR_RESOURCE_NOT_FOUND, status.HTTP_404_NOT_FOUND)
 
-    elif document.document_collection.is_locked:
-        raise E("document_id", schema.document_id, E.RESOURCE_LOCKED,
-                status_code=status.HTTP_423_LOCKED)
+    elif document.is_locked:
+        raise E(["path", "document_id"], document_id,
+                E.ERR_RESOURCE_LOCKED, status.HTTP_423_LOCKED)
 
     await document_repository.delete(document, commit=False)
 
-    # Update counters.
-    # document.document_collection.documents_count = await document_repository.count_all(  # noqa E501
-    #     collection_id__eq=document.document_collection.id)
-    # document.document_collection.documentes_size = await document_repository.sum_all(  # noqa E501
-    #     "filesize", collection_id__eq=document.document_collection.id)
+    if document.collection_id:
+        await document_repository.lock_all()
 
-    collection_repository = Repository(session, cache, Collection)
-    await collection_repository.update(document.document_collection,
-                                       commit=False)
+        document.document_collection.documents_count = (
+            await document_repository.count_all(
+                collection_id__eq=document.collection_id))
 
-    hook = Hook(session, cache, request, current_user=current_user)
+        document.document_collection.uploads_count = (
+            await document_repository.sum_all(
+                "uploads_count", collection_id__eq=document.collection_id))
+
+        document.document_collection.uploads_size = (
+            await document_repository.sum_all(
+                "uploads_size", collection_id__eq=document.collection_id))
+
+        collection_repository = Repository(session, cache, Collection)
+        await collection_repository.update(
+            document.document_collection, commit=False)
+
+    hook = Hook(session, cache, current_user=current_user)
     await hook.execute(H.BEFORE_DOCUMENT_DELETE, document)
 
     await document_repository.commit()

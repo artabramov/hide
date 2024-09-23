@@ -19,18 +19,27 @@ from app.routers import (
     user_mfa_router, user_login_router, user_select_router, user_update_router,
     user_delete_router, role_update_router, password_update_router,
     userpic_upload_router, userpic_delete_router, user_list_router,
+
     collection_insert_router, collection_select_router,
     collection_update_router, collection_delete_router,
-    collection_list_router, document_insert_router, document_select_router,
+    collection_list_router,
+
+    document_upload_router, document_replace_router, document_select_router,
     document_update_router, document_delete_router, document_list_router,
-    favorite_insert_router, favorite_select_router, favorite_delete_router,
-    favorite_list_router, revision_select_router, revision_download_router,
-    revision_list_router, download_select_router, download_list_router,
+
     comment_insert_router, comment_select_router, comment_update_router,
-    comment_delete_router, comment_list_router, option_update_router,
-    option_select_router, option_delete_router, option_list_router,
-    system_hello_router, system_lock_router, system_unlock_router,
-    system_telemetry_router)
+    comment_delete_router, comment_list_router,
+
+    upload_select_router, upload_download_router, upload_list_router,
+
+    favorite_insert_router, favorite_select_router, favorite_delete_router,
+    favorite_list_router, download_select_router, download_list_router,
+
+    option_insert_router, option_select_router, option_update_router,
+    option_delete_router, option_list_router,
+
+    system_hello_router, system_telemetry_router, system_lock_router,
+    system_unlock_router)
 from app.database import Base, sessionmanager, get_session
 from app.errors import SERVER_ERROR
 from contextlib import asynccontextmanager
@@ -119,6 +128,7 @@ def load_description():
 app = FastAPI(lifespan=lifespan, title=cfg.APP_TITLE, version=__version__,
               description=load_description())
 
+# user routers
 app.include_router(user_login_router.router, prefix=cfg.APP_PREFIX)
 app.include_router(token_select_router.router, prefix=cfg.APP_PREFIX)
 app.include_router(token_delete_router.router, prefix=cfg.APP_PREFIX)
@@ -132,38 +142,57 @@ app.include_router(password_update_router.router, prefix=cfg.APP_PREFIX)
 app.include_router(userpic_upload_router.router, prefix=cfg.APP_PREFIX)
 app.include_router(userpic_delete_router.router, prefix=cfg.APP_PREFIX)
 app.include_router(user_list_router.router, prefix=cfg.APP_PREFIX)
+
+# collection routers
 app.include_router(collection_insert_router.router, prefix=cfg.APP_PREFIX)
 app.include_router(collection_select_router.router, prefix=cfg.APP_PREFIX)
 app.include_router(collection_update_router.router, prefix=cfg.APP_PREFIX)
 app.include_router(collection_delete_router.router, prefix=cfg.APP_PREFIX)
 app.include_router(collection_list_router.router, prefix=cfg.APP_PREFIX)
-app.include_router(document_insert_router.router, prefix=cfg.APP_PREFIX)
+
+# document routers
+app.include_router(document_upload_router.router, prefix=cfg.APP_PREFIX)
+app.include_router(document_replace_router.router, prefix=cfg.APP_PREFIX)
 app.include_router(document_select_router.router, prefix=cfg.APP_PREFIX)
 app.include_router(document_update_router.router, prefix=cfg.APP_PREFIX)
 app.include_router(document_delete_router.router, prefix=cfg.APP_PREFIX)
 app.include_router(document_list_router.router, prefix=cfg.APP_PREFIX)
-app.include_router(favorite_insert_router.router, prefix=cfg.APP_PREFIX)
-app.include_router(favorite_select_router.router, prefix=cfg.APP_PREFIX)
-app.include_router(favorite_delete_router.router, prefix=cfg.APP_PREFIX)
-app.include_router(favorite_list_router.router, prefix=cfg.APP_PREFIX)
-app.include_router(revision_select_router.router, prefix=cfg.APP_PREFIX)
-app.include_router(revision_download_router.router, prefix=cfg.APP_PREFIX)
-app.include_router(revision_list_router.router, prefix=cfg.APP_PREFIX)
-app.include_router(download_select_router.router, prefix=cfg.APP_PREFIX)
-app.include_router(download_list_router.router, prefix=cfg.APP_PREFIX)
+
+# comment routers
 app.include_router(comment_insert_router.router, prefix=cfg.APP_PREFIX)
 app.include_router(comment_select_router.router, prefix=cfg.APP_PREFIX)
 app.include_router(comment_update_router.router, prefix=cfg.APP_PREFIX)
 app.include_router(comment_delete_router.router, prefix=cfg.APP_PREFIX)
 app.include_router(comment_list_router.router, prefix=cfg.APP_PREFIX)
-app.include_router(option_update_router.router, prefix=cfg.APP_PREFIX)
+
+# upload routers
+app.include_router(upload_select_router.router, prefix=cfg.APP_PREFIX)
+app.include_router(upload_download_router.router, prefix=cfg.APP_PREFIX)
+app.include_router(upload_list_router.router, prefix=cfg.APP_PREFIX)
+
+# download routers
+app.include_router(download_select_router.router, prefix=cfg.APP_PREFIX)
+app.include_router(download_list_router.router, prefix=cfg.APP_PREFIX)
+
+# favorite routers
+app.include_router(favorite_insert_router.router, prefix=cfg.APP_PREFIX)
+app.include_router(favorite_select_router.router, prefix=cfg.APP_PREFIX)
+app.include_router(favorite_delete_router.router, prefix=cfg.APP_PREFIX)
+app.include_router(favorite_list_router.router, prefix=cfg.APP_PREFIX)
+
+# option routers
+app.include_router(option_insert_router.router, prefix=cfg.APP_PREFIX)
 app.include_router(option_select_router.router, prefix=cfg.APP_PREFIX)
+app.include_router(option_update_router.router, prefix=cfg.APP_PREFIX)
 app.include_router(option_delete_router.router, prefix=cfg.APP_PREFIX)
 app.include_router(option_list_router.router, prefix=cfg.APP_PREFIX)
+
+# system routers
 app.include_router(system_hello_router.router, prefix=cfg.APP_PREFIX)
+app.include_router(system_telemetry_router.router, prefix=cfg.APP_PREFIX)
 app.include_router(system_lock_router.router, prefix=cfg.APP_PREFIX)
 app.include_router(system_unlock_router.router, prefix=cfg.APP_PREFIX)
-app.include_router(system_telemetry_router.router, prefix=cfg.APP_PREFIX)
+
 
 app.mount(cfg.USERPIC_PREFIX,
           StaticFiles(directory=cfg.USERPIC_BASE_PATH, html=False),

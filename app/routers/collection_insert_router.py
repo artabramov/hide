@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends, Request, status
+from fastapi import APIRouter, Depends, status
 from fastapi.responses import JSONResponse
 from app.database import get_session
 from app.cache import get_cache
@@ -15,16 +15,14 @@ from app.auth import auth
 router = APIRouter()
 
 
-@router.post("/collection", summary="Create collection",
+@router.post("/collection", summary="Create a new collection",
              response_class=JSONResponse, status_code=status.HTTP_201_CREATED,
              response_model=CollectionInsertResponse, tags=["collections"])
 @locked
 async def collection_insert(
-    request: Request,
-    session=Depends(get_session),
-    cache=Depends(get_cache),
-    current_user: User = Depends(auth(UserRole.writer)),
-    schema=Depends(CollectionInsertRequest)
+    schema: CollectionInsertRequest,
+    session=Depends(get_session), cache=Depends(get_cache),
+    current_user: User = Depends(auth(UserRole.writer))
 ) -> CollectionInsertResponse:
     """
     FastAPI router for creating a collection entity. The router verifies
@@ -42,15 +40,15 @@ async def collection_insert(
         collection_name__eq=schema.collection_name)
 
     if collection_exists:
-        raise E("collection_name", schema.collection_name, E.VALUE_DUPLICATED,
-                status_code=status.HTTP_422_UNPROCESSABLE_ENTITY)
+        raise E([E.LOC_BODY, "collection_name"], schema.collection_name,
+                E.ERR_VALUE_DUPLICATED, status.HTTP_422_UNPROCESSABLE_ENTITY)
 
     collection = Collection(
         current_user.id, schema.is_locked, schema.collection_name,
         collection_summary=schema.collection_summary)
     await collection_repository.insert(collection, commit=False)
 
-    hook = Hook(session, cache, request, current_user=current_user)
+    hook = Hook(session, cache, current_user=current_user)
     await hook.execute(H.BEFORE_COLLECTION_INSERT, collection)
 
     await collection_repository.commit()

@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends, status, Request
+from fastapi import APIRouter, Depends, status
 from fastapi.responses import JSONResponse
 from app.database import get_session
 from app.cache import get_cache
@@ -18,11 +18,9 @@ router = APIRouter()
             response_model=RoleUpdateResponse, tags=["users"])
 @locked
 async def role_update(
-    request: Request,
-    session=Depends(get_session),
-    cache=Depends(get_cache),
-    current_user: User = Depends(auth(UserRole.admin)),
-    schema=Depends(RoleUpdateRequest)
+    user_id: int, schema: RoleUpdateRequest,
+    session=Depends(get_session), cache=Depends(get_cache),
+    current_user: User = Depends(auth(UserRole.admin))
 ) -> RoleUpdateResponse:
     """
     FastAPI router for updating a user role. Requires the current user
@@ -33,22 +31,22 @@ async def role_update(
     have the required role. Returns a 404 error if the user to be
     updated is not found.
     """
-    if schema.user_id == current_user.id:
-        raise E("user_id", schema.user_id, E.RESOURCE_FORBIDDEN,
-                status_code=status.HTTP_403_FORBIDDEN)
-
     user_repository = Repository(session, cache, User)
-    user = await user_repository.select(id=schema.user_id)
+    user = await user_repository.select(id=user_id)
 
     if not user:
-        raise E("user_id", schema.user_id, E.RESOURCE_NOT_FOUND,
-                status_code=status.HTTP_404_NOT_FOUND)
+        raise E([E.LOC_PATH, "user_id"], user_id,
+                E.ERR_RESOURCE_NOT_FOUND, status.HTTP_404_NOT_FOUND)
+
+    elif user_id == current_user.id:
+        raise E([E.LOC_PATH, "user_id"], user_id,
+                E.ERR_RESOURCE_FORBIDDEN, status.HTTP_403_FORBIDDEN)
 
     user.is_active = schema.is_active
     user.user_role = schema.user_role
     await user_repository.update(user, commit=False)
 
-    hook = Hook(session, cache, request, current_user=current_user)
+    hook = Hook(session, cache, current_user=current_user)
     await hook.execute(H.BEFORE_ROLE_UPDATE, user)
 
     await user_repository.commit()

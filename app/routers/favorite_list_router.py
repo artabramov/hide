@@ -2,7 +2,7 @@
 The module defines a FastAPI router for retrieving the favorite list.
 """
 
-from fastapi import APIRouter, Depends, Request, status
+from fastapi import APIRouter, Depends, status
 from fastapi.responses import JSONResponse
 from app.database import get_session
 from app.cache import get_cache
@@ -23,11 +23,9 @@ router = APIRouter()
             response_model=FavoriteListResponse, tags=["favorites"])
 @locked
 async def favorite_list(
-    request: Request,
-    session=Depends(get_session),
-    cache=Depends(get_cache),
-    current_user: User = Depends(auth(UserRole.reader)),
-    schema=Depends(FavoriteListRequest)
+    schema=Depends(FavoriteListRequest),
+    session=Depends(get_session), cache=Depends(get_cache),
+    current_user: User = Depends(auth(UserRole.reader))
 ) -> FavoriteListResponse:
     """
     FastAPI router for retrieving a list of favorite entities. The
@@ -44,7 +42,7 @@ async def favorite_list(
     favorites = await favorite_repository.select_all(**kwargs)
     favorites_count = await favorite_repository.count_all(**kwargs)
 
-    hook = Hook(session, cache, request, current_user=current_user)
+    hook = Hook(session, cache, current_user=current_user)
     await hook.execute(H.AFTER_FAVORITE_LIST, favorites)
 
     return {

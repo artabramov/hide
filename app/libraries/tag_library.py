@@ -46,7 +46,7 @@ class TagLibrary:
         values = []
         if source_string:
             values = source_string.split(",")
-            values = [tag.strip().lower() for tag in values]
+            values = [tag.strip() for tag in values]
             values = list(set([value for value in values if value]))
         return values
 
@@ -70,10 +70,17 @@ class TagLibrary:
         """
         tag_repository = Repository(self.session, self.cache, Tag)
         for value in values:
+            # try:
+            #     async with asyncio_lock:
+            #         tag = Tag(document_id, value)
+            #         await tag_repository.insert(tag, commit=commit)
+
+            # except Exception:
+            #     pass
+
             try:
-                async with asyncio_lock:
-                    tag = Tag(document_id, value)
-                    await tag_repository.insert(tag, commit=commit)
+                tag = Tag(document_id, value)
+                await tag_repository.insert(tag, commit=commit)
 
             except Exception:
                 pass

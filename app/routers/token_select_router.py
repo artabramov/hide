@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends, status, Request
+from fastapi import APIRouter, Depends, status
 from fastapi.responses import JSONResponse
 from app.database import get_session
 from app.cache import get_cache
@@ -21,10 +21,8 @@ cfg = get_config()
             response_model=TokenRetrieveResponse, tags=["auth"])
 @locked
 async def token_retrieve(
-    request: Request,
-    session=Depends(get_session),
-    cache=Depends(get_cache),
-    schema=Depends(TokenRetrieveRequest)
+    schema=Depends(TokenRetrieveRequest),
+    session=Depends(get_session), cache=Depends(get_cache)
 ) -> TokenRetrieveResponse:
     """
     FastAPI router for the second step of multi-factor authentication.
@@ -39,19 +37,19 @@ async def token_retrieve(
     user = await user_repository.select(user_login__eq=schema.user_login)
 
     if not user:
-        raise E("user_login", schema.user_login, E.RESOURCE_NOT_FOUND,
-                status_code=status.HTTP_404_NOT_FOUND)
+        raise E(["query", "user_login"], schema.user_login,
+                E.ERR_RESOURCE_NOT_FOUND, status.HTTP_404_NOT_FOUND)
 
     admin_exists = await user_repository.exists(
         user_role__eq=UserRole.admin, is_active__eq=True)
 
     if not user.is_active and admin_exists:
-        raise E("user_login", schema.user_login, E.USER_INACTIVE,
-                status_code=status.HTTP_403_FORBIDDEN)
+        raise E(["query", "user_login"], schema.user_login,
+                E.ERR_USER_INACTIVE, status.HTTP_403_FORBIDDEN)
 
     elif not user.password_accepted:
-        raise E("user_totp", schema.user_totp, E.VALUE_INVALID,
-                status_code=status.HTTP_422_UNPROCESSABLE_ENTITY)
+        raise E(["query", "user_totp"], schema.user_totp,
+                E.ERR_VALUE_INVALID, status.HTTP_422_UNPROCESSABLE_ENTITY)
 
     totp_accepted = schema.user_totp == user.get_totp(user.mfa_secret)
 
@@ -73,15 +71,15 @@ async def token_retrieve(
     await user_repository.update(user, commit=False)
     user_token = jwt_encode(user, token_exp=schema.token_exp)
 
-    hook = Hook(session, cache, request, current_user=user)
-    await hook.execute(H.BEFORE_TOKEN_RETRIEVE, user)
+    hook = Hook(session, cache)
+    await hook.execute(H.BEFORE_TOKEN_SELECT, user)
 
     await user_repository.commit()
-    await hook.execute(H.AFTER_TOKEN_RETRIEVE, user)
+    await hook.execute(H.AFTER_TOKEN_SELECT, user)
 
     if totp_accepted:
         return {"user_token": user_token}
 
     else:
-        raise E("user_totp", schema.user_totp, E.VALUE_INVALID,
-                status_code=status.HTTP_422_UNPROCESSABLE_ENTITY)
+        raise E(["query", "user_totp"], schema.user_totp,
+                E.ERR_VALUE_INVALID, status.HTTP_422_UNPROCESSABLE_ENTITY)

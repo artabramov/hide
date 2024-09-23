@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends, status, Request
+from fastapi import APIRouter, Depends, status
 from fastapi.responses import JSONResponse
 from app.database import get_session
 from app.cache import get_cache
@@ -17,11 +17,9 @@ router = APIRouter()
             response_model=UserListResponse, tags=["users"])
 @locked
 async def users_list(
-    request: Request,
-    session=Depends(get_session),
-    cache=Depends(get_cache),
-    current_user: User = Depends(auth(UserRole.reader)),
-    schema=Depends(UserListRequest)
+    schema=Depends(UserListRequest),
+    session=Depends(get_session), cache=Depends(get_cache),
+    current_user: User = Depends(auth(UserRole.reader))
 ) -> UserListResponse:
     """
     FastAPI router for retrieving a list of user entities. Requires the
@@ -35,7 +33,7 @@ async def users_list(
     users = await user_repository.select_all(**schema.__dict__)
     users_count = await user_repository.count_all(**schema.__dict__)
 
-    hook = Hook(session, cache, request, current_user=current_user)
+    hook = Hook(session, cache, current_user=current_user)
     await hook.execute(H.AFTER_USER_LIST, users)
 
     return {

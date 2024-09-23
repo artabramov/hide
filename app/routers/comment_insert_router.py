@@ -2,7 +2,7 @@
 The module defines a FastAPI router for creating comment entities.
 """
 
-from fastapi import APIRouter, Depends, Request, status
+from fastapi import APIRouter, Depends, status
 from fastapi.responses import JSONResponse
 from app.database import get_session
 from app.cache import get_cache
@@ -20,16 +20,14 @@ from app.auth import auth
 router = APIRouter()
 
 
-@router.post("/comment", summary="Create comment",
+@router.post("/comment", summary="Create a new comment",
              response_class=JSONResponse, status_code=status.HTTP_201_CREATED,
              response_model=CommentInsertResponse, tags=["comments"])
 @locked
 async def comment_insert(
-    request: Request,
-    session=Depends(get_session),
-    cache=Depends(get_cache),
-    current_user: User = Depends(auth(UserRole.writer)),
-    schema=Depends(CommentInsertRequest)
+    schema: CommentInsertRequest,
+    session=Depends(get_session), cache=Depends(get_cache),
+    current_user: User = Depends(auth(UserRole.writer))
 ) -> CommentInsertResponse:
     """
     FastAPI router for creating a comment entity. The router validates
@@ -46,22 +44,23 @@ async def comment_insert(
     document = await document_repository.select(id__eq=schema.document_id)
 
     if not document:
-        raise E("document_id", schema.document_id, E.RESOURCE_NOT_FOUND,
-                status_code=status.HTTP_404_NOT_FOUND)
+        raise E(["body", "document_id"], schema.document_id,
+                E.ERR_RESOURCE_NOT_FOUND, status.HTTP_404_NOT_FOUND)
 
-    elif document.document_collection.is_locked:
-        raise E("document_id", schema.document_id, E.RESOURCE_LOCKED,
-                status_code=status.HTTP_423_LOCKED)
+    elif document.is_locked:
+        raise E(["body", "document_id"], schema.document_id,
+                E.ERR_RESOURCE_LOCKED, status.HTTP_423_LOCKED)
 
     comment_repository = Repository(session, cache, Comment)
     comment = Comment(current_user.id, document.id, schema.comment_content)
     await comment_repository.insert(comment, commit=False)
 
+    await comment_repository.lock_all()
     document.comments_count = await comment_repository.count_all(
         document_id__eq=document.id)
     await document_repository.update(document, commit=False)
 
-    hook = Hook(session, cache, request, current_user=current_user)
+    hook = Hook(session, cache, current_user=current_user)
     await hook.execute(H.BEFORE_COMMENT_INSERT, comment)
 
     await comment_repository.commit()

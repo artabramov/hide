@@ -2,7 +2,7 @@
 The module defines a FastAPI router for retrieving the download list.
 """
 
-from fastapi import APIRouter, Depends, Request, status
+from fastapi import APIRouter, Depends, status
 from fastapi.responses import JSONResponse
 from app.database import get_session
 from app.cache import get_cache
@@ -23,11 +23,9 @@ router = APIRouter()
             response_model=DownloadListResponse, tags=["downloads"])
 @locked
 async def download_list(
-    request: Request,
-    session=Depends(get_session),
-    cache=Depends(get_cache),
-    current_user: User = Depends(auth(UserRole.admin)),
-    schema=Depends(DownloadListRequest)
+    schema=Depends(DownloadListRequest),
+    session=Depends(get_session), cache=Depends(get_cache),
+    current_user: User = Depends(auth(UserRole.admin))
 ) -> DownloadListResponse:
     """
     FastAPI router for retrieving a list of download entities. The
@@ -41,7 +39,7 @@ async def download_list(
     downloads = await download_repository.select_all(**schema.__dict__)
     downloads_count = await download_repository.count_all(**schema.__dict__)
 
-    hook = Hook(session, cache, request, current_user=current_user)
+    hook = Hook(session, cache, current_user=current_user)
     await hook.execute(H.AFTER_DOWNLOAD_LIST, downloads)
 
     return {

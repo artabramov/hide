@@ -13,8 +13,8 @@ cfg = get_config()
 log = get_log()
 
 
-class Revision(Base):
-    __tablename__ = "documents_revisions"
+class Upload(Base):
+    __tablename__ = "documents_uploads"
     _cacheable = True
 
     id = Column(BigInteger, primary_key=True)
@@ -24,34 +24,34 @@ class Revision(Base):
     document_id = Column(BigInteger, ForeignKey("documents.id"), index=True)
     is_latest = Column(Boolean, nullable=False)
 
-    revision_filename = Column(String(256), nullable=False, unique=True)
-    revision_size = Column(BigInteger, index=False, nullable=False)
-    original_filename = Column(String(256), nullable=False)
+    upload_filename = Column(String(256), nullable=False, unique=True)
+    upload_size = Column(BigInteger, index=False, nullable=False)
+    original_filename = Column(String(256), index=True, nullable=False)
     original_size = Column(BigInteger, index=True, nullable=False)
     original_mimetype = Column(String(256), index=True, nullable=False)
     thumbnail_filename = Column(String(80), nullable=True, unique=True)
     downloads_count = Column(Integer, index=True, default=0)
 
-    revision_user = relationship(
-        "User", back_populates="user_revisions", lazy="joined")
+    upload_user = relationship(
+        "User", back_populates="user_uploads", lazy="joined")
 
-    revision_document = relationship(
-        "Document", back_populates="document_revisions", lazy="joined",
+    upload_document = relationship(
+        "Document", back_populates="document_uploads", lazy="joined",
         foreign_keys=[document_id])
 
-    revision_downloads = relationship(
-        "Download", back_populates="download_revision", lazy="noload",
+    upload_downloads = relationship(
+        "Download", back_populates="download_upload", lazy="noload",
         cascade="all, delete-orphan")
 
-    def __init__(self, user_id: int, document_id: int, revision_filename: str,
-                 revision_size: int, original_filename: str,
-                 original_size: int, original_mimetype: str,
-                 thumbnail_filename: str = None):
+    def __init__(self, user_id: int, document_id: int,
+                 upload_filename: str, upload_size: int,
+                 original_filename: str, original_size: int,
+                 original_mimetype: str, thumbnail_filename: str = None):
         self.user_id = user_id
         self.document_id = document_id
         self.is_latest = True
-        self.revision_filename = revision_filename
-        self.revision_size = revision_size
+        self.upload_filename = upload_filename
+        self.upload_size = upload_size
         self.original_filename = original_filename
         self.original_size = original_size
         self.original_mimetype = original_mimetype
@@ -59,8 +59,8 @@ class Revision(Base):
         self.downloads_count = 0
 
     @property
-    def revision_path(self):
-        return os.path.join(cfg.REVISIONS_BASE_PATH, self.revision_filename)
+    def upload_path(self):
+        return os.path.join(cfg.UPLOADS_BASE_PATH, self.upload_filename)
 
     @property
     def thumbnail_path(self):
@@ -78,18 +78,18 @@ class Revision(Base):
             "user_id": self.user_id,
             "document_id": self.document_id,
             "is_latest": self.is_latest,
-            "revision_size": self.revision_size,
+            "upload_size": self.upload_size,
             "original_filename": self.original_filename,
             "original_size": self.original_size,
             "original_mimetype": self.original_mimetype,
             "thumbnail_url": self.thumbnail_url,
             "downloads_count": self.downloads_count,
-            "revision_user": self.revision_user.to_dict(),
+            "upload_user": self.upload_user.to_dict(),
         }
 
 
-@event.listens_for(Revision, "after_delete")
-def after_delete_listener(mapper, connection, revision: Revision):
+@event.listens_for(Upload, "after_delete")
+def after_delete_listener(mapper, connection, upload: Upload):
     """
     Schedules asynchronous tasks to delete the files related to a
     revision entity after it is deleted from the database. It creates
@@ -97,33 +97,33 @@ def after_delete_listener(mapper, connection, revision: Revision):
     thumbnail file if one exists. This function is triggered by
     SQLAlchemy's after_delete event for the revision entity.
     """
-    asyncio.get_event_loop().create_task(delete_revision(revision))
-    asyncio.get_event_loop().create_task(delete_thumbnail(revision))
+    asyncio.get_event_loop().create_task(delete_upload(upload))
+    asyncio.get_event_loop().create_task(delete_thumbnail(upload))
 
 
-async def delete_revision(revision: Revision):
+async def delete_upload(upload: Upload):
     """
     Asynchronously deletes the file associated with the specified
     revision entity. Exceptions that occur during the file deletion
     process are logged for monitoring and debugging purposes.
     """
     try:
-        await FileManager.delete(revision.revision_path)
+        await FileManager.delete(upload.upload_path)
 
     except Exception as e:
         log.error("File deletion failed; module=revision_model; "
                   "function=delete_revision; e=%s;" % str(e))
 
 
-async def delete_thumbnail(revision: Revision):
+async def delete_thumbnail(upload: Upload):
     """
     Asynchronously deletes the thumbnail associated with the specified
     revision entity. Exceptions that occur during the file deletion
     process are logged for monitoring and debugging purposes.
     """
-    if revision.thumbnail_filename:
+    if upload.thumbnail_filename:
         try:
-            await FileManager.delete(revision.thumbnail_path)
+            await FileManager.delete(upload.thumbnail_path)
         except Exception as e:
             log.error("File deletion failed; module=revision_model; "
                       "function=delete_thumbnail; e=%s;" % str(e))

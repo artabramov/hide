@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends, Request, status
+from fastapi import APIRouter, Depends, status
 from fastapi.responses import JSONResponse
 from app.database import get_session
 from app.cache import get_cache
@@ -15,16 +15,14 @@ from app.auth import auth
 router = APIRouter()
 
 
-@router.put("/collection/{collection_id}", summary="Update collection",
+@router.put("/collection/{collection_id}", summary="Update a collection",
             response_class=JSONResponse, status_code=status.HTTP_200_OK,
             response_model=CollectionUpdateResponse, tags=["collections"])
 @locked
 async def collection_update(
-    request: Request,
-    session=Depends(get_session),
-    cache=Depends(get_cache),
-    current_user: User = Depends(auth(UserRole.editor)),
-    schema=Depends(CollectionUpdateRequest)
+    collection_id: int, schema: CollectionUpdateRequest,
+    session=Depends(get_session), cache=Depends(get_cache),
+    current_user: User = Depends(auth(UserRole.editor))
 ) -> CollectionUpdateResponse:
     """
     FastAPI router for updating a collection entity. The router
@@ -40,23 +38,23 @@ async def collection_update(
     """
     collection_repository = Repository(session, cache, Collection)
 
-    collection = await collection_repository.select(id=schema.collection_id)
+    collection = await collection_repository.select(id=collection_id)
     if not collection:
-        raise E("collection_id", schema.collection_id, E.RESOURCE_NOT_FOUND,
-                status_code=status.HTTP_404_NOT_FOUND)
+        raise E([E.LOC_PATH, "collection_id"], collection_id,
+                E.ERR_RESOURCE_NOT_FOUND, status.HTTP_404_NOT_FOUND)
 
     collection_exists = await collection_repository.exists(
         collection_name__eq=schema.collection_name, id__ne=collection.id)
     if collection_exists:
-        raise E("collection_name", schema.collection_name, E.VALUE_DUPLICATED,
-                status_code=status.HTTP_422_UNPROCESSABLE_ENTITY)
+        raise E([E.LOC_BODY, "collection_name"], schema.collection_name,
+                E.ERR_VALUE_DUPLICATED, status.HTTP_422_UNPROCESSABLE_ENTITY)
 
     collection.is_locked = schema.is_locked
     collection.collection_name = schema.collection_name
     collection.collection_summary = schema.collection_summary
     await collection_repository.update(collection, commit=False)
 
-    hook = Hook(session, cache, request, current_user=current_user)
+    hook = Hook(session, cache, current_user=current_user)
     await hook.execute(H.BEFORE_COLLECTION_UPDATE, collection)
 
     await collection_repository.commit()

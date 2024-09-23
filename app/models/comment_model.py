@@ -43,6 +43,10 @@ class Comment(Base):
         self.document_id = document_id
         self.comment_content = comment_content
 
+    @property
+    def is_locked(self) -> bool:
+        return self.comment_document.is_locked
+
     def to_dict(self):
         """
         Converts the Pydantic model instance into a dictionary with

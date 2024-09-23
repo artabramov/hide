@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends, status, Request
+from fastapi import APIRouter, Depends, status
 from fastapi.responses import JSONResponse
 from app.database import get_session
 from app.cache import get_cache
@@ -18,11 +18,9 @@ router = APIRouter()
             response_model=UserUpdateResponse, tags=["users"])
 @locked
 async def user_update(
-    request: Request,
-    session=Depends(get_session),
-    cache=Depends(get_cache),
-    current_user: User = Depends(auth(UserRole.reader)),
-    schema=Depends(UserUpdateRequest)
+    user_id: int, schema: UserUpdateRequest,
+    session=Depends(get_session), cache=Depends(get_cache),
+    current_user: User = Depends(auth(UserRole.reader))
 ) -> UserUpdateResponse:
     """
     FastAPI router for updating a user entity. Modifies the first name,
@@ -32,9 +30,16 @@ async def user_update(
     does not have the required role or if the user is attempting to
     update a different user's details.
     """
-    if schema.user_id != current_user.id:
-        raise E("user_id", schema.user_id, E.RESOURCE_FORBIDDEN,
-                status_code=status.HTTP_403_FORBIDDEN)
+    user_repository = Repository(session, cache, User)
+    user = await user_repository.select(id=user_id)
+
+    if not user:
+        raise E([E.LOC_PATH, "user_id"], user_id,
+                E.ERR_RESOURCE_NOT_FOUND, status.HTTP_404_NOT_FOUND)
+
+    elif user_id != current_user.id:
+        raise E([E.LOC_PATH, "user_id"], user_id,
+                E.ERR_RESOURCE_FORBIDDEN, status.HTTP_403_FORBIDDEN)
 
     user_repository = Repository(session, cache, User)
     current_user.first_name = schema.first_name
@@ -43,7 +48,7 @@ async def user_update(
     current_user.user_contacts = schema.user_contacts
     await user_repository.update(current_user, commit=False)
 
-    hook = Hook(session, cache, request, current_user=current_user)
+    hook = Hook(session, cache, current_user=current_user)
     await hook.execute(H.BEFORE_USER_UPDATE, current_user)
 
     await user_repository.commit()

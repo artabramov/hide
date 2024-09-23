@@ -31,14 +31,6 @@ class CommentInsertResponse(BaseModel):
     comment_id: int
 
 
-class CommentSelectRequest(BaseModel):
-    """
-    Pydantic schema for request to retrieve a comment entity. Requires
-    the comment ID to be specified.
-    """
-    comment_id: int
-
-
 class CommentSelectResponse(BaseModel):
     """
     Pydantic schema for the response after retrieving a comment entity.
@@ -59,8 +51,7 @@ class CommentUpdateRequest(BaseModel):
     Pydantic schema for request to update a comment entity. Requires
     the comment ID and comment content to be specified.
     """
-    comment_id: int
-    comment_content: str = Field(..., min_length=2, max_length=512)
+    comment_content: str = Field(..., min_length=1, max_length=512)
 
     @field_validator("comment_content", mode="before")
     def validate_comment_content(cls, comment_content: str) -> str:
@@ -71,14 +62,6 @@ class CommentUpdateResponse(BaseModel):
     """
     Pydantic schema for the response after updating a comment entity.
     Includes the ID assigned to the updated comment.
-    """
-    comment_id: int
-
-
-class CommentDeleteRequest(BaseModel):
-    """
-    Pydantic schema for request to delete a comment entity. Requires
-    the comment ID to be specified.
     """
     comment_id: int
 

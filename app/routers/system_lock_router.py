@@ -8,9 +8,9 @@ from app.auth import auth
 router = APIRouter()
 
 
-@router.get("/system/lock", summary="Lock app",
-            response_class=JSONResponse, status_code=status.HTTP_200_OK,
-            response_model=SystemLockResponse, tags=["system"])
-async def system_lock(current_user: User = Depends(auth(UserRole.admin)),):
+@router.post("/lock", summary="Lock the app",
+             response_class=JSONResponse, status_code=status.HTTP_200_OK,
+             response_model=SystemLockResponse, tags=["system"])
+async def lock_create(current_user: User = Depends(auth(UserRole.admin)),):
     await lock()
     return {"is_locked": True}

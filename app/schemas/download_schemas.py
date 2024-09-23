@@ -11,14 +11,6 @@ from app.schemas.user_schemas import UserSelectResponse
 cfg = get_config()
 
 
-class DownloadSelectRequest(BaseModel):
-    """
-    Pydantic schema for request to select a specific download entity.
-    Requires the download ID to be specified.
-    """
-    download_id: int
-
-
 class DownloadSelectResponse(BaseModel):
     """
     Pydantic schema for the response after retrieving a download entity.

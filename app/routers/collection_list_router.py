@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends, Request, status
+from fastapi import APIRouter, Depends, status
 from fastapi.responses import JSONResponse
 from app.database import get_session
 from app.cache import get_cache
@@ -19,11 +19,9 @@ router = APIRouter()
             response_model=CollectionListResponse, tags=["collections"])
 @locked
 async def collection_list(
-    request: Request,
-    session=Depends(get_session),
-    cache=Depends(get_cache),
-    current_user: User = Depends(auth(UserRole.reader)),
-    schema=Depends(CollectionListRequest)
+    schema=Depends(CollectionListRequest),
+    session=Depends(get_session), cache=Depends(get_cache),
+    current_user: User = Depends(auth(UserRole.reader))
 ) -> CollectionListResponse:
     """
     FastAPI router for retrieving a list of collection entities. The
@@ -39,7 +37,7 @@ async def collection_list(
     collections_count = await collection_repository.count_all(
         **schema.__dict__)
 
-    hook = Hook(session, cache, request, current_user=current_user)
+    hook = Hook(session, cache, current_user=current_user)
     await hook.execute(H.AFTER_COLLECTION_LIST, collections)
 
     return {

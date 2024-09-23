@@ -1,7 +1,6 @@
 from fastapi import APIRouter, Depends, Request, status
 from fastapi.responses import JSONResponse
 from app.database import get_session
-from app.cache import get_cache
 from app.auth import auth
 from app.models.user_model import User, UserRole
 from app.decorators.locked_decorator import locked
@@ -13,23 +12,22 @@ from app.managers.entity_manager import EntityManager
 router = APIRouter()
 
 
-@router.get("/system/telemetry", summary="Retrieve telemetry",
+@router.get("/telemetry", summary="Retrieve telemetry",
             response_class=JSONResponse, status_code=status.HTTP_200_OK,
             # response_model=SystemHelloResponse,
             tags=["system"])
 @locked
-async def system_telemetry(request: Request, session=Depends(get_session),
-                           cache=Depends(get_cache),
+async def telemetry_select(request: Request, session=Depends(get_session),
                            current_user: User = Depends(auth(UserRole.admin))):
     entity_manager = EntityManager(session)
 
     postgres_version = await entity_manager.execute("SELECT version();")
-    postgres_database_name = await entity_manager.execute("SELECT current_database();")
-    postgres_database_size = await entity_manager.execute("SELECT pg_size_pretty(pg_database_size(current_database()));")
-    postgres_tables_count = await entity_manager.execute("SELECT COUNT(*) FROM information_schema.tables WHERE table_schema = 'public';")
-    postgres_users_count = await entity_manager.execute("SELECT COUNT(*) FROM pg_user;")
-    postgres_start_time = await entity_manager.execute("SELECT pg_postmaster_start_time();")
-    postgres_active_connections = await entity_manager.execute("SELECT COUNT(*) FROM pg_stat_activity;")
+    postgres_database_name = await entity_manager.execute("SELECT current_database();")  # noqa E501
+    postgres_database_size = await entity_manager.execute("SELECT pg_size_pretty(pg_database_size(current_database()));")  # noqa E501
+    postgres_tables_count = await entity_manager.execute("SELECT COUNT(*) FROM information_schema.tables WHERE table_schema = 'public';")  # noqa E501
+    postgres_users_count = await entity_manager.execute("SELECT COUNT(*) FROM pg_user;")  # noqa E501
+    postgres_start_time = await entity_manager.execute("SELECT pg_postmaster_start_time();")  # noqa E501
+    postgres_active_connections = await entity_manager.execute("SELECT COUNT(*) FROM pg_stat_activity;")  # noqa E501
     # pg_version = await entity_manager.execute("")
 
     return {

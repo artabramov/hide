@@ -2,7 +2,7 @@
 The module defines a FastAPI router for updating comment entities.
 """
 
-from fastapi import APIRouter, Depends, Request, status
+from fastapi import APIRouter, Depends, status
 from fastapi.responses import JSONResponse
 from app.database import get_session
 from app.cache import get_cache
@@ -19,16 +19,14 @@ from app.auth import auth
 router = APIRouter()
 
 
-@router.put("/comment/{comment_id}", summary="Update comment",
+@router.put("/comment/{comment_id}", summary="Update a comment",
             response_class=JSONResponse, status_code=status.HTTP_200_OK,
             response_model=CommentUpdateResponse, tags=["comments"])
 @locked
 async def comment_update(
-    request: Request,
-    session=Depends(get_session),
-    cache=Depends(get_cache),
-    current_user: User = Depends(auth(UserRole.editor)),
-    schema=Depends(CommentUpdateRequest)
+    comment_id: int, schema: CommentUpdateRequest,
+    session=Depends(get_session), cache=Depends(get_cache),
+    current_user: User = Depends(auth(UserRole.editor))
 ) -> CommentUpdateResponse:
     """
     FastAPI router for updating a comment entity. The router fetches
@@ -42,24 +40,24 @@ async def comment_update(
     the user does not have the required role.
     """
     comment_repository = Repository(session, cache, Comment)
-    comment = await comment_repository.select(id=schema.comment_id)
+    comment = await comment_repository.select(id=comment_id)
 
     if not comment:
-        raise E("comment_id", schema.comment_id, E.RESOURCE_NOT_FOUND,
-                status_code=status.HTTP_404_NOT_FOUND)
+        raise E(["path", "comment_id"], comment_id,
+                E.ERR_RESOURCE_NOT_FOUND, status.HTTP_404_NOT_FOUND)
 
     elif comment.user_id != current_user.id:
-        raise E("comment_id", schema.comment_id, E.RESOURCE_FORBIDDEN,
-                status_code=status.HTTP_403_FORBIDDEN)
+        raise E(["path", "comment_id"], comment_id,
+                E.ERR_RESOURCE_FORBIDDEN, status.HTTP_403_FORBIDDEN)
 
-    elif comment.comment_document.document_collection.is_locked:
-        raise E("comment_id", schema.comment_id, E.RESOURCE_LOCKED,
-                status_code=status.HTTP_423_LOCKED)
+    elif comment.is_locked:
+        raise E(["path", "comment_id"], comment_id,
+                E.ERR_RESOURCE_LOCKED, status.HTTP_423_LOCKED)
 
     comment.comment_content = schema.comment_content
     await comment_repository.update(comment, commit=False)
 
-    hook = Hook(session, cache, request, current_user=current_user)
+    hook = Hook(session, cache, current_user=current_user)
     await hook.execute(H.BEFORE_COMMENT_UPDATE, comment)
 
     await comment_repository.commit()

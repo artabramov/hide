@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends, status, Request
+from fastapi import APIRouter, Depends, status
 from fastapi.responses import JSONResponse
 from app.database import get_session
 from app.cache import get_cache
@@ -12,15 +12,13 @@ from app.repository import Repository
 router = APIRouter()
 
 
-@router.post("/user", summary="Register user",
+@router.post("/user", summary="Register a new user",
              response_class=JSONResponse, status_code=status.HTTP_201_CREATED,
              response_model=UserRegisterResponse, tags=["users"])
 @locked
 async def user_register(
-    request: Request,
-    session=Depends(get_session),
-    cache=Depends(get_cache),
-    schema=Depends(UserRegisterRequest)
+    schema: UserRegisterRequest,
+    session=Depends(get_session), cache=Depends(get_cache)
 ) -> UserRegisterResponse:
     """
     FastAPI router for registering a new user. Checks if the user login
@@ -34,17 +32,17 @@ async def user_register(
         user_login__eq=schema.user_login)
 
     if user_exists:
-        raise E("user_login", schema.user_login, E.VALUE_DUPLICATED,
-                status_code=status.HTTP_422_UNPROCESSABLE_ENTITY)
+        raise E(["body", "user_login"], schema.user_login,
+                E.ERR_VALUE_DUPLICATED, status.HTTP_422_UNPROCESSABLE_ENTITY)
 
-    user_password = schema.user_password.get_secret_value()
     user = User(
-        UserRole.reader, schema.user_login, user_password, schema.first_name,
-        schema.last_name, user_signature=schema.user_signature,
+        UserRole.reader, schema.user_login, schema.user_password,
+        schema.first_name, schema.last_name,
+        user_signature=schema.user_signature,
         user_contacts=schema.user_contacts)
     await user_repository.insert(user, commit=False)
 
-    hook = Hook(session, cache, request, current_user=user)
+    hook = Hook(session, cache)
     await hook.execute(H.BEFORE_USER_REGISTER, user)
 
     await user_repository.commit()

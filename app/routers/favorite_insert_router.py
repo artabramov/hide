@@ -2,7 +2,7 @@
 The module defines a FastAPI router for creating favorite entities.
 """
 
-from fastapi import APIRouter, Depends, Request, status
+from fastapi import APIRouter, Depends, status
 from fastapi.responses import JSONResponse
 from app.database import get_session
 from app.cache import get_cache
@@ -25,11 +25,9 @@ router = APIRouter()
              response_model=FavoriteInsertResponse, tags=["favorites"])
 @locked
 async def favorite_insert(
-    request: Request,
-    session=Depends(get_session),
-    cache=Depends(get_cache),
-    current_user: User = Depends(auth(UserRole.reader)),
-    schema=Depends(FavoriteInsertRequest)
+    schema: FavoriteInsertRequest,
+    session=Depends(get_session), cache=Depends(get_cache),
+    current_user: User = Depends(auth(UserRole.reader))
 ) -> FavoriteInsertResponse:
     """
     FastAPI router for creating a comment entity. The router verifies
@@ -46,8 +44,8 @@ async def favorite_insert(
     document = await document_repository.select(id__eq=schema.document_id)
 
     if not document:
-        raise E("document_id", schema.document_id, E.RESOURCE_NOT_FOUND,
-                status_code=status.HTTP_404_NOT_FOUND)
+        raise E([E.LOC_BODY, "document_id"], schema.document_id,
+                E.ERR_RESOURCE_NOT_FOUND, status.HTTP_404_NOT_FOUND)
 
     favorite_repository = Repository(session, cache, Favorite)
     favorite = await favorite_repository.select(
@@ -57,11 +55,7 @@ async def favorite_insert(
         favorite = Favorite(current_user.id, document.id)
         await favorite_repository.insert(favorite, commit=False)
 
-    document.favorites_count = await favorite_repository.count_all(
-        document_id__eq=document.id)
-    await document_repository.update(document, commit=False)
-
-    hook = Hook(session, cache, request, current_user=current_user)
+    hook = Hook(session, cache, current_user=current_user)
     await hook.execute(H.BEFORE_FAVORITE_INSERT, favorite)
 
     await favorite_repository.commit()

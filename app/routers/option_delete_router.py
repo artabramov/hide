@@ -2,15 +2,14 @@
 The module defines a FastAPI router for deleting option entities.
 """
 
-from fastapi import APIRouter, Depends, Request, status
+from fastapi import APIRouter, Depends, status
 from fastapi.responses import JSONResponse
 from app.database import get_session
 from app.cache import get_cache
 from app.decorators.locked_decorator import locked
 from app.models.user_model import User, UserRole
 from app.models.option_model import Option
-from app.schemas.option_schemas import (
-    OptionDeleteRequest, OptionDeleteResponse)
+from app.schemas.option_schemas import OptionDeleteResponse
 from app.repository import Repository
 from app.hooks import H, Hook
 from app.errors import E
@@ -24,11 +23,9 @@ router = APIRouter()
                response_model=OptionDeleteResponse, tags=["options"])
 @locked
 async def option_delete(
-    request: Request,
-    session=Depends(get_session),
-    cache=Depends(get_cache),
+    option_key: str,
+    session=Depends(get_session), cache=Depends(get_cache),
     current_user: User = Depends(auth(UserRole.admin)),
-    schema=Depends(OptionDeleteRequest)
 ) -> OptionDeleteResponse:
     """
     FastAPI router for deleting an option entity. The router retrieves
@@ -41,15 +38,15 @@ async def option_delete(
     does not have the required role.
     """
     option_repository = Repository(session, cache, Option)
-    option = await option_repository.select(option_key__eq=schema.option_key)
+    option = await option_repository.select(option_key__eq=option_key)
 
     if not option:
-        raise E("option_key", schema.option_key, E.RESOURCE_NOT_FOUND,
-                status_code=status.HTTP_404_NOT_FOUND)
+        raise E([E.LOC_PATH, "option_key"], option_key,
+                E.ERR_RESOURCE_NOT_FOUND, status.HTTP_404_NOT_FOUND)
 
     await option_repository.delete(option, commit=False)
 
-    hook = Hook(session, cache, request, current_user=current_user)
+    hook = Hook(session, cache, current_user=current_user)
     await hook.execute(H.BEFORE_OPTION_DELETE, option)
 
     await option_repository.commit()

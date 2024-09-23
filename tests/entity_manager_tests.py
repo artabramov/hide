@@ -315,8 +315,9 @@ class EntityManagerTestCase(asynctest.TestCase):
         flush_mock.assert_called_once()
         commit_mock.assert_not_called()
 
+    @patch("app.managers.entity_manager.EntityManager.flush")
     @patch("app.managers.entity_manager.EntityManager.commit")
-    async def test__delete(self, commit_mock):
+    async def test__delete(self, commit_mock, flush_mock):
         """Test the delete method with default commit."""
         dummy_mock = MagicMock()
 
@@ -324,10 +325,38 @@ class EntityManagerTestCase(asynctest.TestCase):
         self.assertIsNone(result)
 
         self.session_mock.delete.assert_called_once_with(dummy_mock)
+        flush_mock.assert_called_once()
         commit_mock.assert_not_called()
 
+    @patch("app.managers.entity_manager.EntityManager.flush")
     @patch("app.managers.entity_manager.EntityManager.commit")
-    async def test__delete_commit_true(self, commit_mock):
+    async def test__delete_flush_true(self, commit_mock, flush_mock):
+        """Test the delete method with flush set to True."""
+        dummy_mock = MagicMock()
+
+        result = await self.entity_manager.delete(dummy_mock, flush=True)
+        self.assertIsNone(result)
+
+        self.session_mock.delete.assert_called_once_with(dummy_mock)
+        flush_mock.assert_called_once()
+        commit_mock.assert_not_called()
+
+    @patch("app.managers.entity_manager.EntityManager.flush")
+    @patch("app.managers.entity_manager.EntityManager.commit")
+    async def test__delete_flush_false(self, commit_mock, flush_mock):
+        """Test the delete method with flush set to False."""
+        dummy_mock = MagicMock()
+
+        result = await self.entity_manager.delete(dummy_mock, flush=False)
+        self.assertIsNone(result)
+
+        self.session_mock.delete.assert_called_once_with(dummy_mock)
+        flush_mock.assert_not_called()
+        commit_mock.assert_not_called()
+
+    @patch("app.managers.entity_manager.EntityManager.flush")
+    @patch("app.managers.entity_manager.EntityManager.commit")
+    async def test__delete_commit_true(self, commit_mock, flush_mock):
         """Test the delete method with commit set to True."""
         dummy_mock = MagicMock()
 
@@ -335,10 +364,12 @@ class EntityManagerTestCase(asynctest.TestCase):
         self.assertIsNone(result)
 
         self.session_mock.delete.assert_called_once_with(dummy_mock)
+        flush_mock.assert_called_once()
         commit_mock.assert_called_once()
 
+    @patch("app.managers.entity_manager.EntityManager.flush")
     @patch("app.managers.entity_manager.EntityManager.commit")
-    async def test__delete_commit_false(self, commit_mock):
+    async def test__delete_commit_false(self, commit_mock, flush_mock):
         """Test the delete method with commit set to False."""
         dummy_mock = MagicMock()
 
@@ -346,6 +377,7 @@ class EntityManagerTestCase(asynctest.TestCase):
         self.assertIsNone(result)
 
         self.session_mock.delete.assert_called_once_with(dummy_mock)
+        flush_mock.assert_called_once()
         commit_mock.assert_not_called()
 
     @patch("app.managers.entity_manager.EntityManager.delete")
@@ -377,9 +409,77 @@ class EntityManagerTestCase(asynctest.TestCase):
 
         self.assertEqual(delete_mock.call_count, 3)
         self.assertListEqual(delete_mock.call_args_list, [
-            call(entity_1, commit=False),
-            call(entity_2, commit=False),
-            call(entity_3, commit=False),
+            call(entity_1, flush=True, commit=False),
+            call(entity_2, flush=True, commit=False),
+            call(entity_3, flush=True, commit=False),
+        ])
+
+    @patch("app.managers.entity_manager.EntityManager.delete")
+    @patch("app.managers.entity_manager.EntityManager.select_all")
+    async def test__delete_all_flush_true(self, select_all_mock, delete_mock):
+        """Test the delete_all method with flush set to True."""
+        from app.managers.entity_manager import DELETE_ALL_BATCH_SIZE
+
+        dummy_class_mock = MagicMock()
+        entity_1, entity_2, entity_3 = MagicMock(), MagicMock(), MagicMock()
+        select_all_mock.side_effect = [[entity_1, entity_2], [entity_3], []]
+
+        result = await self.entity_manager.delete_all(
+            dummy_class_mock, flush=True, name__eq="dummy")
+        self.assertIsNone(result)
+
+        self.assertEqual(select_all_mock.call_count, 3)
+        self.assertListEqual(select_all_mock.call_args_list, [
+            call(dummy_class_mock, name__eq="dummy",
+                 order_by="id", order="asc",
+                 offset=0, limit=DELETE_ALL_BATCH_SIZE),
+            call(dummy_class_mock, name__eq="dummy",
+                 order_by="id", order="asc",
+                 offset=DELETE_ALL_BATCH_SIZE, limit=DELETE_ALL_BATCH_SIZE),
+            call(dummy_class_mock, name__eq="dummy",
+                 order_by="id", order="asc",
+                 offset=DELETE_ALL_BATCH_SIZE * 2,
+                 limit=DELETE_ALL_BATCH_SIZE)])
+
+        self.assertEqual(delete_mock.call_count, 3)
+        self.assertListEqual(delete_mock.call_args_list, [
+            call(entity_1, flush=True, commit=False),
+            call(entity_2, flush=True, commit=False),
+            call(entity_3, flush=True, commit=False),
+        ])
+
+    @patch("app.managers.entity_manager.EntityManager.delete")
+    @patch("app.managers.entity_manager.EntityManager.select_all")
+    async def test__delete_all_flush_false(self, select_all_mock, delete_mock):
+        """Test the delete_all method with flush set to False."""
+        from app.managers.entity_manager import DELETE_ALL_BATCH_SIZE
+
+        dummy_class_mock = MagicMock()
+        entity_1, entity_2, entity_3 = MagicMock(), MagicMock(), MagicMock()
+        select_all_mock.side_effect = [[entity_1, entity_2], [entity_3], []]
+
+        result = await self.entity_manager.delete_all(
+            dummy_class_mock, flush=False, name__eq="dummy")
+        self.assertIsNone(result)
+
+        self.assertEqual(select_all_mock.call_count, 3)
+        self.assertListEqual(select_all_mock.call_args_list, [
+            call(dummy_class_mock, name__eq="dummy",
+                 order_by="id", order="asc",
+                 offset=0, limit=DELETE_ALL_BATCH_SIZE),
+            call(dummy_class_mock, name__eq="dummy",
+                 order_by="id", order="asc",
+                 offset=DELETE_ALL_BATCH_SIZE, limit=DELETE_ALL_BATCH_SIZE),
+            call(dummy_class_mock, name__eq="dummy",
+                 order_by="id", order="asc",
+                 offset=DELETE_ALL_BATCH_SIZE * 2,
+                 limit=DELETE_ALL_BATCH_SIZE)])
+
+        self.assertEqual(delete_mock.call_count, 3)
+        self.assertListEqual(delete_mock.call_args_list, [
+            call(entity_1, flush=False, commit=False),
+            call(entity_2, flush=False, commit=False),
+            call(entity_3, flush=False, commit=False),
         ])
 
     @patch("app.managers.entity_manager.EntityManager.delete")
@@ -411,9 +511,9 @@ class EntityManagerTestCase(asynctest.TestCase):
 
         self.assertEqual(delete_mock.call_count, 3)
         self.assertListEqual(delete_mock.call_args_list, [
-            call(entity_1, commit=True),
-            call(entity_2, commit=True),
-            call(entity_3, commit=True),
+            call(entity_1, flush=True, commit=True),
+            call(entity_2, flush=True, commit=True),
+            call(entity_3, flush=True, commit=True),
         ])
 
     @patch("app.managers.entity_manager.EntityManager.delete")
@@ -446,9 +546,9 @@ class EntityManagerTestCase(asynctest.TestCase):
 
         self.assertEqual(delete_mock.call_count, 3)
         self.assertListEqual(delete_mock.call_args_list, [
-            call(entity_1, commit=False),
-            call(entity_2, commit=False),
-            call(entity_3, commit=False),
+            call(entity_1, flush=True, commit=False),
+            call(entity_2, flush=True, commit=False),
+            call(entity_3, flush=True, commit=False),
         ])
 
     @patch("app.managers.entity_manager.EntityManager._where")

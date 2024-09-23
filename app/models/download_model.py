@@ -16,8 +16,8 @@ class Download(Base):
                           default=lambda: int(time.time()))
     user_id = Column(BigInteger, ForeignKey("users.id"), index=True)
     document_id = Column(BigInteger, ForeignKey("documents.id"), index=True)
-    revision_id = Column(BigInteger, ForeignKey("documents_revisions.id"),
-                         index=True)
+    upload_id = Column(BigInteger, ForeignKey("documents_uploads.id"),
+                       index=True)
 
     download_user = relationship(
         "User", back_populates="user_downloads", lazy="joined")
@@ -25,13 +25,13 @@ class Download(Base):
     download_document = relationship(
         "Document", back_populates="document_downloads", lazy="joined")
 
-    download_revision = relationship(
-        "Revision", back_populates="revision_downloads", lazy="joined")
+    download_upload = relationship(
+        "Upload", back_populates="upload_downloads", lazy="joined")
 
-    def __init__(self, user_id: int, document_id: int, revision_id: int):
+    def __init__(self, user_id: int, document_id: int, upload_id: int):
         self.user_id = user_id
         self.document_id = document_id
-        self.revision_id = revision_id
+        self.upload_id = upload_id
 
     def to_dict(self):
         return {
@@ -39,6 +39,6 @@ class Download(Base):
             "created_date": self.created_date,
             "user_id": self.user_id,
             "document_id": self.document_id,
-            "revision_id": self.revision_id,
+            "upload_id": self.upload_id,
             "download_user": self.download_user.to_dict(),
         }

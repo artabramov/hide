@@ -2,7 +2,7 @@
 The module defines a FastAPI router for retrieving the option list.
 """
 
-from fastapi import APIRouter, Depends, Request, status
+from fastapi import APIRouter, Depends, status
 from fastapi.responses import JSONResponse
 from app.database import get_session
 from app.cache import get_cache
@@ -23,11 +23,9 @@ router = APIRouter()
             response_model=CommentListResponse, tags=["comments"])
 @locked
 async def comment_list(
-    request: Request,
-    session=Depends(get_session),
-    cache=Depends(get_cache),
-    current_user: User = Depends(auth(UserRole.reader)),
-    schema=Depends(CommentListRequest)
+    schema=Depends(CommentListRequest),
+    session=Depends(get_session), cache=Depends(get_cache),
+    current_user: User = Depends(auth(UserRole.reader))
 ) -> CommentListResponse:
     """
     FastAPI router for retrieving a list of comment entities. The router
@@ -41,7 +39,7 @@ async def comment_list(
     comments = await comment_repository.select_all(**schema.__dict__)
     comments_count = await comment_repository.count_all(**schema.__dict__)
 
-    hook = Hook(session, cache, request, current_user=current_user)
+    hook = Hook(session, cache, current_user=current_user)
     await hook.execute(H.AFTER_COMMENT_LIST, comments)
 
     return {

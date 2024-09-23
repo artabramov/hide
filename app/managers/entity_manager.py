@@ -54,10 +54,11 @@ class EntityManager:
     @timed
     async def exists(self, cls: Type[DeclarativeBase], **kwargs) -> bool:
         """
-        Check if an entity of the given SQLAlchemy model class exists in
-        the database based on the provided filters. Constructs a query
-        using the filters to determine if at least one matching entity
-        exists.
+        Check if an entity of the specified SQLAlchemy model class
+        exists in the database based on the provided filters by
+        constructing a query that checks for at least one matching
+        entity. The method returns True if a matching entity is
+        found, and False otherwise.
         """
         async_result = await self.session.execute(
             select(cls).where(*self._where(cls, **kwargs)).limit(1))
@@ -67,10 +68,12 @@ class EntityManager:
     async def insert(self, obj: DeclarativeBase, flush: bool = True,
                      commit: bool = True):
         """
-        Insert a new SQLAlchemy model instance into the database. Adds
-        the given entity (an instance of a SQLAlchemy model) to the
-        session and saves it to the database. Optionally flushes the
-        session and commits the transaction to persist changes.
+        Insert a new SQLAlchemy model instance into the database
+        by adding the given entity to the session and saving it.
+        The "flush" parameter determines whether to immediately
+        send changes to the database, while the "commit" parameter
+        specifies whether to finalize the transaction and persist
+        changes.
         """
         self.session.add(obj)
 
@@ -84,9 +87,10 @@ class EntityManager:
     async def select(self, cls: Type[DeclarativeBase],
                      obj_id: int) -> Union[DeclarativeBase, None]:
         """
-        Retrieve a SQLAlchemy model instance of the given class by
-        its ID. Constructs a query to find the entity with the
-        specified ID and returns it if found, otherwise returns None.
+        Retrieve a SQLAlchemy model instance of the specified class by
+        its ID, constructing a query to find the entity with the given
+        ID. The method returns the instance if found, or None if no
+        matching entity exists.
         """
         async_result = await self.session.execute(
             select(cls).where(cls.id == obj_id).limit(1))
@@ -96,10 +100,10 @@ class EntityManager:
     async def select_by(self, cls: Type[DeclarativeBase],
                         **kwargs) -> Union[DeclarativeBase, None]:
         """
-        Retrieve a SQLAlchemy model instance based on various filters.
-        Uses the provided filters to construct a query to find a single
-        entity that matches the criteria. Returns the entity if found,
-        otherwise returns None.
+        Retrieve a SQLAlchemy model instance based on the provided
+        filters by constructing a query to find a single entity that
+        matches the criteria. The method returns the entity if found,
+        or None if no matching entity exists.
         """
         async_result = await self.session.execute(
             select(cls).where(*self._where(cls, **kwargs)).limit(1))
@@ -109,12 +113,12 @@ class EntityManager:
     async def select_all(self, cls: Type[DeclarativeBase],
                          **kwargs) -> List[DeclarativeBase]:
         """
-        Retrieve all SQLAlchemy model instances of the given class that
-        match the provided filters. Constructs a query with optional
-        ordering, pagination, and limiting to fetch all matching
-        entities. If a subquery is provided in the filters, it further
-        filters the results to include only those entities whose IDs are
-        present in the subquery.
+        Retrieve all SQLAlchemy model instances of the specified class
+        that match the provided filters by constructing a query with
+        optional ordering, pagination, and limiting. If a subquery is
+        included in the filters, the results will only include entities
+        whose IDs are present in that subquery. The method returns a
+        list of matching entities.
         """
         query = select(cls) \
             .where(*self._where(cls, **kwargs)) \
@@ -133,10 +137,11 @@ class EntityManager:
     async def update(self, obj: DeclarativeBase, flush: bool = True,
                      commit: bool = False):
         """
-        Update an existing SQLAlchemy model instance in the database.
-        Merges the changes of the given entity (an instance of a
-        SQLAlchemy model) with the current session. Optionally flushes
-        and commits the transaction.
+        Update an existing SQLAlchemy model instance in the database by
+        merging the changes of the given entity with the session. The
+        "flush" parameter determines whether to immediately send changes
+        to the database, while the "commit" parameter specifies whether
+        to finalize the transaction and persist changes.
         """
         await self.session.merge(obj)
 
@@ -147,27 +152,36 @@ class EntityManager:
             await self.commit()
 
     @timed
-    async def delete(self, obj: DeclarativeBase, commit: bool = False):
+    async def delete(self, obj: DeclarativeBase, flush: bool = True,
+                     commit: bool = False):
         """
-        Delete a SQLAlchemy model instance from the database. Removes
-        the specified entity (an instance of a SQLAlchemy model) from
-        the session. Optionally commits the transaction to finalize the
-        deletion.
+        Delete a SQLAlchemy model instance from the database by removing
+        the specified entity from the session. This marks the object for
+        deletion, and changes will not be persisted until the session is
+        flushed or committed. The "flush" parameter determines whether
+        to immediately send changes to the database, while the "commit"
+        parameter indicates whether to finalize the deletion in the
+        database.
         """
         await self.session.delete(obj)
+
+        if flush:
+            await self.flush()
 
         if commit:
             await self.commit()
 
     @timed
-    async def delete_all(self, cls: Type[DeclarativeBase],
+    async def delete_all(self, cls: Type[DeclarativeBase], flush: bool = True,
                          commit: bool = False, **kwargs):
         """
         Delete all SQLAlchemy model instances of the specified class
-        that match the provided filters. Constructs a query to delete
-        all matching entities, handling large datasets in batches if
-        necessary. Optionally commits the transaction to finalize the
-        deletions.
+        that match the provided filters by constructing a query for
+        deletion and handling large datasets in batches. The "flush"
+        parameter determines whether to immediately send changes to
+        the database, while the "commit" parameter indicates whether
+        to finalize the deletions in the database. The method
+        processes deletions in batches.
         """
         kwargs = kwargs | {ORDER_BY: ID, ORDER: ASC, OFFSET: 0,
                            LIMIT: DELETE_ALL_BATCH_SIZE}
@@ -175,16 +189,16 @@ class EntityManager:
         while objs := await self.select_all(cls, **kwargs):
             kwargs[OFFSET] += kwargs[LIMIT]
             for obj in objs:
-                await self.delete(obj, commit=commit)
+                await self.delete(obj, flush=flush, commit=commit)
 
     @timed
     async def count_all(self, cls: Type[DeclarativeBase], **kwargs) -> int:
         """
-        Count the number of SQLAlchemy model instances of the given
-        class that match the provided filters. Constructs a query to
-        count all entities meeting the criteria. If a subquery is
-        provided, it counts only those entities whose IDs are present
-        in the subquery.
+        Count the number of SQLAlchemy model instances of the specified
+        class that match the provided filters by constructing a query
+        to count all entities meeting the criteria. If a subquery is
+        included, it counts only those entities whose IDs are present
+        in that subquery.
         """
         query = select(func.count(getattr(cls, ID))).where(
                 *self._where(cls, **kwargs))
@@ -243,8 +257,9 @@ class EntityManager:
     @timed
     async def execute(self, sql: str) -> list:
         """
-        Asynchronously executes the given SQL query and returns all
-        result rows as a list.
+        Asynchronously execute the provided SQL query and return all
+        result rows as a list. This method allows for direct execution
+        of raw SQL statements within the session.
         """
         async_result = await self.session.execute(text(sql))
         return async_result.fetchall()

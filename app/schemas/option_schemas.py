@@ -10,32 +10,7 @@ from app.validators.option_validators import (
     validate_option_key, validate_option_value)
 
 
-class OptionSelectRequest(BaseModel):
-    """
-    Pydantic schema for request to select an option entity. Requires
-    the option key to be specified.
-    """
-    option_key: str = Field(..., pattern=r"^[a-zA-Z_0-9]{2,40}$")
-
-    @field_validator("option_key", mode="before")
-    def validate_option_key(cls, option_key: str) -> str:
-        return validate_option_key(option_key)
-
-
-class OptionSelectResponse(BaseModel):
-    """
-    Pydantic schema for the response after selecting an option entity.
-    Includes the option ID, creation and update dates, option key, and
-    option value.
-    """
-    id: int
-    created_date: int
-    updated_date: int
-    option_key: str
-    option_value: str
-
-
-class OptionUpdateRequest(BaseModel):
+class OptionInsertRequest(BaseModel):
     """
     Pydantic schema for request to update an option entity. Requires
     the option key and option value to be specified.
@@ -52,7 +27,7 @@ class OptionUpdateRequest(BaseModel):
         return validate_option_value(option_value)
 
 
-class OptionUpdateResponse(BaseModel):
+class OptionInsertResponse(BaseModel):
     """
     Pydantic schema for the response after updating an option entity.
     Includes the key of the updated option.
@@ -60,16 +35,29 @@ class OptionUpdateResponse(BaseModel):
     option_key: str
 
 
-class OptionDeleteRequest(BaseModel):
+class OptionSelectResponse(BaseModel):
     """
-    Pydantic schema for request to delete an option entity. Requires
-    the option key to be specified.
+    Pydantic schema for the response after selecting an option entity.
+    Includes the option ID, creation and update dates, option key, and
+    option value.
     """
-    option_key: str = Field(..., pattern=r"^[a-zA-Z_0-9]{2,40}$")
+    id: int
+    created_date: int
+    updated_date: int
+    option_key: str
+    option_value: str
 
-    @field_validator("option_key", mode="before")
-    def validate_option_key(cls, option_key: str) -> str:
-        return validate_option_key(option_key)
+
+class OptionUpdateRequest(BaseModel):
+    option_value: str = Field(..., max_length=512)
+
+    @field_validator("option_value", mode="before")
+    def validate_option_value(cls, option_value: str) -> str:
+        return validate_option_value(option_value)
+
+
+class OptionUpdateResponse(BaseModel):
+    option_key: str
 
 
 class OptionDeleteResponse(BaseModel):

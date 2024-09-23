@@ -29,8 +29,8 @@ from app.managers.cache_manager import CacheManager
 
 LOG_AFTER_USER_REGISTER = True
 LOG_AFTER_USER_LOGIN = True
-LOG_AFTER_TOKEN_RETRIEVE = True
-LOG_AFTER_TOKEN_INVALIDATE = True
+LOG_AFTER_TOKEN_SELECT = True
+LOG_AFTER_ERR_TOKEN_INVALIDATE = True
 LOG_AFTER_USER_SELECT = True
 LOG_AFTER_USER_UPDATE = True
 LOG_AFTER_ROLE_UPDATE = True
@@ -43,7 +43,7 @@ LOG_AFTER_COLLECTION_SELECT = True
 LOG_AFTER_COLLECTION_UPDATE = True
 LOG_AFTER_COLLECTION_DELETE = True
 LOG_AFTER_COLLECTION_LIST = False
-LOG_AFTER_DOCUMENT_INSERT = True
+LOG_AFTER_DOCUMENT_UPLOAD = True
 LOG_AFTER_DOCUMENT_SELECT = True
 LOG_AFTER_COMMENT_INSERT = True
 LOG_AFTER_COMMENT_SELECT = True
@@ -174,7 +174,7 @@ async def after_user_login(
     return user
 
 
-async def after_token_retrieve(
+async def after_token_select(
     entity_manager: EntityManager,
     cache_manager: CacheManager,
     request: Request,
@@ -185,7 +185,7 @@ async def after_token_retrieve(
     Logs a token retrieval event, capturing details about the user
     and the request. Returns the user associated with the token.
     """
-    if LOG_AFTER_TOKEN_RETRIEVE:
+    if LOG_AFTER_TOKEN_SELECT:
         log = Log(current_user, request, user, LogAction.update)
         await entity_manager.insert(log)
     return user
@@ -203,7 +203,7 @@ async def after_token_invalidate(
     and the request. Returns the user associated with the invalidated
     token.
     """
-    if LOG_AFTER_TOKEN_INVALIDATE:
+    if LOG_AFTER_ERR_TOKEN_INVALIDATE:
         log = Log(current_user, request, user, LogAction.update)
         await entity_manager.insert(log)
     return user
@@ -428,7 +428,7 @@ async def after_document_insert(
     Logs a document upload event, capturing details about the document
     and the request. Returns the uploaded document.
     """
-    if LOG_AFTER_DOCUMENT_INSERT:
+    if LOG_AFTER_DOCUMENT_UPLOAD:
         log = Log(current_user, request, document, LogAction.insert)
         await entity_manager.insert(log)
     return document

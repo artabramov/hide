@@ -6,13 +6,12 @@ password changes, and user listing.
 """
 
 from typing import Optional, Literal, List, Union
-from pydantic import BaseModel, SecretStr, Field, field_validator
+from pydantic import BaseModel, Field, field_validator
 from fastapi import File, UploadFile
 from app.models.user_model import UserRole
 from app.validators.user_validators import (
-    validate_user_login, validate_user_password, validate_first_name,
-    validate_last_name, validate_user_totp, validate_token_exp,
-    validate_user_signature, validate_user_contacts)
+    validate_user_login, validate_first_name, validate_last_name,
+    validate_user_totp, validate_user_signature, validate_user_contacts)
 
 
 class UserRegisterRequest(BaseModel):
@@ -22,7 +21,7 @@ class UserRegisterRequest(BaseModel):
     Optionally includes a user signature and user contacts.
     """
     user_login: str = Field(..., pattern=r"^[a-zA-Z0-9]{2,40}$")
-    user_password: SecretStr = Field(..., min_length=6)
+    user_password: str = Field(..., min_length=6)
     first_name: str = Field(..., min_length=2, max_length=40)
     last_name: str = Field(..., min_length=2, max_length=40)
     user_signature: Optional[str] = Field(max_length=40, default=None)
@@ -31,10 +30,6 @@ class UserRegisterRequest(BaseModel):
     @field_validator("user_login", mode="before")
     def validate_user_login(cls, user_login: str) -> str:
         return validate_user_login(user_login)
-
-    @field_validator("user_password", mode="before")
-    def validate_user_password(cls, user_password: SecretStr) -> SecretStr:
-        return validate_user_password(user_password)
 
     @field_validator("first_name", mode="before")
     def validate_first_name(cls, first_name: str) -> str:
@@ -64,31 +59,17 @@ class UserRegisterResponse(BaseModel):
     mfa_url: str
 
 
-class MFARequest(BaseModel):
-    """
-    Pydantic schema for request the MFA QR code image. Requires the user
-    ID and MFA secret to be specified.
-    """
-    user_id: int
-    mfa_secret: str = Field(..., min_length=32, max_length=32,
-                            pattern=r"^[A-Za-z0-9]+$")
-
-
 class UserLoginRequest(BaseModel):
     """
     Pydantic schema for request to authenticate a user. Requires the
     user login and password to be specified.
     """
     user_login: str = Field(..., pattern=r"^[a-z0-9]{2,40}$")
-    user_password: SecretStr = Field(..., min_length=6)
+    user_password: str = Field(..., min_length=6)
 
     @field_validator("user_login", mode="before")
     def validate_user_login(cls, user_login: str) -> str:
         return validate_user_login(user_login)
-
-    @field_validator("user_password", mode="before")
-    def validate_user_password(cls, user_password: SecretStr) -> SecretStr:
-        return validate_user_password(user_password)
 
 
 class UserLoginResponse(BaseModel):
@@ -107,7 +88,8 @@ class TokenRetrieveRequest(BaseModel):
     """
     user_login: str = Field(..., pattern=r"^[a-z0-9]{2,40}$")
     user_totp: str = Field(..., min_length=6, max_length=6)
-    token_exp: Optional[int] = None
+    # token_exp: Optional[int] = None
+    token_exp: Optional[int] = Field(default=None, ge=1)
 
     @field_validator("user_login", mode="before")
     def validate_user_login(cls, user_login: str) -> str:
@@ -116,10 +98,6 @@ class TokenRetrieveRequest(BaseModel):
     @field_validator("user_totp", mode="before")
     def validate_user_totp(cls, user_login: str) -> str:
         return validate_user_totp(user_login)
-
-    @field_validator("token_exp", mode="before")
-    def validate_token_exp(cls, token_exp: str = None) -> str:
-        return validate_token_exp(token_exp)
 
 
 class TokenRetrieveResponse(BaseModel):
@@ -130,11 +108,7 @@ class TokenRetrieveResponse(BaseModel):
     user_token: str
 
 
-class UserSelectRequest(BaseModel):
-    """
-    Pydantic schema for request to retrieve a user entity. Requires
-    the user ID to be specified.
-    """
+class TokenDeleteResponse(BaseModel):
     user_id: int
 
 
@@ -165,7 +139,6 @@ class UserUpdateRequest(BaseModel):
     user ID, first and last name, and optionally user signature and
     user contacts.
     """
-    user_id: int
     first_name: str = Field(..., min_length=2, max_length=40)
     last_name: str = Field(..., min_length=2, max_length=40)
     user_signature: Optional[str] = Field(max_length=40, default=None)
@@ -196,14 +169,6 @@ class UserUpdateResponse(BaseModel):
     user_id: int
 
 
-class UserDeleteRequest(BaseModel):
-    """
-    Pydantic schema for request to delete a user entity. Requires
-    the user ID to be specified.
-    """
-    user_id: int
-
-
 class UserDeleteResponse(BaseModel):
     """
     Pydantic schema for the response after deleting a user entity.
@@ -212,27 +177,10 @@ class UserDeleteResponse(BaseModel):
     user_id: int
 
 
-class UserpicUploadRequest(BaseModel):
-    """
-    Pydantic schema for request to upload a user profile picture.
-    Requires the user ID and the image file to be uploaded.
-    """
-    user_id: int
-    file: UploadFile = File(...)
-
-
 class UserpicUploadResponse(BaseModel):
     """
     Pydantic schema for the response after uploading a user profile
     picture. Includes the user ID associated with the uploaded picture.
-    """
-    user_id: int
-
-
-class UserpicDeleteRequest(BaseModel):
-    """
-    Pydantic schema for request to delete a user profile picture.
-    Requires the user ID to be specified.
     """
     user_id: int
 
@@ -252,7 +200,6 @@ class RoleUpdateRequest(BaseModel):
     status. Requires the user ID, new user role, and active status
     to be specified.
     """
-    user_id: int
     user_role: UserRole
     is_active: bool
 
@@ -271,17 +218,8 @@ class PasswordUpdateRequest(BaseModel):
     Requires the user ID, current password, and the new updated
     password to be specified.
     """
-    user_id: int
-    current_password: SecretStr = Field(..., min_length=6)
-    updated_password: SecretStr = Field(..., min_length=6)
-
-    @field_validator("current_password", mode="before")
-    def validate_current_password(cls, current_password: SecretStr) -> SecretStr:  # noqa E501
-        return validate_user_password(current_password)
-
-    @field_validator("updated_password", mode="before")
-    def validate_updated_password(cls, updated_password: SecretStr) -> SecretStr:  # noqa E501
-        return validate_user_password(updated_password)
+    current_password: str = Field(..., min_length=6)
+    updated_password: str = Field(..., min_length=6)
 
 
 class PasswordUpdateResponse(BaseModel):

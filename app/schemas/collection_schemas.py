@@ -18,7 +18,7 @@ class CollectionInsertRequest(BaseModel):
     collection summary to be specified.
     """
     is_locked: bool
-    collection_name: str = Field(..., min_length=2, max_length=128)
+    collection_name: str = Field(..., min_length=1, max_length=256)
     collection_summary: Optional[str] = Field(max_length=512, default=None)
 
     @field_validator("collection_name", mode="before")
@@ -34,14 +34,6 @@ class CollectionInsertResponse(BaseModel):
     """
     Pydantic schema for the response after creating a new collection
     entity. Includes the ID assigned to the newly created collection.
-    """
-    collection_id: int
-
-
-class CollectionSelectRequest(BaseModel):
-    """
-    Pydantic schema for request to retrieve a collection entity.
-    Requires the collection ID to be specified.
     """
     collection_id: int
 
@@ -62,21 +54,19 @@ class CollectionSelectResponse(BaseModel):
     collection_name: str
     collection_summary: Optional[str] = None
     documents_count: int
-    documents_size: int
-    revisions_count: int
-    revisions_size: int
+    uploads_count: int
+    uploads_size: int
     collection_user: UserSelectResponse
 
 
 class CollectionUpdateRequest(BaseModel):
     """
     Pydantic schema for request to update an existing collection entity.
-    Requires the collection ID, locked status, collection name, and
-    optionally collection summary to be specified.
+    Requires the  locked status, collection name, and optionally
+    collection summary to be specified.
     """
-    collection_id: int
     is_locked: bool
-    collection_name: str = Field(..., min_length=2, max_length=128)
+    collection_name: str = Field(..., min_length=1, max_length=256)
     collection_summary: Optional[str] = Field(max_length=512, default=None)
 
     @field_validator("collection_name", mode="before")
@@ -92,14 +82,6 @@ class CollectionUpdateResponse(BaseModel):
     """
     Pydantic schema for the response after updating a collection entity.
     Includes the ID assigned to the updated collection.
-    """
-    collection_id: int
-
-
-class CollectionDeleteRequest(BaseModel):
-    """
-    Pydantic schema for request to delete a collection entity. Requires
-    the collection ID to be specified.
     """
     collection_id: int
 
@@ -123,17 +105,15 @@ class CollectionListRequest(BaseModel):
     is_locked__eq: Optional[bool] = None
     documents_count__ge: Optional[int] = None
     documents_count__le: Optional[int] = None
-    documents_size__ge: Optional[int] = None
-    documents_size__le: Optional[int] = None
-    revisions_count__ge: Optional[int] = None
-    revisions_count__le: Optional[int] = None
-    revisions_size__ge: Optional[int] = None
-    revisions_size__le: Optional[int] = None
+    uploads_count__ge: Optional[int] = None
+    uploads_count__le: Optional[int] = None
+    uploads_size__ge: Optional[int] = None
+    uploads_size__le: Optional[int] = None
     offset: int = Field(ge=0)
     limit: int = Field(ge=1, le=200)
     order_by: Literal["id", "created_date", "updated_date", "user_id",
-                      "collection_name", "documents_count", "documents_size",
-                      "revisions_count", "revisions_size"]
+                      "collection_name", "documents_count", "uploads_count",
+                      "uploads_size"]
     order: Literal["asc", "desc", "rand"]
 
 
