@@ -23,7 +23,7 @@ from app.managers.cache_manager import CacheManager
 
 async def on_startup(
     entity_manager: EntityManager, cache_manager: CacheManager,
-    current_user: None, _: None
+    current_user: None
 ):
     """
     Executes when the application starts. Performs any required
@@ -56,7 +56,7 @@ async def on_telemetry_retrieve(
 
 async def on_lock_create(
     entity_manager: EntityManager, cache_manager: CacheManager,
-    current_user: User, _: None
+    current_user: User
 ):
     """
     Executes when a lock is created.
@@ -66,7 +66,7 @@ async def on_lock_create(
 
 async def on_lock_retrieve(
     entity_manager: EntityManager, cache_manager: CacheManager,
-    current_user: User, _: None
+    current_user: User
 ):
     """
     Executes when a lock is retrieved.
@@ -76,11 +76,18 @@ async def on_lock_retrieve(
 
 async def on_lock_delete(
     entity_manager: EntityManager, cache_manager: CacheManager,
-    current_user: User, _: None
+    current_user: User
 ):
     """
     Executes when a lock is deleted.
     """
+    ...
+
+
+async def on_custom_execute(
+    entity_manager: EntityManager, cache_manager: CacheManager,
+    current_user: User, params: dict, response: dict
+):
     ...
 
 

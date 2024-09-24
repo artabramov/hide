@@ -40,7 +40,7 @@ from app.routers import (
     option_delete_router, option_list_router,
 
     time_retrieve_router, telemetry_retrieve_router, lock_create_router,
-    lock_retrieve_router, lock_delete_router)
+    lock_retrieve_router, lock_delete_router, custom_execute_router)
 from app.database import Base, sessionmanager, get_session
 from app.errors import SERVER_ERROR
 from contextlib import asynccontextmanager
@@ -200,6 +200,7 @@ app.include_router(telemetry_retrieve_router.router, prefix=cfg.APP_PREFIX)
 app.include_router(lock_retrieve_router.router, prefix=cfg.APP_PREFIX)
 app.include_router(lock_create_router.router, prefix=cfg.APP_PREFIX)
 app.include_router(lock_delete_router.router, prefix=cfg.APP_PREFIX)
+app.include_router(custom_execute_router.router, prefix=cfg.APP_PREFIX)
 
 
 app.mount(cfg.USERPIC_PREFIX,

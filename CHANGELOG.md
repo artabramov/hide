@@ -1,5 +1,9 @@
 # Changelog
 
+## Version 0.0.42 (2024-09-24)
+- **Added constants module**: Introduced a dedicated module for constants, improving code organization and maintainability.
+- **Added custom execution router**: Enhanced routing capabilities with a custom execution router for more flexible request handling.
+
 ## Version 0.0.41 (2024-09-18)
 - **Added telemetry**: Introduced a new endpoint for system telemetry, providing insights into application metrics and status.
 - **Added raw query execution**: Enabled raw SQL query execution in the entity manager for more flexible database interactions.

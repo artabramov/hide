@@ -39,6 +39,7 @@ class H(enum.Enum):
     ON_LOCK_CREATE = "on_lock_create"
     ON_LOCK_RETRIEVE = "on_lock_retrieve"
     ON_LOCK_DELETE = "on_lock_delete"
+    ON_CUSTOM_EXECUTE = "on_custom_execute"
 
     # user hooks
     BEFORE_USER_REGISTER = "before_user_register"
@@ -151,18 +152,16 @@ class Hook:
         self.cache_manager = CacheManager(cache)
         self.current_user = current_user
 
-    async def execute(self, hook_action: H, data: Any = None) -> Any:
+    async def execute(self, hook_action: H, *args, **kwargs):
         """
         Executes the specified hook action by calling the associated
         functions with the provided entity manager, cache manager,
         request, current user, and data. The hook functions are
         retrieved from the context based on the hook action value and
-        are invoked sequentially. Returns the processed data after
-        executing all hook functions.
+        are invoked sequentially.
         """
         if hook_action.value in ctx.hooks:
             hook_functions = ctx.hooks[hook_action.value]
             for func in hook_functions:
-                data = await func(self.entity_manager, self.cache_manager,
-                                  self.current_user, data)
-        return data
+                await func(self.entity_manager, self.cache_manager,
+                           self.current_user, *args, **kwargs)
