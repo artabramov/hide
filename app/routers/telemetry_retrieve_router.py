@@ -1,6 +1,7 @@
-from fastapi import APIRouter, Depends, Request, status
+from fastapi import APIRouter, Depends, status
 from fastapi.responses import JSONResponse
 from app.database import get_session
+from app.cache import get_cache
 from app.auth import auth
 from app.models.user_model import User, UserRole
 from app.decorators.locked_decorator import locked
@@ -8,6 +9,10 @@ import platform
 import psutil
 from app.managers.entity_manager import EntityManager
 # from app.schemas.system_schemas import SystemHelloResponse
+from app.version import __version__
+from app.serial import __serial__
+from app.model import __model__
+from app.hooks import H, Hook
 
 router = APIRouter()
 
@@ -18,28 +23,26 @@ router = APIRouter()
             tags=["system"])
 @locked
 async def telemetry_retrieve(
-    request: Request, session=Depends(get_session),
+    session=Depends(get_session), cache=Depends(get_cache),
     current_user: User = Depends(auth(UserRole.admin))
 ):
+    from app.app import get_uptime
+
     entity_manager = EntityManager(session)
 
     postgres_version = await entity_manager.execute("SELECT version();")
-    postgres_database_name = await entity_manager.execute("SELECT current_database();")  # noqa E501
     postgres_database_size = await entity_manager.execute("SELECT pg_size_pretty(pg_database_size(current_database()));")  # noqa E501
-    postgres_tables_count = await entity_manager.execute("SELECT COUNT(*) FROM information_schema.tables WHERE table_schema = 'public';")  # noqa E501
-    postgres_users_count = await entity_manager.execute("SELECT COUNT(*) FROM pg_user;")  # noqa E501
     postgres_start_time = await entity_manager.execute("SELECT pg_postmaster_start_time();")  # noqa E501
-    postgres_active_connections = await entity_manager.execute("SELECT COUNT(*) FROM pg_stat_activity;")  # noqa E501
-    # pg_version = await entity_manager.execute("")
 
-    return {
+    response = {
+        "hidden_application_uptime": get_uptime(),
+        "hidden_firmware_version": __version__,
+        "hidden_hardware_model": __model__,
+        "hidden_hardware_serial": __serial__,
+
         "postgres_version": postgres_version[0][0],
-        "postgres_database_name": postgres_database_name[0][0],
         "postgres_database_size": postgres_database_size[0][0],
-        "postgres_tables_count": postgres_tables_count[0][0],
-        "postgres_users_count": postgres_users_count[0][0],
         "postgres_start_time": postgres_start_time[0][0],
-        "postgres_active_connections": postgres_active_connections[0][0],
 
         "platform_architecture": platform.architecture()[0],
         "platform_machine": platform.machine(),
@@ -59,15 +62,20 @@ async def telemetry_retrieve(
         "os_release": platform.release(),
         "os_version": platform.version(),
 
-        "hdd_total": psutil.disk_usage("/").total,
-        "hdd_used": psutil.disk_usage("/").used,
-        "hdd_free": psutil.disk_usage("/").free,
+        "disk_total": psutil.disk_usage("/").total,
+        "disk_used": psutil.disk_usage("/").used,
+        "disk_free": psutil.disk_usage("/").free,
 
-        "ram_total": psutil.virtual_memory().total,
-        "ram_used": psutil.virtual_memory().used,
-        "ram_free": psutil.virtual_memory().free,
+        "memory_total": psutil.virtual_memory().total,
+        "memory_used": psutil.virtual_memory().used,
+        "memory_free": psutil.virtual_memory().free,
 
-        "cpu_count": psutil.cpu_count(logical=False),
-        "cpu_freq": int(psutil.cpu_freq(percpu=False).current),
-        "cpu_percent": psutil.cpu_percent(),
+        "cpu_core_count": psutil.cpu_count(logical=False),
+        "cpu_frequency": int(psutil.cpu_freq(percpu=False).current),
+        "cpu_usage_percent": psutil.cpu_percent(),
     }
+
+    hook = Hook(session, cache, current_user=current_user)
+    await hook.execute(H.ON_TELEMETRY_RETRIEVE, response)
+
+    return response

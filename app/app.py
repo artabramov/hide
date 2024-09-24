@@ -8,6 +8,7 @@ also includes routes for static files and other resources, with specific
 configuration for the application's title, version, and file paths.
 """
 
+import time
 from fastapi import FastAPI, Request, status, Depends
 from fastapi.encoders import jsonable_encoder
 from fastapi.responses import JSONResponse
@@ -43,7 +44,6 @@ from app.routers import (
 from app.database import Base, sessionmanager, get_session
 from app.errors import SERVER_ERROR
 from contextlib import asynccontextmanager
-import time
 from uuid import uuid4
 import os
 import importlib.util
@@ -127,6 +127,13 @@ def load_description():
 
 app = FastAPI(lifespan=lifespan, title=cfg.APP_TITLE, version=__version__,
               description=load_description())
+
+started_time = time.time()
+
+
+def get_uptime():
+    return int(time.time() - started_time)
+
 
 # user routers
 app.include_router(user_login_router.router, prefix=cfg.APP_PREFIX)

@@ -34,6 +34,11 @@ class H(enum.Enum):
     """
     # system hooks
     ON_STARTUP = "on_startup"
+    ON_TIME_RETRIEVE = "on_time_retrieve"
+    ON_TELEMETRY_RETRIEVE = "on_telemetry_retrieve"
+    ON_LOCK_CREATE = "on_lock_create"
+    ON_LOCK_RETRIEVE = "on_lock_retrieve"
+    ON_LOCK_DELETE = "on_lock_delete"
 
     # user hooks
     BEFORE_USER_REGISTER = "before_user_register"

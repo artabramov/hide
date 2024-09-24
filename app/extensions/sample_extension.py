@@ -23,11 +23,63 @@ from app.managers.cache_manager import CacheManager
 
 async def on_startup(
     entity_manager: EntityManager, cache_manager: CacheManager,
-    current_user: None, entity: None
+    current_user: None, _: None
 ):
     """
-    Executes when the application starts. Performs any required actions
-    such as initialization or setup.
+    Executes when the application starts. Performs any required
+    actions such as initialization or setup.
+    """
+    ...
+
+
+async def on_time_retrieve(
+    entity_manager: EntityManager, cache_manager: CacheManager,
+    current_user: None, response: dict
+):
+    """
+    Executes when time is retrieved. Receives time data
+    and performs any necessary post-processing actions.
+    """
+    ...
+
+
+async def on_telemetry_retrieve(
+    entity_manager: EntityManager, cache_manager: CacheManager,
+    current_user: User, response: dict
+):
+    """
+    Executes when telemetry is retrieved. Receives telemetry
+    data and performs any necessary post-processing actions.
+    """
+    ...
+
+
+async def on_lock_create(
+    entity_manager: EntityManager, cache_manager: CacheManager,
+    current_user: User, _: None
+):
+    """
+    Executes when a lock is created.
+    """
+    ...
+
+
+async def on_lock_retrieve(
+    entity_manager: EntityManager, cache_manager: CacheManager,
+    current_user: User, _: None
+):
+    """
+    Executes when a lock is retrieved.
+    """
+    ...
+
+
+async def on_lock_delete(
+    entity_manager: EntityManager, cache_manager: CacheManager,
+    current_user: User, _: None
+):
+    """
+    Executes when a lock is deleted.
     """
     ...
 

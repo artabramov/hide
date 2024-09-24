@@ -1,13 +1,13 @@
 from fastapi import APIRouter, status, Depends
-import time
-import os
-from app.decorators.locked_decorator import lock_exists
+from app.decorators.locked_decorator import is_locked, get_lock_time
 from fastapi.responses import JSONResponse
 from app.schemas.lock_schemas import LockRetrieveResponse
-from app.database import get_session
 from app.models.user_model import User, UserRole
 from app.auth import auth
 from app.config import get_config
+from app.hooks import H, Hook
+from app.database import get_session
+from app.cache import get_cache
 
 cfg = get_config()
 router = APIRouter()
@@ -17,16 +17,14 @@ router = APIRouter()
             response_class=JSONResponse, status_code=status.HTTP_200_OK,
             response_model=LockRetrieveResponse, tags=["system"])
 async def lock_retrieve(
-    session=Depends(get_session),
+    session=Depends(get_session), cache=Depends(get_cache),
     current_user: User = Depends(auth(UserRole.admin))
 ) -> LockRetrieveResponse:
-    is_locked = lock_exists()
-    locked_time = 0
-    if is_locked:
-        lock_created = os.path.getctime(cfg.LOCK_FILE_PATH)
-        locked_time = int(time.time() - lock_created)
+
+    hook = Hook(session, cache)
+    await hook.execute(H.ON_LOCK_RETRIEVE)
 
     return {
-        "is_locked": is_locked,
-        "locked_time": locked_time,
+        "is_locked": is_locked(),
+        "lock_time": get_lock_time(),
     }
