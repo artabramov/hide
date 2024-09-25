@@ -56,9 +56,9 @@ async def favorite_insert(
         await favorite_repository.insert(favorite, commit=False)
 
     hook = Hook(session, cache, current_user=current_user)
-    await hook.execute(H.BEFORE_FAVORITE_INSERT, favorite)
+    await hook.do(H.BEFORE_FAVORITE_INSERT, favorite)
 
     await favorite_repository.commit()
-    await hook.execute(H.AFTER_FAVORITE_INSERT, favorite)
+    await hook.do(H.AFTER_FAVORITE_INSERT, favorite)
 
     return {"favorite_id": favorite.id}

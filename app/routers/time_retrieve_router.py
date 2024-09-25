@@ -22,6 +22,6 @@ async def time_retrieve(
     }
 
     hook = Hook(session, cache)
-    await hook.execute(H.ON_TIME_RETRIEVE, response)
+    await hook.do(H.ON_TIME_RETRIEVE, response)
 
     return response

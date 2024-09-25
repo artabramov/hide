@@ -21,6 +21,6 @@ async def lock_delete(
     await unlock()
 
     hook = Hook(session, cache)
-    await hook.execute(H.ON_LOCK_DELETE)
+    await hook.do(H.ON_LOCK_DELETE)
 
     return {"is_locked": False}

@@ -58,9 +58,9 @@ async def comment_update(
     await comment_repository.update(comment, commit=False)
 
     hook = Hook(session, cache, current_user=current_user)
-    await hook.execute(H.BEFORE_COMMENT_UPDATE, comment)
+    await hook.do(H.BEFORE_COMMENT_UPDATE, comment)
 
     await comment_repository.commit()
-    await hook.execute(H.AFTER_COMMENT_UPDATE, comment)
+    await hook.do(H.AFTER_COMMENT_UPDATE, comment)
 
     return {"comment_id": comment.id}

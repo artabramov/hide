@@ -49,9 +49,9 @@ async def collection_insert(
     await collection_repository.insert(collection, commit=False)
 
     hook = Hook(session, cache, current_user=current_user)
-    await hook.execute(H.BEFORE_COLLECTION_INSERT, collection)
+    await hook.do(H.BEFORE_COLLECTION_INSERT, collection)
 
     await collection_repository.commit()
-    await hook.execute(H.AFTER_COLLECTION_INSERT, collection)
+    await hook.do(H.AFTER_COLLECTION_INSERT, collection)
 
     return {"collection_id": collection.id}

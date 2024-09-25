@@ -44,7 +44,7 @@ async def document_list(
     documents_count = await document_repository.count_all(**kwargs)
 
     hook = Hook(session, cache, current_user=current_user)
-    await hook.execute(H.AFTER_DOCUMENT_LIST, documents)
+    await hook.do(H.AFTER_DOCUMENT_LIST, documents)
 
     return {
         "documents": [document.to_dict() for document in documents],

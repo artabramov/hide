@@ -11,7 +11,6 @@ management and responsiveness to application events.
 """
 
 import enum
-from typing import Any
 from redis import Redis
 from sqlalchemy.ext.asyncio import AsyncSession
 from app.managers.entity_manager import EntityManager
@@ -152,7 +151,7 @@ class Hook:
         self.cache_manager = CacheManager(cache)
         self.current_user = current_user
 
-    async def execute(self, hook_action: H, *args, **kwargs):
+    async def do(self, hook_action: H, *args, **kwargs):
         """
         Executes the specified hook action by calling the associated
         functions with the provided entity manager, cache manager,

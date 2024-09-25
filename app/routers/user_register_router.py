@@ -43,10 +43,10 @@ async def user_register(
     await user_repository.insert(user, commit=False)
 
     hook = Hook(session, cache)
-    await hook.execute(H.BEFORE_USER_REGISTER, user)
+    await hook.do(H.BEFORE_USER_REGISTER, user)
 
     await user_repository.commit()
-    await hook.execute(H.AFTER_USER_REGISTER, user)
+    await hook.do(H.AFTER_USER_REGISTER, user)
 
     return {
         "user_id": user.id,

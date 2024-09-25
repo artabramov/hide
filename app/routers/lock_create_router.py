@@ -21,6 +21,6 @@ async def lock_create(
     await lock()
 
     hook = Hook(session, cache)
-    await hook.execute(H.ON_LOCK_CREATE)
+    await hook.do(H.ON_LOCK_CREATE)
 
     return {"is_locked": True}

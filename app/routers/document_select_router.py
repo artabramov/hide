@@ -41,6 +41,6 @@ async def document_select(
                 E.ERR_RESOURCE_NOT_FOUND, status.HTTP_404_NOT_FOUND)
 
     hook = Hook(session, cache, current_user=current_user)
-    await hook.execute(H.AFTER_DOCUMENT_SELECT, document)
+    await hook.do(H.AFTER_DOCUMENT_SELECT, document)
 
     return document.to_dict()

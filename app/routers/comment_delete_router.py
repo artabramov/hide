@@ -67,9 +67,9 @@ async def comment_delete(
     await document_repository.update(comment.comment_document, commit=False)
 
     hook = Hook(session, cache, current_user=current_user)
-    await hook.execute(H.BEFORE_COMMENT_DELETE, comment)
+    await hook.do(H.BEFORE_COMMENT_DELETE, comment)
 
     await comment_repository.commit()
-    await hook.execute(H.AFTER_COMMENT_DELETE, comment)
+    await hook.do(H.AFTER_COMMENT_DELETE, comment)
 
     return {"comment_id": comment.id}

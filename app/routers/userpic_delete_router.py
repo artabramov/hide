@@ -43,7 +43,7 @@ async def userpic_delete(
                 E.ERR_RESOURCE_FORBIDDEN, status.HTTP_403_FORBIDDEN)
 
     hook = Hook(session, cache, current_user=current_user)
-    await hook.execute(H.BEFORE_USERPIC_DELETE, current_user)
+    await hook.do(H.BEFORE_USERPIC_DELETE, current_user)
 
     if current_user.userpic_filename:
         await FileManager.delete(current_user.userpic_path)
@@ -53,6 +53,6 @@ async def userpic_delete(
     await user_repository.update(current_user, commit=False)
 
     await user_repository.commit()
-    await hook.execute(H.AFTER_USERPIC_DELETE, current_user)
+    await hook.do(H.AFTER_USERPIC_DELETE, current_user)
 
     return {"user_id": current_user.id}

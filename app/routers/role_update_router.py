@@ -47,9 +47,9 @@ async def role_update(
     await user_repository.update(user, commit=False)
 
     hook = Hook(session, cache, current_user=current_user)
-    await hook.execute(H.BEFORE_ROLE_UPDATE, user)
+    await hook.do(H.BEFORE_ROLE_UPDATE, user)
 
     await user_repository.commit()
-    await hook.execute(H.AFTER_ROLE_UPDATE, user)
+    await hook.do(H.AFTER_ROLE_UPDATE, user)
 
     return {"user_id": user.id}

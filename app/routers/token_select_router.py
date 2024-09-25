@@ -72,10 +72,10 @@ async def token_retrieve(
     user_token = jwt_encode(user, token_exp=schema.token_exp)
 
     hook = Hook(session, cache)
-    await hook.execute(H.BEFORE_TOKEN_SELECT, user)
+    await hook.do(H.BEFORE_TOKEN_SELECT, user)
 
     await user_repository.commit()
-    await hook.execute(H.AFTER_TOKEN_SELECT, user)
+    await hook.do(H.AFTER_TOKEN_SELECT, user)
 
     if totp_accepted:
         return {"user_token": user_token}

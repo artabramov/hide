@@ -38,7 +38,7 @@ async def collection_list(
         **schema.__dict__)
 
     hook = Hook(session, cache, current_user=current_user)
-    await hook.execute(H.AFTER_COLLECTION_LIST, collections)
+    await hook.do(H.AFTER_COLLECTION_LIST, collections)
 
     return {
         "collections": [collection.to_dict() for collection in collections],

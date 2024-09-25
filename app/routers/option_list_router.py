@@ -41,7 +41,7 @@ async def options_list(
     options_count = await option_repository.count_all(**schema.__dict__)
 
     hook = Hook(session, cache, current_user=current_user)
-    await hook.execute(H.AFTER_OPTION_LIST, options)
+    await hook.do(H.AFTER_OPTION_LIST, options)
 
     return {
         "options": [option.to_dict() for option in options],

@@ -61,9 +61,9 @@ async def comment_insert(
     await document_repository.update(document, commit=False)
 
     hook = Hook(session, cache, current_user=current_user)
-    await hook.execute(H.BEFORE_COMMENT_INSERT, comment)
+    await hook.do(H.BEFORE_COMMENT_INSERT, comment)
 
     await comment_repository.commit()
-    await hook.execute(H.AFTER_COMMENT_INSERT, comment)
+    await hook.do(H.AFTER_COMMENT_INSERT, comment)
 
     return {"comment_id": comment.id}

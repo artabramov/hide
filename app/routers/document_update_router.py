@@ -128,10 +128,10 @@ async def document_update(
     # after committing the changes
 
     hook = Hook(session, cache, current_user=current_user)
-    await hook.execute(H.BEFORE_DOCUMENT_UPDATE, document)
+    await hook.do(H.BEFORE_DOCUMENT_UPDATE, document)
 
     await document_repository.commit()
-    await hook.execute(H.AFTER_DOCUMENT_UPDATE, document)
+    await hook.do(H.AFTER_DOCUMENT_UPDATE, document)
 
     return {
         "document_id": document.id,

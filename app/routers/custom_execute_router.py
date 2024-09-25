@@ -1,5 +1,4 @@
 from fastapi import APIRouter, status, Depends
-import time
 from fastapi.responses import JSONResponse
 from app.schemas.custom_schemas import CustomExecuteRequest
 from app.hooks import H, Hook
@@ -23,6 +22,6 @@ async def custom_execute(
     response = {}
 
     hook = Hook(session, cache)
-    await hook.execute(H.ON_CUSTOM_EXECUTE, schema.params, response)
+    await hook.do(H.ON_CUSTOM_EXECUTE, schema.params, response)
 
     return response

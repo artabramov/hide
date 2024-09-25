@@ -65,7 +65,7 @@ async def on_startup(session=Depends(get_session),
     Executes startup hook using the provided database session and cache.
     """
     hook = Hook(session, cache)
-    await hook.execute(H.ON_STARTUP)
+    await hook.do(H.ON_STARTUP)
 
 
 def load_hooks():

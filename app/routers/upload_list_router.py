@@ -41,7 +41,7 @@ async def upload_list(
     uploads_count = await upload_repository.count_all(**schema.__dict__)
 
     hook = Hook(session, cache, current_user=current_user)
-    await hook.execute(H.AFTER_UPLOAD_LIST, uploads)
+    await hook.do(H.AFTER_UPLOAD_LIST, uploads)
 
     return {
         "uploads": [upload.to_dict() for upload in uploads],

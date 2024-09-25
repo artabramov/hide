@@ -102,10 +102,10 @@ async def document_replace(
 
         # execute hooks
         hook = Hook(session, cache, current_user=current_user)
-        await hook.execute(H.BEFORE_DOCUMENT_REPLACE, document)
+        await hook.do(H.BEFORE_DOCUMENT_REPLACE, document)
 
         await document_repository.commit()
-        await hook.execute(H.AFTER_DOCUMENT_REPLACE, document)
+        await hook.do(H.AFTER_DOCUMENT_REPLACE, document)
 
     except Exception as e:
         await FileManager.delete(upload_path)

@@ -55,9 +55,9 @@ async def collection_update(
     await collection_repository.update(collection, commit=False)
 
     hook = Hook(session, cache, current_user=current_user)
-    await hook.execute(H.BEFORE_COLLECTION_UPDATE, collection)
+    await hook.do(H.BEFORE_COLLECTION_UPDATE, collection)
 
     await collection_repository.commit()
-    await hook.execute(H.AFTER_COLLECTION_UPDATE, collection)
+    await hook.do(H.AFTER_COLLECTION_UPDATE, collection)
 
     return {"collection_id": collection.id}

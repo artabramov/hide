@@ -76,6 +76,6 @@ async def telemetry_retrieve(
     }
 
     hook = Hook(session, cache, current_user=current_user)
-    await hook.execute(H.ON_TELEMETRY_RETRIEVE, response)
+    await hook.do(H.ON_TELEMETRY_RETRIEVE, response)
 
     return response

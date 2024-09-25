@@ -58,10 +58,10 @@ async def upload_download(
     await document_repository.update(upload.upload_document, commit=False)
 
     hook = Hook(session, cache, current_user=current_user)
-    await hook.execute(H.BEFORE_UPLOAD_DOWNLOAD, upload)
+    await hook.do(H.BEFORE_UPLOAD_DOWNLOAD, upload)
 
     await upload_repository.commit()
-    await hook.execute(H.AFTER_UPLOAD_DOWNLOAD, upload)
+    await hook.do(H.AFTER_UPLOAD_DOWNLOAD, upload)
 
     headers = {"Content-Disposition": f"attachment; filename={upload.original_filename}"}  # noqa E501
     return Response(content=decrypted_data, headers=headers,

@@ -66,10 +66,10 @@ async def document_upload(
 
         # execute hooks
         hook = Hook(session, cache, current_user=current_user)
-        await hook.execute(H.BEFORE_DOCUMENT_UPLOAD, document)
+        await hook.do(H.BEFORE_DOCUMENT_UPLOAD, document)
 
         await document_repository.commit()
-        await hook.execute(H.AFTER_DOCUMENT_UPLOAD, document)
+        await hook.do(H.AFTER_DOCUMENT_UPLOAD, document)
 
     except Exception as e:
         await FileManager.delete(upload_path)

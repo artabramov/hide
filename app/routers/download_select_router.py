@@ -44,6 +44,6 @@ async def download_select(
                 E.ERR_RESOURCE_NOT_FOUND, status.HTTP_404_NOT_FOUND)
 
     hook = Hook(session, cache, current_user=current_user)
-    await hook.execute(H.AFTER_DOWNLOAD_SELECT, download)
+    await hook.do(H.AFTER_DOWNLOAD_SELECT, download)
 
     return download.to_dict()

@@ -60,7 +60,7 @@ async def userpic_upload(
     userpic_path = os.path.join(cfg.USERPIC_BASE_PATH, userpic_filename)
 
     hook = Hook(session, cache, current_user=current_user)
-    await hook.execute(H.BEFORE_USERPIC_UPLOAD, current_user)
+    await hook.do(H.BEFORE_USERPIC_UPLOAD, current_user)
 
     await FileManager.upload(file, userpic_path)
     await image_resize(userpic_path, cfg.USERPIC_WIDTH, cfg.USERPIC_HEIGHT,
@@ -71,6 +71,6 @@ async def userpic_upload(
     await user_repository.update(current_user, commit=False)
 
     await user_repository.commit()
-    await hook.execute(H.AFTER_USERPIC_UPLOAD, current_user)
+    await hook.do(H.AFTER_USERPIC_UPLOAD, current_user)
 
     return {"user_id": current_user.id}

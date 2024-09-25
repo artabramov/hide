@@ -40,7 +40,7 @@ async def download_list(
     downloads_count = await download_repository.count_all(**schema.__dict__)
 
     hook = Hook(session, cache, current_user=current_user)
-    await hook.execute(H.AFTER_DOWNLOAD_LIST, downloads)
+    await hook.do(H.AFTER_DOWNLOAD_LIST, downloads)
 
     return {
         "downloads": [download.to_dict() for download in downloads],

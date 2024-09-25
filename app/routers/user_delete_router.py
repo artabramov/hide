@@ -55,9 +55,9 @@ async def user_delete(
                 E.ERR_RESOURCE_FORBIDDEN, status.HTTP_403_FORBIDDEN)
 
     hook = Hook(session, cache, current_user=current_user)
-    await hook.execute(H.BEFORE_USER_DELETE, user)
+    await hook.do(H.BEFORE_USER_DELETE, user)
 
     await user_repository.commit()
-    await hook.execute(H.AFTER_USER_DELETE, user)
+    await hook.do(H.AFTER_USER_DELETE, user)
 
     return {"user_id": user.id}

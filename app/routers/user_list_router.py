@@ -34,7 +34,7 @@ async def users_list(
     users_count = await user_repository.count_all(**schema.__dict__)
 
     hook = Hook(session, cache, current_user=current_user)
-    await hook.execute(H.AFTER_USER_LIST, users)
+    await hook.do(H.AFTER_USER_LIST, users)
 
     return {
         "users": [user.to_dict() for user in users],

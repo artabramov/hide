@@ -46,7 +46,7 @@ async def user_mfa(
                 E.ERR_VALUE_INVALID, status.HTTP_422_UNPROCESSABLE_ENTITY)
 
     hook = Hook(session, cache)
-    await hook.execute(H.BEFORE_MFA_SELECT, user)
+    await hook.do(H.BEFORE_MFA_SELECT, user)
 
     qr = qrcode.QRCode(
         version=cfg.MFA_VERSION, box_size=cfg.MFA_BOX_SIZE,
@@ -65,6 +65,6 @@ async def user_mfa(
     img_bytes.seek(0)
     img_data = img_bytes.getvalue()
 
-    await hook.execute(H.AFTER_MFA_SELECT, user)
+    await hook.do(H.AFTER_MFA_SELECT, user)
 
     return Response(content=img_data, media_type=cfg.MFA_MIMETYPE)

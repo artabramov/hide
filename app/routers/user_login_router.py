@@ -71,10 +71,10 @@ async def user_login(
     await user_repository.update(user, commit=False)
 
     hook = Hook(session, cache)
-    await hook.execute(H.BEFORE_USER_LOGIN, user)
+    await hook.do(H.BEFORE_USER_LOGIN, user)
 
     await user_repository.commit()
-    await hook.execute(H.AFTER_USER_LOGIN, user)
+    await hook.do(H.AFTER_USER_LOGIN, user)
 
     if user.password_accepted:
         return {"password_accepted": True}

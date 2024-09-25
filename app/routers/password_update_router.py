@@ -52,9 +52,9 @@ async def password_update(
     await user_repository.update(current_user, commit=False)
 
     hook = Hook(session, cache, current_user=current_user)
-    await hook.execute(H.BEFORE_PASSWORD_UPDATE, current_user)
+    await hook.do(H.BEFORE_PASSWORD_UPDATE, current_user)
 
     await user_repository.commit()
-    await hook.execute(H.AFTER_PASSWORD_UPDATE, current_user)
+    await hook.do(H.AFTER_PASSWORD_UPDATE, current_user)
 
     return {"user_id": current_user.id}

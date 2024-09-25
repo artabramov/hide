@@ -51,9 +51,9 @@ async def option_insert(
     await option_repository.update(option, commit=False)
 
     hook = Hook(session, cache, current_user=current_user)
-    await hook.execute(H.BEFORE_OPTION_INSERT, option)
+    await hook.do(H.BEFORE_OPTION_INSERT, option)
 
     await option_repository.commit()
-    await hook.execute(H.AFTER_OPTION_INSERT, option)
+    await hook.do(H.AFTER_OPTION_INSERT, option)
 
     return {"option_key": option.option_key}

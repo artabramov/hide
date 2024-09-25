@@ -37,6 +37,6 @@ async def user_select(
                 E.ERR_RESOURCE_NOT_FOUND, status.HTTP_404_NOT_FOUND)
 
     hook = Hook(session, cache, current_user=user)
-    await hook.execute(H.AFTER_USER_SELECT, user)
+    await hook.do(H.AFTER_USER_SELECT, user)
 
     return user.to_dict()

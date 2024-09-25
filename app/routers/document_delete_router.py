@@ -69,9 +69,9 @@ async def document_delete(
             document.document_collection, commit=False)
 
     hook = Hook(session, cache, current_user=current_user)
-    await hook.execute(H.BEFORE_DOCUMENT_DELETE, document)
+    await hook.do(H.BEFORE_DOCUMENT_DELETE, document)
 
     await document_repository.commit()
-    await hook.execute(H.AFTER_DOCUMENT_DELETE, document)
+    await hook.do(H.AFTER_DOCUMENT_DELETE, document)
 
     return {"document_id": document.id}

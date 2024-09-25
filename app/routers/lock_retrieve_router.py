@@ -22,7 +22,7 @@ async def lock_retrieve(
 ) -> LockRetrieveResponse:
 
     hook = Hook(session, cache)
-    await hook.execute(H.ON_LOCK_RETRIEVE)
+    await hook.do(H.ON_LOCK_RETRIEVE)
 
     return {
         "is_locked": is_locked(),

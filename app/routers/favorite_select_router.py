@@ -49,6 +49,6 @@ async def favorite_select(
                 E.ERR_RESOURCE_FORBIDDEN, status.HTTP_403_FORBIDDEN)
 
     hook = Hook(session, cache, current_user=current_user)
-    await hook.execute(H.AFTER_FAVORITE_SELECT, favorite)
+    await hook.do(H.AFTER_FAVORITE_SELECT, favorite)
 
     return favorite.to_dict()

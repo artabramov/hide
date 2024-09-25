@@ -40,6 +40,6 @@ async def collection_select(
                 E.ERR_RESOURCE_NOT_FOUND, status.HTTP_404_NOT_FOUND)
 
     hook = Hook(session, cache, current_user=current_user)
-    await hook.execute(H.AFTER_COLLECTION_SELECT, collection)
+    await hook.do(H.AFTER_COLLECTION_SELECT, collection)
 
     return collection.to_dict()
