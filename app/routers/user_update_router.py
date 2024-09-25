@@ -9,6 +9,7 @@ from app.errors import E
 from app.hooks import H, Hook
 from app.auth import auth
 from app.repository import Repository
+from app.constants import LOC_PATH
 
 router = APIRouter()
 
@@ -34,11 +35,11 @@ async def user_update(
     user = await user_repository.select(id=user_id)
 
     if not user:
-        raise E([E.LOC_PATH, "user_id"], user_id,
+        raise E([LOC_PATH, "user_id"], user_id,
                 E.ERR_RESOURCE_NOT_FOUND, status.HTTP_404_NOT_FOUND)
 
     elif user_id != current_user.id:
-        raise E([E.LOC_PATH, "user_id"], user_id,
+        raise E([LOC_PATH, "user_id"], user_id,
                 E.ERR_RESOURCE_FORBIDDEN, status.HTTP_403_FORBIDDEN)
 
     user_repository = Repository(session, cache, User)

@@ -16,6 +16,7 @@ from app.repository import Repository
 from app.errors import E
 from app.hooks import H, Hook
 from app.auth import auth
+from app.constants import LOC_BODY
 
 router = APIRouter()
 
@@ -44,11 +45,11 @@ async def comment_insert(
     document = await document_repository.select(id__eq=schema.document_id)
 
     if not document:
-        raise E(["body", "document_id"], schema.document_id,
+        raise E([LOC_BODY, "document_id"], schema.document_id,
                 E.ERR_RESOURCE_NOT_FOUND, status.HTTP_404_NOT_FOUND)
 
     elif document.is_locked:
-        raise E(["body", "document_id"], schema.document_id,
+        raise E([LOC_BODY, "document_id"], schema.document_id,
                 E.ERR_RESOURCE_LOCKED, status.HTTP_423_LOCKED)
 
     comment_repository = Repository(session, cache, Comment)

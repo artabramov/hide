@@ -15,6 +15,7 @@ from app.repository import Repository
 from app.config import get_config
 from app.libraries.tag_library import TagLibrary
 from app.errors import E
+from app.constants import LOC_PATH, LOC_BODY
 
 cfg = get_config()
 router = APIRouter()
@@ -37,11 +38,11 @@ async def document_update(
     document = await document_repository.select(id=document_id)
 
     if not document:
-        raise E(["path", "document_id"], document_id,
+        raise E([LOC_PATH, "document_id"], document_id,
                 E.ERR_RESOURCE_NOT_FOUND, status.HTTP_404_NOT_FOUND)
 
     elif document.is_locked:
-        raise E(["path", "document_id"], document_id,
+        raise E([LOC_PATH, "document_id"], document_id,
                 E.ERR_RESOURCE_LOCKED, status.HTTP_423_LOCKED)
 
     # If a collection ID is received, then validate the collection.
@@ -53,11 +54,11 @@ async def document_update(
             id=schema.collection_id)
 
         if not collection:
-            raise E(["body", "collection_id"], schema.collection_id,
+            raise E([LOC_BODY, "collection_id"], schema.collection_id,
                     E.ERR_RESOURCE_NOT_FOUND, status.HTTP_404_NOT_FOUND)
 
         elif collection.is_locked:
-            raise E(["body", "collection_id"], schema.collection_id,
+            raise E([LOC_BODY, "collection_id"], schema.collection_id,
                     E.ERR_RESOURCE_LOCKED, status.HTTP_423_LOCKED)
 
     # Update the data of the document itself.

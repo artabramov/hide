@@ -11,6 +11,7 @@ from app.errors import E
 from app.hooks import H, Hook
 from app.repository import Repository
 from app.config import get_config
+from app.constants import LOC_BODY
 
 router = APIRouter()
 cfg = get_config()
@@ -38,18 +39,18 @@ async def user_login(
     user = await user_repository.select(user_login__eq=schema.user_login)
 
     if not user:
-        raise E(["body", "user_login"], schema.user_login,
+        raise E([LOC_BODY, "user_login"], schema.user_login,
                 E.ERR_RESOURCE_NOT_FOUND, status.HTTP_404_NOT_FOUND)
 
     elif user.suspended_date > int(time.time()):
-        raise E(["body", "user_login"], schema.user_login,
+        raise E([LOC_BODY, "user_login"], schema.user_login,
                 E.ERR_USER_SUSPENDED, status.HTTP_403_FORBIDDEN)
 
     admin_exists = await user_repository.exists(
         user_role__eq=UserRole.admin, is_active__eq=True)
 
     if not user.is_active and admin_exists:
-        raise E(["body", "user_login"], schema.user_login,
+        raise E([LOC_BODY, "user_login"], schema.user_login,
                 E.ERR_USER_INACTIVE, status.HTTP_403_FORBIDDEN)
 
     if user.password_hash == get_hash(schema.user_password):
@@ -80,5 +81,5 @@ async def user_login(
         return {"password_accepted": True}
 
     else:
-        raise E(["body", "user_password"], schema.user_password,
+        raise E([LOC_BODY, "user_password"], schema.user_password,
                 E.ERR_VALUE_INVALID, status.HTTP_422_UNPROCESSABLE_ENTITY)

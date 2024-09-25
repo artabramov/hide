@@ -10,6 +10,7 @@ from app.repository import Repository
 from app.errors import E
 from app.hooks import H, Hook
 from app.auth import auth
+from app.constants import LOC_PATH
 
 router = APIRouter()
 
@@ -37,7 +38,7 @@ async def collection_delete(
 
     collection = await collection_repository.select(id=collection_id)
     if not collection:
-        raise E([E.LOC_PATH, "collection_id"], collection_id,
+        raise E([LOC_PATH, "collection_id"], collection_id,
                 E.ERR_RESOURCE_NOT_FOUND, status.HTTP_404_NOT_FOUND)
 
     await collection_repository.delete(collection, commit=False)

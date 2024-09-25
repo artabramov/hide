@@ -11,6 +11,7 @@ from app.repository import Repository
 from app.errors import E
 from app.hooks import H, Hook
 from app.auth import auth
+from app.constants import LOC_PATH, LOC_BODY
 
 router = APIRouter()
 
@@ -40,13 +41,13 @@ async def collection_update(
 
     collection = await collection_repository.select(id=collection_id)
     if not collection:
-        raise E([E.LOC_PATH, "collection_id"], collection_id,
+        raise E([LOC_PATH, "collection_id"], collection_id,
                 E.ERR_RESOURCE_NOT_FOUND, status.HTTP_404_NOT_FOUND)
 
     collection_exists = await collection_repository.exists(
         collection_name__eq=schema.collection_name, id__ne=collection.id)
     if collection_exists:
-        raise E([E.LOC_BODY, "collection_name"], schema.collection_name,
+        raise E([LOC_BODY, "collection_name"], schema.collection_name,
                 E.ERR_VALUE_DUPLICATED, status.HTTP_422_UNPROCESSABLE_ENTITY)
 
     collection.is_locked = schema.is_locked

@@ -16,6 +16,7 @@ from app.repository import Repository
 from app.hooks import H, Hook
 from app.errors import E
 from app.auth import auth
+from app.constants import LOC_BODY
 
 router = APIRouter()
 
@@ -44,7 +45,7 @@ async def option_insert(
 
     option = await option_repository.select(option_key__eq=schema.option_key)
     if option:
-        raise E([E.LOC_BODY, "option_key"], schema.option_key,
+        raise E([LOC_BODY, "option_key"], schema.option_key,
                 E.ERR_VALUE_DUPLICATED, status.HTTP_422_UNPROCESSABLE_ENTITY)
 
     option = Option(current_user.id, schema.option_key, schema.option_value)

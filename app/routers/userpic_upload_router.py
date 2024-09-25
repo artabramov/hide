@@ -14,6 +14,7 @@ from app.repository import Repository
 from app.managers.file_manager import FileManager
 from app.helpers.image_helper import image_resize
 from app.config import get_config
+from app.constants import LOC_PATH, LOC_BODY
 
 router = APIRouter()
 cfg = get_config()
@@ -42,15 +43,15 @@ async def userpic_upload(
     user = await user_repository.select(id=user_id)
 
     if not user:
-        raise E([E.LOC_PATH, "user_id"], user_id,
+        raise E([LOC_PATH, "user_id"], user_id,
                 E.ERR_RESOURCE_NOT_FOUND, status.HTTP_404_NOT_FOUND)
 
     elif user_id != current_user.id:
-        raise E([E.LOC_PATH, "user_id"], user_id,
+        raise E([LOC_PATH, "user_id"], user_id,
                 E.ERR_RESOURCE_FORBIDDEN, status.HTTP_403_FORBIDDEN)
 
     elif file.content_type not in cfg.USERPIC_MIMES:
-        raise E([E.LOC_BODY, "file"], user_id, E.ERR_MIMETYPE_UNSUPPORTED,
+        raise E([LOC_BODY, "file"], user_id, E.ERR_MIMETYPE_UNSUPPORTED,
                 status.HTTP_422_UNPROCESSABLE_ENTITY)
 
     if current_user.userpic_filename:

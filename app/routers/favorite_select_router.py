@@ -14,6 +14,7 @@ from app.repository import Repository
 from app.errors import E
 from app.hooks import H, Hook
 from app.auth import auth
+from app.constants import LOC_PATH
 
 router = APIRouter()
 
@@ -41,11 +42,11 @@ async def favorite_select(
     favorite = await favorite_repository.select(id=favorite_id)
 
     if not favorite:
-        raise E([E.LOC_PATH, "favorite_id"], favorite_id,
+        raise E([LOC_PATH, "favorite_id"], favorite_id,
                 E.ERR_RESOURCE_NOT_FOUND, status.HTTP_404_NOT_FOUND)
 
     elif favorite.user_id != current_user.id:
-        raise E([E.LOC_PATH, "favorite_id"], favorite_id,
+        raise E([LOC_PATH, "favorite_id"], favorite_id,
                 E.ERR_RESOURCE_FORBIDDEN, status.HTTP_403_FORBIDDEN)
 
     hook = Hook(session, cache, current_user=current_user)

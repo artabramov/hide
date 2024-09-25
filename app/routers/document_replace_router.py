@@ -17,6 +17,7 @@ from app.schemas.document_schemas import DocumentReplaceResponse
 from app.managers.file_manager import FileManager
 from app.helpers.image_helper import thumbnail_create
 from app.errors import E
+from app.constants import LOC_PATH
 
 cfg = get_config()
 router = APIRouter()
@@ -36,11 +37,11 @@ async def document_replace(
     document = await document_repository.select(id=document_id)
 
     if not document:
-        raise E(["path", "document_id"], document_id,
+        raise E([LOC_PATH, "document_id"], document_id,
                 E.ERR_RESOURCE_NOT_FOUND, status.HTTP_404_NOT_FOUND)
 
     elif document.is_locked:
-        raise E(["path", "document_id"], document_id,
+        raise E([LOC_PATH, "document_id"], document_id,
                 E.ERR_RESOURCE_LOCKED, status.HTTP_423_LOCKED)
 
     # upload file

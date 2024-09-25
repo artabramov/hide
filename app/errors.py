@@ -21,12 +21,6 @@ class E(HTTPException):
     This class helps to provide more granular error information in
     responses, useful for debugging and user experience.
     """
-    # possible error locations
-    LOC_HEADER = "header"
-    LOC_COOKIE = "cookie"
-    LOC_PATH = "path"
-    LOC_QUERY = "query"
-    LOC_BODY = "body"
 
     # The token is missing from the request headers (403).
     ERR_VALUE_REQUIRED = "token_missing"

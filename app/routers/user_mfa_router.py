@@ -9,6 +9,7 @@ from app.decorators.locked_decorator import locked
 from app.models.user_model import User
 from app.errors import E
 from app.hooks import H, Hook
+from app.constants import LOC_QUERY
 
 router = APIRouter()
 cfg = get_config()
@@ -34,15 +35,15 @@ async def user_mfa(
     user = await user_repository.select(id=user_id)
 
     if not user:
-        raise E(["query", "user_id"], user_id,
+        raise E([LOC_QUERY, "user_id"], user_id,
                 E.ERR_RESOURCE_NOT_FOUND, status.HTTP_404_NOT_FOUND)
 
     elif user.is_active:
-        raise E(["query", "user_id"], user_id,
+        raise E([LOC_QUERY, "user_id"], user_id,
                 E.ERR_RESOURCE_FORBIDDEN, status.HTTP_403_FORBIDDEN)
 
     elif user.mfa_secret != mfa_secret:
-        raise E(["query", "mfa_secret"], mfa_secret,
+        raise E([LOC_QUERY, "mfa_secret"], mfa_secret,
                 E.ERR_VALUE_INVALID, status.HTTP_422_UNPROCESSABLE_ENTITY)
 
     hook = Hook(session, cache)

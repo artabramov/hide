@@ -11,6 +11,7 @@ from app.repository import Repository
 from app.errors import E
 from app.hooks import H, Hook
 from app.auth import auth
+from app.constants import LOC_BODY
 
 router = APIRouter()
 
@@ -40,7 +41,7 @@ async def collection_insert(
         collection_name__eq=schema.collection_name)
 
     if collection_exists:
-        raise E([E.LOC_BODY, "collection_name"], schema.collection_name,
+        raise E([LOC_BODY, "collection_name"], schema.collection_name,
                 E.ERR_VALUE_DUPLICATED, status.HTTP_422_UNPROCESSABLE_ENTITY)
 
     collection = Collection(

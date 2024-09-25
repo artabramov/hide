@@ -15,6 +15,7 @@ from app.repository import Repository
 from app.errors import E
 from app.hooks import H, Hook
 from app.auth import auth
+from app.constants import LOC_PATH
 
 router = APIRouter()
 
@@ -45,15 +46,15 @@ async def comment_delete(
     comment = await comment_repository.select(id=comment_id)
 
     if not comment:
-        raise E(["path", "comment_id"], comment_id,
+        raise E([LOC_PATH, "comment_id"], comment_id,
                 E.ERR_RESOURCE_NOT_FOUND, status.HTTP_404_NOT_FOUND)
 
     elif comment.is_locked:
-        raise E(["path", "comment_id"], comment_id,
+        raise E([LOC_PATH, "comment_id"], comment_id,
                 E.ERR_RESOURCE_LOCKED, status.HTTP_423_LOCKED)
 
     elif comment.user_id != current_user.id:
-        raise E(["path", "comment_id"], comment_id,
+        raise E([LOC_PATH, "comment_id"], comment_id,
                 E.ERR_RESOURCE_FORBIDDEN, status.HTTP_403_FORBIDDEN)
 
     await comment_repository.delete(comment, commit=False)

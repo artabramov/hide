@@ -11,6 +11,7 @@ from app.errors import E
 from app.hooks import H, Hook
 from app.repository import Repository
 from app.config import get_config
+from app.constants import LOC_QUERY
 
 router = APIRouter()
 cfg = get_config()
@@ -37,18 +38,18 @@ async def token_retrieve(
     user = await user_repository.select(user_login__eq=schema.user_login)
 
     if not user:
-        raise E(["query", "user_login"], schema.user_login,
+        raise E([LOC_QUERY, "user_login"], schema.user_login,
                 E.ERR_RESOURCE_NOT_FOUND, status.HTTP_404_NOT_FOUND)
 
     admin_exists = await user_repository.exists(
         user_role__eq=UserRole.admin, is_active__eq=True)
 
     if not user.is_active and admin_exists:
-        raise E(["query", "user_login"], schema.user_login,
+        raise E([LOC_QUERY, "user_login"], schema.user_login,
                 E.ERR_USER_INACTIVE, status.HTTP_403_FORBIDDEN)
 
     elif not user.password_accepted:
-        raise E(["query", "user_totp"], schema.user_totp,
+        raise E([LOC_QUERY, "user_totp"], schema.user_totp,
                 E.ERR_VALUE_INVALID, status.HTTP_422_UNPROCESSABLE_ENTITY)
 
     totp_accepted = schema.user_totp == user.get_totp(user.mfa_secret)
@@ -81,5 +82,5 @@ async def token_retrieve(
         return {"user_token": user_token}
 
     else:
-        raise E(["query", "user_totp"], schema.user_totp,
+        raise E([LOC_QUERY, "user_totp"], schema.user_totp,
                 E.ERR_VALUE_INVALID, status.HTTP_422_UNPROCESSABLE_ENTITY)

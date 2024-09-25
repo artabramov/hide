@@ -16,6 +16,7 @@ from app.errors import E
 from app.auth import auth
 from app.repository import Repository
 from app.managers.file_manager import FileManager
+from app.constants import LOC_PATH
 
 router = APIRouter()
 
@@ -41,7 +42,7 @@ async def upload_download(
     upload_repository = Repository(session, cache, Upload)
     upload = await upload_repository.select(id=upload_id)
     if not upload:
-        raise E([E.LOC_PATH, "upload_id"], upload_id,
+        raise E([LOC_PATH, "upload_id"], upload_id,
                 E.ERR_RESOURCE_NOT_FOUND, status.HTTP_404_NOT_FOUND)
 
     data = await FileManager.read(upload.upload_path)

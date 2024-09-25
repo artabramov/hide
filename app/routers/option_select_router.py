@@ -14,6 +14,7 @@ from app.repository import Repository
 from app.errors import E
 from app.hooks import H, Hook
 from app.auth import auth
+from app.constants import LOC_PATH
 
 router = APIRouter()
 
@@ -39,7 +40,7 @@ async def option_select(
     option = await option_repository.select(option_key__eq=option_key)
 
     if not option:
-        raise E([E.LOC_PATH, "option_key"], option_key,
+        raise E([LOC_PATH, "option_key"], option_key,
                 E.ERR_RESOURCE_NOT_FOUND, status.HTTP_404_NOT_FOUND)
 
     hook = Hook(session, cache, current_user=current_user)

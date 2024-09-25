@@ -8,6 +8,7 @@ from app.schemas.user_schemas import UserRegisterRequest, UserRegisterResponse
 from app.errors import E
 from app.hooks import H, Hook
 from app.repository import Repository
+from app.constants import LOC_BODY
 
 router = APIRouter()
 
@@ -32,7 +33,7 @@ async def user_register(
         user_login__eq=schema.user_login)
 
     if user_exists:
-        raise E(["body", "user_login"], schema.user_login,
+        raise E([LOC_BODY, "user_login"], schema.user_login,
                 E.ERR_VALUE_DUPLICATED, status.HTTP_422_UNPROCESSABLE_ENTITY)
 
     user = User(

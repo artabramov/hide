@@ -11,6 +11,7 @@ from app.hooks import H, Hook
 from app.auth import auth
 from app.repository import Repository
 from app.errors import E
+from app.constants import LOC_PATH
 
 router = APIRouter()
 
@@ -40,11 +41,11 @@ async def document_delete(
     document = await document_repository.select(id=document_id)
 
     if not document:
-        raise E(["path", "document_id"], document_id,
+        raise E([LOC_PATH, "document_id"], document_id,
                 E.ERR_RESOURCE_NOT_FOUND, status.HTTP_404_NOT_FOUND)
 
     elif document.is_locked:
-        raise E(["path", "document_id"], document_id,
+        raise E([LOC_PATH, "document_id"], document_id,
                 E.ERR_RESOURCE_LOCKED, status.HTTP_423_LOCKED)
 
     await document_repository.delete(document, commit=False)
