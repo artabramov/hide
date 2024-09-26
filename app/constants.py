@@ -62,9 +62,9 @@ ERR_MIMETYPE_UNSUPPORTED = "mimetype_unsupported"
 ERR_SERVER_ERROR = "Internal server error"
 
 # Hook types used to manage various pre-event and post-event actions
-# within the app. These hooks are used to trigger corresponding
-# functions that handle tasks related to app, users management,
-# collections, documents, comments, uploads, favorites, etc.
+# within the app. These hooks are used to trigger corresponding funcs
+# that handle tasks related to app, users management, collections,
+# documents, comments, uploads, favorites, etc.
 
 # service hooks
 HOOK_ON_STARTUP = "on_startup"
