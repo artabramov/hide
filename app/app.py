@@ -16,10 +16,11 @@ from app.config import get_config
 from app.context import get_context
 from app.log import get_log
 from app.routers import (
-    token_select_router, token_delete_router, user_register_router,
-    user_mfa_router, user_login_router, user_select_router, user_update_router,
-    user_delete_router, role_update_router, password_update_router,
-    userpic_upload_router, userpic_delete_router, user_list_router,
+    token_retrieve_router, token_invalidate_router, user_register_router,
+    mfa_retrieve_router, user_login_router, user_select_router,
+    user_update_router, user_delete_router, role_change_router,
+    password_change_router, userpic_upload_router, userpic_delete_router,
+    user_list_router,
 
     collection_insert_router, collection_select_router,
     collection_update_router, collection_delete_router,
@@ -39,8 +40,8 @@ from app.routers import (
     option_insert_router, option_select_router, option_update_router,
     option_delete_router, option_list_router,
 
-    time_retrieve_router, telemetry_retrieve_router, lock_create_router,
-    lock_retrieve_router, lock_delete_router, custom_execute_router)
+    time_retrieve_router, telemetry_retrieve_router, lockdown_create_router,
+    lockdown_retrieve_router, lockdown_delete_router, custom_execute_router)
 from app.database import Base, sessionmanager, get_session
 from app.constants import ERR_SERVER_ERROR, HOOK_ON_STARTUP
 from contextlib import asynccontextmanager
@@ -137,15 +138,15 @@ def get_uptime():
 
 # user routers
 app.include_router(user_login_router.router, prefix=cfg.APP_PREFIX)
-app.include_router(token_select_router.router, prefix=cfg.APP_PREFIX)
-app.include_router(token_delete_router.router, prefix=cfg.APP_PREFIX)
+app.include_router(token_retrieve_router.router, prefix=cfg.APP_PREFIX)
+app.include_router(token_invalidate_router.router, prefix=cfg.APP_PREFIX)
 app.include_router(user_register_router.router, prefix=cfg.APP_PREFIX)
-app.include_router(user_mfa_router.router, prefix=cfg.APP_PREFIX)
+app.include_router(mfa_retrieve_router.router, prefix=cfg.APP_PREFIX)
 app.include_router(user_select_router.router, prefix=cfg.APP_PREFIX)
 app.include_router(user_update_router.router, prefix=cfg.APP_PREFIX)
 app.include_router(user_delete_router.router, prefix=cfg.APP_PREFIX)
-app.include_router(role_update_router.router, prefix=cfg.APP_PREFIX)
-app.include_router(password_update_router.router, prefix=cfg.APP_PREFIX)
+app.include_router(role_change_router.router, prefix=cfg.APP_PREFIX)
+app.include_router(password_change_router.router, prefix=cfg.APP_PREFIX)
 app.include_router(userpic_upload_router.router, prefix=cfg.APP_PREFIX)
 app.include_router(userpic_delete_router.router, prefix=cfg.APP_PREFIX)
 app.include_router(user_list_router.router, prefix=cfg.APP_PREFIX)
@@ -197,9 +198,9 @@ app.include_router(option_list_router.router, prefix=cfg.APP_PREFIX)
 # system routers
 app.include_router(time_retrieve_router.router, prefix=cfg.APP_PREFIX)
 app.include_router(telemetry_retrieve_router.router, prefix=cfg.APP_PREFIX)
-app.include_router(lock_retrieve_router.router, prefix=cfg.APP_PREFIX)
-app.include_router(lock_create_router.router, prefix=cfg.APP_PREFIX)
-app.include_router(lock_delete_router.router, prefix=cfg.APP_PREFIX)
+app.include_router(lockdown_retrieve_router.router, prefix=cfg.APP_PREFIX)
+app.include_router(lockdown_create_router.router, prefix=cfg.APP_PREFIX)
+app.include_router(lockdown_delete_router.router, prefix=cfg.APP_PREFIX)
 app.include_router(custom_execute_router.router, prefix=cfg.APP_PREFIX)
 
 

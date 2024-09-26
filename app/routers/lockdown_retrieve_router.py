@@ -8,22 +8,22 @@ from app.config import get_config
 from app.hooks import Hook
 from app.database import get_session
 from app.cache import get_cache
-from app.constants import HOOK_ON_LOCK_RETRIEVE
+from app.constants import HOOK_ON_LOCKDOWN_RETRIEVE
 
 cfg = get_config()
 router = APIRouter()
 
 
-@router.get("/lock", summary="Get the lock state",
+@router.get("/lockdown", summary="Retrieve the lockdown state",
             response_class=JSONResponse, status_code=status.HTTP_200_OK,
             response_model=LockRetrieveResponse, tags=["system"])
-async def lock_retrieve(
+async def lockdown_retrieve(
     session=Depends(get_session), cache=Depends(get_cache),
     current_user: User = Depends(auth(UserRole.admin))
 ) -> LockRetrieveResponse:
 
     hook = Hook(session, cache)
-    await hook.do(HOOK_ON_LOCK_RETRIEVE)
+    await hook.do(HOOK_ON_LOCKDOWN_RETRIEVE)
 
     return {
         "is_locked": is_locked(),

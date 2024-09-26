@@ -7,21 +7,21 @@ from app.auth import auth
 from app.hooks import Hook
 from app.database import get_session
 from app.cache import get_cache
-from app.constants import HOOK_ON_LOCK_CREATE
+from app.constants import HOOK_ON_LOCKDOWN_CREATE
 
 router = APIRouter()
 
 
-@router.post("/lock", summary="Lock the app",
+@router.post("/lockdown", summary="Lock the app",
              response_class=JSONResponse, status_code=status.HTTP_200_OK,
              response_model=LockCreateResponse, tags=["system"])
-async def lock_create(
+async def lockdown_create(
     session=Depends(get_session), cache=Depends(get_cache),
     current_user: User = Depends(auth(UserRole.admin))
 ) -> LockCreateResponse:
     await lock()
 
     hook = Hook(session, cache)
-    await hook.do(HOOK_ON_LOCK_CREATE)
+    await hook.do(HOOK_ON_LOCKDOWN_CREATE)
 
     return {"is_locked": True}

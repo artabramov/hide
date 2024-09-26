@@ -23,7 +23,7 @@ MFA_MASK = "otpauth://totp/%s?secret=%s&issuer=%s"
             status_code=status.HTTP_200_OK, include_in_schema=True,
             tags=["users"])
 @locked
-async def user_mfa(
+async def mfa_retrieve(
     user_id: int, mfa_secret: str,
     session=Depends(get_session), cache=Depends(get_cache)
 ):

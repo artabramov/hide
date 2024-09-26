@@ -13,7 +13,7 @@ from app.auth import auth
 from app.repository import Repository
 from app.constants import (
     LOC_PATH, LOC_BODY, ERR_RESOURCE_NOT_FOUND, ERR_RESOURCE_FORBIDDEN,
-    ERR_VALUE_INVALID, HOOK_BEFORE_PASSWORD_UPDATE, HOOK_AFTER_PASSWORD_UPDATE)
+    ERR_VALUE_INVALID, HOOK_BEFORE_PASSWORD_CHANGE, HOOK_AFTER_PASSWORD_CHANGE)
 
 router = APIRouter()
 
@@ -22,7 +22,7 @@ router = APIRouter()
             response_class=JSONResponse, status_code=status.HTTP_200_OK,
             response_model=PasswordUpdateResponse, tags=["users"])
 @locked
-async def password_update(
+async def password_change(
     user_id: int, schema: PasswordUpdateRequest,
     session=Depends(get_session), cache=Depends(get_cache),
     current_user: User = Depends(auth(UserRole.reader))
@@ -55,9 +55,9 @@ async def password_update(
     await user_repository.update(current_user, commit=False)
 
     hook = Hook(session, cache, current_user=current_user)
-    await hook.do(HOOK_BEFORE_PASSWORD_UPDATE, current_user)
+    await hook.do(HOOK_BEFORE_PASSWORD_CHANGE, current_user)
 
     await user_repository.commit()
-    await hook.do(HOOK_AFTER_PASSWORD_UPDATE, current_user)
+    await hook.do(HOOK_AFTER_PASSWORD_CHANGE, current_user)
 
     return {"user_id": current_user.id}

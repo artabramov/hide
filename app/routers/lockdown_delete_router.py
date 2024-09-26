@@ -7,21 +7,21 @@ from app.auth import auth
 from app.hooks import Hook
 from app.database import get_session
 from app.cache import get_cache
-from app.constants import HOOK_ON_LOCK_DELETE
+from app.constants import HOOK_ON_LOCKDOWN_DELETE
 
 router = APIRouter()
 
 
-@router.delete("/lock", summary="Unlock the app",
+@router.delete("/lockdown", summary="Delete the lockdown",
                response_class=JSONResponse, status_code=status.HTTP_200_OK,
                response_model=LockDeleteResponse, tags=["system"])
-async def lock_delete(
+async def lockdown_delete(
     session=Depends(get_session), cache=Depends(get_cache),
     current_user: User = Depends(auth(UserRole.admin))
 ) -> LockDeleteResponse:
     await unlock()
 
     hook = Hook(session, cache)
-    await hook.do(HOOK_ON_LOCK_DELETE)
+    await hook.do(HOOK_ON_LOCKDOWN_DELETE)
 
     return {"is_locked": False}

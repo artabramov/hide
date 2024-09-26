@@ -11,7 +11,7 @@ from app.auth import auth
 from app.repository import Repository
 from app.constants import (
     LOC_PATH, ERR_RESOURCE_NOT_FOUND, ERR_RESOURCE_FORBIDDEN,
-    HOOK_BEFORE_ROLE_UPDATE, HOOK_AFTER_ROLE_UPDATE)
+    HOOK_BEFORE_ROLE_CHANGE, HOOK_AFTER_ROLE_CHANGE)
 
 router = APIRouter()
 
@@ -20,7 +20,7 @@ router = APIRouter()
             response_class=JSONResponse, status_code=status.HTTP_200_OK,
             response_model=RoleUpdateResponse, tags=["users"])
 @locked
-async def role_update(
+async def role_change(
     user_id: int, schema: RoleUpdateRequest,
     session=Depends(get_session), cache=Depends(get_cache),
     current_user: User = Depends(auth(UserRole.admin))
@@ -50,9 +50,9 @@ async def role_update(
     await user_repository.update(user, commit=False)
 
     hook = Hook(session, cache, current_user=current_user)
-    await hook.do(HOOK_BEFORE_ROLE_UPDATE, user)
+    await hook.do(HOOK_BEFORE_ROLE_CHANGE, user)
 
     await user_repository.commit()
-    await hook.do(HOOK_AFTER_ROLE_UPDATE, user)
+    await hook.do(HOOK_AFTER_ROLE_CHANGE, user)
 
     return {"user_id": user.id}

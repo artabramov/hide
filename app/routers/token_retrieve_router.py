@@ -13,7 +13,7 @@ from app.repository import Repository
 from app.config import get_config
 from app.constants import (
     LOC_QUERY, ERR_RESOURCE_NOT_FOUND, ERR_USER_INACTIVE, ERR_VALUE_INVALID,
-    HOOK_BEFORE_TOKEN_SELECT, HOOK_AFTER_TOKEN_SELECT)
+    HOOK_BEFORE_TOKEN_RETRIEVE, HOOK_AFTER_TOKEN_RETRIEVE)
 
 router = APIRouter()
 cfg = get_config()
@@ -75,10 +75,10 @@ async def token_retrieve(
     user_token = jwt_encode(user, token_exp=schema.token_exp)
 
     hook = Hook(session, cache)
-    await hook.do(HOOK_BEFORE_TOKEN_SELECT, user)
+    await hook.do(HOOK_BEFORE_TOKEN_RETRIEVE, user)
 
     await user_repository.commit()
-    await hook.do(HOOK_AFTER_TOKEN_SELECT, user)
+    await hook.do(HOOK_AFTER_TOKEN_RETRIEVE, user)
 
     if totp_accepted:
         return {"user_token": user_token}
