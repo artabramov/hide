@@ -6,11 +6,12 @@ from app.decorators.locked_decorator import locked
 from app.models.user_model import User, UserRole
 from app.models.upload_model import Upload
 from app.schemas.upload_schemas import UploadSelectResponse
-from app.hooks import H, Hook
+from app.hooks import Hook
 from app.auth import auth
 from app.repository import Repository
 from app.errors import E
-from app.constants import LOC_PATH
+from app.constants import (
+    LOC_PATH, ERR_RESOURCE_NOT_FOUND, HOOK_AFTER_UPLOAD_SELECT)
 
 router = APIRouter()
 
@@ -38,9 +39,9 @@ async def upload_select(
 
     if not upload:
         raise E([LOC_PATH, "upload_id"], upload_id,
-                E.ERR_RESOURCE_NOT_FOUND, status.HTTP_404_NOT_FOUND)
+                ERR_RESOURCE_NOT_FOUND, status.HTTP_404_NOT_FOUND)
 
     hook = Hook(session, cache, current_user=current_user)
-    await hook.do(H.AFTER_UPLOAD_SELECT, upload)
+    await hook.do(HOOK_AFTER_UPLOAD_SELECT, upload)
 
     return upload.to_dict()

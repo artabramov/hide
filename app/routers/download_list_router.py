@@ -12,8 +12,9 @@ from app.models.download_model import Download
 from app.schemas.download_schemas import (
     DownloadListRequest, DownloadListResponse)
 from app.repository import Repository
-from app.hooks import H, Hook
+from app.hooks import Hook
 from app.auth import auth
+from app.constants import HOOK_AFTER_DOWNLOAD_LIST
 
 router = APIRouter()
 
@@ -40,7 +41,7 @@ async def download_list(
     downloads_count = await download_repository.count_all(**schema.__dict__)
 
     hook = Hook(session, cache, current_user=current_user)
-    await hook.do(H.AFTER_DOWNLOAD_LIST, downloads)
+    await hook.do(HOOK_AFTER_DOWNLOAD_LIST, downloads)
 
     return {
         "downloads": [download.to_dict() for download in downloads],

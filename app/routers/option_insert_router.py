@@ -13,10 +13,12 @@ from app.models.option_model import Option
 from app.schemas.option_schemas import (
     OptionInsertRequest, OptionInsertResponse)
 from app.repository import Repository
-from app.hooks import H, Hook
+from app.hooks import Hook
 from app.errors import E
 from app.auth import auth
-from app.constants import LOC_BODY
+from app.constants import (
+    LOC_BODY, ERR_VALUE_DUPLICATED, HOOK_BEFORE_OPTION_INSERT,
+    HOOK_AFTER_OPTION_INSERT)
 
 router = APIRouter()
 
@@ -46,15 +48,15 @@ async def option_insert(
     option = await option_repository.select(option_key__eq=schema.option_key)
     if option:
         raise E([LOC_BODY, "option_key"], schema.option_key,
-                E.ERR_VALUE_DUPLICATED, status.HTTP_422_UNPROCESSABLE_ENTITY)
+                ERR_VALUE_DUPLICATED, status.HTTP_422_UNPROCESSABLE_ENTITY)
 
     option = Option(current_user.id, schema.option_key, schema.option_value)
     await option_repository.update(option, commit=False)
 
     hook = Hook(session, cache, current_user=current_user)
-    await hook.do(H.BEFORE_OPTION_INSERT, option)
+    await hook.do(HOOK_BEFORE_OPTION_INSERT, option)
 
     await option_repository.commit()
-    await hook.do(H.AFTER_OPTION_INSERT, option)
+    await hook.do(HOOK_AFTER_OPTION_INSERT, option)
 
     return {"option_key": option.option_key}

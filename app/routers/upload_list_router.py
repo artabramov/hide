@@ -11,9 +11,10 @@ from app.models.user_model import User, UserRole
 from app.models.upload_model import Upload
 from app.schemas.upload_schemas import (
     UploadListRequest, UploadListResponse)
-from app.hooks import H, Hook
+from app.hooks import Hook
 from app.auth import auth
 from app.repository import Repository
+from app.constants import HOOK_AFTER_UPLOAD_LIST
 
 router = APIRouter()
 
@@ -41,7 +42,7 @@ async def upload_list(
     uploads_count = await upload_repository.count_all(**schema.__dict__)
 
     hook = Hook(session, cache, current_user=current_user)
-    await hook.do(H.AFTER_UPLOAD_LIST, uploads)
+    await hook.do(HOOK_AFTER_UPLOAD_LIST, uploads)
 
     return {
         "uploads": [upload.to_dict() for upload in uploads],

@@ -8,10 +8,12 @@ from app.helpers.hash_helper import get_hash
 from app.schemas.user_schemas import (
     PasswordUpdateRequest, PasswordUpdateResponse)
 from app.errors import E
-from app.hooks import H, Hook
+from app.hooks import Hook
 from app.auth import auth
 from app.repository import Repository
-from app.constants import LOC_PATH, LOC_BODY
+from app.constants import (
+    LOC_PATH, LOC_BODY, ERR_RESOURCE_NOT_FOUND, ERR_RESOURCE_FORBIDDEN,
+    ERR_VALUE_INVALID, HOOK_BEFORE_PASSWORD_UPDATE, HOOK_AFTER_PASSWORD_UPDATE)
 
 router = APIRouter()
 
@@ -38,24 +40,24 @@ async def password_update(
 
     if not user:
         raise E([LOC_PATH, "user_id"], user_id,
-                E.ERR_RESOURCE_NOT_FOUND, status.HTTP_404_NOT_FOUND)
+                ERR_RESOURCE_NOT_FOUND, status.HTTP_404_NOT_FOUND)
 
     elif user_id != current_user.id:
         raise E([LOC_PATH, "user_id"], user_id,
-                E.ERR_RESOURCE_FORBIDDEN, status.HTTP_403_FORBIDDEN)
+                ERR_RESOURCE_FORBIDDEN, status.HTTP_403_FORBIDDEN)
 
     if get_hash(schema.current_password) != current_user.password_hash:
         raise E([LOC_BODY, "current_password"], schema.current_password,
-                E.ERR_VALUE_INVALID, status.HTTP_422_UNPROCESSABLE_ENTITY)
+                ERR_VALUE_INVALID, status.HTTP_422_UNPROCESSABLE_ENTITY)
 
     user_repository = Repository(session, cache, User)
     current_user.user_password = schema.updated_password
     await user_repository.update(current_user, commit=False)
 
     hook = Hook(session, cache, current_user=current_user)
-    await hook.do(H.BEFORE_PASSWORD_UPDATE, current_user)
+    await hook.do(HOOK_BEFORE_PASSWORD_UPDATE, current_user)
 
     await user_repository.commit()
-    await hook.do(H.AFTER_PASSWORD_UPDATE, current_user)
+    await hook.do(HOOK_AFTER_PASSWORD_UPDATE, current_user)
 
     return {"user_id": current_user.id}

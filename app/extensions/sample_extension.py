@@ -37,7 +37,7 @@ async def on_time_retrieve(
     current_user: None, response: dict
 ):
     """
-    Executes when time is retrieved. Receives time data
+    Executes when the current time is retrieved. Receives time data
     and performs any necessary post-processing actions.
     """
     ...
@@ -59,7 +59,7 @@ async def on_lock_create(
     current_user: User
 ):
     """
-    Executes when a lock is created.
+    Executes when the application lock is created.
     """
     ...
 
@@ -69,7 +69,7 @@ async def on_lock_retrieve(
     current_user: User
 ):
     """
-    Executes when a lock is retrieved.
+    Executes when the application lock is retrieved.
     """
     ...
 
@@ -79,7 +79,7 @@ async def on_lock_delete(
     current_user: User
 ):
     """
-    Executes when a lock is deleted.
+    Executes when the application lock is deleted.
     """
     ...
 

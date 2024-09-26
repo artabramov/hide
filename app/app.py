@@ -42,13 +42,13 @@ from app.routers import (
     time_retrieve_router, telemetry_retrieve_router, lock_create_router,
     lock_retrieve_router, lock_delete_router, custom_execute_router)
 from app.database import Base, sessionmanager, get_session
-from app.errors import SERVER_ERROR
+from app.constants import ERR_SERVER_ERROR, HOOK_ON_STARTUP
 from contextlib import asynccontextmanager
 from uuid import uuid4
 import os
 import importlib.util
 import inspect
-from app.hooks import H, Hook
+from app.hooks import Hook
 from app.cache import get_cache
 from fastapi.staticfiles import StaticFiles
 from pydantic import ValidationError
@@ -65,7 +65,7 @@ async def on_startup(session=Depends(get_session),
     Executes startup hook using the provided database session and cache.
     """
     hook = Hook(session, cache)
-    await hook.do(H.ON_STARTUP)
+    await hook.do(HOOK_ON_STARTUP)
 
 
 def load_hooks():
@@ -267,5 +267,6 @@ async def exception_handler(request: Request, e: Exception):
         log.error("Request failed; module=app; function=exception_handler; "
                   "elapsed_time=%s; e=%s;" % (elapsed_time, str(e)))
 
-        return JSONResponse(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-                            content=jsonable_encoder({"detail": SERVER_ERROR}))
+        return JSONResponse(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            content=jsonable_encoder({"detail": ERR_SERVER_ERROR}))

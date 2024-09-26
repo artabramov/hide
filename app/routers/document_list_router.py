@@ -8,10 +8,11 @@ from app.models.document_model import Document
 from app.models.tag_model import Tag
 from app.schemas.document_schemas import (
     DocumentListRequest, DocumentListResponse)
-from app.hooks import H, Hook
+from app.hooks import Hook
 from app.auth import auth
 from app.repository import Repository
 from app.managers.entity_manager import SUBQUERY
+from app.constants import HOOK_AFTER_DOCUMENT_LIST
 
 router = APIRouter()
 
@@ -44,7 +45,7 @@ async def document_list(
     documents_count = await document_repository.count_all(**kwargs)
 
     hook = Hook(session, cache, current_user=current_user)
-    await hook.do(H.AFTER_DOCUMENT_LIST, documents)
+    await hook.do(HOOK_AFTER_DOCUMENT_LIST, documents)
 
     return {
         "documents": [document.to_dict() for document in documents],

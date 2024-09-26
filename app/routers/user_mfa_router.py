@@ -8,8 +8,10 @@ from app.config import get_config
 from app.decorators.locked_decorator import locked
 from app.models.user_model import User
 from app.errors import E
-from app.hooks import H, Hook
-from app.constants import LOC_QUERY
+from app.hooks import Hook
+from app.constants import (
+    LOC_QUERY, ERR_RESOURCE_NOT_FOUND, ERR_RESOURCE_FORBIDDEN,
+    ERR_VALUE_INVALID, HOOK_BEFORE_MFA_SELECT, HOOK_AFTER_MFA_SELECT)
 
 router = APIRouter()
 cfg = get_config()
@@ -36,18 +38,18 @@ async def user_mfa(
 
     if not user:
         raise E([LOC_QUERY, "user_id"], user_id,
-                E.ERR_RESOURCE_NOT_FOUND, status.HTTP_404_NOT_FOUND)
+                ERR_RESOURCE_NOT_FOUND, status.HTTP_404_NOT_FOUND)
 
     elif user.is_active:
         raise E([LOC_QUERY, "user_id"], user_id,
-                E.ERR_RESOURCE_FORBIDDEN, status.HTTP_403_FORBIDDEN)
+                ERR_RESOURCE_FORBIDDEN, status.HTTP_403_FORBIDDEN)
 
     elif user.mfa_secret != mfa_secret:
         raise E([LOC_QUERY, "mfa_secret"], mfa_secret,
-                E.ERR_VALUE_INVALID, status.HTTP_422_UNPROCESSABLE_ENTITY)
+                ERR_VALUE_INVALID, status.HTTP_422_UNPROCESSABLE_ENTITY)
 
     hook = Hook(session, cache)
-    await hook.do(H.BEFORE_MFA_SELECT, user)
+    await hook.do(HOOK_BEFORE_MFA_SELECT, user)
 
     qr = qrcode.QRCode(
         version=cfg.MFA_VERSION, box_size=cfg.MFA_BOX_SIZE,
@@ -66,6 +68,6 @@ async def user_mfa(
     img_bytes.seek(0)
     img_data = img_bytes.getvalue()
 
-    await hook.do(H.AFTER_MFA_SELECT, user)
+    await hook.do(HOOK_AFTER_MFA_SELECT, user)
 
     return Response(content=img_data, media_type=cfg.MFA_MIMETYPE)

@@ -6,10 +6,11 @@ from app.decorators.locked_decorator import locked
 from app.models.user_model import User, UserRole
 from app.schemas.user_schemas import UserSelectResponse
 from app.errors import E
-from app.hooks import H, Hook
+from app.hooks import Hook
 from app.auth import auth
 from app.repository import Repository
-from app.constants import LOC_PATH
+from app.constants import (
+    LOC_PATH, ERR_RESOURCE_NOT_FOUND, HOOK_AFTER_USER_SELECT)
 
 router = APIRouter()
 
@@ -35,9 +36,9 @@ async def user_select(
 
     if not user:
         raise E([LOC_PATH, "user_id"], user_id,
-                E.ERR_RESOURCE_NOT_FOUND, status.HTTP_404_NOT_FOUND)
+                ERR_RESOURCE_NOT_FOUND, status.HTTP_404_NOT_FOUND)
 
     hook = Hook(session, cache, current_user=user)
-    await hook.do(H.AFTER_USER_SELECT, user)
+    await hook.do(HOOK_AFTER_USER_SELECT, user)
 
     return user.to_dict()

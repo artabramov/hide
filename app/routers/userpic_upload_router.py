@@ -8,13 +8,16 @@ from app.decorators.locked_decorator import locked
 from app.models.user_model import User, UserRole
 from app.schemas.user_schemas import UserpicUploadResponse
 from app.errors import E
-from app.hooks import H, Hook
+from app.hooks import Hook
 from app.auth import auth
 from app.repository import Repository
 from app.managers.file_manager import FileManager
 from app.helpers.image_helper import image_resize
 from app.config import get_config
-from app.constants import LOC_PATH, LOC_BODY
+from app.constants import (
+    LOC_PATH, LOC_BODY, ERR_RESOURCE_NOT_FOUND, ERR_RESOURCE_FORBIDDEN,
+    ERR_MIMETYPE_UNSUPPORTED, HOOK_BEFORE_USERPIC_UPLOAD,
+    HOOK_AFTER_USERPIC_UPLOAD)
 
 router = APIRouter()
 cfg = get_config()
@@ -44,15 +47,15 @@ async def userpic_upload(
 
     if not user:
         raise E([LOC_PATH, "user_id"], user_id,
-                E.ERR_RESOURCE_NOT_FOUND, status.HTTP_404_NOT_FOUND)
+                ERR_RESOURCE_NOT_FOUND, status.HTTP_404_NOT_FOUND)
 
     elif user_id != current_user.id:
         raise E([LOC_PATH, "user_id"], user_id,
-                E.ERR_RESOURCE_FORBIDDEN, status.HTTP_403_FORBIDDEN)
+                ERR_RESOURCE_FORBIDDEN, status.HTTP_403_FORBIDDEN)
 
     elif file.content_type not in cfg.USERPIC_MIMES:
-        raise E([LOC_BODY, "file"], user_id, E.ERR_MIMETYPE_UNSUPPORTED,
-                status.HTTP_422_UNPROCESSABLE_ENTITY)
+        raise E([LOC_BODY, "file"], user_id,
+                ERR_MIMETYPE_UNSUPPORTED, status.HTTP_422_UNPROCESSABLE_ENTITY)
 
     if current_user.userpic_filename:
         await FileManager.delete(current_user.userpic_path)
@@ -61,7 +64,7 @@ async def userpic_upload(
     userpic_path = os.path.join(cfg.USERPIC_BASE_PATH, userpic_filename)
 
     hook = Hook(session, cache, current_user=current_user)
-    await hook.do(H.BEFORE_USERPIC_UPLOAD, current_user)
+    await hook.do(HOOK_BEFORE_USERPIC_UPLOAD, current_user)
 
     await FileManager.upload(file, userpic_path)
     await image_resize(userpic_path, cfg.USERPIC_WIDTH, cfg.USERPIC_HEIGHT,
@@ -72,6 +75,6 @@ async def userpic_upload(
     await user_repository.update(current_user, commit=False)
 
     await user_repository.commit()
-    await hook.do(H.AFTER_USERPIC_UPLOAD, current_user)
+    await hook.do(HOOK_AFTER_USERPIC_UPLOAD, current_user)
 
     return {"user_id": current_user.id}

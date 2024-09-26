@@ -6,9 +6,11 @@ from app.decorators.locked_decorator import locked
 from app.models.user_model import User, UserRole
 from app.schemas.user_schemas import UserRegisterRequest, UserRegisterResponse
 from app.errors import E
-from app.hooks import H, Hook
+from app.hooks import Hook
 from app.repository import Repository
-from app.constants import LOC_BODY
+from app.constants import (
+    LOC_BODY, ERR_VALUE_DUPLICATED, HOOK_BEFORE_USER_REGISTER,
+    HOOK_AFTER_USER_REGISTER)
 
 router = APIRouter()
 
@@ -34,7 +36,7 @@ async def user_register(
 
     if user_exists:
         raise E([LOC_BODY, "user_login"], schema.user_login,
-                E.ERR_VALUE_DUPLICATED, status.HTTP_422_UNPROCESSABLE_ENTITY)
+                ERR_VALUE_DUPLICATED, status.HTTP_422_UNPROCESSABLE_ENTITY)
 
     user = User(
         UserRole.reader, schema.user_login, schema.user_password,
@@ -44,10 +46,10 @@ async def user_register(
     await user_repository.insert(user, commit=False)
 
     hook = Hook(session, cache)
-    await hook.do(H.BEFORE_USER_REGISTER, user)
+    await hook.do(HOOK_BEFORE_USER_REGISTER, user)
 
     await user_repository.commit()
-    await hook.do(H.AFTER_USER_REGISTER, user)
+    await hook.do(HOOK_AFTER_USER_REGISTER, user)
 
     return {
         "user_id": user.id,

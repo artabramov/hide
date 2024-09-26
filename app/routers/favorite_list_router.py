@@ -12,8 +12,9 @@ from app.models.favorite_model import Favorite
 from app.schemas.favorite_schemas import (
     FavoriteListRequest, FavoriteListResponse)
 from app.repository import Repository
-from app.hooks import H, Hook
+from app.hooks import Hook
 from app.auth import auth
+from app.constants import HOOK_AFTER_FAVORITE_LIST
 
 router = APIRouter()
 
@@ -43,7 +44,7 @@ async def favorite_list(
     favorites_count = await favorite_repository.count_all(**kwargs)
 
     hook = Hook(session, cache, current_user=current_user)
-    await hook.do(H.AFTER_FAVORITE_LIST, favorites)
+    await hook.do(HOOK_AFTER_FAVORITE_LIST, favorites)
 
     return {
         "favorites": [favorite.to_dict() for favorite in favorites],

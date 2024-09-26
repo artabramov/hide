@@ -12,8 +12,9 @@ from app.models.comment_model import Comment
 from app.schemas.comment_schemas import (
     CommentListRequest, CommentListResponse)
 from app.repository import Repository
-from app.hooks import H, Hook
+from app.hooks import Hook
 from app.auth import auth
+from app.constants import HOOK_AFTER_COMMENT_LIST
 
 router = APIRouter()
 
@@ -40,7 +41,7 @@ async def comment_list(
     comments_count = await comment_repository.count_all(**schema.__dict__)
 
     hook = Hook(session, cache, current_user=current_user)
-    await hook.do(H.AFTER_COMMENT_LIST, comments)
+    await hook.do(HOOK_AFTER_COMMENT_LIST, comments)
 
     return {
         "comments": [comment.to_dict() for comment in comments],

@@ -5,9 +5,10 @@ from app.cache import get_cache
 from app.decorators.locked_decorator import locked
 from app.models.user_model import User, UserRole
 from app.schemas.user_schemas import UserListRequest, UserListResponse
-from app.hooks import H, Hook
+from app.hooks import Hook
 from app.auth import auth
 from app.repository import Repository
+from app.constants import HOOK_AFTER_USER_LIST
 
 router = APIRouter()
 
@@ -34,7 +35,7 @@ async def users_list(
     users_count = await user_repository.count_all(**schema.__dict__)
 
     hook = Hook(session, cache, current_user=current_user)
-    await hook.do(H.AFTER_USER_LIST, users)
+    await hook.do(HOOK_AFTER_USER_LIST, users)
 
     return {
         "users": [user.to_dict() for user in users],

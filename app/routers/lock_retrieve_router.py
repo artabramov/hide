@@ -5,9 +5,10 @@ from app.schemas.lock_schemas import LockRetrieveResponse
 from app.models.user_model import User, UserRole
 from app.auth import auth
 from app.config import get_config
-from app.hooks import H, Hook
+from app.hooks import Hook
 from app.database import get_session
 from app.cache import get_cache
+from app.constants import HOOK_ON_LOCK_RETRIEVE
 
 cfg = get_config()
 router = APIRouter()
@@ -22,7 +23,7 @@ async def lock_retrieve(
 ) -> LockRetrieveResponse:
 
     hook = Hook(session, cache)
-    await hook.do(H.ON_LOCK_RETRIEVE)
+    await hook.do(HOOK_ON_LOCK_RETRIEVE)
 
     return {
         "is_locked": is_locked(),

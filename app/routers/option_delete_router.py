@@ -11,10 +11,12 @@ from app.models.user_model import User, UserRole
 from app.models.option_model import Option
 from app.schemas.option_schemas import OptionDeleteResponse
 from app.repository import Repository
-from app.hooks import H, Hook
+from app.hooks import Hook
 from app.errors import E
 from app.auth import auth
-from app.constants import LOC_PATH
+from app.constants import (
+    LOC_PATH, ERR_RESOURCE_NOT_FOUND, HOOK_BEFORE_OPTION_DELETE,
+    HOOK_AFTER_OPTION_DELETE)
 
 router = APIRouter()
 
@@ -43,14 +45,14 @@ async def option_delete(
 
     if not option:
         raise E([LOC_PATH, "option_key"], option_key,
-                E.ERR_RESOURCE_NOT_FOUND, status.HTTP_404_NOT_FOUND)
+                ERR_RESOURCE_NOT_FOUND, status.HTTP_404_NOT_FOUND)
 
     await option_repository.delete(option, commit=False)
 
     hook = Hook(session, cache, current_user=current_user)
-    await hook.do(H.BEFORE_OPTION_DELETE, option)
+    await hook.do(HOOK_BEFORE_OPTION_DELETE, option)
 
     await option_repository.commit()
-    await hook.do(H.AFTER_OPTION_DELETE, option)
+    await hook.do(HOOK_AFTER_OPTION_DELETE, option)
 
     return {"option_key": option.option_key if option else None}

@@ -5,10 +5,12 @@ from app.cache import get_cache
 from app.decorators.locked_decorator import locked
 from app.models.user_model import User, UserRole
 from app.helpers.jwt_helper import jti_create
-from app.hooks import H, Hook
+from app.hooks import Hook
 from app.auth import auth
 from app.repository import Repository
 from app.schemas.user_schemas import TokenDeleteResponse
+from app.constants import (
+    HOOK_BEFORE_TOKEN_INVALIDATE, HOOK_AFTER_TOKEN_INVALIDATE)
 
 router = APIRouter()
 
@@ -33,9 +35,9 @@ async def token_invalidate(
     await user_repository.update(current_user, commit=False)
 
     hook = Hook(session, cache, current_user=current_user)
-    await hook.do(H.BEFORE_TOKEN_INVALIDATE, current_user)
+    await hook.do(HOOK_BEFORE_TOKEN_INVALIDATE, current_user)
 
     await user_repository.commit()
-    await hook.do(H.AFTER_TOKEN_INVALIDATE, current_user)
+    await hook.do(HOOK_AFTER_TOKEN_INVALIDATE, current_user)
 
     return {"user_id": current_user.id}

@@ -8,10 +8,12 @@ from app.models.user_model import User, UserRole
 from app.helpers.hash_helper import get_hash
 from app.schemas.user_schemas import UserLoginRequest, UserLoginResponse
 from app.errors import E
-from app.hooks import H, Hook
+from app.hooks import Hook
 from app.repository import Repository
 from app.config import get_config
-from app.constants import LOC_BODY
+from app.constants import (
+    LOC_BODY, ERR_RESOURCE_NOT_FOUND, ERR_USER_SUSPENDED, ERR_USER_INACTIVE,
+    ERR_VALUE_INVALID, HOOK_BEFORE_USER_LOGIN, HOOK_AFTER_USER_LOGIN)
 
 router = APIRouter()
 cfg = get_config()
@@ -40,18 +42,18 @@ async def user_login(
 
     if not user:
         raise E([LOC_BODY, "user_login"], schema.user_login,
-                E.ERR_RESOURCE_NOT_FOUND, status.HTTP_404_NOT_FOUND)
+                ERR_RESOURCE_NOT_FOUND, status.HTTP_404_NOT_FOUND)
 
     elif user.suspended_date > int(time.time()):
         raise E([LOC_BODY, "user_login"], schema.user_login,
-                E.ERR_USER_SUSPENDED, status.HTTP_403_FORBIDDEN)
+                ERR_USER_SUSPENDED, status.HTTP_403_FORBIDDEN)
 
     admin_exists = await user_repository.exists(
         user_role__eq=UserRole.admin, is_active__eq=True)
 
     if not user.is_active and admin_exists:
         raise E([LOC_BODY, "user_login"], schema.user_login,
-                E.ERR_USER_INACTIVE, status.HTTP_403_FORBIDDEN)
+                ERR_USER_INACTIVE, status.HTTP_403_FORBIDDEN)
 
     if user.password_hash == get_hash(schema.user_password):
         user.last_login_date = time.time()
@@ -72,14 +74,14 @@ async def user_login(
     await user_repository.update(user, commit=False)
 
     hook = Hook(session, cache)
-    await hook.do(H.BEFORE_USER_LOGIN, user)
+    await hook.do(HOOK_BEFORE_USER_LOGIN, user)
 
     await user_repository.commit()
-    await hook.do(H.AFTER_USER_LOGIN, user)
+    await hook.do(HOOK_AFTER_USER_LOGIN, user)
 
     if user.password_accepted:
         return {"password_accepted": True}
 
     else:
         raise E([LOC_BODY, "user_password"], schema.user_password,
-                E.ERR_VALUE_INVALID, status.HTTP_422_UNPROCESSABLE_ENTITY)
+                ERR_VALUE_INVALID, status.HTTP_422_UNPROCESSABLE_ENTITY)

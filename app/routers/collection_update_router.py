@@ -9,9 +9,11 @@ from app.schemas.collection_schemas import (
     CollectionUpdateRequest, CollectionUpdateResponse)
 from app.repository import Repository
 from app.errors import E
-from app.hooks import H, Hook
+from app.hooks import Hook
 from app.auth import auth
-from app.constants import LOC_PATH, LOC_BODY
+from app.constants import (
+    LOC_PATH, LOC_BODY, ERR_RESOURCE_NOT_FOUND, ERR_VALUE_DUPLICATED,
+    HOOK_BEFORE_COLLECTION_UPDATE, HOOK_AFTER_COLLECTION_UPDATE)
 
 router = APIRouter()
 
@@ -42,13 +44,13 @@ async def collection_update(
     collection = await collection_repository.select(id=collection_id)
     if not collection:
         raise E([LOC_PATH, "collection_id"], collection_id,
-                E.ERR_RESOURCE_NOT_FOUND, status.HTTP_404_NOT_FOUND)
+                ERR_RESOURCE_NOT_FOUND, status.HTTP_404_NOT_FOUND)
 
     collection_exists = await collection_repository.exists(
         collection_name__eq=schema.collection_name, id__ne=collection.id)
     if collection_exists:
         raise E([LOC_BODY, "collection_name"], schema.collection_name,
-                E.ERR_VALUE_DUPLICATED, status.HTTP_422_UNPROCESSABLE_ENTITY)
+                ERR_VALUE_DUPLICATED, status.HTTP_422_UNPROCESSABLE_ENTITY)
 
     collection.is_locked = schema.is_locked
     collection.collection_name = schema.collection_name
@@ -56,9 +58,9 @@ async def collection_update(
     await collection_repository.update(collection, commit=False)
 
     hook = Hook(session, cache, current_user=current_user)
-    await hook.do(H.BEFORE_COLLECTION_UPDATE, collection)
+    await hook.do(HOOK_BEFORE_COLLECTION_UPDATE, collection)
 
     await collection_repository.commit()
-    await hook.do(H.AFTER_COLLECTION_UPDATE, collection)
+    await hook.do(HOOK_AFTER_COLLECTION_UPDATE, collection)
 
     return {"collection_id": collection.id}

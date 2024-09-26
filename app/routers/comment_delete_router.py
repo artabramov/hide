@@ -13,9 +13,12 @@ from app.models.comment_model import Comment
 from app.schemas.comment_schemas import CommentDeleteResponse
 from app.repository import Repository
 from app.errors import E
-from app.hooks import H, Hook
+from app.hooks import Hook
 from app.auth import auth
-from app.constants import LOC_PATH
+from app.constants import (
+    LOC_PATH, ERR_RESOURCE_NOT_FOUND, ERR_RESOURCE_LOCKED,
+    ERR_RESOURCE_FORBIDDEN, HOOK_BEFORE_COMMENT_DELETE,
+    HOOK_AFTER_COMMENT_DELETE)
 
 router = APIRouter()
 
@@ -47,15 +50,15 @@ async def comment_delete(
 
     if not comment:
         raise E([LOC_PATH, "comment_id"], comment_id,
-                E.ERR_RESOURCE_NOT_FOUND, status.HTTP_404_NOT_FOUND)
+                ERR_RESOURCE_NOT_FOUND, status.HTTP_404_NOT_FOUND)
 
     elif comment.is_locked:
         raise E([LOC_PATH, "comment_id"], comment_id,
-                E.ERR_RESOURCE_LOCKED, status.HTTP_423_LOCKED)
+                ERR_RESOURCE_LOCKED, status.HTTP_423_LOCKED)
 
     elif comment.user_id != current_user.id:
         raise E([LOC_PATH, "comment_id"], comment_id,
-                E.ERR_RESOURCE_FORBIDDEN, status.HTTP_403_FORBIDDEN)
+                ERR_RESOURCE_FORBIDDEN, status.HTTP_403_FORBIDDEN)
 
     await comment_repository.delete(comment, commit=False)
 
@@ -68,9 +71,9 @@ async def comment_delete(
     await document_repository.update(comment.comment_document, commit=False)
 
     hook = Hook(session, cache, current_user=current_user)
-    await hook.do(H.BEFORE_COMMENT_DELETE, comment)
+    await hook.do(HOOK_BEFORE_COMMENT_DELETE, comment)
 
     await comment_repository.commit()
-    await hook.do(H.AFTER_COMMENT_DELETE, comment)
+    await hook.do(HOOK_AFTER_COMMENT_DELETE, comment)
 
     return {"comment_id": comment.id}

@@ -8,8 +8,9 @@ from app.models.collection_model import Collection
 from app.schemas.collection_schemas import (
     CollectionListRequest, CollectionListResponse)
 from app.repository import Repository
-from app.hooks import H, Hook
+from app.hooks import Hook
 from app.auth import auth
+from app.constants import HOOK_AFTER_COLLECTION_LIST
 
 router = APIRouter()
 
@@ -38,7 +39,7 @@ async def collection_list(
         **schema.__dict__)
 
     hook = Hook(session, cache, current_user=current_user)
-    await hook.do(H.AFTER_COLLECTION_LIST, collections)
+    await hook.do(HOOK_AFTER_COLLECTION_LIST, collections)
 
     return {
         "collections": [collection.to_dict() for collection in collections],

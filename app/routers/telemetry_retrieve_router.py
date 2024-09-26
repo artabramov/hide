@@ -12,7 +12,8 @@ from app.managers.entity_manager import EntityManager
 from app.version import __version__
 from app.serial import __serial__
 from app.model import __model__
-from app.hooks import H, Hook
+from app.hooks import Hook
+from app.constants import HOOK_ON_TELEMETRY_RETRIEVE
 
 router = APIRouter()
 
@@ -76,6 +77,6 @@ async def telemetry_retrieve(
     }
 
     hook = Hook(session, cache, current_user=current_user)
-    await hook.do(H.ON_TELEMETRY_RETRIEVE, response)
+    await hook.do(HOOK_ON_TELEMETRY_RETRIEVE, response)
 
     return response

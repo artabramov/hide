@@ -11,9 +11,11 @@ from app.models.user_model import User, UserRole
 from app.schemas.user_schemas import UserDeleteResponse
 from app.repository import Repository
 from app.errors import E
-from app.hooks import H, Hook
+from app.hooks import Hook
 from app.auth import auth
-from app.constants import LOC_PATH
+from app.constants import (
+    LOC_PATH, ERR_RESOURCE_NOT_FOUND, ERR_RESOURCE_FORBIDDEN,
+    HOOK_BEFORE_USER_DELETE, HOOK_AFTER_USER_DELETE)
 
 router = APIRouter()
 
@@ -39,26 +41,26 @@ async def user_delete(
     """
     if user_id == current_user.id:
         raise E([LOC_PATH, "user_id"], user_id,
-                E.ERR_RESOURCE_FORBIDDEN, status.HTTP_403_FORBIDDEN)
+                ERR_RESOURCE_FORBIDDEN, status.HTTP_403_FORBIDDEN)
 
     user_repository = Repository(session, cache, User)
     user = await user_repository.select(id=user_id)
 
     if not user:
         raise E([LOC_PATH, "user_id"], user_id,
-                E.ERR_RESOURCE_NOT_FOUND, status.HTTP_404_NOT_FOUND)
+                ERR_RESOURCE_NOT_FOUND, status.HTTP_404_NOT_FOUND)
 
     try:
         await user_repository.delete(user, commit=False)
 
     except Exception:
         raise E([LOC_PATH, "user_id"], user_id,
-                E.ERR_RESOURCE_FORBIDDEN, status.HTTP_403_FORBIDDEN)
+                ERR_RESOURCE_FORBIDDEN, status.HTTP_403_FORBIDDEN)
 
     hook = Hook(session, cache, current_user=current_user)
-    await hook.do(H.BEFORE_USER_DELETE, user)
+    await hook.do(HOOK_BEFORE_USER_DELETE, user)
 
     await user_repository.commit()
-    await hook.do(H.AFTER_USER_DELETE, user)
+    await hook.do(HOOK_AFTER_USER_DELETE, user)
 
     return {"user_id": user.id}

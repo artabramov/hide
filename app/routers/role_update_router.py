@@ -6,10 +6,12 @@ from app.decorators.locked_decorator import locked
 from app.models.user_model import User, UserRole
 from app.schemas.user_schemas import RoleUpdateRequest, RoleUpdateResponse
 from app.errors import E
-from app.hooks import H, Hook
+from app.hooks import Hook
 from app.auth import auth
 from app.repository import Repository
-from app.constants import LOC_PATH
+from app.constants import (
+    LOC_PATH, ERR_RESOURCE_NOT_FOUND, ERR_RESOURCE_FORBIDDEN,
+    HOOK_BEFORE_ROLE_UPDATE, HOOK_AFTER_ROLE_UPDATE)
 
 router = APIRouter()
 
@@ -37,20 +39,20 @@ async def role_update(
 
     if not user:
         raise E([LOC_PATH, "user_id"], user_id,
-                E.ERR_RESOURCE_NOT_FOUND, status.HTTP_404_NOT_FOUND)
+                ERR_RESOURCE_NOT_FOUND, status.HTTP_404_NOT_FOUND)
 
     elif user_id == current_user.id:
         raise E([LOC_PATH, "user_id"], user_id,
-                E.ERR_RESOURCE_FORBIDDEN, status.HTTP_403_FORBIDDEN)
+                ERR_RESOURCE_FORBIDDEN, status.HTTP_403_FORBIDDEN)
 
     user.is_active = schema.is_active
     user.user_role = schema.user_role
     await user_repository.update(user, commit=False)
 
     hook = Hook(session, cache, current_user=current_user)
-    await hook.do(H.BEFORE_ROLE_UPDATE, user)
+    await hook.do(HOOK_BEFORE_ROLE_UPDATE, user)
 
     await user_repository.commit()
-    await hook.do(H.AFTER_ROLE_UPDATE, user)
+    await hook.do(HOOK_AFTER_ROLE_UPDATE, user)
 
     return {"user_id": user.id}

@@ -11,12 +11,14 @@ from app.models.user_model import User, UserRole
 from app.models.document_model import Document
 from app.models.upload_model import Upload
 from app.models.download_model import Download
-from app.hooks import H, Hook
+from app.hooks import Hook
 from app.errors import E
 from app.auth import auth
 from app.repository import Repository
 from app.managers.file_manager import FileManager
-from app.constants import LOC_PATH
+from app.constants import (
+    LOC_PATH, ERR_RESOURCE_NOT_FOUND, HOOK_BEFORE_UPLOAD_DOWNLOAD,
+    HOOK_AFTER_UPLOAD_DOWNLOAD)
 
 router = APIRouter()
 
@@ -43,7 +45,7 @@ async def upload_download(
     upload = await upload_repository.select(id=upload_id)
     if not upload:
         raise E([LOC_PATH, "upload_id"], upload_id,
-                E.ERR_RESOURCE_NOT_FOUND, status.HTTP_404_NOT_FOUND)
+                ERR_RESOURCE_NOT_FOUND, status.HTTP_404_NOT_FOUND)
 
     data = await FileManager.read(upload.upload_path)
     decrypted_data = await FileManager.decrypt(data)
@@ -59,10 +61,10 @@ async def upload_download(
     await document_repository.update(upload.upload_document, commit=False)
 
     hook = Hook(session, cache, current_user=current_user)
-    await hook.do(H.BEFORE_UPLOAD_DOWNLOAD, upload)
+    await hook.do(HOOK_BEFORE_UPLOAD_DOWNLOAD, upload)
 
     await upload_repository.commit()
-    await hook.do(H.AFTER_UPLOAD_DOWNLOAD, upload)
+    await hook.do(HOOK_AFTER_UPLOAD_DOWNLOAD, upload)
 
     headers = {"Content-Disposition": f"attachment; filename={upload.original_filename}"}  # noqa E501
     return Response(content=decrypted_data, headers=headers,

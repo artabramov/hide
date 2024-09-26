@@ -14,9 +14,11 @@ from app.schemas.favorite_schemas import (
     FavoriteInsertRequest, FavoriteInsertResponse)
 from app.repository import Repository
 from app.errors import E
-from app.hooks import H, Hook
+from app.hooks import Hook
 from app.auth import auth
-from app.constants import LOC_BODY
+from app.constants import (
+    LOC_BODY, ERR_RESOURCE_NOT_FOUND, HOOK_BEFORE_FAVORITE_INSERT,
+    HOOK_AFTER_FAVORITE_INSERT)
 
 router = APIRouter()
 
@@ -46,7 +48,7 @@ async def favorite_insert(
 
     if not document:
         raise E([LOC_BODY, "document_id"], schema.document_id,
-                E.ERR_RESOURCE_NOT_FOUND, status.HTTP_404_NOT_FOUND)
+                ERR_RESOURCE_NOT_FOUND, status.HTTP_404_NOT_FOUND)
 
     favorite_repository = Repository(session, cache, Favorite)
     favorite = await favorite_repository.select(
@@ -57,9 +59,9 @@ async def favorite_insert(
         await favorite_repository.insert(favorite, commit=False)
 
     hook = Hook(session, cache, current_user=current_user)
-    await hook.do(H.BEFORE_FAVORITE_INSERT, favorite)
+    await hook.do(HOOK_BEFORE_FAVORITE_INSERT, favorite)
 
     await favorite_repository.commit()
-    await hook.do(H.AFTER_FAVORITE_INSERT, favorite)
+    await hook.do(HOOK_AFTER_FAVORITE_INSERT, favorite)
 
     return {"favorite_id": favorite.id}

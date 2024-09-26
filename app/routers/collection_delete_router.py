@@ -8,9 +8,11 @@ from app.models.collection_model import Collection
 from app.schemas.collection_schemas import CollectionDeleteResponse
 from app.repository import Repository
 from app.errors import E
-from app.hooks import H, Hook
+from app.hooks import Hook
 from app.auth import auth
-from app.constants import LOC_PATH
+from app.constants import (
+    LOC_PATH, ERR_RESOURCE_NOT_FOUND, HOOK_BEFORE_COLLECTION_DELETE,
+    HOOK_AFTER_COLLECTION_DELETE)
 
 router = APIRouter()
 
@@ -39,14 +41,14 @@ async def collection_delete(
     collection = await collection_repository.select(id=collection_id)
     if not collection:
         raise E([LOC_PATH, "collection_id"], collection_id,
-                E.ERR_RESOURCE_NOT_FOUND, status.HTTP_404_NOT_FOUND)
+                ERR_RESOURCE_NOT_FOUND, status.HTTP_404_NOT_FOUND)
 
     await collection_repository.delete(collection, commit=False)
 
     hook = Hook(session, cache, current_user=current_user)
-    await hook.do(H.BEFORE_COLLECTION_DELETE, collection)
+    await hook.do(HOOK_BEFORE_COLLECTION_DELETE, collection)
 
     await collection_repository.commit()
-    await hook.do(H.AFTER_COLLECTION_DELETE, collection)
+    await hook.do(HOOK_AFTER_COLLECTION_DELETE, collection)
 
     return {"collection_id": collection.id}

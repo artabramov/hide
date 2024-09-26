@@ -2,9 +2,10 @@ from fastapi import APIRouter, status, Depends
 import time
 from fastapi.responses import JSONResponse
 from app.schemas.time_schemas import TimeRetrieveResponse
-from app.hooks import H, Hook
+from app.hooks import Hook
 from app.database import get_session
 from app.cache import get_cache
+from app.constants import HOOK_ON_TIME_RETRIEVE
 
 router = APIRouter()
 
@@ -22,6 +23,6 @@ async def time_retrieve(
     }
 
     hook = Hook(session, cache)
-    await hook.do(H.ON_TIME_RETRIEVE, response)
+    await hook.do(HOOK_ON_TIME_RETRIEVE, response)
 
     return response

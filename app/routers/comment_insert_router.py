@@ -14,9 +14,11 @@ from app.schemas.comment_schemas import (
     CommentInsertRequest, CommentInsertResponse)
 from app.repository import Repository
 from app.errors import E
-from app.hooks import H, Hook
+from app.hooks import Hook
 from app.auth import auth
-from app.constants import LOC_BODY
+from app.constants import (
+    LOC_BODY, ERR_RESOURCE_NOT_FOUND, ERR_RESOURCE_LOCKED,
+    HOOK_BEFORE_COMMENT_INSERT, HOOK_AFTER_COMMENT_INSERT)
 
 router = APIRouter()
 
@@ -46,11 +48,11 @@ async def comment_insert(
 
     if not document:
         raise E([LOC_BODY, "document_id"], schema.document_id,
-                E.ERR_RESOURCE_NOT_FOUND, status.HTTP_404_NOT_FOUND)
+                ERR_RESOURCE_NOT_FOUND, status.HTTP_404_NOT_FOUND)
 
     elif document.is_locked:
         raise E([LOC_BODY, "document_id"], schema.document_id,
-                E.ERR_RESOURCE_LOCKED, status.HTTP_423_LOCKED)
+                ERR_RESOURCE_LOCKED, status.HTTP_423_LOCKED)
 
     comment_repository = Repository(session, cache, Comment)
     comment = Comment(current_user.id, document.id, schema.comment_content)
@@ -62,9 +64,9 @@ async def comment_insert(
     await document_repository.update(document, commit=False)
 
     hook = Hook(session, cache, current_user=current_user)
-    await hook.do(H.BEFORE_COMMENT_INSERT, comment)
+    await hook.do(HOOK_BEFORE_COMMENT_INSERT, comment)
 
     await comment_repository.commit()
-    await hook.do(H.AFTER_COMMENT_INSERT, comment)
+    await hook.do(HOOK_AFTER_COMMENT_INSERT, comment)
 
     return {"comment_id": comment.id}

@@ -4,9 +4,10 @@ from fastapi.responses import JSONResponse
 from app.models.user_model import User, UserRole
 from app.schemas.lock_schemas import LockDeleteResponse
 from app.auth import auth
-from app.hooks import H, Hook
+from app.hooks import Hook
 from app.database import get_session
 from app.cache import get_cache
+from app.constants import HOOK_ON_LOCK_DELETE
 
 router = APIRouter()
 
@@ -21,6 +22,6 @@ async def lock_delete(
     await unlock()
 
     hook = Hook(session, cache)
-    await hook.do(H.ON_LOCK_DELETE)
+    await hook.do(HOOK_ON_LOCK_DELETE)
 
     return {"is_locked": False}

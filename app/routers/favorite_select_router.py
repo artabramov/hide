@@ -12,9 +12,11 @@ from app.models.favorite_model import Favorite
 from app.schemas.favorite_schemas import FavoriteSelectResponse
 from app.repository import Repository
 from app.errors import E
-from app.hooks import H, Hook
+from app.hooks import Hook
 from app.auth import auth
-from app.constants import LOC_PATH
+from app.constants import (
+    LOC_PATH, ERR_RESOURCE_NOT_FOUND, ERR_RESOURCE_FORBIDDEN,
+    HOOK_AFTER_FAVORITE_SELECT)
 
 router = APIRouter()
 
@@ -43,13 +45,13 @@ async def favorite_select(
 
     if not favorite:
         raise E([LOC_PATH, "favorite_id"], favorite_id,
-                E.ERR_RESOURCE_NOT_FOUND, status.HTTP_404_NOT_FOUND)
+                ERR_RESOURCE_NOT_FOUND, status.HTTP_404_NOT_FOUND)
 
     elif favorite.user_id != current_user.id:
         raise E([LOC_PATH, "favorite_id"], favorite_id,
-                E.ERR_RESOURCE_FORBIDDEN, status.HTTP_403_FORBIDDEN)
+                ERR_RESOURCE_FORBIDDEN, status.HTTP_403_FORBIDDEN)
 
     hook = Hook(session, cache, current_user=current_user)
-    await hook.do(H.AFTER_FAVORITE_SELECT, favorite)
+    await hook.do(HOOK_AFTER_FAVORITE_SELECT, favorite)
 
     return favorite.to_dict()

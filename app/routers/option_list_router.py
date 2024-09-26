@@ -11,8 +11,9 @@ from app.models.user_model import User, UserRole
 from app.models.option_model import Option
 from app.schemas.option_schemas import OptionListRequest, OptionListResponse
 from app.repository import Repository
-from app.hooks import H, Hook
+from app.hooks import Hook
 from app.auth import auth
+from app.constants import HOOK_AFTER_OPTION_LIST
 
 router = APIRouter()
 
@@ -41,7 +42,7 @@ async def options_list(
     options_count = await option_repository.count_all(**schema.__dict__)
 
     hook = Hook(session, cache, current_user=current_user)
-    await hook.do(H.AFTER_OPTION_LIST, options)
+    await hook.do(HOOK_AFTER_OPTION_LIST, options)
 
     return {
         "options": [option.to_dict() for option in options],

@@ -8,10 +8,12 @@ from app.helpers.jwt_helper import jwt_encode
 from app.schemas.user_schemas import (
     TokenRetrieveRequest, TokenRetrieveResponse)
 from app.errors import E
-from app.hooks import H, Hook
+from app.hooks import Hook
 from app.repository import Repository
 from app.config import get_config
-from app.constants import LOC_QUERY
+from app.constants import (
+    LOC_QUERY, ERR_RESOURCE_NOT_FOUND, ERR_USER_INACTIVE, ERR_VALUE_INVALID,
+    HOOK_BEFORE_TOKEN_SELECT, HOOK_AFTER_TOKEN_SELECT)
 
 router = APIRouter()
 cfg = get_config()
@@ -39,18 +41,18 @@ async def token_retrieve(
 
     if not user:
         raise E([LOC_QUERY, "user_login"], schema.user_login,
-                E.ERR_RESOURCE_NOT_FOUND, status.HTTP_404_NOT_FOUND)
+                ERR_RESOURCE_NOT_FOUND, status.HTTP_404_NOT_FOUND)
 
     admin_exists = await user_repository.exists(
         user_role__eq=UserRole.admin, is_active__eq=True)
 
     if not user.is_active and admin_exists:
         raise E([LOC_QUERY, "user_login"], schema.user_login,
-                E.ERR_USER_INACTIVE, status.HTTP_403_FORBIDDEN)
+                ERR_USER_INACTIVE, status.HTTP_403_FORBIDDEN)
 
     elif not user.password_accepted:
         raise E([LOC_QUERY, "user_totp"], schema.user_totp,
-                E.ERR_VALUE_INVALID, status.HTTP_422_UNPROCESSABLE_ENTITY)
+                ERR_VALUE_INVALID, status.HTTP_422_UNPROCESSABLE_ENTITY)
 
     totp_accepted = schema.user_totp == user.get_totp(user.mfa_secret)
 
@@ -73,14 +75,14 @@ async def token_retrieve(
     user_token = jwt_encode(user, token_exp=schema.token_exp)
 
     hook = Hook(session, cache)
-    await hook.do(H.BEFORE_TOKEN_SELECT, user)
+    await hook.do(HOOK_BEFORE_TOKEN_SELECT, user)
 
     await user_repository.commit()
-    await hook.do(H.AFTER_TOKEN_SELECT, user)
+    await hook.do(HOOK_AFTER_TOKEN_SELECT, user)
 
     if totp_accepted:
         return {"user_token": user_token}
 
     else:
         raise E([LOC_QUERY, "user_totp"], schema.user_totp,
-                E.ERR_VALUE_INVALID, status.HTTP_422_UNPROCESSABLE_ENTITY)
+                ERR_VALUE_INVALID, status.HTTP_422_UNPROCESSABLE_ENTITY)

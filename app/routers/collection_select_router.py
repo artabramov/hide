@@ -8,9 +8,10 @@ from app.models.collection_model import Collection
 from app.schemas.collection_schemas import CollectionSelectResponse
 from app.repository import Repository
 from app.errors import E
-from app.hooks import H, Hook
+from app.hooks import Hook
 from app.auth import auth
-from app.constants import LOC_PATH
+from app.constants import (
+    LOC_PATH, ERR_RESOURCE_NOT_FOUND, HOOK_AFTER_COLLECTION_SELECT)
 
 router = APIRouter()
 
@@ -38,9 +39,9 @@ async def collection_select(
 
     if not collection:
         raise E([LOC_PATH, "collection_id"], collection_id,
-                E.ERR_RESOURCE_NOT_FOUND, status.HTTP_404_NOT_FOUND)
+                ERR_RESOURCE_NOT_FOUND, status.HTTP_404_NOT_FOUND)
 
     hook = Hook(session, cache, current_user=current_user)
-    await hook.do(H.AFTER_COLLECTION_SELECT, collection)
+    await hook.do(HOOK_AFTER_COLLECTION_SELECT, collection)
 
     return collection.to_dict()

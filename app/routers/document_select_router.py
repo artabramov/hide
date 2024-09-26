@@ -6,11 +6,12 @@ from app.decorators.locked_decorator import locked
 from app.models.user_model import User, UserRole
 from app.models.document_model import Document
 from app.schemas.document_schemas import DocumentSelectResponse
-from app.hooks import H, Hook
+from app.hooks import Hook
 from app.auth import auth
 from app.repository import Repository
 from app.errors import E
-from app.constants import LOC_PATH
+from app.constants import (
+    LOC_PATH, ERR_RESOURCE_NOT_FOUND, HOOK_AFTER_DOCUMENT_SELECT)
 
 router = APIRouter()
 
@@ -39,9 +40,9 @@ async def document_select(
 
     if not document:
         raise E([LOC_PATH, "document_id"], document_id,
-                E.ERR_RESOURCE_NOT_FOUND, status.HTTP_404_NOT_FOUND)
+                ERR_RESOURCE_NOT_FOUND, status.HTTP_404_NOT_FOUND)
 
     hook = Hook(session, cache, current_user=current_user)
-    await hook.do(H.AFTER_DOCUMENT_SELECT, document)
+    await hook.do(HOOK_AFTER_DOCUMENT_SELECT, document)
 
     return document.to_dict()

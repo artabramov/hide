@@ -9,9 +9,11 @@ from app.schemas.collection_schemas import (
     CollectionInsertRequest, CollectionInsertResponse)
 from app.repository import Repository
 from app.errors import E
-from app.hooks import H, Hook
+from app.hooks import Hook
 from app.auth import auth
-from app.constants import LOC_BODY
+from app.constants import (
+    LOC_BODY, ERR_VALUE_DUPLICATED, HOOK_BEFORE_COLLECTION_INSERT,
+    HOOK_AFTER_COLLECTION_INSERT)
 
 router = APIRouter()
 
@@ -42,7 +44,7 @@ async def collection_insert(
 
     if collection_exists:
         raise E([LOC_BODY, "collection_name"], schema.collection_name,
-                E.ERR_VALUE_DUPLICATED, status.HTTP_422_UNPROCESSABLE_ENTITY)
+                ERR_VALUE_DUPLICATED, status.HTTP_422_UNPROCESSABLE_ENTITY)
 
     collection = Collection(
         current_user.id, schema.is_locked, schema.collection_name,
@@ -50,9 +52,9 @@ async def collection_insert(
     await collection_repository.insert(collection, commit=False)
 
     hook = Hook(session, cache, current_user=current_user)
-    await hook.do(H.BEFORE_COLLECTION_INSERT, collection)
+    await hook.do(HOOK_BEFORE_COLLECTION_INSERT, collection)
 
     await collection_repository.commit()
-    await hook.do(H.AFTER_COLLECTION_INSERT, collection)
+    await hook.do(HOOK_AFTER_COLLECTION_INSERT, collection)
 
     return {"collection_id": collection.id}

@@ -9,13 +9,15 @@ from app.models.document_model import Document
 from app.models.upload_model import Upload
 from app.schemas.document_schemas import (
     DocumentUpdateRequest, DocumentUpdateResponse)
-from app.hooks import H, Hook
+from app.hooks import Hook
 from app.auth import auth
 from app.repository import Repository
 from app.config import get_config
 from app.libraries.tag_library import TagLibrary
 from app.errors import E
-from app.constants import LOC_PATH, LOC_BODY
+from app.constants import (
+    LOC_PATH, LOC_BODY, ERR_RESOURCE_NOT_FOUND, ERR_RESOURCE_LOCKED,
+    HOOK_BEFORE_DOCUMENT_UPDATE, HOOK_AFTER_DOCUMENT_UPDATE)
 
 cfg = get_config()
 router = APIRouter()
@@ -39,11 +41,11 @@ async def document_update(
 
     if not document:
         raise E([LOC_PATH, "document_id"], document_id,
-                E.ERR_RESOURCE_NOT_FOUND, status.HTTP_404_NOT_FOUND)
+                ERR_RESOURCE_NOT_FOUND, status.HTTP_404_NOT_FOUND)
 
     elif document.is_locked:
         raise E([LOC_PATH, "document_id"], document_id,
-                E.ERR_RESOURCE_LOCKED, status.HTTP_423_LOCKED)
+                ERR_RESOURCE_LOCKED, status.HTTP_423_LOCKED)
 
     # If a collection ID is received, then validate the collection.
 
@@ -55,11 +57,11 @@ async def document_update(
 
         if not collection:
             raise E([LOC_BODY, "collection_id"], schema.collection_id,
-                    E.ERR_RESOURCE_NOT_FOUND, status.HTTP_404_NOT_FOUND)
+                    ERR_RESOURCE_NOT_FOUND, status.HTTP_404_NOT_FOUND)
 
         elif collection.is_locked:
             raise E([LOC_BODY, "collection_id"], schema.collection_id,
-                    E.ERR_RESOURCE_LOCKED, status.HTTP_423_LOCKED)
+                    ERR_RESOURCE_LOCKED, status.HTTP_423_LOCKED)
 
     # Update the data of the document itself.
 
@@ -129,10 +131,10 @@ async def document_update(
     # after committing the changes
 
     hook = Hook(session, cache, current_user=current_user)
-    await hook.do(H.BEFORE_DOCUMENT_UPDATE, document)
+    await hook.do(HOOK_BEFORE_DOCUMENT_UPDATE, document)
 
     await document_repository.commit()
-    await hook.do(H.AFTER_DOCUMENT_UPDATE, document)
+    await hook.do(HOOK_AFTER_DOCUMENT_UPDATE, document)
 
     return {
         "document_id": document.id,

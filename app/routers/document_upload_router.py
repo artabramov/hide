@@ -8,13 +8,15 @@ from app.decorators.locked_decorator import locked
 from app.models.user_model import User, UserRole
 from app.models.document_model import Document
 from app.models.upload_model import Upload
-from app.hooks import H, Hook
+from app.hooks import Hook
 from app.auth import auth
 from app.repository import Repository
 from app.config import get_config
 from app.schemas.document_schemas import DocumentUploadResponse
 from app.managers.file_manager import FileManager
 from app.helpers.image_helper import thumbnail_create
+from app.constants import (
+    HOOK_BEFORE_DOCUMENT_UPLOAD, HOOK_AFTER_DOCUMENT_UPLOAD)
 
 cfg = get_config()
 router = APIRouter()
@@ -66,10 +68,10 @@ async def document_upload(
 
         # execute hooks
         hook = Hook(session, cache, current_user=current_user)
-        await hook.do(H.BEFORE_DOCUMENT_UPLOAD, document)
+        await hook.do(HOOK_BEFORE_DOCUMENT_UPLOAD, document)
 
         await document_repository.commit()
-        await hook.do(H.AFTER_DOCUMENT_UPLOAD, document)
+        await hook.do(HOOK_AFTER_DOCUMENT_UPLOAD, document)
 
     except Exception as e:
         await FileManager.delete(upload_path)
