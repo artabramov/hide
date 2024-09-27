@@ -7,7 +7,6 @@ password changes, and user listing.
 
 from typing import Optional, Literal, List, Union
 from pydantic import BaseModel, Field, field_validator
-from fastapi import File, UploadFile
 from app.models.user_model import UserRole
 from app.validators.user_validators import (
     validate_user_login, validate_first_name, validate_last_name,

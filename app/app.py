@@ -32,7 +32,7 @@ from app.routers import (
     comment_insert_router, comment_select_router, comment_update_router,
     comment_delete_router, comment_list_router,
 
-    upload_select_router, upload_download_router, upload_list_router,
+    revision_select_router, revision_download_router, revision_list_router,
 
     favorite_insert_router, favorite_select_router, favorite_delete_router,
     favorite_list_router, download_select_router, download_list_router,
@@ -166,17 +166,17 @@ app.include_router(document_update_router.router, prefix=cfg.APP_PREFIX)
 app.include_router(document_delete_router.router, prefix=cfg.APP_PREFIX)
 app.include_router(document_list_router.router, prefix=cfg.APP_PREFIX)
 
+# revision routers
+app.include_router(revision_select_router.router, prefix=cfg.APP_PREFIX)
+app.include_router(revision_download_router.router, prefix=cfg.APP_PREFIX)
+app.include_router(revision_list_router.router, prefix=cfg.APP_PREFIX)
+
 # comment routers
 app.include_router(comment_insert_router.router, prefix=cfg.APP_PREFIX)
 app.include_router(comment_select_router.router, prefix=cfg.APP_PREFIX)
 app.include_router(comment_update_router.router, prefix=cfg.APP_PREFIX)
 app.include_router(comment_delete_router.router, prefix=cfg.APP_PREFIX)
 app.include_router(comment_list_router.router, prefix=cfg.APP_PREFIX)
-
-# upload routers
-app.include_router(upload_select_router.router, prefix=cfg.APP_PREFIX)
-app.include_router(upload_download_router.router, prefix=cfg.APP_PREFIX)
-app.include_router(upload_list_router.router, prefix=cfg.APP_PREFIX)
 
 # download routers
 app.include_router(download_select_router.router, prefix=cfg.APP_PREFIX)

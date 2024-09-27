@@ -8,7 +8,7 @@ from app.decorators.locked_decorator import locked
 from app.models.user_model import User, UserRole
 from app.models.collection_model import Collection
 from app.models.document_model import Document
-from app.models.upload_model import Upload
+from app.models.revision_model import Revision
 from app.hooks import Hook
 from app.auth import auth
 from app.repository import Repository
@@ -47,43 +47,44 @@ async def document_replace(
                 ERR_RESOURCE_LOCKED, status.HTTP_423_LOCKED)
 
     # upload file
-    upload_filename = str(uuid.uuid4()) + cfg.UPLOADS_EXTENSION
-    upload_path = os.path.join(cfg.UPLOADS_BASE_PATH, upload_filename)
-    await FileManager.upload(file, upload_path)
+    revision_filename = str(uuid.uuid4()) + cfg.REVISIONS_EXTENSION
+    revision_path = os.path.join(cfg.REVISIONS_BASE_PATH, revision_filename)
+    await FileManager.upload(file, revision_path)
 
     # create thumbnail
     thumbnail_filename = None
     try:
         mimetype = file.content_type
-        thumbnail_filename = await thumbnail_create(upload_path, mimetype)
+        thumbnail_filename = await thumbnail_create(revision_path, mimetype)
     except Exception:
         pass
 
     try:
         # encrypt file
-        data = await FileManager.read(upload_path)
+        data = await FileManager.read(revision_path)
         encrypted_data = await FileManager.encrypt(data)
-        await FileManager.write(upload_path, encrypted_data)
+        await FileManager.write(revision_path, encrypted_data)
 
-        # insert upload
-        upload_repository = Repository(session, cache, Upload)
-        upload = Upload(
-            current_user.id, document.id, upload_filename,
-            os.path.getsize(upload_path), file.filename, file.size,
+        # insert revision
+        revision_repository = Repository(session, cache, Revision)
+        revision = Revision(
+            current_user.id, document.id, revision_filename,
+            os.path.getsize(revision_path), file.filename, file.size,
             file.content_type, thumbnail_filename=thumbnail_filename)
-        await upload_repository.insert(upload, commit=False)
+        await revision_repository.insert(revision, commit=False)
 
-        # update previous upload
-        upload_repository = Repository(session, cache, Upload)
-        document.latest_upload.is_latest = False
-        await upload_repository.update(document.latest_upload, commit=False)
+        # update previous revision
+        revision_repository = Repository(session, cache, Revision)
+        document.latest_revision.is_latest = False
+        await revision_repository.update(
+            document.latest_revision, commit=False)
 
         # update document counters and name
-        await upload_repository.lock_all()
-        document.uploads_count = await upload_repository.count_all(
+        await revision_repository.lock_all()
+        document.revisions_count = await revision_repository.count_all(
             document_id__eq=document.id)
-        document.uploads_size = await upload_repository.sum_all(
-            "upload_size", document_id__eq=document.id)
+        document.revisions_size = await revision_repository.sum_all(
+            "revision_size", document_id__eq=document.id)
         document.document_name = file.filename
         await document_repository.update(document, commit=False)
 
@@ -91,13 +92,15 @@ async def document_replace(
         if document.collection_id:
             await document_repository.lock_all()
 
-            document.document_collection.uploads_count = (
+            document.document_collection.revisions_count = (
                 await document_repository.sum_all(
-                    "uploads_count", collection_id__eq=document.collection_id))
+                    "revisions_count",
+                    collection_id__eq=document.collection_id))
 
-            document.document_collection.uploads_size = (
+            document.document_collection.revisions_size = (
                 await document_repository.sum_all(
-                    "uploads_size", collection_id__eq=document.collection_id))
+                    "revisions_size",
+                    collection_id__eq=document.collection_id))
 
             collection_repository = Repository(session, cache, Collection)
             await collection_repository.update(
@@ -111,7 +114,7 @@ async def document_replace(
         await hook.do(HOOK_AFTER_DOCUMENT_REPLACE, document)
 
     except Exception as e:
-        await FileManager.delete(upload_path)
+        await FileManager.delete(revision_path)
         if thumbnail_filename:
             thumbnail_path = os.path.join(
                 cfg.THUMBNAILS_BASE_PATH, thumbnail_filename)
@@ -120,5 +123,5 @@ async def document_replace(
 
     return {
         "document_id": document.id,
-        "upload_id": upload.id,
+        "revision_id": revision.id,
     }

@@ -64,7 +64,7 @@ ERR_SERVER_ERROR = "Internal server error"
 # Hook types used to manage various pre-event and post-event actions
 # within the app. These hooks are used to trigger corresponding funcs
 # that handle tasks related to app, users management, collections,
-# documents, comments, uploads, favorites, etc.
+# documents, comments, revisions, favorites, etc.
 
 # service hooks
 HOOK_ON_STARTUP = "on_startup"
@@ -133,11 +133,11 @@ HOOK_BEFORE_COMMENT_DELETE = "before_comment_delete"
 HOOK_AFTER_COMMENT_DELETE = "after_comment_delete"
 HOOK_AFTER_COMMENT_LIST = "after_comment_list"
 
-# upload hooks
-HOOK_AFTER_UPLOAD_SELECT = "after_upload_select"
-HOOK_BEFORE_UPLOAD_DOWNLOAD = "before_upload_download"
-HOOK_AFTER_UPLOAD_DOWNLOAD = "after_upload_download"
-HOOK_AFTER_UPLOAD_LIST = "after_upload_list"
+# revision hooks
+HOOK_AFTER_REVISION_SELECT = "after_revision_select"
+HOOK_BEFORE_REVISION_DOWNLOAD = "before_revision_download"
+HOOK_AFTER_REVISION_DOWNLOAD = "after_revision_download"
+HOOK_AFTER_REVISION_LIST = "after_revision_list"
 
 # download hooks
 HOOK_AFTER_DOWNLOAD_SELECT = "after_download_select"

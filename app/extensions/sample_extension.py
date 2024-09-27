@@ -12,7 +12,7 @@ from typing import List
 from app.models.user_model import User
 from app.models.collection_model import Collection
 from app.models.document_model import Document
-from app.models.upload_model import Upload
+from app.models.revision_model import Revision
 from app.models.comment_model import Comment
 from app.models.download_model import Download
 from app.models.favorite_model import Favorite
@@ -645,46 +645,46 @@ async def after_comment_list(
     ...
 
 
-async def after_upload_select(
+async def after_revision_select(
     entity_manager: EntityManager, cache_manager: CacheManager,
-    current_user: User, upload: Upload
+    current_user: User, revision: Revision
 ):
     """
-    Executes after an upload is selected. Receives the upload
+    Executes after an revision is selected. Receives the revision
     entity and performs any necessary post-processing actions.
     """
     ...
 
 
-async def before_upload_download(
+async def before_revision_download(
     entity_manager: EntityManager, cache_manager: CacheManager,
-    current_user: User, upload: Upload
+    current_user: User, revision: Revision
 ):
     """
-    Executes before an upload is downloaded. Receives the upload
+    Executes before an revision is downloaded. Receives the revision
     entity and performs any necessary pre-processing actions.
     """
     ...
 
 
-async def after_upload_download(
+async def after_revision_download(
     entity_manager: EntityManager, cache_manager: CacheManager,
-    current_user: User, upload: Upload
+    current_user: User, revision: Revision
 ):
     """
-    Executes after an upload is downloaded. Receives the upload
+    Executes after an revision is downloaded. Receives the revision
     entity and performs any necessary post-processing actions.
     """
     ...
 
 
-async def after_upload_list(
+async def after_revision_list(
     entity_manager: EntityManager, cache_manager: CacheManager,
-    current_user: User, uploads: List[Upload]
+    current_user: User, revisions: List[Revision]
 ):
     """
-    Executes after an upload list is retrieved. Receives the list
-    of upload entities and performs any necessary post-processing
+    Executes after an revision list is retrieved. Receives the list
+    of revision entities and performs any necessary post-processing
     actions.
     """
     ...

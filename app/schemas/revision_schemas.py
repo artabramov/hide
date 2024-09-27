@@ -9,24 +9,24 @@ from pydantic import BaseModel, Field
 from app.schemas.user_schemas import UserSelectResponse
 
 
-class UploadSelectResponse(BaseModel):
+class RevisionSelectResponse(BaseModel):
     id: int
     created_date: int
     user_id: int
     document_id: int
     is_latest: bool
-    upload_size: int
+    revision_size: int
     original_filename: str
     original_size: int
     original_mimetype: str
     thumbnail_url: Optional[str] = None
     downloads_count: int
-    upload_user: UserSelectResponse
+    revision_user: UserSelectResponse
 
 
-class UploadListRequest(BaseModel):
+class RevisionListRequest(BaseModel):
     """
-    Pydantic schema for requesting a list of upload entities. Includes
+    Pydantic schema for requesting a list of revision entities. Includes
     optional filter for document ID and pagination options with offset
     and limit, and ordering criteria.
     """
@@ -37,11 +37,11 @@ class UploadListRequest(BaseModel):
     order: Literal["asc", "desc"]
 
 
-class UploadListResponse(BaseModel):
+class RevisionListResponse(BaseModel):
     """
-    Pydantic schema for the response when listing upload entities.
-    Includes a list of upload entities and the total count of
-    uploads that match the request criteria.
+    Pydantic schema for the response when listing revision entities.
+    Includes a list of revision entities and the total count of
+    revisions that match the request criteria.
     """
-    uploads: List[UploadSelectResponse]
-    uploads_count: int
+    revisions: List[RevisionSelectResponse]
+    revisions_count: int

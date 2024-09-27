@@ -2,7 +2,7 @@ import os
 import time
 from sqlalchemy import Column, Integer, String, BigInteger, ForeignKey, and_
 from sqlalchemy.orm import relationship
-from app.models.upload_model import Upload
+from app.models.revision_model import Revision
 from app.database import Base
 from app.config import get_config
 
@@ -27,8 +27,8 @@ class Document(Base):
     document_summary = Column(String(512), nullable=True)
 
     comments_count = Column(Integer, index=True, default=0)
-    uploads_count = Column(Integer, index=True, default=0)
-    uploads_size = Column(Integer, index=True, default=0)
+    revisions_count = Column(Integer, index=True, default=0)
+    revisions_size = Column(Integer, index=True, default=0)
     downloads_count = Column(Integer, index=True, default=0)
     downloads_size = Column(Integer, index=True, default=0)
 
@@ -42,9 +42,9 @@ class Document(Base):
         "Tag", back_populates="tag_document", lazy="joined",
         cascade="all, delete-orphan")
 
-    document_uploads = relationship(
-        "Upload", back_populates="upload_document",
-        cascade="all, delete-orphan", foreign_keys="Upload.document_id")
+    document_revisions = relationship(
+        "Revision", back_populates="revision_document",
+        cascade="all, delete-orphan", foreign_keys="Revision.document_id")
 
     document_comments = relationship(
         "Comment", back_populates="comment_document",
@@ -58,20 +58,20 @@ class Document(Base):
         "Favorite", back_populates="favorite_document",
         cascade="all, delete-orphan")
 
-    latest_upload = relationship(
-        "Upload", primaryjoin=and_(
-            id == Upload.document_id, Upload.is_latest == True),  # noqa E712
+    latest_revision = relationship(
+        "Revision", primaryjoin=and_(
+            id == Revision.document_id, Revision.is_latest == True),  # noqa E712
         lazy="joined", uselist=False)
 
     def __init__(self, user_id: int, document_name: str,
-                 collection_id: int = None, uploads_count: int = 0,
-                 uploads_size: int = 0):
+                 collection_id: int = None, revisions_count: int = 0,
+                 revisions_size: int = 0):
         self.user_id = user_id
         self.document_name = document_name
         self.collection_id = collection_id
         self.comments_count = 0
-        self.uploads_count = uploads_count
-        self.uploads_size = uploads_size
+        self.revisions_count = revisions_count
+        self.revisions_size = revisions_size
         self.downloads_count = 0
         self.downloads_size = 0
 
@@ -81,7 +81,7 @@ class Document(Base):
 
     @property
     def file_path(self):
-        return os.path.join(cfg.UPLOADS_BASE_PATH, self.filename)
+        return os.path.join(cfg.REVISIONS_BASE_PATH, self.filename)
 
     @property
     def tag_values(self) -> list:
@@ -101,12 +101,12 @@ class Document(Base):
             "document_summary": self.document_summary,
 
             "comments_count": self.comments_count,
-            "uploads_count": self.uploads_count,
-            "uploads_size": self.uploads_size,
+            "revisions_count": self.revisions_count,
+            "revisions_size": self.revisions_size,
             "downloads_count": self.downloads_count,
             "downloads_size": self.downloads_size,
 
             "document_tags": self.tag_values,
             "document_user": self.document_user.to_dict(),
-            "latest_upload": self.latest_upload.to_dict(),
+            "latest_revision": self.latest_revision.to_dict(),
         }

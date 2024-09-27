@@ -59,13 +59,13 @@ async def document_delete(
             await document_repository.count_all(
                 collection_id__eq=document.collection_id))
 
-        document.document_collection.uploads_count = (
+        document.document_collection.revisions_count = (
             await document_repository.sum_all(
-                "uploads_count", collection_id__eq=document.collection_id))
+                "revisions_count", collection_id__eq=document.collection_id))
 
-        document.document_collection.uploads_size = (
+        document.document_collection.revisions_size = (
             await document_repository.sum_all(
-                "uploads_size", collection_id__eq=document.collection_id))
+                "revisions_size", collection_id__eq=document.collection_id))
 
         collection_repository = Repository(session, cache, Collection)
         await collection_repository.update(

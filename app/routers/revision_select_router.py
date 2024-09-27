@@ -4,27 +4,27 @@ from app.database import get_session
 from app.cache import get_cache
 from app.decorators.locked_decorator import locked
 from app.models.user_model import User, UserRole
-from app.models.upload_model import Upload
-from app.schemas.upload_schemas import UploadSelectResponse
+from app.models.revision_model import Revision
+from app.schemas.revision_schemas import RevisionSelectResponse
 from app.hooks import Hook
 from app.auth import auth
 from app.repository import Repository
 from app.errors import E
 from app.constants import (
-    LOC_PATH, ERR_RESOURCE_NOT_FOUND, HOOK_AFTER_UPLOAD_SELECT)
+    LOC_PATH, ERR_RESOURCE_NOT_FOUND, HOOK_AFTER_REVISION_SELECT)
 
 router = APIRouter()
 
 
-@router.get("/upload/{upload_id}", summary="Retrieve an upload",
+@router.get("/revision/{revision_id}", summary="Select a revision",
             response_class=JSONResponse, status_code=status.HTTP_200_OK,
-            response_model=UploadSelectResponse, tags=["uploads"])
+            response_model=RevisionSelectResponse, tags=["revisions"])
 @locked
-async def upload_select(
-    upload_id: int,
+async def revision_select(
+    revision_id: int,
     session=Depends(get_session), cache=Depends(get_cache),
     current_user: User = Depends(auth(UserRole.reader))
-) -> UploadSelectResponse:
+) -> RevisionSelectResponse:
     """
     FastAPI router for retrieving a revision entity. The router fetches
     the revision from the repository using the provided ID, executes
@@ -34,14 +34,14 @@ async def upload_select(
     a 403 error if authentication fails or the user does not have the
     required role.
     """
-    upload_repository = Repository(session, cache, Upload)
-    upload = await upload_repository.select(id=upload_id)
+    revision_repository = Repository(session, cache, Revision)
+    revision = await revision_repository.select(id=revision_id)
 
-    if not upload:
-        raise E([LOC_PATH, "upload_id"], upload_id,
+    if not revision:
+        raise E([LOC_PATH, "revision_id"], revision_id,
                 ERR_RESOURCE_NOT_FOUND, status.HTTP_404_NOT_FOUND)
 
     hook = Hook(session, cache, current_user=current_user)
-    await hook.do(HOOK_AFTER_UPLOAD_SELECT, upload)
+    await hook.do(HOOK_AFTER_REVISION_SELECT, revision)
 
-    return upload.to_dict()
+    return revision.to_dict()

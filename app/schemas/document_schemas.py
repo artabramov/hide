@@ -7,19 +7,19 @@ documents.
 from typing import Optional, Literal, List, Union
 from pydantic import BaseModel, Field, field_validator
 from app.schemas.user_schemas import UserSelectResponse
-from app.schemas.upload_schemas import UploadSelectResponse
+from app.schemas.revision_schemas import RevisionSelectResponse
 from app.validators.document_validators import (
     validate_document_summary, validate_document_name, validate_tags)
 
 
 class DocumentUploadResponse(BaseModel):
     document_id: int
-    upload_id: int
+    revision_id: int
 
 
 class DocumentReplaceResponse(BaseModel):
     document_id: int
-    upload_id: int
+    revision_id: int
 
 
 class DocumentSelectResponse(BaseModel):
@@ -39,14 +39,14 @@ class DocumentSelectResponse(BaseModel):
     document_name: str
     document_summary: Optional[str] = None
     comments_count: int
-    uploads_count: int
-    uploads_size: int
+    revisions_count: int
+    revisions_size: int
     downloads_count: int
     downloads_size: int
 
     document_tags: list
     document_user: UserSelectResponse
-    latest_upload: UploadSelectResponse
+    latest_revision: RevisionSelectResponse
 
 
 class DocumentUpdateRequest(BaseModel):
@@ -79,7 +79,7 @@ class DocumentUpdateResponse(BaseModel):
     Includes the ID assigned to the updated document.
     """
     document_id: int
-    upload_id: int
+    revision_id: int
 
 
 class DocumentDeleteResponse(BaseModel):
@@ -100,10 +100,10 @@ class DocumentListRequest(BaseModel):
     document_name__ilike: Optional[str] = None
     comments_count__ge: Optional[int] = None
     comments_count__le: Optional[int] = None
-    uploads_count__ge: Optional[int] = None
-    uploads_count__le: Optional[int] = None
-    uploads_size__ge: Optional[int] = None
-    uploads_size__le: Optional[int] = None
+    revisions_count__ge: Optional[int] = None
+    revisions_count__le: Optional[int] = None
+    revisions_size__ge: Optional[int] = None
+    revisions_size__le: Optional[int] = None
     downloads_count__ge: Optional[int] = None
     downloads_count__le: Optional[int] = None
     downloads_size__ge: Optional[int] = None
@@ -112,8 +112,8 @@ class DocumentListRequest(BaseModel):
     offset: int = Field(ge=0)
     limit: int = Field(ge=1, le=200)
     order_by: Literal["id", "created_date", "updated_date", "user_id",
-                      "collection_id", "comments_count", "uploads_count",
-                      "uploads_size", "downloads_count", "downloads_size"]
+                      "collection_id", "comments_count", "revisions_count",
+                      "revisions_size", "downloads_count", "downloads_size"]
     order: Literal["asc", "desc", "rand"]
 
 

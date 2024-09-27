@@ -6,7 +6,7 @@ from app.decorators.locked_decorator import locked
 from app.models.user_model import User, UserRole
 from app.models.collection_model import Collection
 from app.models.document_model import Document
-from app.models.upload_model import Upload
+from app.models.revision_model import Revision
 from app.schemas.document_schemas import (
     DocumentUpdateRequest, DocumentUpdateResponse)
 from app.hooks import Hook
@@ -79,11 +79,11 @@ async def document_update(
         collection.documents_count = await document_repository.count_all(
             collection_id__eq=collection.id)
 
-        collection.uploads_count = await document_repository.sum_all(
-            "uploads_count", collection_id__eq=collection.id)
+        collection.revisions_count = await document_repository.sum_all(
+            "revisions_count", collection_id__eq=collection.id)
 
-        collection.uploads_size = await document_repository.sum_all(
-            "uploads_size", collection_id__eq=collection.id)
+        collection.revisions_size = await document_repository.sum_all(
+            "revisions_size", collection_id__eq=collection.id)
 
         await collection_repository.update(collection, commit=False)
 
@@ -97,27 +97,28 @@ async def document_update(
             await document_repository.count_all(
                 collection_id__eq=document.document_collection.id))
 
-        document.document_collection.uploads_count = (
+        document.document_collection.revisions_count = (
             await document_repository.sum_all(
-                "uploads_count",
+                "revisions_count",
                 collection_id__eq=document.document_collection.id))
 
-        document.document_collection.uploads_size = (
+        document.document_collection.revisions_size = (
             await document_repository.sum_all(
-                "uploads_size",
+                "revisions_size",
                 collection_id__eq=document.document_collection.id))
 
         await collection_repository.update(
             document.document_collection, commit=False)
 
-    # Update the original filename for the latest upload
+    # Update the original filename for the latest revision
     # associated with the document.
 
-    if document.latest_upload.original_filename != document.document_name:
-        document.latest_upload.original_filename = document.document_name
+    if document.latest_revision.original_filename != document.document_name:
+        document.latest_revision.original_filename = document.document_name
 
-        upload_repository = Repository(session, cache, Upload)
-        await upload_repository.update(document.latest_upload, commit=False)
+        revision_repository = Repository(session, cache, Revision)
+        await revision_repository.update(
+            document.latest_revision, commit=False)
 
     # Update tags associated with the document.
 
@@ -138,5 +139,5 @@ async def document_update(
 
     return {
         "document_id": document.id,
-        "upload_id": document.latest_upload.id,
+        "revision_id": document.latest_revision.id,
     }

@@ -7,7 +7,7 @@ from app.cache import get_cache
 from app.decorators.locked_decorator import locked
 from app.models.user_model import User, UserRole
 from app.models.document_model import Document
-from app.models.upload_model import Upload
+from app.models.revision_model import Revision
 from app.hooks import Hook
 from app.auth import auth
 from app.repository import Repository
@@ -33,38 +33,38 @@ async def document_upload(
 ) -> DocumentUploadResponse:
 
     # upload file
-    upload_filename = str(uuid.uuid4()) + cfg.UPLOADS_EXTENSION
-    upload_path = os.path.join(cfg.UPLOADS_BASE_PATH, upload_filename)
-    await FileManager.upload(file, upload_path)
+    revision_filename = str(uuid.uuid4()) + cfg.REVISIONS_EXTENSION
+    revision_path = os.path.join(cfg.REVISIONS_BASE_PATH, revision_filename)
+    await FileManager.upload(file, revision_path)
 
     # create thumbnail
     thumbnail_filename = None
     try:
         mimetype = file.content_type
-        thumbnail_filename = await thumbnail_create(upload_path, mimetype)
+        thumbnail_filename = await thumbnail_create(revision_path, mimetype)
     except Exception:
         pass
 
     try:
         # encrypt file
-        data = await FileManager.read(upload_path)
+        data = await FileManager.read(revision_path)
         encrypted_data = await FileManager.encrypt(data)
-        await FileManager.write(upload_path, encrypted_data)
-        upload_size = os.path.getsize(upload_path)
+        await FileManager.write(revision_path, encrypted_data)
+        revision_size = os.path.getsize(revision_path)
 
         # insert document
         document_repository = Repository(session, cache, Document)
-        document = Document(current_user.id, file.filename, uploads_count=1,
-                            uploads_size=upload_size)
+        document = Document(current_user.id, file.filename, revisions_count=1,
+                            revisions_size=revision_size)
         await document_repository.insert(document, commit=False)
 
-        # insert upload
-        upload_repository = Repository(session, cache, Upload)
-        upload = Upload(
-            current_user.id, document.id, upload_filename, upload_size,
+        # insert revision
+        revision_repository = Repository(session, cache, Revision)
+        revision = Revision(
+            current_user.id, document.id, revision_filename, revision_size,
             file.filename, file.size, file.content_type,
             thumbnail_filename=thumbnail_filename)
-        await upload_repository.insert(upload, commit=False)
+        await revision_repository.insert(revision, commit=False)
 
         # execute hooks
         hook = Hook(session, cache, current_user=current_user)
@@ -74,7 +74,7 @@ async def document_upload(
         await hook.do(HOOK_AFTER_DOCUMENT_UPLOAD, document)
 
     except Exception as e:
-        await FileManager.delete(upload_path)
+        await FileManager.delete(revision_path)
         if thumbnail_filename:
             thumbnail_path = os.path.join(
                 cfg.THUMBNAILS_BASE_PATH, thumbnail_filename)
@@ -83,5 +83,5 @@ async def document_upload(
 
     return {
         "document_id": document.id,
-        "upload_id": upload.id,
+        "revision_id": revision.id,
     }
