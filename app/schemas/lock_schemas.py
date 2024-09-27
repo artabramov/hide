@@ -4,7 +4,7 @@ from pydantic import BaseModel
 
 class LockRetrieveResponse(BaseModel):
     is_locked: bool
-    lock_time: int
+    lockdown_time: int
 
 
 class LockCreateResponse(BaseModel):

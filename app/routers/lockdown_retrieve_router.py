@@ -1,5 +1,5 @@
 from fastapi import APIRouter, status, Depends
-from app.decorators.locked_decorator import is_locked, get_lock_time
+from app.decorators.locked_decorator import is_locked, get_lockdown_time
 from fastapi.responses import JSONResponse
 from app.schemas.lock_schemas import LockRetrieveResponse
 from app.models.user_model import User, UserRole
@@ -27,5 +27,5 @@ async def lockdown_retrieve(
 
     return {
         "is_locked": is_locked(),
-        "lock_time": get_lock_time(),
+        "lockdown_time": get_lockdown_time(),
     }

@@ -12,6 +12,7 @@ import time
 from fastapi import FastAPI, Request, status, Depends
 from fastapi.encoders import jsonable_encoder
 from fastapi.responses import JSONResponse
+from app.decorators.locked_decorator import unlock
 from app.config import get_config
 from app.context import get_context
 from app.log import get_log
@@ -65,6 +66,8 @@ async def on_startup(session=Depends(get_session),
     """
     Executes startup hook using the provided database session and cache.
     """
+    await unlock()
+
     hook = Hook(session, cache)
     await hook.do(HOOK_ON_STARTUP)
 
