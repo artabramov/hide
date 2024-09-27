@@ -2,14 +2,14 @@ __pycache__/
 *.pyc
 .coverage
 
-files/userpics/*
-!files/userpics/.gitkeep
+data/userpics/*
+!data/userpics/.gitkeep
 
-files/revisions/*
-!files/revisions/.gitkeep
+data/revisions/*
+!data/revisions/.gitkeep
 
-files/thumbnails/*
-!files/thumbnails/.gitkeep
+data/thumbnails/*
+!data/thumbnails/.gitkeep
 
 locks/*
 !locks/.gitkeep

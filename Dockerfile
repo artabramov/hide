@@ -16,6 +16,7 @@ RUN apt install -y wget
 RUN apt install -y ffmpeg
 RUN apt install -y git
 RUN apt install -y vim
+RUN apt install -y cron
 
 RUN pip3 install fastapi==0.111.0
 RUN pip3 install uvicorn==0.30.1
@@ -29,6 +30,7 @@ RUN pip3 install pillow==10.3.0
 RUN pip3 install ffmpeg-python==0.2.0
 RUN pip3 install cryptography==42.0.8
 RUN pip3 install PyJWT==2.8.0
+RUN pip3 install python-crontab==3.2.0
 RUN pip3 install asynctest==0.13.0
 RUN pip3 install coverage==7.5.4
 RUN pip3 install flake8==7.1.0
