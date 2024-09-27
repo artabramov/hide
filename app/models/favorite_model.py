@@ -1,9 +1,9 @@
 """
 This module defines the Favorite model for managing user favorites of
-documents in the database. The Favorite class includes fields for
-tracking the user who favorited a document, the document itself, and
+mediafiles in the database. The Favorite class includes fields for
+tracking the user who favorited a mediafile, the mediafile itself, and
 the date when the favorite was created. It also establishes
-relationships with User and Document models and provides methods
+relationships with User and mediafile models and provides methods
 to initialize instances and convert them to dictionaries.
 """
 
@@ -18,41 +18,41 @@ cfg = get_config()
 
 class Favorite(Base):
     """
-    Represents a user's favorite document. Each favorite is linked to a
-    specific user and document, and includes a creation timestamp.
+    Represents a user's favorite mediafile. Each favorite is linked to a
+    specific user and mediafile, and includes a creation timestamp.
     """
-    __tablename__ = "documents_favorites"
+    __tablename__ = "mediafiles_favorites"
     _cacheable = False
 
     id = Column(BigInteger, primary_key=True)
     created_date = Column(Integer, index=True,
                           default=lambda: int(time.time()))
     user_id = Column(BigInteger, ForeignKey("users.id"), index=True)
-    document_id = Column(BigInteger, ForeignKey("documents.id"), index=True)
+    mediafile_id = Column(BigInteger, ForeignKey("mediafiles.id"), index=True)
 
     favorite_user = relationship(
         "User", back_populates="user_favorites", lazy="noload")
 
-    favorite_document = relationship(
-        "Document", back_populates="document_favorites", lazy="joined")
+    favorite_mediafile = relationship(
+        "Mediafile", back_populates="mediafile_favorites", lazy="joined")
 
-    def __init__(self, user_id: int, document_id: int):
+    def __init__(self, user_id: int, mediafile_id: int):
         """
         Initializes a Favorite instance with the specified user_id
-        and document_id.
+        and mediafile_id.
         """
         self.user_id = user_id
-        self.document_id = document_id
+        self.mediafile_id = mediafile_id
 
     def to_dict(self):
         """
         Converts the Favorite instance to a dictionary, including
-        related user and document details.
+        related user and mediafile details.
         """
         return {
             "id": self.id,
             "created_date": self.created_date,
             "user_id": self.user_id,
-            "document_id": self.document_id,
-            "favorite_document": self.favorite_document.to_dict(),
+            "mediafile_id": self.mediafile_id,
+            "favorite_mediafile": self.favorite_mediafile.to_dict(),
         }

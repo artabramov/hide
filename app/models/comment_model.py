@@ -1,7 +1,7 @@
 """
 This module defines a Pydantic model Comment which represents a comment
-on a document. The model includes attributes for a unique identifier,
-timestamps for creation and updates, user and document IDs, and the
+on a mediafile. The model includes attributes for a unique identifier,
+timestamps for creation and updates, user and mediafile IDs, and the
 comment's content.
 """
 
@@ -16,9 +16,9 @@ cfg = get_config()
 
 class Comment(Base):
     """
-    A Pydantic model representing a comment on a document, including an
+    A Pydantic model representing a comment on a mediafile, including an
     optional unique identifier, timestamps for creation and last update,
-    the IDs of the user and the document, and the content.
+    the IDs of the user and the mediafile, and the content.
     """
     __tablename__ = "comments"
     _cacheable = True
@@ -29,23 +29,23 @@ class Comment(Base):
     updated_date = Column(Integer, index=True,
                           onupdate=lambda: int(time.time()), default=0)
     user_id = Column(BigInteger, ForeignKey("users.id"), index=True)
-    document_id = Column(BigInteger, ForeignKey("documents.id"), index=True)
+    mediafile_id = Column(BigInteger, ForeignKey("mediafiles.id"), index=True)
     comment_content = Column(String(512), nullable=False, index=True)
 
     comment_user = relationship(
         "User", back_populates="user_comments", lazy="joined")
 
-    comment_document = relationship(
-        "Document", back_populates="document_comments", lazy="joined")
+    comment_mediafile = relationship(
+        "Mediafile", back_populates="mediafile_comments", lazy="joined")
 
-    def __init__(self, user_id: int, document_id: int, comment_content: str):
+    def __init__(self, user_id: int, mediafile_id: int, comment_content: str):
         self.user_id = user_id
-        self.document_id = document_id
+        self.mediafile_id = mediafile_id
         self.comment_content = comment_content
 
     @property
     def is_locked(self) -> bool:
-        return self.comment_document.is_locked
+        return self.comment_mediafile.is_locked
 
     def to_dict(self):
         """
@@ -58,7 +58,7 @@ class Comment(Base):
             "created_date": self.created_date,
             "updated_date": self.updated_date,
             "user_id": self.user_id,
-            "document_id": self.document_id,
+            "mediafile_id": self.mediafile_id,
             "comment_content": self.comment_content,
             "comment_user": self.comment_user.to_dict(),
         }

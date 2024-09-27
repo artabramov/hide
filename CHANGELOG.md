@@ -48,7 +48,7 @@
   and consistency in multi-user environments.
 
 ## Version 0.0.31 (2024-08-29)
-- Added filters for document count and document size in the collections
+- Added filters for mediafile count and mediafile size in the collections
   list router.
 
 ## Version 0.0.30 (2024-08-27)
@@ -60,7 +60,7 @@
 ## Version 0.0.29 (2024-08-25)
 - Added an example extension for managing application hooks.
 - Added lifecycle hooks for user actions, collection operations, and
-  document management.
+  mediafile management.
 
 ## Version 0.0.28 (2024-08-25)
 - Added an editable field for user signatures, allowing users to input
@@ -75,7 +75,7 @@
 
 ## Version 0.0.26 (2024-08-24)
 - Added download tracking functionality, including a counter for
-  document downloads and detailed record-keeping for each download event.
+  mediafile downloads and detailed record-keeping for each download event.
 - Added endpoints and functionality to retrieve and manage download
   events, including listing and viewing individual downloads.
 
@@ -115,12 +115,12 @@
   broken relationships, ensuring data integrity.
 
 ## Version 0.0.19 (2024-08-18)
-- Added a static endpoint for retrieving document thumbnails.
+- Added a static endpoint for retrieving mediafile thumbnails.
 - Refactored code structure and organization for better maintainability
   and performance.
 
 ## Version 0.0.18 (2024-08-18)
-- Implemented a route to retrieve document details by ID with access
+- Implemented a route to retrieve mediafile details by ID with access
   level checks and post-retrieval actions via a hook.
 
 ## Version 0.0.17 (2024-08-18)

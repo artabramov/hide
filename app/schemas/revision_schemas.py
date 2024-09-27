@@ -1,7 +1,7 @@
 """
-The module defines Pydantic schemas for managing documents. Includes
+The module defines Pydantic schemas for managing mediafiles. Includes
 schemas for inserting, selecting, updating, deleting, and listing
-documents.
+mediafiles.
 """
 
 from typing import Optional, Literal, List
@@ -13,7 +13,7 @@ class RevisionSelectResponse(BaseModel):
     id: int
     created_date: int
     user_id: int
-    document_id: int
+    mediafile_id: int
     is_latest: bool
     revision_size: int
     original_filename: str
@@ -27,10 +27,10 @@ class RevisionSelectResponse(BaseModel):
 class RevisionListRequest(BaseModel):
     """
     Pydantic schema for requesting a list of revision entities. Includes
-    optional filter for document ID and pagination options with offset
+    optional filter for mediafile ID and pagination options with offset
     and limit, and ordering criteria.
     """
-    document_id__eq: Optional[int] = None
+    mediafile_id__eq: Optional[int] = None
     offset: int = Field(ge=0)
     limit: int = Field(ge=1, le=200)
     order_by: Literal["id", "created_date"]

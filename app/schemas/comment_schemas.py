@@ -13,9 +13,9 @@ from app.validators.comment_validators import validate_comment_content
 class CommentInsertRequest(BaseModel):
     """
     Pydantic schema for request to create a new comment entity. Requires
-    the document ID and comment content to be specified.
+    the mediafile ID and comment content to be specified.
     """
-    document_id: int
+    mediafile_id: int
     comment_content: str = Field(..., min_length=1, max_length=512)
 
     @field_validator("comment_content", mode="before")
@@ -35,13 +35,13 @@ class CommentSelectResponse(BaseModel):
     """
     Pydantic schema for the response after retrieving a comment entity.
     Includes the comment ID, creation and update dates, user ID,
-    document ID, comment content, and details of the related user.
+    mediafile ID, comment content, and details of the related user.
     """
     id: int
     created_date: int
     updated_date: int
     user_id: int
-    document_id: int
+    mediafile_id: int
     comment_content: str
     comment_user: UserSelectResponse
 
@@ -77,10 +77,10 @@ class CommentDeleteResponse(BaseModel):
 class CommentListRequest(BaseModel):
     """
     Pydantic schema for requesting a list of comment entities. Requires
-    document ID, pagination options with offset and limit, and ordering
+    mediafile ID, pagination options with offset and limit, and ordering
     criteria.
     """
-    document_id__eq: Optional[int] = None
+    mediafile_id__eq: Optional[int] = None
     offset: int = Field(ge=0)
     limit: int = Field(ge=1, le=200)
     order_by: Literal["id", "created_date"]

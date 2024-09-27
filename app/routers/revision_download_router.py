@@ -8,7 +8,7 @@ from app.database import get_session
 from app.cache import get_cache
 from app.decorators.locked_decorator import locked
 from app.models.user_model import User, UserRole
-from app.models.document_model import Document
+from app.models.mediafile_model import Mediafile
 from app.models.revision_model import Revision
 from app.models.download_model import Download
 from app.hooks import Hook
@@ -52,14 +52,15 @@ async def revision_download(
 
     download_repository = Repository(session, cache, Download)
     download = Download(
-        current_user.id, revision.revision_document.id, revision.id)
+        current_user.id, revision.revision_mediafile.id, revision.id)
     await download_repository.insert(download, commit=False)
 
-    document_repository = Repository(session, cache, Document)
-    revision.revision_document.downloads_count = (
+    mediafile_repository = Repository(session, cache, Mediafile)
+    revision.revision_mediafile.downloads_count = (
         await download_repository.count_all(
-            document_id__eq=revision.revision_document.id))
-    await document_repository.update(revision.revision_document, commit=False)
+            mediafile_id__eq=revision.revision_mediafile.id))
+    await mediafile_repository.update(
+        revision.revision_mediafile, commit=False)
 
     hook = Hook(session, cache, current_user=current_user)
     await hook.do(HOOK_BEFORE_REVISION_DOWNLOAD, revision)

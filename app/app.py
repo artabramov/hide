@@ -26,8 +26,8 @@ from app.routers import (
     collection_update_router, collection_delete_router,
     collection_list_router,
 
-    document_upload_router, document_replace_router, document_select_router,
-    document_update_router, document_delete_router, document_list_router,
+    mediafile_upload_router, mediafile_replace_router, mediafile_select_router,
+    mediafile_update_router, mediafile_delete_router, mediafile_list_router,
 
     comment_insert_router, comment_select_router, comment_update_router,
     comment_delete_router, comment_list_router,
@@ -158,13 +158,13 @@ app.include_router(collection_update_router.router, prefix=cfg.APP_PREFIX)
 app.include_router(collection_delete_router.router, prefix=cfg.APP_PREFIX)
 app.include_router(collection_list_router.router, prefix=cfg.APP_PREFIX)
 
-# document routers
-app.include_router(document_upload_router.router, prefix=cfg.APP_PREFIX)
-app.include_router(document_replace_router.router, prefix=cfg.APP_PREFIX)
-app.include_router(document_select_router.router, prefix=cfg.APP_PREFIX)
-app.include_router(document_update_router.router, prefix=cfg.APP_PREFIX)
-app.include_router(document_delete_router.router, prefix=cfg.APP_PREFIX)
-app.include_router(document_list_router.router, prefix=cfg.APP_PREFIX)
+# mediafile routers
+app.include_router(mediafile_upload_router.router, prefix=cfg.APP_PREFIX)
+app.include_router(mediafile_replace_router.router, prefix=cfg.APP_PREFIX)
+app.include_router(mediafile_select_router.router, prefix=cfg.APP_PREFIX)
+app.include_router(mediafile_update_router.router, prefix=cfg.APP_PREFIX)
+app.include_router(mediafile_delete_router.router, prefix=cfg.APP_PREFIX)
+app.include_router(mediafile_list_router.router, prefix=cfg.APP_PREFIX)
 
 # revision routers
 app.include_router(revision_select_router.router, prefix=cfg.APP_PREFIX)

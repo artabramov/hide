@@ -8,7 +8,7 @@ from app.database import get_session
 from app.cache import get_cache
 from app.decorators.locked_decorator import locked
 from app.models.user_model import User, UserRole
-from app.models.document_model import Document
+from app.models.mediafile_model import Mediafile
 from app.models.favorite_model import Favorite
 from app.schemas.favorite_schemas import (
     FavoriteInsertRequest, FavoriteInsertResponse)
@@ -34,28 +34,28 @@ async def favorite_insert(
 ) -> FavoriteInsertResponse:
     """
     FastAPI router for creating a comment entity. The router verifies
-    if the specified document exists, creates a favorite record if it
-    does not already exist for the current user and document, updates
-    the favorites count for the document, and executes related hooks.
+    if the specified mediafile exists, creates a favorite record if it
+    does not already exist for the current user and mediafile, updates
+    the favorites count for the mediafile, and executes related hooks.
     Returns the ID of the created favorite in a JSON response. The
     current user should have a reader role or higher. Returns a 201
-    response on success, a 404 error if the document is not found,
+    response on success, a 404 error if the mediafile is not found,
     and a 403 error if authentication fails or the user does not have
     the required role.
     """
-    document_repository = Repository(session, cache, Document)
-    document = await document_repository.select(id__eq=schema.document_id)
+    mediafile_repository = Repository(session, cache, Mediafile)
+    mediafile = await mediafile_repository.select(id__eq=schema.mediafile_id)
 
-    if not document:
-        raise E([LOC_BODY, "document_id"], schema.document_id,
+    if not mediafile:
+        raise E([LOC_BODY, "mediafile_id"], schema.mediafile_id,
                 ERR_RESOURCE_NOT_FOUND, status.HTTP_404_NOT_FOUND)
 
     favorite_repository = Repository(session, cache, Favorite)
     favorite = await favorite_repository.select(
-        user_id__eq=current_user.id, document_id__eq=schema.document_id)
+        user_id__eq=current_user.id, mediafile_id__eq=schema.mediafile_id)
 
     if not favorite:
-        favorite = Favorite(current_user.id, document.id)
+        favorite = Favorite(current_user.id, mediafile.id)
         await favorite_repository.insert(favorite, commit=False)
 
     hook = Hook(session, cache, current_user=current_user)

@@ -9,8 +9,8 @@ from app.config import get_config
 cfg = get_config()
 
 
-class Document(Base):
-    __tablename__ = "documents"
+class Mediafile(Base):
+    __tablename__ = "mediafiles"
     _cacheable = True
 
     id = Column(BigInteger, primary_key=True)
@@ -23,8 +23,8 @@ class Document(Base):
     collection_id = Column(BigInteger, ForeignKey("collections.id"),
                            index=True, nullable=True)
 
-    document_name = Column(String(256), nullable=True)
-    document_summary = Column(String(512), nullable=True)
+    mediafile_name = Column(String(256), nullable=True)
+    mediafile_summary = Column(String(512), nullable=True)
 
     comments_count = Column(Integer, index=True, default=0)
     revisions_count = Column(Integer, index=True, default=0)
@@ -32,42 +32,42 @@ class Document(Base):
     downloads_count = Column(Integer, index=True, default=0)
     downloads_size = Column(Integer, index=True, default=0)
 
-    document_user = relationship(
-        "User", back_populates="user_documents", lazy="joined")
+    mediafile_user = relationship(
+        "User", back_populates="user_mediafiles", lazy="joined")
 
-    document_collection = relationship(
-        "Collection", back_populates="collection_documents", lazy="joined")
+    mediafile_collection = relationship(
+        "Collection", back_populates="collection_mediafiles", lazy="joined")
 
-    document_tags = relationship(
-        "Tag", back_populates="tag_document", lazy="joined",
+    mediafile_tags = relationship(
+        "Tag", back_populates="tag_mediafile", lazy="joined",
         cascade="all, delete-orphan")
 
-    document_revisions = relationship(
-        "Revision", back_populates="revision_document",
-        cascade="all, delete-orphan", foreign_keys="Revision.document_id")
+    mediafile_revisions = relationship(
+        "Revision", back_populates="revision_mediafile",
+        cascade="all, delete-orphan", foreign_keys="Revision.mediafile_id")
 
-    document_comments = relationship(
-        "Comment", back_populates="comment_document",
+    mediafile_comments = relationship(
+        "Comment", back_populates="comment_mediafile",
         cascade="all, delete-orphan")
 
-    document_downloads = relationship(
-        "Download", back_populates="download_document",
+    mediafile_downloads = relationship(
+        "Download", back_populates="download_mediafile",
         cascade="all, delete-orphan")
 
-    document_favorites = relationship(
-        "Favorite", back_populates="favorite_document",
+    mediafile_favorites = relationship(
+        "Favorite", back_populates="favorite_mediafile",
         cascade="all, delete-orphan")
 
     latest_revision = relationship(
         "Revision", primaryjoin=and_(
-            id == Revision.document_id, Revision.is_latest == True),  # noqa E712
+            id == Revision.mediafile_id, Revision.is_latest == True),  # noqa E712
         lazy="joined", uselist=False)
 
-    def __init__(self, user_id: int, document_name: str,
+    def __init__(self, user_id: int, mediafile_name: str,
                  collection_id: int = None, revisions_count: int = 0,
                  revisions_size: int = 0):
         self.user_id = user_id
-        self.document_name = document_name
+        self.mediafile_name = mediafile_name
         self.collection_id = collection_id
         self.comments_count = 0
         self.revisions_count = revisions_count
@@ -77,7 +77,7 @@ class Document(Base):
 
     @property
     def is_locked(self) -> bool:
-        return self.collection_id and self.document_collection.is_locked
+        return self.collection_id and self.mediafile_collection.is_locked
 
     @property
     def file_path(self):
@@ -85,8 +85,8 @@ class Document(Base):
 
     @property
     def tag_values(self) -> list:
-        if self.document_tags:
-            return [x.tag_value for x in self.document_tags]
+        if self.mediafile_tags:
+            return [x.tag_value for x in self.mediafile_tags]
         return []
 
     def to_dict(self):
@@ -97,8 +97,8 @@ class Document(Base):
             "user_id": self.user_id,
             "collection_id": self.collection_id,
 
-            "document_name": self.document_name,
-            "document_summary": self.document_summary,
+            "mediafile_name": self.mediafile_name,
+            "mediafile_summary": self.mediafile_summary,
 
             "comments_count": self.comments_count,
             "revisions_count": self.revisions_count,
@@ -106,7 +106,7 @@ class Document(Base):
             "downloads_count": self.downloads_count,
             "downloads_size": self.downloads_size,
 
-            "document_tags": self.tag_values,
-            "document_user": self.document_user.to_dict(),
+            "mediafile_tags": self.tag_values,
+            "mediafile_user": self.mediafile_user.to_dict(),
             "latest_revision": self.latest_revision.to_dict(),
         }

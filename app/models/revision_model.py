@@ -14,14 +14,14 @@ log = get_log()
 
 
 class Revision(Base):
-    __tablename__ = "documents_revisions"
+    __tablename__ = "mediafiles_revisions"
     _cacheable = True
 
     id = Column(BigInteger, primary_key=True)
     created_date = Column(Integer, index=True,
                           default=lambda: int(time.time()))
     user_id = Column(BigInteger, ForeignKey("users.id"), index=True)
-    document_id = Column(BigInteger, ForeignKey("documents.id"), index=True)
+    mediafile_id = Column(BigInteger, ForeignKey("mediafiles.id"), index=True)
     is_latest = Column(Boolean, nullable=False)
 
     revision_filename = Column(String(256), nullable=False, unique=True)
@@ -35,20 +35,20 @@ class Revision(Base):
     revision_user = relationship(
         "User", back_populates="user_revisions", lazy="joined")
 
-    revision_document = relationship(
-        "Document", back_populates="document_revisions", lazy="joined",
-        foreign_keys=[document_id])
+    revision_mediafile = relationship(
+        "Mediafile", back_populates="mediafile_revisions", lazy="joined",
+        foreign_keys=[mediafile_id])
 
     revision_downloads = relationship(
         "Download", back_populates="download_revision", lazy="noload",
         cascade="all, delete-orphan")
 
-    def __init__(self, user_id: int, document_id: int,
+    def __init__(self, user_id: int, mediafile_id: int,
                  revision_filename: str, revision_size: int,
                  original_filename: str, original_size: int,
                  original_mimetype: str, thumbnail_filename: str = None):
         self.user_id = user_id
-        self.document_id = document_id
+        self.mediafile_id = mediafile_id
         self.is_latest = True
         self.revision_filename = revision_filename
         self.revision_size = revision_size
@@ -76,7 +76,7 @@ class Revision(Base):
             "id": self.id,
             "created_date": self.created_date,
             "user_id": self.user_id,
-            "document_id": self.document_id,
+            "mediafile_id": self.mediafile_id,
             "is_latest": self.is_latest,
             "revision_size": self.revision_size,
             "original_filename": self.original_filename,
