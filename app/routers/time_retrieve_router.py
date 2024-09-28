@@ -10,7 +10,7 @@ from app.constants import HOOK_ON_TIME_RETRIEVE
 router = APIRouter()
 
 
-@router.get("/time", summary="Retrieve time",
+@router.get("/time", summary="Retrieve current time",
             response_class=JSONResponse, status_code=status.HTTP_200_OK,
             response_model=TimeRetrieveResponse, tags=["system"])
 async def time_retrieve(

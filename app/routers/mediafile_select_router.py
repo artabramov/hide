@@ -17,7 +17,7 @@ router = APIRouter()
 
 
 @router.get("/mediafile/{mediafile_id}",
-            summary="Retrieve a mediafile",
+            summary="Retrieve a mediafile data",
             response_class=JSONResponse, status_code=status.HTTP_200_OK,
             response_model=MediafileSelectResponse, tags=["mediafiles"])
 @locked

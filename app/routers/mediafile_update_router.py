@@ -24,7 +24,7 @@ router = APIRouter()
 
 
 @router.put("/mediafile/{mediafile_id}",
-            summary="Update a mediafile",
+            summary="Update a mediafile data",
             response_class=JSONResponse, status_code=status.HTTP_200_OK,
             response_model=MediafileUpdateResponse, tags=["mediafiles"])
 @locked
