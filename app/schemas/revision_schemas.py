@@ -14,7 +14,6 @@ class RevisionSelectResponse(BaseModel):
     created_date: int
     user_id: int
     mediafile_id: int
-    is_latest: bool
     revision_size: int
     original_filename: str
     original_size: int

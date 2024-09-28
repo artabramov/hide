@@ -5,6 +5,7 @@ from app.cache import get_cache
 from app.decorators.locked_decorator import locked
 from app.models.user_model import User, UserRole
 from app.models.mediafile_model import Mediafile
+from app.models.revision_model import Revision
 from app.models.download_model import Download
 from app.hooks import Hook
 from app.errors import E
@@ -33,6 +34,10 @@ async def mediafile_download(
     if not mediafile:
         raise E([LOC_PATH, "mediafile_id"], mediafile_id,
                 ERR_RESOURCE_NOT_FOUND, status.HTTP_404_NOT_FOUND)
+
+    revision_repository = Repository(session, cache, Revision)
+    mediafile.latest_revision = await revision_repository.select(
+        id=mediafile.latest_revision_id)
 
     data = await FileManager.read(mediafile.latest_revision.revision_path)
     decrypted_data = await FileManager.decrypt(data)

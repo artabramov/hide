@@ -47,6 +47,10 @@ async def mediafile_update(
         raise E([LOC_PATH, "mediafile_id"], mediafile_id,
                 ERR_RESOURCE_LOCKED, status.HTTP_423_LOCKED)
 
+    revision_repository = Repository(session, cache, Revision)
+    mediafile.latest_revision = await revision_repository.select(
+        id=mediafile.latest_revision_id)
+
     # If a collection ID is received, then validate the collection.
 
     collection = None

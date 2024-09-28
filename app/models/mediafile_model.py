@@ -1,8 +1,7 @@
 import os
 import time
-from sqlalchemy import Column, Integer, String, BigInteger, ForeignKey, and_
+from sqlalchemy import Column, Integer, String, BigInteger, ForeignKey
 from sqlalchemy.orm import relationship
-from app.models.revision_model import Revision
 from app.database import Base
 from app.config import get_config
 
@@ -13,6 +12,10 @@ class Mediafile(Base):
     __tablename__ = "mediafiles"
     _cacheable = True
 
+    # Currently, it's not possible to establish a relationship here,
+    # so manual handling of latest_revision is required.
+    latest_revision = None
+
     id = Column(BigInteger, primary_key=True)
     created_date = Column(Integer, index=True,
                           default=lambda: int(time.time()))
@@ -22,6 +25,7 @@ class Mediafile(Base):
                      nullable=False)
     collection_id = Column(BigInteger, ForeignKey("collections.id"),
                            index=True, nullable=True)
+    latest_revision_id = Column(BigInteger, index=True, nullable=True)
 
     mediafile_name = Column(String(256), nullable=True)
     mediafile_summary = Column(String(512), nullable=True)
@@ -44,7 +48,7 @@ class Mediafile(Base):
 
     mediafile_revisions = relationship(
         "Revision", back_populates="revision_mediafile",
-        cascade="all, delete-orphan", foreign_keys="Revision.mediafile_id")
+        cascade="all, delete-orphan")
 
     mediafile_comments = relationship(
         "Comment", back_populates="comment_mediafile",
@@ -57,11 +61,6 @@ class Mediafile(Base):
     mediafile_favorites = relationship(
         "Favorite", back_populates="favorite_mediafile",
         cascade="all, delete-orphan")
-
-    latest_revision = relationship(
-        "Revision", primaryjoin=and_(
-            id == Revision.mediafile_id, Revision.is_latest == True),  # noqa E712
-        lazy="joined", uselist=False)
 
     def __init__(self, user_id: int, mediafile_name: str,
                  collection_id: int = None, revisions_count: int = 0,

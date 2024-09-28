@@ -5,6 +5,7 @@ from app.cache import get_cache
 from app.decorators.locked_decorator import locked
 from app.models.user_model import User, UserRole
 from app.models.mediafile_model import Mediafile
+from app.models.revision_model import Revision
 from app.models.tag_model import Tag
 from app.schemas.mediafile_schemas import (
     MediafileListRequest, MediafileListResponse)
@@ -43,6 +44,11 @@ async def mediafile_list(
 
     mediafiles = await mediafile_repository.select_all(**kwargs)
     mediafiles_count = await mediafile_repository.count_all(**kwargs)
+
+    revision_repository = Repository(session, cache, Revision)
+    for mediafile in mediafiles:
+        mediafile.latest_revision = await revision_repository.select(
+          id=mediafile.latest_revision_id)
 
     hook = Hook(session, cache, current_user=current_user)
     await hook.do(HOOK_AFTER_MEDIAFILE_LIST, mediafiles)

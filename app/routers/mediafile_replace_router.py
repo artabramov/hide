@@ -73,11 +73,15 @@ async def mediafile_replace(
             file.content_type, thumbnail_filename=thumbnail_filename)
         await revision_repository.insert(revision, commit=False)
 
-        # update previous revision
-        revision_repository = Repository(session, cache, Revision)
-        mediafile.latest_revision.is_latest = False
-        await revision_repository.update(
-            mediafile.latest_revision, commit=False)
+        # update latest_revision_id
+        mediafile.latest_revision_id = revision.id
+        await mediafile_repository.update(mediafile, commit=False)
+
+        # # update previous revision
+        # revision_repository = Repository(session, cache, Revision)
+        # mediafile.latest_revision.is_latest = False
+        # await revision_repository.update(
+        #     mediafile.latest_revision, commit=False)
 
         # update mediafile counters and name
         await revision_repository.lock_all()

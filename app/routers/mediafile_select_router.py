@@ -5,6 +5,7 @@ from app.cache import get_cache
 from app.decorators.locked_decorator import locked
 from app.models.user_model import User, UserRole
 from app.models.mediafile_model import Mediafile
+from app.models.revision_model import Revision
 from app.schemas.mediafile_schemas import MediafileSelectResponse
 from app.hooks import Hook
 from app.auth import auth
@@ -41,6 +42,10 @@ async def mediafile_select(
     if not mediafile:
         raise E([LOC_PATH, "mediafile_id"], mediafile_id,
                 ERR_RESOURCE_NOT_FOUND, status.HTTP_404_NOT_FOUND)
+
+    revision_repository = Repository(session, cache, Revision)
+    mediafile.latest_revision = await revision_repository.select(
+        id=mediafile.latest_revision_id)
 
     hook = Hook(session, cache, current_user=current_user)
     await hook.do(HOOK_AFTER_MEDIAFILE_SELECT, mediafile)

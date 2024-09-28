@@ -70,6 +70,7 @@ async def on_startup(session=Depends(get_session),
     """
     await unlock()
 
+    # TODO: remove session and cache
     hook = Hook(session, cache)
     await hook.do(HOOK_ON_STARTUP)
 

@@ -1,5 +1,9 @@
 # Changelog
 
+## Version 0.0.43 (2024-09-28)
+- **Fixed**: Resolved a bug related to the relationship between mediafiles and revisions.
+
+
 ## Version 0.0.42 (2024-09-24)
 - **Added constants module**: Introduced a dedicated module for constants, improving code organization and maintainability.
 - **Added custom execution router**: Enhanced routing capabilities with a custom execution router for more flexible request handling.

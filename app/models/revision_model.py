@@ -1,7 +1,6 @@
 import os
 import time
-from sqlalchemy import (Column, Integer, BigInteger, String, ForeignKey,
-                        Boolean, event)
+from sqlalchemy import Column, Integer, BigInteger, String, ForeignKey, event
 from sqlalchemy.orm import relationship
 from app.database import Base
 from app.config import get_config
@@ -22,7 +21,6 @@ class Revision(Base):
                           default=lambda: int(time.time()))
     user_id = Column(BigInteger, ForeignKey("users.id"), index=True)
     mediafile_id = Column(BigInteger, ForeignKey("mediafiles.id"), index=True)
-    is_latest = Column(Boolean, nullable=False)
 
     revision_filename = Column(String(256), nullable=False, unique=True)
     revision_size = Column(BigInteger, index=False, nullable=False)
@@ -49,7 +47,6 @@ class Revision(Base):
                  original_mimetype: str, thumbnail_filename: str = None):
         self.user_id = user_id
         self.mediafile_id = mediafile_id
-        self.is_latest = True
         self.revision_filename = revision_filename
         self.revision_size = revision_size
         self.original_filename = original_filename
@@ -77,7 +74,6 @@ class Revision(Base):
             "created_date": self.created_date,
             "user_id": self.user_id,
             "mediafile_id": self.mediafile_id,
-            "is_latest": self.is_latest,
             "revision_size": self.revision_size,
             "original_filename": self.original_filename,
             "original_size": self.original_size,

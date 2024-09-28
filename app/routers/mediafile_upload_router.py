@@ -67,6 +67,10 @@ async def mediafile_upload(
             thumbnail_filename=thumbnail_filename)
         await revision_repository.insert(revision, commit=False)
 
+        # update latest_revision_id
+        mediafile.latest_revision_id = revision.id
+        await mediafile_repository.update(mediafile, commit=False)
+
         # execute hooks
         hook = Hook(session, cache, current_user=current_user)
         await hook.do(HOOK_BEFORE_MEDIAFILE_UPLOAD, mediafile)
