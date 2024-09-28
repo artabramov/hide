@@ -36,7 +36,7 @@ services:
     image: docker.elastic.co/beats/filebeat:7.6.2
     container_name: filebeat
     depends_on:
-      - hide
+      - hidden
     restart: unless-stopped
     user: root
     volumes:
@@ -71,9 +71,9 @@ services:
     volumes:
       - grafana_data:/var/lib/grafana
 
-  hide:
-    image: hide
-    container_name: hide
+  hidden:
+    image: hidden
+    container_name: hidden
     restart: always
     environment:
       UVICORN_HOST: ${UVICORN_HOST}
@@ -85,7 +85,7 @@ services:
       - postgres_log:/var/log/postgresql
       - redis_log:/var/log/redis
       - app_log:/var/log/app
-      - app_data:/hide/data
+      - app_data:/hidden/data
     ports:
       - "80:80"
       - "5000:5000"

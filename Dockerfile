@@ -2,8 +2,8 @@ FROM ubuntu:22.04
 RUN apt-get update
 ENV DEBIAN_FRONTEND=noninteractive
 
-ADD . /hide
-WORKDIR /hide
+ADD . /hidden
+WORKDIR /hidden
 
 RUN apt install -y software-properties-common
 RUN add-apt-repository ppa:deadsnakes/ppa
@@ -40,15 +40,13 @@ RUN pip3 install safety
 # RUN pip3 install sphinx==8.0.2
 # RUN pip3 install sphinx sphinx_rtd_theme
 
-# sphinx-quickstart docs -q -p "hide" -a "Artem Abramov" -v "0.0.1" -r "1" --no-batchfile
-# sphinx-apidoc --remove-old --output-dir /hide/docs/autodoc /hide/app/
-# make -C /hide/docs html
+# sphinx-quickstart docs -q -p "hidden" -a "Artem Abramov" -v "0.0.1" -r "1" --no-batchfile
+# sphinx-apidoc --remove-old --output-dir /hidden/docs/autodoc /hidden/app/
+# make -C /hidden/docs html
 
 # git tag -a v1.0.0 -m "version v.0.0.14"
 # git push --tags
 
-ADD . /hide
-WORKDIR /hide
 RUN mkdir /var/log/app
 RUN chmod -R 777 /var/log/app
 
@@ -71,4 +69,4 @@ RUN mv redis_exporter-v1.18.0.linux-amd64/redis_exporter /usr/local/bin
 RUN rm -r redis_exporter-v1.18.0.linux-amd64*
 
 EXPOSE 80
-ENTRYPOINT ["/hide/entrypoint.sh"]
+ENTRYPOINT ["/hidden/entrypoint.sh"]

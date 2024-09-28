@@ -1,9 +1,9 @@
-.. hide documentation master file, created by
+.. hidden documentation master file, created by
    sphinx-quickstart on Sat Aug 17 06:12:00 2024.
    You can adapt this file completely to your liking, but it should at least
    contain the root `toctree` directive.
 
-hide documentation
+hidden documentation
 ==================
 
 Add your content using ``reStructuredText`` syntax. See the

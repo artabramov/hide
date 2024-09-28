@@ -1,4 +1,4 @@
-# hide
+# hidden
 
 ## Recommended Grafana dashboards  
 11074 (Node Exporter)  

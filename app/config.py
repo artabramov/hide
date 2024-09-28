@@ -10,7 +10,7 @@ from dotenv import dotenv_values
 from dataclasses import dataclass, fields
 from functools import lru_cache
 
-DOTENV_FILE = "/hide/.env"
+DOTENV_FILE = "/hidden/.env"
 
 
 @dataclass
