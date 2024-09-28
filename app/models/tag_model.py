@@ -8,7 +8,7 @@ cfg = get_config()
 
 
 class Tag(Base):
-    __tablename__ = "mediafile_tags"
+    __tablename__ = "mediafiles_tags"
     _cacheable = False
 
     id = Column(BigInteger, primary_key=True)

@@ -3,7 +3,7 @@ The module defines Pydantic schemas for managing downloads. Includes
 schemas for selecting and listing downloads.
 """
 
-from typing import Literal, List, Optional
+from typing import Literal, List
 from pydantic import BaseModel, Field
 from app.config import get_config
 from app.schemas.user_schemas import UserSelectResponse
@@ -30,7 +30,6 @@ class DownloadListRequest(BaseModel):
     pagination options with offset and limit, and ordering criteria, and
     optionally the mediafile ID.
     """
-    mediafile_id__eq: Optional[int] = None
     offset: int = Field(ge=0)
     limit: int = Field(ge=1, le=200)
     order_by: Literal["id", "created_date"]

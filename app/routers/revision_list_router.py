@@ -47,11 +47,10 @@ async def revision_list(
         raise E([LOC_PATH, "mediafile_id"], mediafile_id,
                 ERR_RESOURCE_NOT_FOUND, status.HTTP_404_NOT_FOUND)
 
-    revision_repository = Repository(session, cache, Revision)
-
     kwargs = schema.__dict__
     kwargs["mediafile_id__eq"] = mediafile_id
 
+    revision_repository = Repository(session, cache, Revision)
     revisions = await revision_repository.select_all(**kwargs)
     revisions_count = await revision_repository.count_all(**kwargs)
 

@@ -21,7 +21,7 @@ class Favorite(Base):
     Represents a user's favorite mediafile. Each favorite is linked to a
     specific user and mediafile, and includes a creation timestamp.
     """
-    __tablename__ = "mediafiles_favorites"
+    __tablename__ = "favorites"
     _cacheable = False
 
     id = Column(BigInteger, primary_key=True)
