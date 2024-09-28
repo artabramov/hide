@@ -70,9 +70,9 @@ ERR_SERVER_ERROR = "Internal server error"
 HOOK_ON_STARTUP = "on_startup"
 HOOK_ON_TIME_RETRIEVE = "on_time_retrieve"
 HOOK_ON_TELEMETRY_RETRIEVE = "on_telemetry_retrieve"
-HOOK_ON_LOCKDOWN_CREATE = "on_lockdown_create"
-HOOK_ON_LOCKDOWN_RETRIEVE = "on_lockdown_retrieve"
-HOOK_ON_LOCKDOWN_DELETE = "on_lockdown_delete"
+HOOK_ON_LOCK_CREATE = "on_lock_create"
+HOOK_ON_LOCK_RETRIEVE = "on_lock_retrieve"
+HOOK_ON_LOCK_DELETE = "on_lock_delete"
 HOOK_ON_CUSTOM_EXECUTE = "on_custom_execute"
 
 # user hooks

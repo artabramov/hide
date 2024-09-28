@@ -25,12 +25,12 @@ def is_locked():
     return os.path.isfile(cfg.LOCK_FILE_PATH)
 
 
-def get_lockdown_time():
-    lockdown_time = 0
+def get_lock_time():
+    lock_time = 0
     if is_locked():
         lock_created = os.path.getctime(cfg.LOCK_FILE_PATH)
-        lockdown_time = int(time.time() - lock_created)
-    return lockdown_time
+        lock_time = int(time.time() - lock_created)
+    return lock_time
 
 
 async def lock():

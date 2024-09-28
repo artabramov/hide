@@ -41,8 +41,8 @@ from app.routers import (
     option_insert_router, option_select_router, option_update_router,
     option_delete_router, option_list_router,
 
-    time_retrieve_router, telemetry_retrieve_router, lockdown_create_router,
-    lockdown_retrieve_router, lockdown_delete_router, custom_execute_router)
+    time_retrieve_router, telemetry_retrieve_router, lock_create_router,
+    lock_retrieve_router, lock_delete_router, custom_execute_router)
 from app.database import Base, sessionmanager, get_session
 from app.constants import ERR_SERVER_ERROR, HOOK_ON_STARTUP
 from contextlib import asynccontextmanager
@@ -201,9 +201,9 @@ app.include_router(option_list_router.router, prefix=cfg.APP_PREFIX)
 # system routers
 app.include_router(time_retrieve_router.router, prefix=cfg.APP_PREFIX)
 app.include_router(telemetry_retrieve_router.router, prefix=cfg.APP_PREFIX)
-app.include_router(lockdown_retrieve_router.router, prefix=cfg.APP_PREFIX)
-app.include_router(lockdown_create_router.router, prefix=cfg.APP_PREFIX)
-app.include_router(lockdown_delete_router.router, prefix=cfg.APP_PREFIX)
+app.include_router(lock_retrieve_router.router, prefix=cfg.APP_PREFIX)
+app.include_router(lock_create_router.router, prefix=cfg.APP_PREFIX)
+app.include_router(lock_delete_router.router, prefix=cfg.APP_PREFIX)
 app.include_router(custom_execute_router.router, prefix=cfg.APP_PREFIX)
 
 
