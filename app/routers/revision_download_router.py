@@ -23,12 +23,13 @@ from app.constants import (
 router = APIRouter()
 
 
-@router.get("/revision/{revision_id}/download", summary="Download revision",
+@router.get("/mediafile/{mediafile_id}/revision/{revision_id}/download",
+            summary="Download a specified revision of a mediafile.",
             response_class=Response, status_code=status.HTTP_200_OK,
-            tags=["revisions"])
+            tags=["mediafiles"])
 @locked
 async def revision_download(
-    revision_id: int,
+    mediafile_id: int, revision_id: int,
     session=Depends(get_session), cache=Depends(get_cache),
     current_user: User = Depends(auth(UserRole.reader))
 ) -> Response:
@@ -43,7 +44,7 @@ async def revision_download(
     """
     revision_repository = Repository(session, cache, Revision)
     revision = await revision_repository.select(id=revision_id)
-    if not revision:
+    if not revision or revision.mediafile_id != mediafile_id:
         raise E([LOC_PATH, "revision_id"], revision_id,
                 ERR_RESOURCE_NOT_FOUND, status.HTTP_404_NOT_FOUND)
 

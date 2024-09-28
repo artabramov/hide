@@ -29,7 +29,6 @@ class RevisionListRequest(BaseModel):
     optional filter for mediafile ID and pagination options with offset
     and limit, and ordering criteria.
     """
-    mediafile_id__eq: Optional[int] = None
     offset: int = Field(ge=0)
     limit: int = Field(ge=1, le=200)
     order_by: Literal["id", "created_date"]

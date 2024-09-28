@@ -18,7 +18,7 @@ from app.constants import HOOK_AFTER_MEDIAFILE_LIST
 router = APIRouter()
 
 
-@router.get("/mediafiles", summary="Retrieve mediafile list",
+@router.get("/mediafiles", summary="Retrieve the list of mediafiles.",
             response_class=JSONResponse, status_code=status.HTTP_200_OK,
             response_model=MediafileListResponse, tags=["mediafiles"])
 @locked

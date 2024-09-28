@@ -1,12 +1,12 @@
 # Changelog
 
 ## Version 0.0.43 (2024-09-28)
-- **Fixed**: Resolved a bug related to the relationship between mediafiles and revisions.
-
+- **Fixed bug**: Resolved a bug related to the relationship between mediafiles and revisions.
+- **Renamed models**: Updated the SQLAlchemy model names from `document` to `mediafile` and from `upload` to `revision` for improved clarity and accuracy.
 
 ## Version 0.0.42 (2024-09-24)
-- **Added constants module**: Introduced a dedicated module for constants, improving code organization and maintainability.
-- **Added custom execution router**: Enhanced routing capabilities with a custom execution router for more flexible request handling.
+- **Added constants**: Introduced a dedicated module for constants, improving code organization and maintainability.
+- **Added custom router**: Enhanced routing capabilities with a custom execution router for more flexible request handling.
 
 ## Version 0.0.41 (2024-09-18)
 - **Added telemetry**: Introduced a new endpoint for system telemetry, providing insights into application metrics and status.

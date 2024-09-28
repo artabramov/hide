@@ -178,16 +178,16 @@ app.include_router(revision_select_router.router, prefix=cfg.APP_PREFIX)
 app.include_router(revision_download_router.router, prefix=cfg.APP_PREFIX)
 app.include_router(revision_list_router.router, prefix=cfg.APP_PREFIX)
 
+# download routers
+app.include_router(download_select_router.router, prefix=cfg.APP_PREFIX)
+app.include_router(download_list_router.router, prefix=cfg.APP_PREFIX)
+
 # comment routers
 app.include_router(comment_insert_router.router, prefix=cfg.APP_PREFIX)
 app.include_router(comment_select_router.router, prefix=cfg.APP_PREFIX)
 app.include_router(comment_update_router.router, prefix=cfg.APP_PREFIX)
 app.include_router(comment_delete_router.router, prefix=cfg.APP_PREFIX)
 app.include_router(comment_list_router.router, prefix=cfg.APP_PREFIX)
-
-# download routers
-app.include_router(download_select_router.router, prefix=cfg.APP_PREFIX)
-app.include_router(download_list_router.router, prefix=cfg.APP_PREFIX)
 
 # favorite routers
 app.include_router(favorite_insert_router.router, prefix=cfg.APP_PREFIX)
