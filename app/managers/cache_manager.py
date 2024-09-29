@@ -83,3 +83,11 @@ class CacheManager:
         key_pattern = self._get_key(cls, "*")
         for key in await self.cache.keys(key_pattern):
             await self.cache.delete(key)
+
+    @timed
+    async def erase(self):
+        """
+        Clears all cache entries in Redis, effectively erasing all
+        cached SQLAlchemy model instances.
+        """
+        await self.cache.flushdb()

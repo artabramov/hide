@@ -103,6 +103,13 @@ class CacheManagerTestCase(asynctest.TestCase):
         self.assertListEqual(self.cache_mock.delete.call_args_list,
                              [call(key_1), call(key_2), call(key_3)])
 
+    async def test__erase(self):
+        """Tests the cache erase."""
+        result = await self.cache_manager.erase()
+        self.assertIsNone(result)
+
+        self.cache_mock.flushdb.assert_called_once()
+
 
 if __name__ == "__main__":
     unittest.main()

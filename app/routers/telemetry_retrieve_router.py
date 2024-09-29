@@ -18,10 +18,10 @@ from app.constants import HOOK_ON_TELEMETRY_RETRIEVE
 router = APIRouter()
 
 
-@router.get("/telemetry", summary="Retrieve telemetry",
+@router.get("/telemetry", summary="Retrieve telemetry data",
             response_class=JSONResponse, status_code=status.HTTP_200_OK,
             # response_model=SystemHelloResponse,
-            tags=["system"])
+            tags=["services"])
 @locked
 async def telemetry_retrieve(
     session=Depends(get_session), cache=Depends(get_cache),

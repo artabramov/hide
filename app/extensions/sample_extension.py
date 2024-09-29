@@ -21,17 +21,6 @@ from app.managers.entity_manager import EntityManager
 from app.managers.cache_manager import CacheManager
 
 
-async def on_startup(
-    entity_manager: EntityManager, cache_manager: CacheManager,
-    current_user: None
-):
-    """
-    Executes when the application starts. Performs any required
-    actions such as initialization or setup.
-    """
-    ...
-
-
 async def on_time_retrieve(
     entity_manager: EntityManager, cache_manager: CacheManager,
     current_user: None, response: dict
@@ -81,6 +70,13 @@ async def on_lock_delete(
     """
     Executes when the application lock is deleted.
     """
+    ...
+
+
+async def on_cache_erase(
+    entity_manager: EntityManager, cache_manager: CacheManager,
+    current_user: User
+):
     ...
 
 

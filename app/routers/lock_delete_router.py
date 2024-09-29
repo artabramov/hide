@@ -14,7 +14,7 @@ router = APIRouter()
 
 @router.delete("/lock", summary="Disable lockdown mode",
                response_class=JSONResponse, status_code=status.HTTP_200_OK,
-               response_model=LockDeleteResponse, tags=["system"])
+               response_model=LockDeleteResponse, tags=["services"])
 async def lock_delete(
     session=Depends(get_session), cache=Depends(get_cache),
     current_user: User = Depends(auth(UserRole.admin))

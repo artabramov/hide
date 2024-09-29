@@ -12,7 +12,7 @@ router = APIRouter()
 
 @router.get("/time", summary="Retrieve current time",
             response_class=JSONResponse, status_code=status.HTTP_200_OK,
-            response_model=TimeRetrieveResponse, tags=["system"])
+            response_model=TimeRetrieveResponse, tags=["services"])
 async def time_retrieve(
     session=Depends(get_session), cache=Depends(get_cache)
 ) -> TimeRetrieveResponse:

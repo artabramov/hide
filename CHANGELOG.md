@@ -1,5 +1,8 @@
 # Changelog
 
+## Version 0.0.44 (2024-09-29)
+- **Added cache erase**: Introduced a router to clear all cached data in the Redis cache.
+
 ## Version 0.0.43 (2024-09-28)
 - **Fixed bug**: Resolved a bug related to the relationship between mediafiles and revisions.
 - **Renamed models**: Updated the SQLAlchemy model names from `document` to `mediafile` and from `upload` to `revision` for improved clarity and accuracy.

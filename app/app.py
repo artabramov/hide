@@ -9,7 +9,7 @@ configuration for the application's title, version, and file paths.
 """
 
 import time
-from fastapi import FastAPI, Request, status, Depends
+from fastapi import FastAPI, Request, status
 from fastapi.encoders import jsonable_encoder
 from fastapi.responses import JSONResponse
 from app.decorators.locked_decorator import unlock
@@ -44,16 +44,15 @@ from app.routers import (
     option_delete_router, option_list_router,
 
     time_retrieve_router, telemetry_retrieve_router, lock_create_router,
-    lock_retrieve_router, lock_delete_router, custom_execute_router)
-from app.database import Base, sessionmanager, get_session
-from app.constants import ERR_SERVER_ERROR, HOOK_ON_STARTUP
+    lock_retrieve_router, lock_delete_router, cache_erase_router,
+    custom_execute_router)
+from app.database import Base, sessionmanager
+from app.constants import ERR_SERVER_ERROR
 from contextlib import asynccontextmanager
 from uuid import uuid4
 import os
 import importlib.util
 import inspect
-from app.hooks import Hook
-from app.cache import get_cache
 from fastapi.staticfiles import StaticFiles
 from pydantic import ValidationError
 from app.version import __version__
@@ -61,18 +60,6 @@ from app.version import __version__
 cfg = get_config()
 ctx = get_context()
 log = get_log()
-
-
-async def on_startup(session=Depends(get_session),
-                     cache=Depends(get_cache)):
-    """
-    Executes startup hook using the provided database session and cache.
-    """
-    await unlock()
-
-    # TODO: remove session and cache
-    hook = Hook(session, cache)
-    await hook.do(HOOK_ON_STARTUP)
 
 
 def load_hooks():
@@ -117,7 +104,7 @@ async def lifespan(app: FastAPI):
         await conn.run_sync(Base.metadata.create_all)
 
     load_hooks()
-    await on_startup()
+    await unlock()
     yield
 
 
@@ -134,7 +121,16 @@ def load_description():
 
 app = FastAPI(lifespan=lifespan, title=cfg.APP_TITLE, version=__version__,
               description=load_description())
-
+app.openapi_tags = [
+    {
+        "name": "mediafiles",
+        "description": "Operations with mediafiles such as retrieving, uploading, and deleting."
+    },
+    {
+        "name": "services",
+        "description": "Manage revisions of mediafiles."
+    }
+]
 started_time = time.time()
 
 
@@ -208,6 +204,7 @@ app.include_router(telemetry_retrieve_router.router, prefix=cfg.APP_PREFIX)
 app.include_router(lock_retrieve_router.router, prefix=cfg.APP_PREFIX)
 app.include_router(lock_create_router.router, prefix=cfg.APP_PREFIX)
 app.include_router(lock_delete_router.router, prefix=cfg.APP_PREFIX)
+app.include_router(cache_erase_router.router, prefix=cfg.APP_PREFIX)
 app.include_router(custom_execute_router.router, prefix=cfg.APP_PREFIX)
 
 
