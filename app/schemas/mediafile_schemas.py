@@ -42,7 +42,6 @@ class MediafileSelectResponse(BaseModel):
     revisions_count: int
     revisions_size: int
     downloads_count: int
-    downloads_size: int
 
     mediafile_tags: list
     mediafile_user: UserSelectResponse
@@ -106,14 +105,12 @@ class MediafileListRequest(BaseModel):
     revisions_size__le: Optional[int] = None
     downloads_count__ge: Optional[int] = None
     downloads_count__le: Optional[int] = None
-    downloads_size__ge: Optional[int] = None
-    downloads_size__le: Optional[int] = None
     tag_value__eq: Optional[str] = None
     offset: int = Field(ge=0)
     limit: int = Field(ge=1, le=200)
     order_by: Literal["id", "created_date", "updated_date", "user_id",
-                      "collection_id", "comments_count", "revisions_count",
-                      "revisions_size", "downloads_count", "downloads_size"]
+                      "collection_id", "mediafile_name", "comments_count",
+                      "revisions_count", "revisions_size", "downloads_count"]
     order: Literal["asc", "desc", "rand"]
 
 

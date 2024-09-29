@@ -34,7 +34,6 @@ class Mediafile(Base):
     revisions_count = Column(Integer, index=True, default=0)
     revisions_size = Column(Integer, index=True, default=0)
     downloads_count = Column(Integer, index=True, default=0)
-    downloads_size = Column(Integer, index=True, default=0)
 
     mediafile_user = relationship(
         "User", back_populates="user_mediafiles", lazy="joined")
@@ -72,7 +71,6 @@ class Mediafile(Base):
         self.revisions_count = revisions_count
         self.revisions_size = revisions_size
         self.downloads_count = 0
-        self.downloads_size = 0
 
     @property
     def is_locked(self) -> bool:
@@ -103,7 +101,6 @@ class Mediafile(Base):
             "revisions_count": self.revisions_count,
             "revisions_size": self.revisions_size,
             "downloads_count": self.downloads_count,
-            "downloads_size": self.downloads_size,
 
             "mediafile_tags": self.tag_values,
             "mediafile_user": self.mediafile_user.to_dict(),
