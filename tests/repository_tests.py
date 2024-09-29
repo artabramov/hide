@@ -371,6 +371,31 @@ class RepositoryTestCase(asynctest.TestCase):
             dummy_mock, commit=False)
         repository.cache_manager.delete.assert_not_called()
 
+    async def test__delete_all_from_cache_class_cacheable(self):
+        dummy_class_mock = MagicMock(__tablename__="dummies", _cacheable=True)
+
+        repository = Repository(None, None, dummy_class_mock)
+        repository.entity_manager = AsyncMock()
+        repository.cache_manager = AsyncMock()
+
+        result = await repository.delete_all_from_cache()
+        self.assertIsNone(result)
+
+        repository.cache_manager.delete_all.assert_called_once_with(
+            dummy_class_mock)
+
+    async def test__delete_all_from_cache_class_not_cacheable(self):
+        dummy_class_mock = MagicMock(__tablename__="dummies", _cacheable=False)
+
+        repository = Repository(None, None, dummy_class_mock)
+        repository.entity_manager = AsyncMock()
+        repository.cache_manager = AsyncMock()
+
+        result = await repository.delete_all_from_cache()
+        self.assertIsNone(result)
+
+        repository.cache_manager.delete_all.assert_not_called()
+
     async def test__count_all(self):
         """Test count_all method."""
         dummy_class_mock = MagicMock()

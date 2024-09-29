@@ -74,7 +74,8 @@ class Mediafile(Base):
 
     @property
     def is_locked(self) -> bool:
-        return self.collection_id and self.mediafile_collection.is_locked
+        return (self.collection_id is not None and
+                self.mediafile_collection.is_locked)
 
     @property
     def file_path(self):

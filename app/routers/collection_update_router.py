@@ -5,6 +5,8 @@ from app.cache import get_cache
 from app.decorators.locked_decorator import locked
 from app.models.user_model import User, UserRole
 from app.models.collection_model import Collection
+from app.models.mediafile_model import Mediafile
+from app.models.comment_model import Comment
 from app.schemas.collection_schemas import (
     CollectionUpdateRequest, CollectionUpdateResponse)
 from app.repository import Repository
@@ -56,6 +58,16 @@ async def collection_update(
     collection.collection_name = schema.collection_name
     collection.collection_summary = schema.collection_summary
     await collection_repository.update(collection, commit=False)
+
+    # Delete all related mediafiles and comments from cache to avoid
+    # possible side effects when collection transite its state between
+    # locked and unlocked.
+
+    mediafile_repository = Repository(session, cache, Mediafile)
+    await mediafile_repository.delete_all_from_cache()
+
+    comment_repository = Repository(session, cache, Comment)
+    await comment_repository.delete_all_from_cache()
 
     hook = Hook(session, cache, current_user=current_user)
     await hook.do(HOOK_BEFORE_COLLECTION_UPDATE, collection)

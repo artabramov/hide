@@ -110,6 +110,10 @@ class Repository:
         if self.entity_class._cacheable:
             await self.cache_manager.delete_all(self.entity_class)
 
+    async def delete_all_from_cache(self):
+        if self.entity_class._cacheable:
+            await self.cache_manager.delete_all(self.entity_class)
+
     async def count_all(self, **kwargs) -> int:
         """
         Counts the number of SQLAlchemy models that match the given
