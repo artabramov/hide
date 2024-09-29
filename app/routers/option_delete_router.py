@@ -23,7 +23,7 @@ router = APIRouter()
 
 @router.delete("/option/{option_key}", summary="Delete option",
                response_class=JSONResponse, status_code=status.HTTP_200_OK,
-               response_model=OptionDeleteResponse, tags=["options"])
+               response_model=OptionDeleteResponse, tags=["Options"])
 @locked
 async def option_delete(
     option_key: str,

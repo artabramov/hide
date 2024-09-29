@@ -24,7 +24,7 @@ router = APIRouter()
 
 @router.post("/mediafile", summary="Upload a new mediafile",
              response_class=JSONResponse, status_code=status.HTTP_201_CREATED,
-             response_model=MediafileUploadResponse, tags=["mediafiles"])
+             response_model=MediafileUploadResponse, tags=["Mediafiles"])
 @locked
 async def mediafile_upload(
     file: UploadFile = File(...),

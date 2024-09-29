@@ -20,7 +20,7 @@ router = APIRouter()
 
 @router.get("/options", summary="Fetch option list",
             response_class=JSONResponse, status_code=status.HTTP_200_OK,
-            response_model=OptionListResponse, tags=["options"])
+            response_model=OptionListResponse, tags=["Options"])
 @locked
 async def options_list(
     schema=Depends(OptionListRequest),

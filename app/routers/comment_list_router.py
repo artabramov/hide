@@ -21,7 +21,7 @@ router = APIRouter()
 
 @router.get("/comments", summary="Retrieve comment list",
             response_class=JSONResponse, status_code=status.HTTP_200_OK,
-            response_model=CommentListResponse, tags=["comments"])
+            response_model=CommentListResponse, tags=["Comments"])
 @locked
 async def comment_list(
     schema=Depends(CommentListRequest),

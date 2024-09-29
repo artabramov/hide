@@ -2,6 +2,8 @@
 
 ## Version 0.0.44 (2024-09-29)
 - **Added cache erase**: Introduced a router to clear all cached data in the Redis cache.
+- **Added OpenAPI tags**: Introduced descriptions for OpenAPI tags to enhance API documentation clarity.
+- **Refactoring**: Extracted various actions into hooks for improved modularity and maintainability.
 
 ## Version 0.0.43 (2024-09-28)
 - **Fixed bug**: Resolved a bug related to the relationship between mediafiles and revisions.

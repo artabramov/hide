@@ -17,7 +17,7 @@ router = APIRouter()
 
 @router.get("/collections", summary="Retrieve collection list",
             response_class=JSONResponse, status_code=status.HTTP_200_OK,
-            response_model=CollectionListResponse, tags=["collections"])
+            response_model=CollectionListResponse, tags=["Collections"])
 @locked
 async def collection_list(
     schema=Depends(CollectionListRequest),

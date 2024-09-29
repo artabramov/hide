@@ -19,7 +19,7 @@ router = APIRouter()
 @router.get("/mediafile/{mediafile_id}/revision/{revision_id}",
             summary="Retrieve data for a specific mediafile revision.",
             response_class=JSONResponse, status_code=status.HTTP_200_OK,
-            response_model=RevisionSelectResponse, tags=["mediafiles"])
+            response_model=RevisionSelectResponse, tags=["Mediafiles"])
 @locked
 async def revision_select(
     mediafile_id: int, revision_id: int,

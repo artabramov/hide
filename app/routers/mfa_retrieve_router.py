@@ -21,7 +21,7 @@ MFA_MASK = "otpauth://totp/%s?secret=%s&issuer=%s"
 
 @router.get("/user/{user_id}/mfa/{mfa_secret}", summary="Retrieve MFA",
             status_code=status.HTTP_200_OK, include_in_schema=True,
-            tags=["users"])
+            tags=["Users"])
 @locked
 async def mfa_retrieve(
     user_id: int, mfa_secret: str,

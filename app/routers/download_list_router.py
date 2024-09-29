@@ -25,7 +25,7 @@ router = APIRouter()
 @router.get("/mediafile/{mediafile_id}/downloads",
             summary="Retrieve download list",
             response_class=JSONResponse, status_code=status.HTTP_200_OK,
-            response_model=DownloadListResponse, tags=["mediafiles"])
+            response_model=DownloadListResponse, tags=["Mediafiles"])
 @locked
 async def download_list(
     mediafile_id: int, schema=Depends(DownloadListRequest),

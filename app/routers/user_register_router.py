@@ -17,7 +17,7 @@ router = APIRouter()
 
 @router.post("/user", summary="Register a new user",
              response_class=JSONResponse, status_code=status.HTTP_201_CREATED,
-             response_model=UserRegisterResponse, tags=["users"])
+             response_model=UserRegisterResponse, tags=["Users"])
 @locked
 async def user_register(
     schema: UserRegisterRequest,

@@ -15,7 +15,7 @@ router = APIRouter()
 
 @router.get("/users", summary="Retrieve user list",
             response_class=JSONResponse, status_code=status.HTTP_200_OK,
-            response_model=UserListResponse, tags=["users"])
+            response_model=UserListResponse, tags=["Users"])
 @locked
 async def users_list(
     schema=Depends(UserListRequest),

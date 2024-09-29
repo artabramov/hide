@@ -14,7 +14,7 @@ router = APIRouter()
 
 @router.delete("/cache", summary="Erase the cache",
                response_class=JSONResponse, status_code=status.HTTP_200_OK,
-               tags=["services"])
+               tags=["Services"])
 @locked
 async def cache_erase(
     session=Depends(get_session), cache=Depends(get_cache),

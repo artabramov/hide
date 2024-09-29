@@ -26,7 +26,7 @@ router = APIRouter()
 @router.get("/mediafile/{mediafile_id}/revision/{revision_id}/download",
             summary="Download a specified revision of a mediafile.",
             response_class=Response, status_code=status.HTTP_200_OK,
-            tags=["mediafiles"])
+            tags=["Mediafiles"])
 @locked
 async def revision_download(
     mediafile_id: int, revision_id: int,

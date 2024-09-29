@@ -19,7 +19,7 @@ router = APIRouter()
 
 @router.delete("/user/{user_id}/userpic", summary="Remove userpic",
                response_class=JSONResponse, status_code=status.HTTP_200_OK,
-               response_model=UserpicDeleteResponse, tags=["users"])
+               response_model=UserpicDeleteResponse, tags=["Users"])
 @locked
 async def userpic_delete(
     user_id: int,

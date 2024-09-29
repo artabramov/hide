@@ -22,7 +22,7 @@ router = APIRouter()
 
 @router.get("/comment/{comment_id}", summary="Retrieve a comment",
             response_class=JSONResponse, status_code=status.HTTP_200_OK,
-            response_model=CommentSelectResponse, tags=["comments"])
+            response_model=CommentSelectResponse, tags=["Comments"])
 @locked
 async def comment_select(
     comment_id: int,

@@ -13,7 +13,7 @@ router = APIRouter()
 
 @router.post("/custom", summary="Execute custom handler",
              response_class=JSONResponse, status_code=status.HTTP_200_OK,
-             tags=["services"])
+             tags=["Services"])
 async def custom_execute(
     schema: CustomExecuteRequest,
     session=Depends(get_session), cache=Depends(get_cache),

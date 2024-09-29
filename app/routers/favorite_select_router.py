@@ -24,7 +24,7 @@ router = APIRouter()
 
 @router.get("/favorite/{favorite_id}", summary="Retrieve favorite",
             response_class=JSONResponse, status_code=status.HTTP_200_OK,
-            response_model=FavoriteSelectResponse, tags=["favorites"])
+            response_model=FavoriteSelectResponse, tags=["Favorites"])
 @locked
 async def favorite_select(
     favorite_id: int,

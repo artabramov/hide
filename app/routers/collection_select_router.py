@@ -18,7 +18,7 @@ router = APIRouter()
 
 @router.get("/collection/{collection_id}", summary="Retrieve collection",
             response_class=JSONResponse, status_code=status.HTTP_200_OK,
-            response_model=CollectionSelectResponse, tags=["collections"])
+            response_model=CollectionSelectResponse, tags=["Collections"])
 @locked
 async def collection_select(
     collection_id: int,

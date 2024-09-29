@@ -14,7 +14,7 @@ router = APIRouter()
 
 @router.post("/lock", summary="Enable lockdown mode",
              response_class=JSONResponse, status_code=status.HTTP_200_OK,
-             response_model=LockCreateResponse, tags=["services"])
+             response_model=LockCreateResponse, tags=["Services"])
 async def lock_create(
     session=Depends(get_session), cache=Depends(get_cache),
     current_user: User = Depends(auth(UserRole.admin))

@@ -25,7 +25,7 @@ router = APIRouter()
 
 @router.post("/favorite", summary="Create favorite",
              response_class=JSONResponse, status_code=status.HTTP_201_CREATED,
-             response_model=FavoriteInsertResponse, tags=["favorites"])
+             response_model=FavoriteInsertResponse, tags=["Favorites"])
 @locked
 async def favorite_insert(
     schema: FavoriteInsertRequest,

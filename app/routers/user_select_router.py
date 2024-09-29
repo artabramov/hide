@@ -17,7 +17,7 @@ router = APIRouter()
 
 @router.get("/user/{user_id}", summary="Retrieve user",
             response_class=JSONResponse, status_code=status.HTTP_200_OK,
-            response_model=UserSelectResponse, tags=["users"])
+            response_model=UserSelectResponse, tags=["Users"])
 @locked
 async def user_select(
     user_id: int,

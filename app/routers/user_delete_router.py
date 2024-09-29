@@ -22,7 +22,7 @@ router = APIRouter()
 
 @router.delete("/user/{user_id}", summary="Delete a user",
                response_class=JSONResponse, status_code=status.HTTP_200_OK,
-               response_model=UserDeleteResponse, tags=["users"])
+               response_model=UserDeleteResponse, tags=["Users"])
 @locked
 async def user_delete(
     user_id: int,

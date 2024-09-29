@@ -23,7 +23,7 @@ router = APIRouter()
 @router.get("/mediafile/{mediafile_id}/download/{download_id}",
             summary="Retrieve download",
             response_class=JSONResponse, status_code=status.HTTP_200_OK,
-            response_model=DownloadSelectResponse, tags=["mediafiles"])
+            response_model=DownloadSelectResponse, tags=["Mediafiles"])
 @locked
 async def download_select(
     mediafile_id: int, download_id: int,

@@ -25,7 +25,7 @@ cfg = get_config()
 
 @router.post("/user/{user_id}/userpic", summary="Upload userpic",
              response_class=JSONResponse, status_code=status.HTTP_200_OK,
-             response_model=UserpicUploadResponse, tags=["users"])
+             response_model=UserpicUploadResponse, tags=["Users"])
 @locked
 async def userpic_upload(
     user_id: int, file: UploadFile = File(...),

@@ -22,7 +22,7 @@ router = APIRouter()
 
 @router.get("/option/{option_key}", summary="Get option",
             response_class=JSONResponse, status_code=status.HTTP_200_OK,
-            response_model=OptionSelectResponse, tags=["options"])
+            response_model=OptionSelectResponse, tags=["Options"])
 @locked
 async def option_select(
     option_key: str,

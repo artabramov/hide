@@ -20,7 +20,7 @@ router = APIRouter()
 
 @router.post("/collection", summary="Create a new collection",
              response_class=JSONResponse, status_code=status.HTTP_201_CREATED,
-             response_model=CollectionInsertResponse, tags=["collections"])
+             response_model=CollectionInsertResponse, tags=["Collections"])
 @locked
 async def collection_insert(
     schema: CollectionInsertRequest,

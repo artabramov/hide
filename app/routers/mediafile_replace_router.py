@@ -27,7 +27,7 @@ router = APIRouter()
 
 @router.post("/mediafile/{mediafile_id}", summary="Replace a mediafile",
              response_class=JSONResponse, status_code=status.HTTP_201_CREATED,
-             response_model=MediafileReplaceResponse, tags=["mediafiles"])
+             response_model=MediafileReplaceResponse, tags=["Mediafiles"])
 @locked
 async def mediafile_replace(
     mediafile_id: int, file: UploadFile = File(...),

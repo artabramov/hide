@@ -25,7 +25,7 @@ router = APIRouter()
 @router.get("/mediafile/{mediafile_id}/revisions",
             summary="Retrieve the revisions list for a specified mediafile.",
             response_class=JSONResponse, status_code=status.HTTP_200_OK,
-            response_model=RevisionListResponse, tags=["mediafiles"])
+            response_model=RevisionListResponse, tags=["Mediafiles"])
 @locked
 async def revision_list(
     mediafile_id: int, schema=Depends(RevisionListRequest),

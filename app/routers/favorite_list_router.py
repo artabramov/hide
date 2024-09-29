@@ -22,7 +22,7 @@ router = APIRouter()
 
 @router.get("/favorites", summary="Retrieve favorite list",
             response_class=JSONResponse, status_code=status.HTTP_200_OK,
-            response_model=FavoriteListResponse, tags=["favorites"])
+            response_model=FavoriteListResponse, tags=["Favorites"])
 @locked
 async def favorite_list(
     schema=Depends(FavoriteListRequest),

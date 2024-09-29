@@ -23,7 +23,7 @@ router = APIRouter()
 
 @router.delete("/favorite/{favorite_id}", summary="Delete favorite",
                response_class=JSONResponse, status_code=status.HTTP_200_OK,
-               response_model=FavoriteDeleteResponse, tags=["favorites"])
+               response_model=FavoriteDeleteResponse, tags=["Favorites"])
 @locked
 async def favorite_delete(
     favorite_id: int,

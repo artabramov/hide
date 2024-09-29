@@ -18,7 +18,7 @@ router = APIRouter()
 
 @router.put("/user/{user_id}/role", summary="Change user role",
             response_class=JSONResponse, status_code=status.HTTP_200_OK,
-            response_model=RoleUpdateResponse, tags=["users"])
+            response_model=RoleUpdateResponse, tags=["Users"])
 @locked
 async def role_change(
     user_id: int, schema: RoleUpdateRequest,

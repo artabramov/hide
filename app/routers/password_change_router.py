@@ -20,7 +20,7 @@ router = APIRouter()
 
 @router.put("/user/{user_id}/password", summary="Change user password",
             response_class=JSONResponse, status_code=status.HTTP_200_OK,
-            response_model=PasswordUpdateResponse, tags=["users"])
+            response_model=PasswordUpdateResponse, tags=["Users"])
 @locked
 async def password_change(
     user_id: int, schema: PasswordUpdateRequest,

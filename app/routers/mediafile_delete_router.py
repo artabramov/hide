@@ -20,7 +20,7 @@ router = APIRouter()
 
 @router.delete("/mediafile/{mediafile_id}", summary="Delete a mediafile",
                response_class=JSONResponse, status_code=status.HTTP_200_OK,
-               response_model=MediafileDeleteResponse, tags=["mediafiles"])
+               response_model=MediafileDeleteResponse, tags=["Mediafiles"])
 @locked
 async def mediafile_delete(
     mediafile_id: int,

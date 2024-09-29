@@ -25,7 +25,7 @@ router = APIRouter()
 
 @router.post("/comment", summary="Create a new comment",
              response_class=JSONResponse, status_code=status.HTTP_201_CREATED,
-             response_model=CommentInsertResponse, tags=["comments"])
+             response_model=CommentInsertResponse, tags=["Comments"])
 @locked
 async def comment_insert(
     schema: CommentInsertRequest,

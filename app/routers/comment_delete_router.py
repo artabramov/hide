@@ -25,7 +25,7 @@ router = APIRouter()
 
 @router.delete("/comment/{comment_id}", summary="Delete comment",
                response_class=JSONResponse, status_code=status.HTTP_200_OK,
-               response_model=CommentDeleteResponse, tags=["comments"])
+               response_model=CommentDeleteResponse, tags=["Comments"])
 @locked
 async def comment_delete(
     comment_id: int,

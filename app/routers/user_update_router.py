@@ -18,7 +18,7 @@ router = APIRouter()
 
 @router.put("/user/{user_id}", summary="Update user",
             response_class=JSONResponse, status_code=status.HTTP_200_OK,
-            response_model=UserUpdateResponse, tags=["users"])
+            response_model=UserUpdateResponse, tags=["Users"])
 @locked
 async def user_update(
     user_id: int, schema: UserUpdateRequest,

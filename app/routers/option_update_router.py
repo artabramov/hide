@@ -20,7 +20,7 @@ router = APIRouter()
 
 @router.put("/option/{option_key}", summary="Update an option",
             response_class=JSONResponse, status_code=status.HTTP_200_OK,
-            response_model=OptionUpdateResponse, tags=["options"])
+            response_model=OptionUpdateResponse, tags=["Options"])
 @locked
 async def option_delete(
     option_key: str, schema: OptionUpdateRequest,

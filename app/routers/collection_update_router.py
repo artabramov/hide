@@ -20,7 +20,7 @@ router = APIRouter()
 
 @router.put("/collection/{collection_id}", summary="Update a collection",
             response_class=JSONResponse, status_code=status.HTTP_200_OK,
-            response_model=CollectionUpdateResponse, tags=["collections"])
+            response_model=CollectionUpdateResponse, tags=["Collections"])
 @locked
 async def collection_update(
     collection_id: int, schema: CollectionUpdateRequest,

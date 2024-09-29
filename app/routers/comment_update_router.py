@@ -24,7 +24,7 @@ router = APIRouter()
 
 @router.put("/comment/{comment_id}", summary="Update a comment",
             response_class=JSONResponse, status_code=status.HTTP_200_OK,
-            response_model=CommentUpdateResponse, tags=["comments"])
+            response_model=CommentUpdateResponse, tags=["Comments"])
 @locked
 async def comment_update(
     comment_id: int, schema: CommentUpdateRequest,

@@ -25,7 +25,7 @@ router = APIRouter()
 
 @router.post("/option", summary="Insert option",
              response_class=JSONResponse, status_code=status.HTTP_200_OK,
-             response_model=OptionInsertResponse, tags=["options"])
+             response_model=OptionInsertResponse, tags=["Options"])
 @locked
 async def option_insert(
     schema: OptionInsertRequest,
