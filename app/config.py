@@ -58,7 +58,9 @@ class Config:
     APP_TITLE: str
     APP_BASE_URL: str
     APP_PREFIX: str
-    APP_DESCRIPTION_PATH: str
+
+    OPENAPI_DESCRIPTION_PATH: str
+    OPENAPI_TAGS_PATH: str
 
     HASH_SALT: str
     FERNET_KEY: str

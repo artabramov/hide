@@ -23,7 +23,7 @@ from app.managers.cache_manager import CacheManager
 
 async def on_time_retrieve(
     entity_manager: EntityManager, cache_manager: CacheManager,
-    current_user: None, response: dict
+    current_user: None
 ):
     """
     Executes when the current time is retrieved. Receives time data
@@ -34,7 +34,7 @@ async def on_time_retrieve(
 
 async def on_telemetry_retrieve(
     entity_manager: EntityManager, cache_manager: CacheManager,
-    current_user: User, response: dict
+    current_user: User
 ):
     """
     Executes when telemetry is retrieved. Receives telemetry

@@ -1,5 +1,5 @@
 from fastapi import APIRouter, status, Depends
-from app.decorators.locked_decorator import is_locked, get_lock_time
+from app.helpers.lock_helper import is_locked, get_lock_time
 from fastapi.responses import JSONResponse
 from app.schemas.lock_schemas import LockRetrieveResponse
 from app.models.user_model import User, UserRole

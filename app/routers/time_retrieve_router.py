@@ -16,13 +16,12 @@ router = APIRouter()
 async def time_retrieve(
     session=Depends(get_session), cache=Depends(get_cache)
 ) -> TimeRetrieveResponse:
-    response = {
+
+    hook = Hook(session, cache)
+    await hook.do(HOOK_ON_TIME_RETRIEVE)
+
+    return {
         "unix_timestamp": int(time.time()),
         "timezone_name": time.tzname[0],
         "timezone_offset": time.timezone,
     }
-
-    hook = Hook(session, cache)
-    await hook.do(HOOK_ON_TIME_RETRIEVE, response)
-
-    return response

@@ -12,9 +12,10 @@ import time
 from fastapi import FastAPI, Request, status
 from fastapi.encoders import jsonable_encoder
 from fastapi.responses import JSONResponse
-from app.decorators.locked_decorator import unlock
+from app.helpers.lock_helper import remove_lock
 from app.config import get_config
 from app.context import get_context
+from app.openapi import openapi_tags
 from app.log import get_log
 from app.routers import (
     token_retrieve_router, token_invalidate_router, user_register_router,
@@ -50,93 +51,37 @@ from app.database import Base, sessionmanager
 from app.constants import ERR_SERVER_ERROR
 from contextlib import asynccontextmanager
 from uuid import uuid4
-import os
-import importlib.util
-import inspect
 from fastapi.staticfiles import StaticFiles
 from pydantic import ValidationError
 from app.version import __version__
+from app.helpers.openapi_helper import load_description
+from app.helpers.uptime_helper import Uptime
+from app.helpers.hook_helper import load_hooks
 
 cfg = get_config()
 ctx = get_context()
 log = get_log()
 
 
-def load_hooks():
-    ctx.hooks = {}
-
-    # Load and register functions from extension modules.
-    filenames = [file + ".py" for file in cfg.EXTENSIONS_ENABLED]
-    for filename in filenames:
-        module_name = filename.split(".")[0]
-        module_path = os.path.join(cfg.EXTENSIONS_BASE_PATH, filename)
-
-        try:
-            # Load the module from the specified file path.
-            spec = importlib.util.spec_from_file_location(
-                module_name, module_path)
-            module = importlib.util.module_from_spec(spec)
-            spec.loader.exec_module(module)
-
-            # Register functions from the module as hooks.
-            func_names = [attr for attr in dir(module)
-                          if inspect.isfunction(getattr(module, attr))]
-            for func_name in func_names:
-                func = getattr(module, func_name)
-                if func_name not in ctx.hooks:
-                    ctx.hooks[func_name] = [func]
-                else:
-                    ctx.hooks[func_name].append(func)
-
-        except Exception as e:
-            log.debug("Hook error; filename=%s; e=%s;" % (filename, str(e)))
-            raise e
-
-
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     """
-    Manages the application startup lifecycle by initializing the
-    database schema, creating scheduler, registering hooks, loading
-    extension modules, and performing additional startup actions.
+    Manages the application startup lifecycle by removing the lock if
+    it exists, initializing the database schema, and registering hooks.
+    Yields control back to the application after setup is complete.
     """
     async with sessionmanager.async_engine.begin() as conn:
         await conn.run_sync(Base.metadata.create_all)
 
-    load_hooks()
-    await unlock()
+    await remove_lock()
+    await load_hooks()
     yield
 
 
-def load_description():
-    """
-    Reads and returns the content of a short application description
-    file as a string. The file is opened in read mode, and its entire
-    content is returned. The function assumes the file exists and is
-    accessible.
-    """
-    with open(cfg.APP_DESCRIPTION_PATH, "r") as fn:
-        return fn.read()
-
-
 app = FastAPI(lifespan=lifespan, title=cfg.APP_TITLE, version=__version__,
-              description=load_description())
-app.openapi_tags = [
-    {
-        "name": "mediafiles",
-        "description": "Operations with mediafiles such as retrieving, uploading, and deleting."
-    },
-    {
-        "name": "services",
-        "description": "Manage revisions of mediafiles."
-    }
-]
-started_time = time.time()
+              description=load_description(), openapi_tags=openapi_tags)
 
-
-def get_uptime():
-    return int(time.time() - started_time)
-
+uptime = Uptime()
 
 # user routers
 app.include_router(user_login_router.router, prefix=cfg.APP_PREFIX)

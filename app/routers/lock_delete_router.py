@@ -1,5 +1,5 @@
 from fastapi import APIRouter, Depends, status
-from app.decorators.locked_decorator import unlock
+from app.helpers.lock_helper import remove_lock
 from fastapi.responses import JSONResponse
 from app.models.user_model import User, UserRole
 from app.schemas.lock_schemas import LockDeleteResponse
@@ -19,7 +19,7 @@ async def lock_delete(
     session=Depends(get_session), cache=Depends(get_cache),
     current_user: User = Depends(auth(UserRole.admin))
 ) -> LockDeleteResponse:
-    await unlock()
+    await remove_lock()
 
     hook = Hook(session, cache)
     await hook.do(HOOK_ON_LOCK_DELETE)

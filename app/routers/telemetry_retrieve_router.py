@@ -27,7 +27,7 @@ async def telemetry_retrieve(
     session=Depends(get_session), cache=Depends(get_cache),
     current_user: User = Depends(auth(UserRole.admin))
 ):
-    from app.app import get_uptime
+    from app.app import uptime
 
     entity_manager = EntityManager(session)
 
@@ -35,11 +35,14 @@ async def telemetry_retrieve(
     postgres_database_size = await entity_manager.execute("SELECT pg_size_pretty(pg_database_size(current_database()));")  # noqa E501
     postgres_start_time = await entity_manager.execute("SELECT pg_postmaster_start_time();")  # noqa E501
 
-    response = {
-        "hidden_application_uptime": get_uptime(),
-        "hidden_firmware_version": __version__,
-        "hidden_hardware_model": __model__,
-        "hidden_hardware_serial": __serial__,
+    hook = Hook(session, cache, current_user=current_user)
+    await hook.do(HOOK_ON_TELEMETRY_RETRIEVE)
+
+    return {
+        "hidden_uptime": uptime.get_uptime(),
+        "hidden_version": __version__,
+        "hidden_model": __model__,
+        "hidden_serial": __serial__,
 
         "postgres_version": postgres_version[0][0],
         "postgres_database_size": postgres_database_size[0][0],
@@ -75,8 +78,3 @@ async def telemetry_retrieve(
         "cpu_frequency": int(psutil.cpu_freq(percpu=False).current),
         "cpu_usage_percent": psutil.cpu_percent(),
     }
-
-    hook = Hook(session, cache, current_user=current_user)
-    await hook.do(HOOK_ON_TELEMETRY_RETRIEVE, response)
-
-    return response
