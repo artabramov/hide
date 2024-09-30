@@ -31,20 +31,20 @@ RUN pip3 install pillow==10.3.0
 RUN pip3 install ffmpeg-python==0.2.0
 RUN pip3 install cryptography==42.0.8
 RUN pip3 install PyJWT==2.8.0
-# RUN pip3 install python-crontab==3.2.0
 RUN pip3 install asynctest==0.13.0
 RUN pip3 install coverage==7.5.4
 RUN pip3 install flake8==7.1.0
 RUN pip3 install safety
+# RUN pip3 install python-crontab==3.2.0
 
 # sphinx
-RUN pip3 install sphinx==8.0.2
-RUN pip3 install sphinx sphinx_rtd_theme
-
 # sphinx-quickstart docs -q -p "hidden" -a "Artem Abramov" -v "0.0.1" -r "1" --no-batchfile
 # sphinx-apidoc --remove-old --output-dir /hidden/docs/autodoc /hidden/app/
 # make -C /hidden/docs html
+RUN pip3 install sphinx==8.0.2
+RUN pip3 install sphinx sphinx_rtd_theme
 
+# github
 # git tag -a v1.0.0 -m "version v.0.0.14"
 # git push --tags
 
