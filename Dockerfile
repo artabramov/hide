@@ -1,5 +1,6 @@
 FROM ubuntu:22.04
 RUN apt-get update
+RUN locale-gen en_US.UTF-8 && update-locale LANG=en_US.UTF-8 LC_ALL=en_US.UTF-8
 ENV DEBIAN_FRONTEND=noninteractive
 
 ADD . /hidden
@@ -16,7 +17,7 @@ RUN apt install -y wget
 RUN apt install -y ffmpeg
 RUN apt install -y git
 RUN apt install -y vim
-RUN apt install -y cron
+# RUN apt install -y cron
 
 RUN pip3 install fastapi==0.111.0
 RUN pip3 install uvicorn==0.30.1
@@ -30,15 +31,15 @@ RUN pip3 install pillow==10.3.0
 RUN pip3 install ffmpeg-python==0.2.0
 RUN pip3 install cryptography==42.0.8
 RUN pip3 install PyJWT==2.8.0
-RUN pip3 install python-crontab==3.2.0
+# RUN pip3 install python-crontab==3.2.0
 RUN pip3 install asynctest==0.13.0
 RUN pip3 install coverage==7.5.4
 RUN pip3 install flake8==7.1.0
 RUN pip3 install safety
 
 # sphinx
-# RUN pip3 install sphinx==8.0.2
-# RUN pip3 install sphinx sphinx_rtd_theme
+RUN pip3 install sphinx==8.0.2
+RUN pip3 install sphinx sphinx_rtd_theme
 
 # sphinx-quickstart docs -q -p "hidden" -a "Artem Abramov" -v "0.0.1" -r "1" --no-batchfile
 # sphinx-apidoc --remove-old --output-dir /hidden/docs/autodoc /hidden/app/

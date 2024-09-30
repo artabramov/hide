@@ -417,21 +417,21 @@ async def after_collection_list(
     return collections
 
 
-async def after_document_insert(
+async def after__insert(
     entity_manager: EntityManager,
     cache_manager: CacheManager,
     request: Request,
     current_user: User,
-    mediafile: Document
-) -> Document:
+    mediafile: Mediafile
+) -> Mediafile:
     """
-    Logs a mediafile upload event, capturing details about the document
+    Logs a mediafile upload event, capturing details about the mediafile
     and the request. Returns the uploaded mediafile.
     """
     if LOG_AFTER_MEDIAFILE_UPLOAD:
-        log = Log(current_user, request, document, LogAction.insert)
+        log = Log(current_user, request, mediafile, LogAction.insert)
         await entity_manager.insert(log)
-    return document
+    return mediafile
 
 
 async def after_mediafile_select(
@@ -439,16 +439,16 @@ async def after_mediafile_select(
     cache_manager: CacheManager,
     request: Request,
     current_user: User,
-    mediafile: Document
-) -> Document:
+    mediafile: Mediafile
+) -> Mediafile:
     """
     Logs a mediafile selection event, capturing details about the
     mediafile and the request. Returns the selected mediafile.
     """
     if LOG_AFTER_MEDIAFILE_SELECT:
-        log = Log(current_user, request, document, LogAction.select)
+        log = Log(current_user, request, mediafile, LogAction.select)
         await entity_manager.insert(log)
-    return document
+    return mediafile
 
 
 async def after_comment_insert(
