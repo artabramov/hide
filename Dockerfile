@@ -74,5 +74,10 @@ RUN tar xvfz redis_exporter-v1.18.0.linux-amd64.tar.gz
 RUN mv redis_exporter-v1.18.0.linux-amd64/redis_exporter /usr/local/bin
 RUN rm -r redis_exporter-v1.18.0.linux-amd64*
 
+# html
+mkdir /var/www
+mkdir /var/www/html
+# chmod 777 -R /var/www
+
 EXPOSE 80
 ENTRYPOINT ["/hidden/entrypoint.sh"]

@@ -159,6 +159,7 @@ app.mount(cfg.USERPIC_PREFIX,
 app.mount(cfg.THUMBNAILS_PREFIX,
           StaticFiles(directory=cfg.THUMBNAILS_BASE_PATH, html=False),
           name=cfg.THUMBNAILS_BASE_PATH)
+app.mount("/", StaticFiles(directory=cfg.HTML_PATH, html=True), name="/")
 
 
 @app.middleware("http")

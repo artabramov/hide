@@ -96,6 +96,8 @@ class Config:
     THUMBNAIL_HEIGHT: int
     THUMBNAIL_QUALITY: int
 
+    HTML_PATH: str
+
 
 @lru_cache(maxsize=None)
 def get_config() -> Config:
