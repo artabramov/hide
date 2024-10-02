@@ -75,10 +75,10 @@ RUN mv redis_exporter-v1.18.0.linux-amd64/redis_exporter /usr/local/bin
 RUN rm -r redis_exporter-v1.18.0.linux-amd64*
 
 # html
-mkdir /var/www
-mkdir /var/www/html
-echo "Hello, world!" > /var/www/html/index.html
-# chmod 777 -R /var/www
+RUN mkdir /var/www
+RUN mkdir /var/www/html
+RUN echo "Hello, world!" > /var/www/html/index.html
+# RUN chmod 777 -R /var/www
 
 EXPOSE 80
 ENTRYPOINT ["/hidden/entrypoint.sh"]

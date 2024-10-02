@@ -86,6 +86,7 @@ services:
       - redis_log:/var/log/redis
       - app_log:/var/log/app
       - app_data:/hidden/data
+      - app_html:/var/www/html
     ports:
       - "80:80"
       - "5000:5000"
@@ -104,3 +105,4 @@ volumes:
   redis_log:
   app_log:
   app_data:
+  app_html:
