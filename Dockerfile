@@ -77,6 +77,7 @@ RUN rm -r redis_exporter-v1.18.0.linux-amd64*
 # html
 mkdir /var/www
 mkdir /var/www/html
+echo "Hello, world!" > /var/www/html/index.html
 # chmod 777 -R /var/www
 
 EXPOSE 80
