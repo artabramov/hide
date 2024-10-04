@@ -14,13 +14,13 @@ cfg = get_config()
 class DownloadSelectResponse(BaseModel):
     """
     Pydantic schema for the response after retrieving a download entity.
-    Includes the download ID, creation date, user ID, mediafile ID, and
+    Includes the download ID, creation date, user ID, datafile ID, and
     details of the user who performed the download.
     """
     id: int
     created_date: int
     user_id: int
-    mediafile_id: int
+    datafile_id: int
     download_user: UserSelectResponse
 
 
@@ -28,7 +28,7 @@ class DownloadListRequest(BaseModel):
     """
     Pydantic schema for requesting a list of download entities. Requires
     pagination options with offset and limit, and ordering criteria, and
-    optionally the mediafile ID.
+    optionally the datafile ID.
     """
     offset: int = Field(ge=0)
     limit: int = Field(ge=1, le=200)

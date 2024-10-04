@@ -13,14 +13,14 @@ log = get_log()
 
 
 class Revision(Base):
-    __tablename__ = "mediafiles_revisions"
+    __tablename__ = "datafiles_revisions"
     _cacheable = True
 
     id = Column(BigInteger, primary_key=True)
     created_date = Column(Integer, index=True,
                           default=lambda: int(time.time()))
     user_id = Column(BigInteger, ForeignKey("users.id"), index=True)
-    mediafile_id = Column(BigInteger, ForeignKey("mediafiles.id"), index=True)
+    datafile_id = Column(BigInteger, ForeignKey("datafiles.id"), index=True)
 
     revision_filename = Column(String(256), nullable=False, unique=True)
     revision_size = Column(BigInteger, index=False, nullable=False)
@@ -33,20 +33,20 @@ class Revision(Base):
     revision_user = relationship(
         "User", back_populates="user_revisions", lazy="joined")
 
-    revision_mediafile = relationship(
-        "Mediafile", back_populates="mediafile_revisions", lazy="joined",
-        foreign_keys=[mediafile_id])
+    revision_datafile = relationship(
+        "Datafile", back_populates="datafile_revisions", lazy="joined",
+        foreign_keys=[datafile_id])
 
     revision_downloads = relationship(
         "Download", back_populates="download_revision", lazy="noload",
         cascade="all, delete-orphan")
 
-    def __init__(self, user_id: int, mediafile_id: int,
+    def __init__(self, user_id: int, datafile_id: int,
                  revision_filename: str, revision_size: int,
                  original_filename: str, original_size: int,
                  original_mimetype: str, thumbnail_filename: str = None):
         self.user_id = user_id
-        self.mediafile_id = mediafile_id
+        self.datafile_id = datafile_id
         self.revision_filename = revision_filename
         self.revision_size = revision_size
         self.original_filename = original_filename
@@ -73,7 +73,7 @@ class Revision(Base):
             "id": self.id,
             "created_date": self.created_date,
             "user_id": self.user_id,
-            "mediafile_id": self.mediafile_id,
+            "datafile_id": self.datafile_id,
             "revision_size": self.revision_size,
             "original_filename": self.original_filename,
             "original_size": self.original_size,

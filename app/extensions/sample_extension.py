@@ -11,7 +11,7 @@ and other related actions.
 from typing import List
 from app.models.user_model import User
 from app.models.collection_model import Collection
-from app.models.mediafile_model import Mediafile
+from app.models.datafile_model import Datafile
 from app.models.revision_model import Revision
 from app.models.comment_model import Comment
 from app.models.download_model import Download
@@ -441,112 +441,112 @@ async def after_collection_list(
     ...
 
 
-async def before_mediafile_upload(
+async def before_datafile_upload(
     entity_manager: EntityManager, cache_manager: CacheManager,
-    current_user: User, mediafile: Mediafile
+    current_user: User, datafile: Datafile
 ):
     """
-    Executes before a mediafile is uploaded. Receives the mediafile
+    Executes before a datafile is uploaded. Receives the datafile
     entity and performs any necessary pre-processing actions.
     """
     ...
 
 
-async def after_mediafile_upload(
+async def after_datafile_upload(
     entity_manager: EntityManager, cache_manager: CacheManager,
-    current_user: User, mediafile: Mediafile
+    current_user: User, datafile: Datafile
 ):
     """
-    Executes after a mediafile is uploaded. Receives the mediafile
+    Executes after a datafile is uploaded. Receives the datafile
     entity and performs any necessary post-processing actions.
     """
     ...
 
 
-async def before_mediafile_replace(
+async def before_datafile_replace(
     entity_manager: EntityManager, cache_manager: CacheManager,
-    current_user: User, mediafile: Mediafile
+    current_user: User, datafile: Datafile
 ):
     """
-    Executes before a mediafile is replaced. Receives the mediafile
+    Executes before a datafile is replaced. Receives the datafile
     entity and performs any necessary pre-processing actions.
     """
     ...
 
 
-async def after_mediafile_replace(
+async def after_datafile_replace(
     entity_manager: EntityManager, cache_manager: CacheManager,
-    current_user: User, mediafile: Mediafile
+    current_user: User, datafile: Datafile
 ):
     """
-    Executes after a mediafile is replaced. Receives the mediafile
+    Executes after a datafile is replaced. Receives the datafile
     entity and performs any necessary post-processing actions.
     """
     ...
 
 
-async def after_mediafile_select(
+async def after_datafile_select(
     entity_manager: EntityManager, cache_manager: CacheManager,
-    current_user: User, mediafile: Mediafile
+    current_user: User, datafile: Datafile
 ):
     """
-    Executes after a mediafile is selected. Receives the mediafile
+    Executes after a datafile is selected. Receives the datafile
     entity and performs any necessary post-processing actions.
     """
     ...
 
 
-async def before_mediafile_update(
+async def before_datafile_update(
     entity_manager: EntityManager, cache_manager: CacheManager,
-    current_user: User, mediafile: Mediafile
+    current_user: User, datafile: Datafile
 ):
     """
-    Executes before a mediafile is updated. Receives the mediafile
+    Executes before a datafile is updated. Receives the datafile
     entity and performs any necessary pre-processing actions.
     """
     ...
 
 
-async def after_mediafile_update(
+async def after_datafile_update(
     entity_manager: EntityManager, cache_manager: CacheManager,
-    current_user: User, mediafile: Mediafile
+    current_user: User, datafile: Datafile
 ):
     """
-    Executes after a mediafile is updated. Receives the mediafile
+    Executes after a datafile is updated. Receives the datafile
     entity and performs any necessary post-processing actions.
     """
     ...
 
 
-async def before_mediafile_delete(
+async def before_datafile_delete(
     entity_manager: EntityManager, cache_manager: CacheManager,
-    current_user: User, mediafile: Mediafile
+    current_user: User, datafile: Datafile
 ):
     """
-    Executes before a mediafile is deleted. Receives the mediafile
+    Executes before a datafile is deleted. Receives the datafile
     entity and performs any necessary pre-processing actions.
     """
     ...
 
 
-async def after_mediafile_delete(
+async def after_datafile_delete(
     entity_manager: EntityManager, cache_manager: CacheManager,
-    current_user: User, mediafile: Mediafile
+    current_user: User, datafile: Datafile
 ):
     """
-    Executes after a mediafile is deleted. Receives the mediafile
+    Executes after a datafile is deleted. Receives the datafile
     entity and performs any necessary post-processing actions.
     """
     ...
 
 
-async def after_mediafile_list(
+async def after_datafile_list(
     entity_manager: EntityManager, cache_manager: CacheManager,
-    current_user: User, mediafiles: List[Mediafile]
+    current_user: User, datafiles: List[Datafile]
 ):
     """
-    Executes after a mediafile list is retrieved. Receives the list
-    of mediafile entities and performs any necessary post-processing
+    Executes after a datafile list is retrieved. Receives the list
+    of datafile entities and performs any necessary post-processing
     actions.
     """
     ...

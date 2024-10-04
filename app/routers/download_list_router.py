@@ -8,7 +8,7 @@ from app.database import get_session
 from app.cache import get_cache
 from app.decorators.locked_decorator import locked
 from app.models.user_model import User, UserRole
-from app.models.mediafile_model import Mediafile
+from app.models.datafile_model import Datafile
 from app.models.download_model import Download
 from app.schemas.download_schemas import (
     DownloadListRequest, DownloadListResponse)
@@ -22,13 +22,13 @@ from app.errors import E
 router = APIRouter()
 
 
-@router.get("/mediafile/{mediafile_id}/downloads",
+@router.get("/datafile/{datafile_id}/downloads",
             summary="Retrieve download list",
             response_class=JSONResponse, status_code=status.HTTP_200_OK,
-            response_model=DownloadListResponse, tags=["Mediafiles"])
+            response_model=DownloadListResponse, tags=["Datafiles"])
 @locked
 async def download_list(
-    mediafile_id: int, schema=Depends(DownloadListRequest),
+    datafile_id: int, schema=Depends(DownloadListRequest),
     session=Depends(get_session), cache=Depends(get_cache),
     current_user: User = Depends(auth(UserRole.admin))
 ) -> DownloadListResponse:
@@ -40,15 +40,15 @@ async def download_list(
     success and a 403 error if authentication fails or the user does
     not have the required role.
     """
-    mediafile_repository = Repository(session, cache, Mediafile)
-    mediafile = await mediafile_repository.select(id=mediafile_id)
+    datafile_repository = Repository(session, cache, Datafile)
+    datafile = await datafile_repository.select(id=datafile_id)
 
-    if not mediafile:
-        raise E([LOC_PATH, "mediafile_id"], mediafile_id,
+    if not datafile:
+        raise E([LOC_PATH, "datafile_id"], datafile_id,
                 ERR_RESOURCE_NOT_FOUND, status.HTTP_404_NOT_FOUND)
 
     kwargs = schema.__dict__
-    kwargs["mediafile_id__eq"] = mediafile_id
+    kwargs["datafile_id__eq"] = datafile_id
 
     download_repository = Repository(session, cache, Download)
     downloads = await download_repository.select_all(**kwargs)

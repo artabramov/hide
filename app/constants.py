@@ -64,7 +64,7 @@ ERR_SERVER_ERROR = "Internal server error"
 # Hook types used to manage various pre-event and post-event actions
 # within the app. These hooks are used to trigger corresponding funcs
 # that handle tasks related to app, users management, collections,
-# mediafiles, comments, revisions, favorites, etc.
+# datafiles, comments, revisions, favorites, etc.
 
 # service hooks
 HOOK_ON_TIME_RETRIEVE = "on_time_retrieve"
@@ -111,17 +111,17 @@ HOOK_BEFORE_COLLECTION_DELETE = "before_collection_delete"
 HOOK_AFTER_COLLECTION_DELETE = "after_collection_delete"
 HOOK_AFTER_COLLECTION_LIST = "after_collection_list"
 
-# mediafile hooks
-HOOK_BEFORE_MEDIAFILE_UPLOAD = "before_mediafile_upload"
-HOOK_AFTER_MEDIAFILE_UPLOAD = "after_mediafile_upload"
-HOOK_BEFORE_MEDIAFILE_REPLACE = "before_mediafile_replace"
-HOOK_AFTER_MEDIAFILE_REPLACE = "after_mediafile_replace"
-HOOK_AFTER_MEDIAFILE_SELECT = "after_mediafile_select"
-HOOK_BEFORE_MEDIAFILE_UPDATE = "before_mediafile_update"
-HOOK_AFTER_MEDIAFILE_UPDATE = "after_mediafile_update"
-HOOK_BEFORE_MEDIAFILE_DELETE = "before_mediafile_delete"
-HOOK_AFTER_MEDIAFILE_DELETE = "after_mediafile_delete"
-HOOK_AFTER_MEDIAFILE_LIST = "after_mediafile_list"
+# datafile hooks
+HOOK_BEFORE_DATAFILE_UPLOAD = "before_datafile_upload"
+HOOK_AFTER_DATAFILE_UPLOAD = "after_datafile_upload"
+HOOK_BEFORE_DATAFILE_REPLACE = "before_datafile_replace"
+HOOK_AFTER_DATAFILE_REPLACE = "after_datafile_replace"
+HOOK_AFTER_DATAFILE_SELECT = "after_datafile_select"
+HOOK_BEFORE_DATAFILE_UPDATE = "before_datafile_update"
+HOOK_AFTER_DATAFILE_UPDATE = "after_datafile_update"
+HOOK_BEFORE_DATAFILE_DELETE = "before_datafile_delete"
+HOOK_AFTER_DATAFILE_DELETE = "after_datafile_delete"
+HOOK_AFTER_DATAFILE_LIST = "after_datafile_list"
 
 # comment hooks
 HOOK_BEFORE_COMMENT_INSERT = "before_comment_insert"

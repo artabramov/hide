@@ -8,7 +8,7 @@ from app.database import get_session
 from app.cache import get_cache
 from app.decorators.locked_decorator import locked
 from app.models.user_model import User, UserRole
-from app.models.mediafile_model import Mediafile
+from app.models.datafile_model import Datafile
 from app.models.revision_model import Revision
 from app.schemas.revision_schemas import (
     RevisionListRequest, RevisionListResponse)
@@ -22,13 +22,13 @@ from app.errors import E
 router = APIRouter()
 
 
-@router.get("/mediafile/{mediafile_id}/revisions",
-            summary="Retrieve the revisions list for a specified mediafile.",
+@router.get("/datafile/{datafile_id}/revisions",
+            summary="Retrieve the revisions list for a specified datafile.",
             response_class=JSONResponse, status_code=status.HTTP_200_OK,
-            response_model=RevisionListResponse, tags=["Mediafiles"])
+            response_model=RevisionListResponse, tags=["Datafiles"])
 @locked
 async def revision_list(
-    mediafile_id: int, schema=Depends(RevisionListRequest),
+    datafile_id: int, schema=Depends(RevisionListRequest),
     session=Depends(get_session), cache=Depends(get_cache),
     current_user: User = Depends(auth(UserRole.reader)),
 ) -> RevisionListResponse:
@@ -40,15 +40,15 @@ async def revision_list(
     response on success and a 403 error if authentication fails or
     the user does not have the required role.
     """
-    mediafile_repository = Repository(session, cache, Mediafile)
-    mediafile = await mediafile_repository.select(id=mediafile_id)
+    datafile_repository = Repository(session, cache, Datafile)
+    datafile = await datafile_repository.select(id=datafile_id)
 
-    if not mediafile:
-        raise E([LOC_PATH, "mediafile_id"], mediafile_id,
+    if not datafile:
+        raise E([LOC_PATH, "datafile_id"], datafile_id,
                 ERR_RESOURCE_NOT_FOUND, status.HTTP_404_NOT_FOUND)
 
     kwargs = schema.__dict__
-    kwargs["mediafile_id__eq"] = mediafile_id
+    kwargs["datafile_id__eq"] = datafile_id
 
     revision_repository = Repository(session, cache, Revision)
     revisions = await revision_repository.select_all(**kwargs)

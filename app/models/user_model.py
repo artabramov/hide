@@ -51,8 +51,8 @@ class User(Base, MFAMixin, FernetMixin):
 
     user_collections = relationship(
         "Collection", back_populates="collection_user", lazy="noload")
-    user_mediafiles = relationship(
-        "Mediafile", back_populates="mediafile_user", lazy="noload")
+    user_datafiles = relationship(
+        "Datafile", back_populates="datafile_user", lazy="noload")
     user_revisions = relationship(
         "Revision", back_populates="revision_user", lazy="noload")
     user_comments = relationship(

@@ -8,7 +8,7 @@ from app.database import get_session
 from app.cache import get_cache
 from app.decorators.locked_decorator import locked
 from app.models.user_model import User, UserRole
-from app.models.mediafile_model import Mediafile
+from app.models.datafile_model import Datafile
 from app.models.comment_model import Comment
 from app.schemas.comment_schemas import CommentDeleteResponse
 from app.repository import Repository
@@ -37,7 +37,7 @@ async def comment_delete(
     the comment from the repository using the provided ID, verifies
     that the comment exists, ensures the associated collection is not
     locked, and confirms that the current user is the creator of the
-    comment. It updates the comment count for the associated mediafile,
+    comment. It updates the comment count for the associated datafile,
     executes related hooks, and returns the ID of the deleted comment
     in a JSON response. The current user should have an editor role or
     higher. Returns a 200 response on success, a 404 error if the
@@ -63,12 +63,12 @@ async def comment_delete(
     await comment_repository.delete(comment, commit=False)
 
     await comment_repository.lock_all()
-    comment.comment_mediafile.comments_count = (
+    comment.comment_datafile.comments_count = (
         await comment_repository.count_all(
-            mediafile_id__eq=comment.mediafile_id))
+            datafile_id__eq=comment.datafile_id))
 
-    mediafile_repository = Repository(session, cache, Mediafile)
-    await mediafile_repository.update(comment.comment_mediafile, commit=False)
+    datafile_repository = Repository(session, cache, Datafile)
+    await datafile_repository.update(comment.comment_datafile, commit=False)
 
     hook = Hook(session, cache, current_user=current_user)
     await hook.do(HOOK_BEFORE_COMMENT_DELETE, comment)

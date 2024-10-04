@@ -12,8 +12,8 @@ openapi_tags = [
         "description": "Manage collections."
     },
     {
-        "name": "Mediafiles",
-        "description": "Operations with mediafiles."
+        "name": "Datafiles",
+        "description": "Operations with datafiles."
     },
     {
         "name": "Comments",
@@ -29,6 +29,6 @@ openapi_tags = [
     },
     {
         "name": "Services",
-        "description": "Manage revisions of mediafiles."
+        "description": "Manage revisions of datafiles."
     }
 ]

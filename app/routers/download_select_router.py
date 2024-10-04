@@ -20,13 +20,13 @@ from app.constants import (
 router = APIRouter()
 
 
-@router.get("/mediafile/{mediafile_id}/download/{download_id}",
+@router.get("/datafile/{datafile_id}/download/{download_id}",
             summary="Retrieve download",
             response_class=JSONResponse, status_code=status.HTTP_200_OK,
-            response_model=DownloadSelectResponse, tags=["Mediafiles"])
+            response_model=DownloadSelectResponse, tags=["Datafiles"])
 @locked
 async def download_select(
-    mediafile_id: int, download_id: int,
+    datafile_id: int, download_id: int,
     session=Depends(get_session), cache=Depends(get_cache),
     current_user: User = Depends(auth(UserRole.admin))
 ) -> DownloadSelectResponse:
@@ -42,7 +42,7 @@ async def download_select(
     download_repository = Repository(session, cache, Download)
     download = await download_repository.select(id=download_id)
 
-    if not download or download.mediafile_id != mediafile_id:
+    if not download or download.datafile_id != datafile_id:
         raise E([LOC_PATH, "download_id"], download_id,
                 ERR_RESOURCE_NOT_FOUND, status.HTTP_404_NOT_FOUND)
 
