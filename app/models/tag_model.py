@@ -15,11 +15,11 @@ class Tag(Base):
     created_date = Column(Integer, index=True,
                           default=lambda: int(time.time()))
     datafile_id = Column(BigInteger, ForeignKey("datafiles.id"),
-                          nullable=False, index=True)
+                         nullable=False, index=True)
     tag_value = Column(String(256), nullable=False, index=True)
 
     tag_datafile = relationship("Datafile", back_populates="datafile_tags",
-                                 lazy="noload")
+                                lazy="noload")
 
     def __init__(self, datafile_id: int, tag_value: str):
         self.datafile_id = datafile_id
