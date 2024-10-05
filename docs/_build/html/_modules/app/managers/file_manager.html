@@ -1,0 +1,287 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../../">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>app.managers.file_manager &mdash; Hidden  documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=80d5e7a1" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=19f00094" />
+
+  
+  <!--[if lt IE 9]>
+    <script src="../../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script src="../../../_static/jquery.js?v=5d32c60e"></script>
+        <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+        <script src="../../../_static/documentation_options.js?v=5929fcd5"></script>
+        <script src="../../../_static/doctools.js?v=9a2dae69"></script>
+        <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../../index.html" class="icon icon-home">
+            Hidden
+          </a>
+              <div class="version">
+                0.0.45
+              </div>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../autodoc/app.html">app package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../autodoc/app.decorators.html">app.decorators package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../autodoc/app.extensions.html">app.extensions package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../autodoc/app.helpers.html">app.helpers package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../autodoc/app.mixins.html">app.mixins package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../autodoc/app.managers.html">app.managers package</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">Hidden</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../../index.html">Module code</a></li>
+      <li class="breadcrumb-item active">app.managers.file_manager</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for app.managers.file_manager</h1><div class="highlight"><pre>
+<span></span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">This module defines the FileManager class, which provides a suite</span>
+<span class="sd">of asynchronous methods for performing file operations, including</span>
+<span class="sd">uploading, deleting, writing, reading, copying, encrypting, and</span>
+<span class="sd">decrypting files. It utilizes the aiofiles library for non-blocking</span>
+<span class="sd">file I/O operations and the Fernet encryption system for secure data</span>
+<span class="sd">handling. The methods are designed to work efficiently in asynchronous</span>
+<span class="sd">contexts, supporting high-performance and scalable applications.</span>
+<span class="sd">The class includes functionality to handle different file types,</span>
+<span class="sd">such as images and videos, and ensures optimal performance and</span>
+<span class="sd">security for file management tasks.</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="kn">import</span> <span class="nn">aiofiles</span>
+<span class="kn">import</span> <span class="nn">aiofiles.os</span>
+<span class="kn">from</span> <span class="nn">app.decorators.timed_decorator</span> <span class="kn">import</span> <span class="n">timed</span>
+<span class="kn">from</span> <span class="nn">app.config</span> <span class="kn">import</span> <span class="n">get_config</span>
+<span class="kn">from</span> <span class="nn">cryptography.fernet</span> <span class="kn">import</span> <span class="n">Fernet</span>
+
+<span class="n">cfg</span> <span class="o">=</span> <span class="n">get_config</span><span class="p">()</span>
+<span class="n">cipher_suite</span> <span class="o">=</span> <span class="n">Fernet</span><span class="p">(</span><span class="n">cfg</span><span class="o">.</span><span class="n">FERNET_KEY</span><span class="p">)</span>
+
+<span class="n">FILE_UPLOAD_CHUNK_SIZE</span> <span class="o">=</span> <span class="mi">1024</span> <span class="o">*</span> <span class="mi">8</span>  <span class="c1"># 8 KB</span>
+<span class="n">FILE_COPY_CHUNK_SIZE</span> <span class="o">=</span> <span class="mi">1024</span> <span class="o">*</span> <span class="mi">8</span>  <span class="c1"># 8 KB</span>
+<span class="n">IMAGE_MIMETYPES</span> <span class="o">=</span> <span class="p">[</span>
+    <span class="s2">&quot;image/jpeg&quot;</span><span class="p">,</span> <span class="s2">&quot;image/png&quot;</span><span class="p">,</span> <span class="s2">&quot;image/gif&quot;</span><span class="p">,</span> <span class="s2">&quot;image/bmp&quot;</span><span class="p">,</span> <span class="s2">&quot;image/tiff&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;image/webp&quot;</span><span class="p">,</span> <span class="s2">&quot;image/svg+xml&quot;</span><span class="p">,</span> <span class="s2">&quot;image/x-icon&quot;</span><span class="p">,</span> <span class="s2">&quot;image/heif&quot;</span><span class="p">,</span> <span class="s2">&quot;image/heic&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;image/jp2&quot;</span><span class="p">,</span> <span class="s2">&quot;image/avif&quot;</span><span class="p">,</span> <span class="s2">&quot;image/apng&quot;</span><span class="p">,</span> <span class="s2">&quot;image/x-tiff&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;image/x-cmu-raster&quot;</span><span class="p">,</span> <span class="s2">&quot;image/x-portable-anymap&quot;</span><span class="p">,</span> <span class="s2">&quot;image/x-portable-bitmap&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;image/x-portable-graymap&quot;</span><span class="p">,</span> <span class="s2">&quot;image/x-portable-pixmap&quot;</span><span class="p">]</span>
+<span class="n">VIDEO_MIMETYPES</span> <span class="o">=</span> <span class="p">[</span>
+    <span class="s2">&quot;video/mp4&quot;</span><span class="p">,</span> <span class="s2">&quot;video/avi&quot;</span><span class="p">,</span> <span class="s2">&quot;video/mkv&quot;</span><span class="p">,</span> <span class="s2">&quot;video/webm&quot;</span><span class="p">,</span> <span class="s2">&quot;video/x-msvideo&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;video/x-matroska&quot;</span><span class="p">,</span> <span class="s2">&quot;video/quicktime&quot;</span><span class="p">]</span>
+
+
+<div class="viewcode-block" id="FileManager">
+<a class="viewcode-back" href="../../../autodoc/app.managers.html#app.managers.file_manager.FileManager">[docs]</a>
+<span class="k">class</span> <span class="nc">FileManager</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Provides asynchronous methods for various file operations using</span>
+<span class="sd">    aiofiles. This includes uploading files in chunks, deleting files if</span>
+<span class="sd">    they exist, writing data to files, reading file contents, and</span>
+<span class="sd">    encrypting or decrypting data with a Fernet cipher. These methods</span>
+<span class="sd">    are designed to handle I/O operations efficiently in an asynchronous</span>
+<span class="sd">    manner to support high-performance applications.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+<div class="viewcode-block" id="FileManager.is_image">
+<a class="viewcode-back" href="../../../autodoc/app.managers.html#app.managers.file_manager.FileManager.is_image">[docs]</a>
+    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">is_image</span><span class="p">(</span><span class="n">mimetype</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Determines if the given MIME type is classified as an image type</span>
+<span class="sd">        by checking it against a predefined set of image MIME types.</span>
+<span class="sd">        The check is case-insensitive and returns True if the MIME type</span>
+<span class="sd">        matches any of the image types in the list, otherwise False.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="n">mimetype</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="ow">in</span> <span class="n">IMAGE_MIMETYPES</span></div>
+
+
+<div class="viewcode-block" id="FileManager.is_video">
+<a class="viewcode-back" href="../../../autodoc/app.managers.html#app.managers.file_manager.FileManager.is_video">[docs]</a>
+    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">is_video</span><span class="p">(</span><span class="n">mimetype</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Determines if the given MIME type is classified as a video type</span>
+<span class="sd">        by checking it against a predefined set of video MIME types.</span>
+<span class="sd">        The check is case-insensitive and returns True if the MIME type</span>
+<span class="sd">        matches any of the video types in the list, otherwise False.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="n">mimetype</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="ow">in</span> <span class="n">VIDEO_MIMETYPES</span></div>
+
+
+<div class="viewcode-block" id="FileManager.upload">
+<a class="viewcode-back" href="../../../autodoc/app.managers.html#app.managers.file_manager.FileManager.upload">[docs]</a>
+    <span class="nd">@staticmethod</span>
+    <span class="nd">@timed</span>
+    <span class="k">async</span> <span class="k">def</span> <span class="nf">upload</span><span class="p">(</span><span class="n">file</span><span class="p">:</span> <span class="nb">object</span><span class="p">,</span> <span class="n">path</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Asynchronously uploads a file to the specified path by reading</span>
+<span class="sd">        the file in chunks and writing each chunk to the destination</span>
+<span class="sd">        path, handling large files efficiently without loading them</span>
+<span class="sd">        entirely into memory.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">async</span> <span class="k">with</span> <span class="n">aiofiles</span><span class="o">.</span><span class="n">open</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="s2">&quot;wb&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">fn</span><span class="p">:</span>
+            <span class="k">while</span> <span class="n">content</span> <span class="o">:=</span> <span class="k">await</span> <span class="n">file</span><span class="o">.</span><span class="n">read</span><span class="p">(</span><span class="n">FILE_UPLOAD_CHUNK_SIZE</span><span class="p">):</span>
+                <span class="k">await</span> <span class="n">fn</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">content</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="FileManager.delete">
+<a class="viewcode-back" href="../../../autodoc/app.managers.html#app.managers.file_manager.FileManager.delete">[docs]</a>
+    <span class="nd">@staticmethod</span>
+    <span class="nd">@timed</span>
+    <span class="k">async</span> <span class="k">def</span> <span class="nf">delete</span><span class="p">(</span><span class="n">path</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Asynchronously deletes the file at the specified path if it</span>
+<span class="sd">        exists, first checking for the file&#39;s existence to avoid errors.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="k">await</span> <span class="n">aiofiles</span><span class="o">.</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">isfile</span><span class="p">(</span><span class="n">path</span><span class="p">):</span>
+            <span class="k">await</span> <span class="n">aiofiles</span><span class="o">.</span><span class="n">os</span><span class="o">.</span><span class="n">unlink</span><span class="p">(</span><span class="n">path</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="FileManager.write">
+<a class="viewcode-back" href="../../../autodoc/app.managers.html#app.managers.file_manager.FileManager.write">[docs]</a>
+    <span class="nd">@staticmethod</span>
+    <span class="nd">@timed</span>
+    <span class="k">async</span> <span class="k">def</span> <span class="nf">write</span><span class="p">(</span><span class="n">path</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">data</span><span class="p">:</span> <span class="nb">bytes</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Asynchronously writes the given byte data to a file at the</span>
+<span class="sd">        specified path, overwriting the file if it already exists.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">async</span> <span class="k">with</span> <span class="n">aiofiles</span><span class="o">.</span><span class="n">open</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="s2">&quot;wb&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">fn</span><span class="p">:</span>
+            <span class="k">await</span> <span class="n">fn</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">data</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="FileManager.read">
+<a class="viewcode-back" href="../../../autodoc/app.managers.html#app.managers.file_manager.FileManager.read">[docs]</a>
+    <span class="nd">@staticmethod</span>
+    <span class="nd">@timed</span>
+    <span class="k">async</span> <span class="k">def</span> <span class="nf">read</span><span class="p">(</span><span class="n">path</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bytes</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Asynchronously reads and returns the contents of a file at the</span>
+<span class="sd">        specified path, loading the entire file into memory.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">async</span> <span class="k">with</span> <span class="n">aiofiles</span><span class="o">.</span><span class="n">open</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="s2">&quot;rb&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">fn</span><span class="p">:</span>
+            <span class="k">return</span> <span class="k">await</span> <span class="n">fn</span><span class="o">.</span><span class="n">read</span><span class="p">()</span></div>
+
+
+<div class="viewcode-block" id="FileManager.encrypt">
+<a class="viewcode-back" href="../../../autodoc/app.managers.html#app.managers.file_manager.FileManager.encrypt">[docs]</a>
+    <span class="nd">@staticmethod</span>
+    <span class="nd">@timed</span>
+    <span class="k">async</span> <span class="k">def</span> <span class="nf">encrypt</span><span class="p">(</span><span class="n">data</span><span class="p">:</span> <span class="nb">bytes</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bytes</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Asynchronously encrypts the given byte data using the configured</span>
+<span class="sd">        Fernet cipher suite, ensuring secure data encryption.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="n">cipher_suite</span><span class="o">.</span><span class="n">encrypt</span><span class="p">(</span><span class="n">data</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="FileManager.decrypt">
+<a class="viewcode-back" href="../../../autodoc/app.managers.html#app.managers.file_manager.FileManager.decrypt">[docs]</a>
+    <span class="nd">@staticmethod</span>
+    <span class="nd">@timed</span>
+    <span class="k">async</span> <span class="k">def</span> <span class="nf">decrypt</span><span class="p">(</span><span class="n">data</span><span class="p">:</span> <span class="nb">bytes</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bytes</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Asynchronously decrypts the given byte data using the configured</span>
+<span class="sd">        Fernet cipher suite, returning the original data.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="n">cipher_suite</span><span class="o">.</span><span class="n">decrypt</span><span class="p">(</span><span class="n">data</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="FileManager.copy">
+<a class="viewcode-back" href="../../../autodoc/app.managers.html#app.managers.file_manager.FileManager.copy">[docs]</a>
+    <span class="nd">@staticmethod</span>
+    <span class="nd">@timed</span>
+    <span class="k">async</span> <span class="k">def</span> <span class="nf">copy</span><span class="p">(</span><span class="n">src_path</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">dst_path</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Asynchronously copies the contents of a file from src_path to</span>
+<span class="sd">        dst_path in chunks. The method opens the source file for reading</span>
+<span class="sd">        in binary mode and the destination file for writing in binary</span>
+<span class="sd">        mode. It reads from the source file in chunks and writes those</span>
+<span class="sd">        chunks to the destination file until the entire file has been</span>
+<span class="sd">        copied. The operation is performed asynchronously to avoid</span>
+<span class="sd">        blocking the event loop, and errors such as file not found or</span>
+<span class="sd">        permission issues are handled gracefully.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">async</span> <span class="k">with</span> <span class="n">aiofiles</span><span class="o">.</span><span class="n">open</span><span class="p">(</span><span class="n">src_path</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="s2">&quot;rb&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">src_context</span><span class="p">:</span>
+            <span class="k">async</span> <span class="k">with</span> <span class="n">aiofiles</span><span class="o">.</span><span class="n">open</span><span class="p">(</span><span class="n">dst_path</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="s2">&quot;wb&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">dst_context</span><span class="p">:</span>
+                <span class="k">while</span> <span class="kc">True</span><span class="p">:</span>
+                    <span class="n">chunk</span> <span class="o">=</span> <span class="k">await</span> <span class="n">src_context</span><span class="o">.</span><span class="n">read</span><span class="p">(</span><span class="n">FILE_COPY_CHUNK_SIZE</span><span class="p">)</span>
+                    <span class="k">if</span> <span class="ow">not</span> <span class="n">chunk</span><span class="p">:</span>
+                        <span class="k">break</span>
+                    <span class="k">await</span> <span class="n">dst_context</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">chunk</span><span class="p">)</span></div>
+</div>
+
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2024, Artem Abramov.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

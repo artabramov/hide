@@ -46,7 +46,7 @@ from app.routers import (
 
     time_retrieve_router, telemetry_retrieve_router, lock_create_router,
     lock_retrieve_router, lock_delete_router, cache_erase_router,
-    custom_execute_router)
+    custom_execute_router, sphinx_router)
 from app.database import Base, sessionmanager
 from app.constants import ERR_SERVER_ERROR
 from contextlib import asynccontextmanager
@@ -152,6 +152,13 @@ app.include_router(lock_delete_router.router, prefix=cfg.APP_PREFIX)
 app.include_router(cache_erase_router.router, prefix=cfg.APP_PREFIX)
 app.include_router(custom_execute_router.router, prefix=cfg.APP_PREFIX)
 
+# The router is necessary to handle the redirect from /sphinx to /sphinx/ 
+# This ensures that requests to the endpoint with or without a trailing
+# slash are properly managed.
+app.include_router(sphinx_router.router)
+app.mount("/sphinx",
+          StaticFiles(directory="/hidden/docs/_build/html", html=True),
+          name="sphinx")
 
 app.mount(cfg.USERPIC_PREFIX,
           StaticFiles(directory=cfg.USERPIC_BASE_PATH, html=False),
@@ -160,6 +167,8 @@ app.mount(cfg.THUMBNAILS_PREFIX,
           StaticFiles(directory=cfg.THUMBNAILS_BASE_PATH, html=False),
           name=cfg.THUMBNAILS_BASE_PATH)
 app.mount("/", StaticFiles(directory=cfg.HTML_PATH, html=True), name="/")
+
+
 
 
 @app.middleware("http")

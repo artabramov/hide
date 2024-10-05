@@ -13,15 +13,3 @@ data/thumbnails/*
 
 locks/*
 !locks/.gitkeep
-
-docs/_build/*
-!docs/_build/.gitignore
-
-docs/_static/*
-!docs/_static/.gitignore
-
-docs/_templates/*
-!docs/_templates/.gitignore
-
-docs/autodoc/*
-!docs/autodoc/.gitignore

@@ -1,49 +1,15 @@
-How to obtain a token
----------------------
+Sphinx documentation
+----------------------
 
-To obtain a token, first identify the type of token you need, such as
-an API, authentication, or access token. Register or sign up on the
-relevant website or service, then navigate to the token generation area,
-often found under sections like "API Keys," "Developer Settings," or
-"Account Settings." Follow the instructions to request a new token,
-providing any necessary information. Configure the token's permissions
-based on your requirements and generate the token, ensuring you copy and
-store it securely. Integrate the token into your application or system
-as specified in the documentation, and keep it confidential by using
-environment variables or secure vaults. Regularly monitor and manage
-your tokens, revoking any that are no longer needed or compromised.
+Sphinx documentation is available at `http://localhost/sphinx`.
 
-Roles and permissions
----------------------
+Authentication details
+----------------------
 
-This table details the permissions associated with different roles in
-the application. It specifies what actions each role can perform,
-including inserting, reading, updating, and deleting data. Use this
-table to understand the access levels granted to each role within
-the application.
+To obtain a JWT token, follow these steps:
 
-| Action                   | Reader   | Writer   | Editor   | Admin    |
-|--------------------------|----------|----------|----------|----------|
-| Collection insert        |          | +        | +        | +        |
-| Collection select        | +        | +        | +        | +        |
-| Collection update        |          |          | +        | +        |
-| Collection delete        |          |          |          | +        |
-| Collections list         | +        | +        | +        | +        |
-| Favorite insert          | +        | +        | +        | +        |
-| Favorite select          | + (own)  | + (own)  | + (own)  | + (own)  |
-| Favorite delete          | + (own)  | + (own)  | + (own)  | + (own)  |
-| Favorites list           | + (own)  | + (own)  | + (own)  | + (own)  |
-| Revision select          | +        | +        | +        | +        |
-| Revision download        | +        | +        | +        | +        |
-| Revisions list           | +        | +        | +        | +        |
-| Download select          | +        | +        | +        | +        |
-| Downloads list           | +        | +        | +        | +        |
-| Comment insert           |          | +        | +        | +        |
-| Comment select           | +        | +        | +        | +        |
-| Comment update           |          |          | + (own)  | + (own)  |
-| Comment delete           |          |          | + (own)  | + (own)  |
-| Comments list            | +        | +        | +        | +        |
-| Option select            |          |          |          | +        |
-| Option insert or update  |          |          |          | +        |
-| Option delete            |          |          |          | +        |
-| Option list              |          |          |          | +        |
+1. **User Registration**: A user must first register. The first registered user automatically becomes an admin.
+
+2. **Authentication Process**:
+   - **Step 1**: Log in using your username and password.
+   - **Step 2**: Authenticate using TOTP (Time-based One-Time Password) to retrieve the JWT token.

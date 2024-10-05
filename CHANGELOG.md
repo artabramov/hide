@@ -1,5 +1,8 @@
 # Changelog
 
+## Version 0.0.45 (2024-10-05)
+- **Added Sphinx Documentation**: Integrated Sphinx documentation for improved API reference.
+
 ## Version 0.0.44 (2024-09-29)
 - **Added cache erase**: Introduced a router to clear all cached data in the Redis cache.
 - **Added OpenAPI tags**: Introduced descriptions for OpenAPI tags to enhance API documentation clarity.

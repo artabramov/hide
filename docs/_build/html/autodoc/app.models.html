@@ -1,0 +1,1003 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>app.models package &mdash; Hidden  documentation</title>
+      <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=80d5e7a1" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=19f00094" />
+
+  
+  <!--[if lt IE 9]>
+    <script src="../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script src="../_static/jquery.js?v=5d32c60e"></script>
+        <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+        <script src="../_static/documentation_options.js?v=5929fcd5"></script>
+        <script src="../_static/doctools.js?v=9a2dae69"></script>
+        <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="app.routers package" href="app.routers.html" />
+    <link rel="prev" title="app.mixins package" href="app.mixins.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../index.html" class="icon icon-home">
+            Hidden
+          </a>
+              <div class="version">
+                0.0.45
+              </div>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1 current"><a class="reference internal" href="app.html">app package</a><ul class="current">
+<li class="toctree-l2 current"><a class="reference internal" href="app.html#subpackages">Subpackages</a><ul class="current">
+<li class="toctree-l3"><a class="reference internal" href="app.decorators.html">app.decorators package</a></li>
+<li class="toctree-l3"><a class="reference internal" href="app.extensions.html">app.extensions package</a></li>
+<li class="toctree-l3"><a class="reference internal" href="app.helpers.html">app.helpers package</a></li>
+<li class="toctree-l3"><a class="reference internal" href="app.managers.html">app.managers package</a></li>
+<li class="toctree-l3"><a class="reference internal" href="app.mixins.html">app.mixins package</a></li>
+<li class="toctree-l3 current"><a class="current reference internal" href="#">app.models package</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#submodules">Submodules</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#module-app.models.collection_model">app.models.collection_model module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#module-app.models.comment_model">app.models.comment_model module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#module-app.models.datafile_model">app.models.datafile_model module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#module-app.models.download_model">app.models.download_model module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#module-app.models.favorite_model">app.models.favorite_model module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#module-app.models.option_model">app.models.option_model module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#module-app.models.revision_model">app.models.revision_model module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#module-app.models.tag_model">app.models.tag_model module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#module-app.models.user_model">app.models.user_model module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#module-app.models">Module contents</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="app.routers.html">app.routers package</a></li>
+<li class="toctree-l3"><a class="reference internal" href="app.schemas.html">app.schemas package</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="app.html#submodules">Submodules</a></li>
+<li class="toctree-l2"><a class="reference internal" href="app.html#module-app.app">app.app module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="app.html#module-app.auth">app.auth module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="app.html#module-app.cache">app.cache module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="app.html#module-app.config">app.config module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="app.html#module-app.constants">app.constants module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="app.html#module-app.context">app.context module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="app.html#module-app.database">app.database module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="app.html#module-app.errors">app.errors module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="app.html#module-app.hooks">app.hooks module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="app.html#module-app.log">app.log module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="app.html#module-app.model">app.model module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="app.html#module-app.openapi">app.openapi module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="app.html#module-app.repository">app.repository module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="app.html#module-app.serial">app.serial module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="app.html#module-app.version">app.version module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="app.html#module-app">Module contents</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="app.decorators.html">app.decorators package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="app.extensions.html">app.extensions package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="app.helpers.html">app.helpers package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="app.mixins.html">app.mixins package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="app.managers.html">app.managers package</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">Hidden</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="app.html">app package</a></li>
+      <li class="breadcrumb-item active">app.models package</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../_sources/autodoc/app.models.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="app-models-package">
+<h1>app.models package<a class="headerlink" href="#app-models-package" title="Link to this heading"></a></h1>
+<section id="submodules">
+<h2>Submodules<a class="headerlink" href="#submodules" title="Link to this heading"></a></h2>
+</section>
+<section id="module-app.models.collection_model">
+<span id="app-models-collection-model-module"></span><h2>app.models.collection_model module<a class="headerlink" href="#module-app.models.collection_model" title="Link to this heading"></a></h2>
+<p>Represents a collection of datafiles in the database. Manages data
+about the collection, including its name, summary, and the count and
+size of datafiles within it. Handles relationships with users and
+datafiles through SQLAlchemy, providing attributes for creation and
+modification timestamps, user association, and datafile statistics.
+Includes a method to convert the collection instance to a dictionary.</p>
+<dl class="py class">
+<dt class="sig sig-object py" id="app.models.collection_model.Collection">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">app.models.collection_model.</span></span><span class="sig-name descname"><span class="pre">Collection</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">user_id</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">is_locked</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">collection_name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">collection_summary</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/app/models/collection_model.html#Collection"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#app.models.collection_model.Collection" title="Link to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">Base</span></code></p>
+<p>SQLAlchemy model for a datafile collection. Defines a collection
+of datafiles with metadata such as creation and update dates, user
+association, and collection details including name, summary, and
+datafile statistics. Manages relationships with users and
+datafiles.</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="app.models.collection_model.Collection.collection_datafiles">
+<span class="sig-name descname"><span class="pre">collection_datafiles</span></span><a class="headerlink" href="#app.models.collection_model.Collection.collection_datafiles" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="app.models.collection_model.Collection.collection_name">
+<span class="sig-name descname"><span class="pre">collection_name</span></span><a class="headerlink" href="#app.models.collection_model.Collection.collection_name" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="app.models.collection_model.Collection.collection_summary">
+<span class="sig-name descname"><span class="pre">collection_summary</span></span><a class="headerlink" href="#app.models.collection_model.Collection.collection_summary" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="app.models.collection_model.Collection.collection_user">
+<span class="sig-name descname"><span class="pre">collection_user</span></span><a class="headerlink" href="#app.models.collection_model.Collection.collection_user" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="app.models.collection_model.Collection.created_date">
+<span class="sig-name descname"><span class="pre">created_date</span></span><a class="headerlink" href="#app.models.collection_model.Collection.created_date" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="app.models.collection_model.Collection.datafiles_count">
+<span class="sig-name descname"><span class="pre">datafiles_count</span></span><a class="headerlink" href="#app.models.collection_model.Collection.datafiles_count" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="app.models.collection_model.Collection.id">
+<span class="sig-name descname"><span class="pre">id</span></span><a class="headerlink" href="#app.models.collection_model.Collection.id" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="app.models.collection_model.Collection.is_locked">
+<span class="sig-name descname"><span class="pre">is_locked</span></span><a class="headerlink" href="#app.models.collection_model.Collection.is_locked" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="app.models.collection_model.Collection.revisions_count">
+<span class="sig-name descname"><span class="pre">revisions_count</span></span><a class="headerlink" href="#app.models.collection_model.Collection.revisions_count" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="app.models.collection_model.Collection.revisions_size">
+<span class="sig-name descname"><span class="pre">revisions_size</span></span><a class="headerlink" href="#app.models.collection_model.Collection.revisions_size" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="app.models.collection_model.Collection.to_dict">
+<span class="sig-name descname"><span class="pre">to_dict</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/app/models/collection_model.html#Collection.to_dict"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#app.models.collection_model.Collection.to_dict" title="Link to this definition"></a></dt>
+<dd><p>Converts the Collection instance into a dictionary
+representation, including all its attributes and related
+objects. The resulting dictionary includes fields such as ID,
+creation and update dates, user ID, lock status, collection
+name, summary, datafiles count, datafiles size, and details
+of the associated user.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="app.models.collection_model.Collection.updated_date">
+<span class="sig-name descname"><span class="pre">updated_date</span></span><a class="headerlink" href="#app.models.collection_model.Collection.updated_date" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="app.models.collection_model.Collection.user_id">
+<span class="sig-name descname"><span class="pre">user_id</span></span><a class="headerlink" href="#app.models.collection_model.Collection.user_id" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+</section>
+<section id="module-app.models.comment_model">
+<span id="app-models-comment-model-module"></span><h2>app.models.comment_model module<a class="headerlink" href="#module-app.models.comment_model" title="Link to this heading"></a></h2>
+<p>This module defines a Pydantic model Comment which represents a comment
+on a datafile. The model includes attributes for a unique identifier,
+timestamps for creation and updates, user and datafile IDs, and the
+comment’s content.</p>
+<dl class="py class">
+<dt class="sig sig-object py" id="app.models.comment_model.Comment">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">app.models.comment_model.</span></span><span class="sig-name descname"><span class="pre">Comment</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">user_id</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">datafile_id</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">comment_content</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/app/models/comment_model.html#Comment"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#app.models.comment_model.Comment" title="Link to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">Base</span></code></p>
+<p>A Pydantic model representing a comment on a datafile, including an
+optional unique identifier, timestamps for creation and last update,
+the IDs of the user and the datafile, and the content.</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="app.models.comment_model.Comment.comment_content">
+<span class="sig-name descname"><span class="pre">comment_content</span></span><a class="headerlink" href="#app.models.comment_model.Comment.comment_content" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="app.models.comment_model.Comment.comment_datafile">
+<span class="sig-name descname"><span class="pre">comment_datafile</span></span><a class="headerlink" href="#app.models.comment_model.Comment.comment_datafile" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="app.models.comment_model.Comment.comment_user">
+<span class="sig-name descname"><span class="pre">comment_user</span></span><a class="headerlink" href="#app.models.comment_model.Comment.comment_user" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="app.models.comment_model.Comment.created_date">
+<span class="sig-name descname"><span class="pre">created_date</span></span><a class="headerlink" href="#app.models.comment_model.Comment.created_date" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="app.models.comment_model.Comment.datafile_id">
+<span class="sig-name descname"><span class="pre">datafile_id</span></span><a class="headerlink" href="#app.models.comment_model.Comment.datafile_id" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="app.models.comment_model.Comment.id">
+<span class="sig-name descname"><span class="pre">id</span></span><a class="headerlink" href="#app.models.comment_model.Comment.id" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="app.models.comment_model.Comment.is_locked">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">is_locked</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">bool</span></em><a class="headerlink" href="#app.models.comment_model.Comment.is_locked" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="app.models.comment_model.Comment.to_dict">
+<span class="sig-name descname"><span class="pre">to_dict</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/app/models/comment_model.html#Comment.to_dict"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#app.models.comment_model.Comment.to_dict" title="Link to this definition"></a></dt>
+<dd><p>Converts the Pydantic model instance into a dictionary with
+attribute names as keys and their values, useful for
+serialization or integration with APIs.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="app.models.comment_model.Comment.updated_date">
+<span class="sig-name descname"><span class="pre">updated_date</span></span><a class="headerlink" href="#app.models.comment_model.Comment.updated_date" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="app.models.comment_model.Comment.user_id">
+<span class="sig-name descname"><span class="pre">user_id</span></span><a class="headerlink" href="#app.models.comment_model.Comment.user_id" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+</section>
+<section id="module-app.models.datafile_model">
+<span id="app-models-datafile-model-module"></span><h2>app.models.datafile_model module<a class="headerlink" href="#module-app.models.datafile_model" title="Link to this heading"></a></h2>
+<dl class="py class">
+<dt class="sig sig-object py" id="app.models.datafile_model.Datafile">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">app.models.datafile_model.</span></span><span class="sig-name descname"><span class="pre">Datafile</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">user_id</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">datafile_name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">collection_id</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">revisions_count</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">revisions_size</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/app/models/datafile_model.html#Datafile"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#app.models.datafile_model.Datafile" title="Link to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">Base</span></code></p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="app.models.datafile_model.Datafile.collection_id">
+<span class="sig-name descname"><span class="pre">collection_id</span></span><a class="headerlink" href="#app.models.datafile_model.Datafile.collection_id" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="app.models.datafile_model.Datafile.comments_count">
+<span class="sig-name descname"><span class="pre">comments_count</span></span><a class="headerlink" href="#app.models.datafile_model.Datafile.comments_count" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="app.models.datafile_model.Datafile.created_date">
+<span class="sig-name descname"><span class="pre">created_date</span></span><a class="headerlink" href="#app.models.datafile_model.Datafile.created_date" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="app.models.datafile_model.Datafile.datafile_collection">
+<span class="sig-name descname"><span class="pre">datafile_collection</span></span><a class="headerlink" href="#app.models.datafile_model.Datafile.datafile_collection" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="app.models.datafile_model.Datafile.datafile_comments">
+<span class="sig-name descname"><span class="pre">datafile_comments</span></span><a class="headerlink" href="#app.models.datafile_model.Datafile.datafile_comments" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="app.models.datafile_model.Datafile.datafile_downloads">
+<span class="sig-name descname"><span class="pre">datafile_downloads</span></span><a class="headerlink" href="#app.models.datafile_model.Datafile.datafile_downloads" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="app.models.datafile_model.Datafile.datafile_favorites">
+<span class="sig-name descname"><span class="pre">datafile_favorites</span></span><a class="headerlink" href="#app.models.datafile_model.Datafile.datafile_favorites" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="app.models.datafile_model.Datafile.datafile_name">
+<span class="sig-name descname"><span class="pre">datafile_name</span></span><a class="headerlink" href="#app.models.datafile_model.Datafile.datafile_name" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="app.models.datafile_model.Datafile.datafile_revisions">
+<span class="sig-name descname"><span class="pre">datafile_revisions</span></span><a class="headerlink" href="#app.models.datafile_model.Datafile.datafile_revisions" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="app.models.datafile_model.Datafile.datafile_summary">
+<span class="sig-name descname"><span class="pre">datafile_summary</span></span><a class="headerlink" href="#app.models.datafile_model.Datafile.datafile_summary" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="app.models.datafile_model.Datafile.datafile_tags">
+<span class="sig-name descname"><span class="pre">datafile_tags</span></span><a class="headerlink" href="#app.models.datafile_model.Datafile.datafile_tags" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="app.models.datafile_model.Datafile.datafile_user">
+<span class="sig-name descname"><span class="pre">datafile_user</span></span><a class="headerlink" href="#app.models.datafile_model.Datafile.datafile_user" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="app.models.datafile_model.Datafile.downloads_count">
+<span class="sig-name descname"><span class="pre">downloads_count</span></span><a class="headerlink" href="#app.models.datafile_model.Datafile.downloads_count" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="app.models.datafile_model.Datafile.file_path">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">file_path</span></span><a class="headerlink" href="#app.models.datafile_model.Datafile.file_path" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="app.models.datafile_model.Datafile.id">
+<span class="sig-name descname"><span class="pre">id</span></span><a class="headerlink" href="#app.models.datafile_model.Datafile.id" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="app.models.datafile_model.Datafile.is_locked">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">is_locked</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">bool</span></em><a class="headerlink" href="#app.models.datafile_model.Datafile.is_locked" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="app.models.datafile_model.Datafile.latest_revision">
+<span class="sig-name descname"><span class="pre">latest_revision</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">None</span></em><a class="headerlink" href="#app.models.datafile_model.Datafile.latest_revision" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="app.models.datafile_model.Datafile.latest_revision_id">
+<span class="sig-name descname"><span class="pre">latest_revision_id</span></span><a class="headerlink" href="#app.models.datafile_model.Datafile.latest_revision_id" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="app.models.datafile_model.Datafile.revisions_count">
+<span class="sig-name descname"><span class="pre">revisions_count</span></span><a class="headerlink" href="#app.models.datafile_model.Datafile.revisions_count" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="app.models.datafile_model.Datafile.revisions_size">
+<span class="sig-name descname"><span class="pre">revisions_size</span></span><a class="headerlink" href="#app.models.datafile_model.Datafile.revisions_size" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="app.models.datafile_model.Datafile.tag_values">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">tag_values</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">list</span></em><a class="headerlink" href="#app.models.datafile_model.Datafile.tag_values" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="app.models.datafile_model.Datafile.to_dict">
+<span class="sig-name descname"><span class="pre">to_dict</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/app/models/datafile_model.html#Datafile.to_dict"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#app.models.datafile_model.Datafile.to_dict" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="app.models.datafile_model.Datafile.updated_date">
+<span class="sig-name descname"><span class="pre">updated_date</span></span><a class="headerlink" href="#app.models.datafile_model.Datafile.updated_date" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="app.models.datafile_model.Datafile.user_id">
+<span class="sig-name descname"><span class="pre">user_id</span></span><a class="headerlink" href="#app.models.datafile_model.Datafile.user_id" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+</section>
+<section id="module-app.models.download_model">
+<span id="app-models-download-model-module"></span><h2>app.models.download_model module<a class="headerlink" href="#module-app.models.download_model" title="Link to this heading"></a></h2>
+<dl class="py class">
+<dt class="sig sig-object py" id="app.models.download_model.Download">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">app.models.download_model.</span></span><span class="sig-name descname"><span class="pre">Download</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">user_id</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">datafile_id</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">revision_id</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/app/models/download_model.html#Download"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#app.models.download_model.Download" title="Link to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">Base</span></code></p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="app.models.download_model.Download.created_date">
+<span class="sig-name descname"><span class="pre">created_date</span></span><a class="headerlink" href="#app.models.download_model.Download.created_date" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="app.models.download_model.Download.datafile_id">
+<span class="sig-name descname"><span class="pre">datafile_id</span></span><a class="headerlink" href="#app.models.download_model.Download.datafile_id" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="app.models.download_model.Download.download_datafile">
+<span class="sig-name descname"><span class="pre">download_datafile</span></span><a class="headerlink" href="#app.models.download_model.Download.download_datafile" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="app.models.download_model.Download.download_revision">
+<span class="sig-name descname"><span class="pre">download_revision</span></span><a class="headerlink" href="#app.models.download_model.Download.download_revision" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="app.models.download_model.Download.download_user">
+<span class="sig-name descname"><span class="pre">download_user</span></span><a class="headerlink" href="#app.models.download_model.Download.download_user" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="app.models.download_model.Download.id">
+<span class="sig-name descname"><span class="pre">id</span></span><a class="headerlink" href="#app.models.download_model.Download.id" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="app.models.download_model.Download.revision_id">
+<span class="sig-name descname"><span class="pre">revision_id</span></span><a class="headerlink" href="#app.models.download_model.Download.revision_id" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="app.models.download_model.Download.to_dict">
+<span class="sig-name descname"><span class="pre">to_dict</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/app/models/download_model.html#Download.to_dict"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#app.models.download_model.Download.to_dict" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="app.models.download_model.Download.user_id">
+<span class="sig-name descname"><span class="pre">user_id</span></span><a class="headerlink" href="#app.models.download_model.Download.user_id" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+</section>
+<section id="module-app.models.favorite_model">
+<span id="app-models-favorite-model-module"></span><h2>app.models.favorite_model module<a class="headerlink" href="#module-app.models.favorite_model" title="Link to this heading"></a></h2>
+<p>This module defines the Favorite model for managing user favorites of
+datafiles in the database. The Favorite class includes fields for
+tracking the user who favorited a datafile, the datafile itself, and
+the date when the favorite was created. It also establishes
+relationships with User and datafile models and provides methods
+to initialize instances and convert them to dictionaries.</p>
+<dl class="py class">
+<dt class="sig sig-object py" id="app.models.favorite_model.Favorite">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">app.models.favorite_model.</span></span><span class="sig-name descname"><span class="pre">Favorite</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">user_id</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">datafile_id</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/app/models/favorite_model.html#Favorite"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#app.models.favorite_model.Favorite" title="Link to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">Base</span></code></p>
+<p>Represents a user’s favorite datafile. Each favorite is linked to a
+specific user and datafile, and includes a creation timestamp.</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="app.models.favorite_model.Favorite.created_date">
+<span class="sig-name descname"><span class="pre">created_date</span></span><a class="headerlink" href="#app.models.favorite_model.Favorite.created_date" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="app.models.favorite_model.Favorite.datafile_id">
+<span class="sig-name descname"><span class="pre">datafile_id</span></span><a class="headerlink" href="#app.models.favorite_model.Favorite.datafile_id" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="app.models.favorite_model.Favorite.favorite_datafile">
+<span class="sig-name descname"><span class="pre">favorite_datafile</span></span><a class="headerlink" href="#app.models.favorite_model.Favorite.favorite_datafile" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="app.models.favorite_model.Favorite.favorite_user">
+<span class="sig-name descname"><span class="pre">favorite_user</span></span><a class="headerlink" href="#app.models.favorite_model.Favorite.favorite_user" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="app.models.favorite_model.Favorite.id">
+<span class="sig-name descname"><span class="pre">id</span></span><a class="headerlink" href="#app.models.favorite_model.Favorite.id" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="app.models.favorite_model.Favorite.to_dict">
+<span class="sig-name descname"><span class="pre">to_dict</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/app/models/favorite_model.html#Favorite.to_dict"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#app.models.favorite_model.Favorite.to_dict" title="Link to this definition"></a></dt>
+<dd><p>Converts the Favorite instance to a dictionary, including
+related user and datafile details.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="app.models.favorite_model.Favorite.user_id">
+<span class="sig-name descname"><span class="pre">user_id</span></span><a class="headerlink" href="#app.models.favorite_model.Favorite.user_id" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+</section>
+<section id="module-app.models.option_model">
+<span id="app-models-option-model-module"></span><h2>app.models.option_model module<a class="headerlink" href="#module-app.models.option_model" title="Link to this heading"></a></h2>
+<p>The module defines the SQLAlchemy model for the option entity, which is
+used to store and manage configuration values for both the application
+and its extensions within the database.</p>
+<dl class="py class">
+<dt class="sig sig-object py" id="app.models.option_model.Option">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">app.models.option_model.</span></span><span class="sig-name descname"><span class="pre">Option</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">user_id</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">option_key</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">option_value</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/app/models/option_model.html#Option"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#app.models.option_model.Option" title="Link to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">Base</span></code></p>
+<p>SQLAlchemy model for an option entity. The model is used to store
+and manage configuration values for both the application and its
+extensions within the database.</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="app.models.option_model.Option.created_date">
+<span class="sig-name descname"><span class="pre">created_date</span></span><a class="headerlink" href="#app.models.option_model.Option.created_date" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="app.models.option_model.Option.id">
+<span class="sig-name descname"><span class="pre">id</span></span><a class="headerlink" href="#app.models.option_model.Option.id" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="app.models.option_model.Option.option_key">
+<span class="sig-name descname"><span class="pre">option_key</span></span><a class="headerlink" href="#app.models.option_model.Option.option_key" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="app.models.option_model.Option.option_user">
+<span class="sig-name descname"><span class="pre">option_user</span></span><a class="headerlink" href="#app.models.option_model.Option.option_user" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="app.models.option_model.Option.option_value">
+<span class="sig-name descname"><span class="pre">option_value</span></span><a class="headerlink" href="#app.models.option_model.Option.option_value" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="app.models.option_model.Option.to_dict">
+<span class="sig-name descname"><span class="pre">to_dict</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/app/models/option_model.html#Option.to_dict"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#app.models.option_model.Option.to_dict" title="Link to this definition"></a></dt>
+<dd><p>Converts the option instance to a dictionary representation,
+including all necessary attributes.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="app.models.option_model.Option.updated_date">
+<span class="sig-name descname"><span class="pre">updated_date</span></span><a class="headerlink" href="#app.models.option_model.Option.updated_date" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="app.models.option_model.Option.user_id">
+<span class="sig-name descname"><span class="pre">user_id</span></span><a class="headerlink" href="#app.models.option_model.Option.user_id" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+</section>
+<section id="module-app.models.revision_model">
+<span id="app-models-revision-model-module"></span><h2>app.models.revision_model module<a class="headerlink" href="#module-app.models.revision_model" title="Link to this heading"></a></h2>
+<dl class="py class">
+<dt class="sig sig-object py" id="app.models.revision_model.Revision">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">app.models.revision_model.</span></span><span class="sig-name descname"><span class="pre">Revision</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">user_id</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">datafile_id</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">revision_filename</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">revision_size</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">original_filename</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">original_size</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">original_mimetype</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">thumbnail_filename</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/app/models/revision_model.html#Revision"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#app.models.revision_model.Revision" title="Link to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">Base</span></code></p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="app.models.revision_model.Revision.created_date">
+<span class="sig-name descname"><span class="pre">created_date</span></span><a class="headerlink" href="#app.models.revision_model.Revision.created_date" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="app.models.revision_model.Revision.datafile_id">
+<span class="sig-name descname"><span class="pre">datafile_id</span></span><a class="headerlink" href="#app.models.revision_model.Revision.datafile_id" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="app.models.revision_model.Revision.downloads_count">
+<span class="sig-name descname"><span class="pre">downloads_count</span></span><a class="headerlink" href="#app.models.revision_model.Revision.downloads_count" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="app.models.revision_model.Revision.id">
+<span class="sig-name descname"><span class="pre">id</span></span><a class="headerlink" href="#app.models.revision_model.Revision.id" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="app.models.revision_model.Revision.original_filename">
+<span class="sig-name descname"><span class="pre">original_filename</span></span><a class="headerlink" href="#app.models.revision_model.Revision.original_filename" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="app.models.revision_model.Revision.original_mimetype">
+<span class="sig-name descname"><span class="pre">original_mimetype</span></span><a class="headerlink" href="#app.models.revision_model.Revision.original_mimetype" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="app.models.revision_model.Revision.original_size">
+<span class="sig-name descname"><span class="pre">original_size</span></span><a class="headerlink" href="#app.models.revision_model.Revision.original_size" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="app.models.revision_model.Revision.revision_datafile">
+<span class="sig-name descname"><span class="pre">revision_datafile</span></span><a class="headerlink" href="#app.models.revision_model.Revision.revision_datafile" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="app.models.revision_model.Revision.revision_downloads">
+<span class="sig-name descname"><span class="pre">revision_downloads</span></span><a class="headerlink" href="#app.models.revision_model.Revision.revision_downloads" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="app.models.revision_model.Revision.revision_filename">
+<span class="sig-name descname"><span class="pre">revision_filename</span></span><a class="headerlink" href="#app.models.revision_model.Revision.revision_filename" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="app.models.revision_model.Revision.revision_path">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">revision_path</span></span><a class="headerlink" href="#app.models.revision_model.Revision.revision_path" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="app.models.revision_model.Revision.revision_size">
+<span class="sig-name descname"><span class="pre">revision_size</span></span><a class="headerlink" href="#app.models.revision_model.Revision.revision_size" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="app.models.revision_model.Revision.revision_user">
+<span class="sig-name descname"><span class="pre">revision_user</span></span><a class="headerlink" href="#app.models.revision_model.Revision.revision_user" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="app.models.revision_model.Revision.thumbnail_filename">
+<span class="sig-name descname"><span class="pre">thumbnail_filename</span></span><a class="headerlink" href="#app.models.revision_model.Revision.thumbnail_filename" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="app.models.revision_model.Revision.thumbnail_path">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">thumbnail_path</span></span><a class="headerlink" href="#app.models.revision_model.Revision.thumbnail_path" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="app.models.revision_model.Revision.thumbnail_url">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">thumbnail_url</span></span><a class="headerlink" href="#app.models.revision_model.Revision.thumbnail_url" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="app.models.revision_model.Revision.to_dict">
+<span class="sig-name descname"><span class="pre">to_dict</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/app/models/revision_model.html#Revision.to_dict"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#app.models.revision_model.Revision.to_dict" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="app.models.revision_model.Revision.user_id">
+<span class="sig-name descname"><span class="pre">user_id</span></span><a class="headerlink" href="#app.models.revision_model.Revision.user_id" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="app.models.revision_model.after_delete_listener">
+<span class="sig-prename descclassname"><span class="pre">app.models.revision_model.</span></span><span class="sig-name descname"><span class="pre">after_delete_listener</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">mapper</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">connection</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">revision</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#app.models.revision_model.Revision" title="app.models.revision_model.Revision"><span class="pre">Revision</span></a></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/app/models/revision_model.html#after_delete_listener"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#app.models.revision_model.after_delete_listener" title="Link to this definition"></a></dt>
+<dd><p>Schedules asynchronous tasks to delete the files related to a
+revision entity after it is deleted from the database. It creates
+tasks to delete both the main revision file and the associated
+thumbnail file if one exists. This function is triggered by
+SQLAlchemy’s after_delete event for the revision entity.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="app.models.revision_model.delete_revision">
+<em class="property"><span class="k"><span class="pre">async</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">app.models.revision_model.</span></span><span class="sig-name descname"><span class="pre">delete_revision</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">revision</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#app.models.revision_model.Revision" title="app.models.revision_model.Revision"><span class="pre">Revision</span></a></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/app/models/revision_model.html#delete_revision"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#app.models.revision_model.delete_revision" title="Link to this definition"></a></dt>
+<dd><p>Asynchronously deletes the file associated with the specified
+revision entity. Exceptions that occur during the file deletion
+process are logged for monitoring and debugging purposes.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="app.models.revision_model.delete_thumbnail">
+<em class="property"><span class="k"><span class="pre">async</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">app.models.revision_model.</span></span><span class="sig-name descname"><span class="pre">delete_thumbnail</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">revision</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#app.models.revision_model.Revision" title="app.models.revision_model.Revision"><span class="pre">Revision</span></a></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/app/models/revision_model.html#delete_thumbnail"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#app.models.revision_model.delete_thumbnail" title="Link to this definition"></a></dt>
+<dd><p>Asynchronously deletes the thumbnail associated with the specified
+revision entity. Exceptions that occur during the file deletion
+process are logged for monitoring and debugging purposes.</p>
+</dd></dl>
+
+</section>
+<section id="module-app.models.tag_model">
+<span id="app-models-tag-model-module"></span><h2>app.models.tag_model module<a class="headerlink" href="#module-app.models.tag_model" title="Link to this heading"></a></h2>
+<dl class="py class">
+<dt class="sig sig-object py" id="app.models.tag_model.Tag">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">app.models.tag_model.</span></span><span class="sig-name descname"><span class="pre">Tag</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">datafile_id</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tag_value</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/app/models/tag_model.html#Tag"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#app.models.tag_model.Tag" title="Link to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">Base</span></code></p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="app.models.tag_model.Tag.created_date">
+<span class="sig-name descname"><span class="pre">created_date</span></span><a class="headerlink" href="#app.models.tag_model.Tag.created_date" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="app.models.tag_model.Tag.datafile_id">
+<span class="sig-name descname"><span class="pre">datafile_id</span></span><a class="headerlink" href="#app.models.tag_model.Tag.datafile_id" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="app.models.tag_model.Tag.id">
+<span class="sig-name descname"><span class="pre">id</span></span><a class="headerlink" href="#app.models.tag_model.Tag.id" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="app.models.tag_model.Tag.tag_datafile">
+<span class="sig-name descname"><span class="pre">tag_datafile</span></span><a class="headerlink" href="#app.models.tag_model.Tag.tag_datafile" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="app.models.tag_model.Tag.tag_value">
+<span class="sig-name descname"><span class="pre">tag_value</span></span><a class="headerlink" href="#app.models.tag_model.Tag.tag_value" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+</section>
+<section id="module-app.models.user_model">
+<span id="app-models-user-model-module"></span><h2>app.models.user_model module<a class="headerlink" href="#module-app.models.user_model" title="Link to this heading"></a></h2>
+<dl class="py class">
+<dt class="sig sig-object py" id="app.models.user_model.User">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">app.models.user_model.</span></span><span class="sig-name descname"><span class="pre">User</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">user_role</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">user_login</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">user_password</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">first_name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">last_name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">is_active</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">user_signature</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">''</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">user_contacts</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">''</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/app/models/user_model.html#User"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#app.models.user_model.User" title="Link to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">Base</span></code>, <a class="reference internal" href="app.mixins.html#app.mixins.mfa_mixin.MFAMixin" title="app.mixins.mfa_mixin.MFAMixin"><code class="xref py py-class docutils literal notranslate"><span class="pre">MFAMixin</span></code></a>, <a class="reference internal" href="app.mixins.html#app.mixins.fernet_mixin.FernetMixin" title="app.mixins.fernet_mixin.FernetMixin"><code class="xref py py-class docutils literal notranslate"><span class="pre">FernetMixin</span></code></a></p>
+<dl class="py property">
+<dt class="sig sig-object py" id="app.models.user_model.User.can_admin">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">can_admin</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">bool</span></em><a class="headerlink" href="#app.models.user_model.User.can_admin" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="app.models.user_model.User.can_edit">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">can_edit</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">bool</span></em><a class="headerlink" href="#app.models.user_model.User.can_edit" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="app.models.user_model.User.can_read">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">can_read</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">bool</span></em><a class="headerlink" href="#app.models.user_model.User.can_read" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="app.models.user_model.User.can_write">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">can_write</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">bool</span></em><a class="headerlink" href="#app.models.user_model.User.can_write" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="app.models.user_model.User.created_date">
+<span class="sig-name descname"><span class="pre">created_date</span></span><a class="headerlink" href="#app.models.user_model.User.created_date" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="app.models.user_model.User.first_name">
+<span class="sig-name descname"><span class="pre">first_name</span></span><a class="headerlink" href="#app.models.user_model.User.first_name" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="app.models.user_model.User.full_name">
+<span class="sig-name descname"><span class="pre">full_name</span></span><a class="headerlink" href="#app.models.user_model.User.full_name" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="app.models.user_model.User.id">
+<span class="sig-name descname"><span class="pre">id</span></span><a class="headerlink" href="#app.models.user_model.User.id" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="app.models.user_model.User.is_active">
+<span class="sig-name descname"><span class="pre">is_active</span></span><a class="headerlink" href="#app.models.user_model.User.is_active" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="app.models.user_model.User.jti">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">jti</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span></em><a class="headerlink" href="#app.models.user_model.User.jti" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="app.models.user_model.User.jti_encrypted">
+<span class="sig-name descname"><span class="pre">jti_encrypted</span></span><a class="headerlink" href="#app.models.user_model.User.jti_encrypted" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="app.models.user_model.User.last_login_date">
+<span class="sig-name descname"><span class="pre">last_login_date</span></span><a class="headerlink" href="#app.models.user_model.User.last_login_date" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="app.models.user_model.User.last_name">
+<span class="sig-name descname"><span class="pre">last_name</span></span><a class="headerlink" href="#app.models.user_model.User.last_name" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="app.models.user_model.User.mfa_attempts">
+<span class="sig-name descname"><span class="pre">mfa_attempts</span></span><a class="headerlink" href="#app.models.user_model.User.mfa_attempts" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="app.models.user_model.User.mfa_secret">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">mfa_secret</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span></em><a class="headerlink" href="#app.models.user_model.User.mfa_secret" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="app.models.user_model.User.mfa_secret_encrypted">
+<span class="sig-name descname"><span class="pre">mfa_secret_encrypted</span></span><a class="headerlink" href="#app.models.user_model.User.mfa_secret_encrypted" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="app.models.user_model.User.mfa_url">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">mfa_url</span></span><a class="headerlink" href="#app.models.user_model.User.mfa_url" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="app.models.user_model.User.password_accepted">
+<span class="sig-name descname"><span class="pre">password_accepted</span></span><a class="headerlink" href="#app.models.user_model.User.password_accepted" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="app.models.user_model.User.password_attempts">
+<span class="sig-name descname"><span class="pre">password_attempts</span></span><a class="headerlink" href="#app.models.user_model.User.password_attempts" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="app.models.user_model.User.password_hash">
+<span class="sig-name descname"><span class="pre">password_hash</span></span><a class="headerlink" href="#app.models.user_model.User.password_hash" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="app.models.user_model.User.suspended_date">
+<span class="sig-name descname"><span class="pre">suspended_date</span></span><a class="headerlink" href="#app.models.user_model.User.suspended_date" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="app.models.user_model.User.to_dict">
+<span class="sig-name descname"><span class="pre">to_dict</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">dict</span></span></span><a class="reference internal" href="../_modules/app/models/user_model.html#User.to_dict"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#app.models.user_model.User.to_dict" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="app.models.user_model.User.updated_date">
+<span class="sig-name descname"><span class="pre">updated_date</span></span><a class="headerlink" href="#app.models.user_model.User.updated_date" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="app.models.user_model.User.user_collections">
+<span class="sig-name descname"><span class="pre">user_collections</span></span><a class="headerlink" href="#app.models.user_model.User.user_collections" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="app.models.user_model.User.user_comments">
+<span class="sig-name descname"><span class="pre">user_comments</span></span><a class="headerlink" href="#app.models.user_model.User.user_comments" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="app.models.user_model.User.user_contacts">
+<span class="sig-name descname"><span class="pre">user_contacts</span></span><a class="headerlink" href="#app.models.user_model.User.user_contacts" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="app.models.user_model.User.user_datafiles">
+<span class="sig-name descname"><span class="pre">user_datafiles</span></span><a class="headerlink" href="#app.models.user_model.User.user_datafiles" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="app.models.user_model.User.user_downloads">
+<span class="sig-name descname"><span class="pre">user_downloads</span></span><a class="headerlink" href="#app.models.user_model.User.user_downloads" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="app.models.user_model.User.user_favorites">
+<span class="sig-name descname"><span class="pre">user_favorites</span></span><a class="headerlink" href="#app.models.user_model.User.user_favorites" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="app.models.user_model.User.user_login">
+<span class="sig-name descname"><span class="pre">user_login</span></span><a class="headerlink" href="#app.models.user_model.User.user_login" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="app.models.user_model.User.user_options">
+<span class="sig-name descname"><span class="pre">user_options</span></span><a class="headerlink" href="#app.models.user_model.User.user_options" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="app.models.user_model.User.user_revisions">
+<span class="sig-name descname"><span class="pre">user_revisions</span></span><a class="headerlink" href="#app.models.user_model.User.user_revisions" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="app.models.user_model.User.user_role">
+<span class="sig-name descname"><span class="pre">user_role</span></span><a class="headerlink" href="#app.models.user_model.User.user_role" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="app.models.user_model.User.user_signature">
+<span class="sig-name descname"><span class="pre">user_signature</span></span><a class="headerlink" href="#app.models.user_model.User.user_signature" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="app.models.user_model.User.userpic_filename">
+<span class="sig-name descname"><span class="pre">userpic_filename</span></span><a class="headerlink" href="#app.models.user_model.User.userpic_filename" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="app.models.user_model.User.userpic_path">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">userpic_path</span></span><a class="headerlink" href="#app.models.user_model.User.userpic_path" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="app.models.user_model.User.userpic_url">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">userpic_url</span></span><a class="headerlink" href="#app.models.user_model.User.userpic_url" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="app.models.user_model.UserRole">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">app.models.user_model.</span></span><span class="sig-name descname"><span class="pre">UserRole</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">value</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/app/models/user_model.html#UserRole"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#app.models.user_model.UserRole" title="Link to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">Enum</span></code></p>
+<p>An enumeration.</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="app.models.user_model.UserRole.admin">
+<span class="sig-name descname"><span class="pre">admin</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'admin'</span></em><a class="headerlink" href="#app.models.user_model.UserRole.admin" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="app.models.user_model.UserRole.editor">
+<span class="sig-name descname"><span class="pre">editor</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'editor'</span></em><a class="headerlink" href="#app.models.user_model.UserRole.editor" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="app.models.user_model.UserRole.reader">
+<span class="sig-name descname"><span class="pre">reader</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'reader'</span></em><a class="headerlink" href="#app.models.user_model.UserRole.reader" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="app.models.user_model.UserRole.writer">
+<span class="sig-name descname"><span class="pre">writer</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'writer'</span></em><a class="headerlink" href="#app.models.user_model.UserRole.writer" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+</section>
+<section id="module-app.models">
+<span id="module-contents"></span><h2>Module contents<a class="headerlink" href="#module-app.models" title="Link to this heading"></a></h2>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="app.mixins.html" class="btn btn-neutral float-left" title="app.mixins package" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="app.routers.html" class="btn btn-neutral float-right" title="app.routers package" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2024, Artem Abramov.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>
