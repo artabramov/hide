@@ -127,7 +127,7 @@
 
     <span class="n">time_retrieve_router</span><span class="p">,</span> <span class="n">telemetry_retrieve_router</span><span class="p">,</span> <span class="n">lock_create_router</span><span class="p">,</span>
     <span class="n">lock_retrieve_router</span><span class="p">,</span> <span class="n">lock_delete_router</span><span class="p">,</span> <span class="n">cache_erase_router</span><span class="p">,</span>
-    <span class="n">custom_execute_router</span><span class="p">)</span>
+    <span class="n">custom_execute_router</span><span class="p">,</span> <span class="n">sphinx_router</span><span class="p">)</span>
 <span class="kn">from</span> <span class="nn">app.database</span> <span class="kn">import</span> <span class="n">Base</span><span class="p">,</span> <span class="n">sessionmanager</span>
 <span class="kn">from</span> <span class="nn">app.constants</span> <span class="kn">import</span> <span class="n">ERR_SERVER_ERROR</span>
 <span class="kn">from</span> <span class="nn">contextlib</span> <span class="kn">import</span> <span class="n">asynccontextmanager</span>
@@ -236,6 +236,13 @@
 <span class="n">app</span><span class="o">.</span><span class="n">include_router</span><span class="p">(</span><span class="n">cache_erase_router</span><span class="o">.</span><span class="n">router</span><span class="p">,</span> <span class="n">prefix</span><span class="o">=</span><span class="n">cfg</span><span class="o">.</span><span class="n">APP_PREFIX</span><span class="p">)</span>
 <span class="n">app</span><span class="o">.</span><span class="n">include_router</span><span class="p">(</span><span class="n">custom_execute_router</span><span class="o">.</span><span class="n">router</span><span class="p">,</span> <span class="n">prefix</span><span class="o">=</span><span class="n">cfg</span><span class="o">.</span><span class="n">APP_PREFIX</span><span class="p">)</span>
 
+<span class="c1"># The router is necessary to handle the redirect from /sphinx to /sphinx/</span>
+<span class="c1"># This ensures that requests to the endpoint with or without a trailing</span>
+<span class="c1"># slash are properly managed.</span>
+<span class="n">app</span><span class="o">.</span><span class="n">include_router</span><span class="p">(</span><span class="n">sphinx_router</span><span class="o">.</span><span class="n">router</span><span class="p">)</span>
+<span class="n">app</span><span class="o">.</span><span class="n">mount</span><span class="p">(</span><span class="s2">&quot;/sphinx&quot;</span><span class="p">,</span>
+          <span class="n">StaticFiles</span><span class="p">(</span><span class="n">directory</span><span class="o">=</span><span class="s2">&quot;/hidden/docs/_build/html&quot;</span><span class="p">,</span> <span class="n">html</span><span class="o">=</span><span class="kc">True</span><span class="p">),</span>
+          <span class="n">name</span><span class="o">=</span><span class="s2">&quot;sphinx&quot;</span><span class="p">)</span>
 
 <span class="n">app</span><span class="o">.</span><span class="n">mount</span><span class="p">(</span><span class="n">cfg</span><span class="o">.</span><span class="n">USERPIC_PREFIX</span><span class="p">,</span>
           <span class="n">StaticFiles</span><span class="p">(</span><span class="n">directory</span><span class="o">=</span><span class="n">cfg</span><span class="o">.</span><span class="n">USERPIC_BASE_PATH</span><span class="p">,</span> <span class="n">html</span><span class="o">=</span><span class="kc">False</span><span class="p">),</span>
